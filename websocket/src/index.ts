@@ -9,7 +9,7 @@ const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  // ...
+  console.log("Client Connected");
 });
 
-httpServer.listen(3000);
+httpServer.listen(8080);
