@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Bracelets {
+  braceletId Int        @id @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  name       String
+  Rescuers   Rescuers[]
+  Owners     Owners[]
+}
+
+model Rescuers {
+  rescuerId           Int          @id @default(autoincrement())
+  createdAt           DateTime     @default(now())
+  name                String
+  bracelet            Bracelets    @relation(fields: [braceletsBraceletId], references: [braceletId])
+  braceletsBraceletId Int
+  latitude            Float?
+  longitude           Float?
+  Operations          Operations[]
+}
+
+model Owners {
+  ownerId                 Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  name                    String
+  numberOfMembersInFamily Int
+  bracelet                Bracelets    @relation(fields: [braceletsBraceletId], references: [braceletId])
+  braceletsBraceletId     Int
+  latitude                Float?
+  longitude               Float?
+  Operations              Operations[]
+}
+
+model EvacuationCenters {
+  evacuationId Int          @id @default(autoincrement())
+  name         String
+  latitude     Float
+  longitude    Float
+  capacity     Int
+  Operations   Operations[]
+}
+
+enum OperationStatus {
+  ASSIGNED
+  PENDING
+  COMPLETE
+  CANCELED
+  FAILED
+}
+
+enum RescueUrgency {
+  LOW
+  MODERATE
+  SEVERE
+}
+
+model Operations {
+  missionId                     Int               @id @default(autoincrement())
+  createAt                      DateTime          @default(now())
+  dateTime                      DateTime          @default(now())
+  rescuer                       Rescuers          @relation(fields: [rescuersRescuerId], references: [rescuerId])
+  owner                         Owners            @relation(fields: [ownersOwnerId], references: [ownerId])
+  rescuersRescuerId             Int
+  ownersOwnerId                 Int
+  status                        OperationStatus
+  urgency                       RescueUrgency
+  numberOfRescuee               Int
+  evacuationCenter              EvacuationCenters @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
+  evacuationCentersEvacuationId Int
+}
