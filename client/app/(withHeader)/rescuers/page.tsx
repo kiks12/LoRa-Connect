@@ -1,5 +1,5 @@
-import { Container } from "../components/Container";
-import { DataTable } from "../components/DataTable";
+import { Container } from "../../components/Container";
+import { DataTable } from "../../components/DataTable";
 import { columns } from "./columns";
 import { getRescuers } from "@/server/db/rescuers";
 

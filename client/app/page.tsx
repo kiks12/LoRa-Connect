@@ -7,7 +7,7 @@ socket.on("connect", () => {
 	console.log("Connecting");
 });
 
-const LINKS = [
+export const LINKS = [
 	{ title: "Home", link: "/" },
 	{ title: "Map", link: "/map" },
 	{ title: "Missions", link: "/missions" },

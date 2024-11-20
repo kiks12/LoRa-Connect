@@ -1,6 +1,6 @@
 import { getOwners } from "@/server/db/owners";
-import { Container } from "../components/Container";
-import { DataTable } from "../components/DataTable";
+import { Container } from "../../components/Container";
+import { DataTable } from "../../components/DataTable";
 import { columns } from "./columns";
 
 const owners = await getOwners();
