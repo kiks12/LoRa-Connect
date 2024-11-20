@@ -1,17 +1,17 @@
-import { client } from "@/prisma/prisma"
+import { client } from "@/prisma/client"
 import { Bracelets } from "@prisma/client"
 
-export const getBracelets = async () => {
+export async function getBracelets() {
   return await client.bracelets.findMany()
 }
 
-export const createBracelet = async ({bracelet}: {bracelet: Bracelets}) => {
+export async function createBracelet({bracelet}: {bracelet: Bracelets}) {
   return await client.bracelets.create({
     data: bracelet
   })
 }
 
-export const updateBracelet = async ({bracelet}: {bracelet: Bracelets}) => {
+export async function updateBracelet({bracelet}: {bracelet: Bracelets}) {
   return await client.bracelets.update({
     data: bracelet,
     where: {
@@ -20,7 +20,7 @@ export const updateBracelet = async ({bracelet}: {bracelet: Bracelets}) => {
   })
 }
 
-export const deleteBracelet = async ({bracelet}: {bracelet: Bracelets}) => {
+export async function deleteBracelet({bracelet}: {bracelet: Bracelets}) {
   return await client.bracelets.delete({
     where: {
       braceletId: bracelet.braceletId

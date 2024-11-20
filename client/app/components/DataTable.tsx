@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
 	ColumnDef,
@@ -13,14 +14,16 @@ import {
 	SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
 	data: TData[];
+	filter: string;
+	children?: ReactNode;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ children, filter, columns, data }: DataTableProps<TData, TValue>) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const table = useReactTable({
@@ -40,7 +43,16 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
 
 	return (
 		<div>
-			<div className="rounded-md border">
+			<div className="flex justify-between">
+				<Input
+					placeholder={`Filter ${filter}...`}
+					value={(table.getColumn(filter)?.getFilterValue() as string) ?? ""}
+					onChange={(event) => table.getColumn(filter)?.setFilterValue(event.target.value)}
+					className="max-w-sm"
+				/>
+				<div>{children}</div>
+			</div>
+			<div className="rounded-md border mt-4">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
