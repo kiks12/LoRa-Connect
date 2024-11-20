@@ -14,22 +14,23 @@ datasource db {
 }
 
 model Bracelets {
-  braceletId String     @id
-  createdAt  DateTime   @default(now())
+  braceletId String    @id
+  createdAt  DateTime  @default(now())
   name       String
-  Rescuers   Rescuers[]
-  Owners     Owners[]
+  rescuer    Rescuers? @relation(fields: [rescuerId], references: [rescuerId])
+  rescuerId  Int?      @unique
+  owner      Owners?   @relation(fields: [ownerId], references: [ownerId])
+  ownerId    Int?      @unique
 }
 
 model Rescuers {
-  rescuerId           Int          @id @default(autoincrement())
-  createdAt           DateTime     @default(now())
-  name                String
-  braceletsBraceletId String
-  latitude            Float?
-  longitude           Float?
-  Operations          Operations[]
-  Bracelets           Bracelets    @relation(fields: [braceletsBraceletId], references: [braceletId])
+  rescuerId  Int          @id @default(autoincrement())
+  createdAt  DateTime     @default(now())
+  name       String
+  bracelet   Bracelets?
+  latitude   Float?
+  longitude  Float?
+  Operations Operations[]
 }
 
 model Owners {
@@ -37,8 +38,7 @@ model Owners {
   createdAt               DateTime     @default(now())
   name                    String
   numberOfMembersInFamily Int
-  bracelet                Bracelets    @relation(fields: [braceletsBraceletId], references: [braceletId])
-  braceletsBraceletId     String
+  bracelet                Bracelets?
   latitude                Float?
   longitude               Float?
   Operations              Operations[]

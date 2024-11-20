@@ -5,9 +5,34 @@ export async function getBracelets() {
   return await client.bracelets.findMany()
 }
 
+export async function getAvailableBracelets() {
+  return await client.bracelets.findMany({
+    where: {
+      AND: [
+        {ownerId: null},
+        {rescuerId: null}
+      ]
+    },
+    select: {
+      braceletId: true
+    }
+  })
+}
+
 export async function createBracelet({bracelet}: {bracelet: Bracelets}) {
   return await client.bracelets.create({
     data: bracelet
+  })
+}
+
+export async function setBraceletOwnerId({braceletId, ownerId}: {braceletId: string, ownerId: number}) {
+  return await client.bracelets.update({
+    where: {
+      braceletId,
+    },
+    data: {
+      ownerId
+    }
   })
 }
 
