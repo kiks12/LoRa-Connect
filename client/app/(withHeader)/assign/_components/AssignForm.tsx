@@ -26,12 +26,16 @@ export function AssignForm({
 	braceletId,
 	braceletName,
 	ownerId,
+	ownerName,
 	rescuerId,
+	rescuerName,
 }: {
 	braceletId?: string;
 	braceletName?: string;
+	ownerName?: string;
 	ownerId?: number;
 	rescuerId?: number;
+	rescuerName?: string;
 }) {
 	const { toast } = useToast();
 	const [ownerType, setOwnerType] = useState<OwnerType>("CIVILIAN");
@@ -48,7 +52,7 @@ export function AssignForm({
 			braceletId: braceletId ?? "",
 			ownerId: ownerId ?? rescuerId ?? 0,
 			isRescuer: false,
-			ownerName: "",
+			ownerName: ownerName ?? rescuerName ?? "",
 		},
 	});
 

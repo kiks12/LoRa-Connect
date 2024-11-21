@@ -1,13 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Owners } from "@prisma/client";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { OwnerWithBracelet } from "@/types";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 
-export const columns: ColumnDef<Owners>[] = [
+export const columns: ColumnDef<OwnerWithBracelet>[] = [
 	{
 		accessorKey: "ownerId",
 		header: ({ column }) => {
@@ -73,7 +75,9 @@ export const columns: ColumnDef<Owners>[] = [
 	},
 	{
 		id: "actions",
-		cell: ({}) => {
+		cell: ({ row }) => {
+			const { bracelet, ownerId, name } = row.original;
+
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
@@ -82,10 +86,20 @@ export const columns: ColumnDef<Owners>[] = [
 							<MoreHorizontal className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem>Update</DropdownMenuItem>
-						<DropdownMenuItem>Delete</DropdownMenuItem>
+					<DropdownMenuContent className="w-36" align="end">
+						<Card>
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							{bracelet ? (
+								<DropdownMenuItem disabled={true}>Assign Bracelet</DropdownMenuItem>
+							) : (
+								<Link href={`/assign?previousLink=owners&ownerId=${ownerId}&ownerName=${name}`}>
+									<DropdownMenuItem>Assign Bracelet</DropdownMenuItem>
+								</Link>
+							)}
+							<DropdownMenuItem>Update</DropdownMenuItem>
+							<DropdownMenuItem>Delete</DropdownMenuItem>
+						</Card>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);

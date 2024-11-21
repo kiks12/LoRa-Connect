@@ -2,7 +2,11 @@ import { client } from "@/prisma/client"
 import { Owners } from "@prisma/client"
 
 export async function getOwners(){
-  return await client.owners.findMany()
+  return await client.owners.findMany({
+    include: {
+      bracelet: true
+    }
+  })
 }
 
 export async function getOwnersWithoutBracelet() {
