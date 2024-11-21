@@ -7,7 +7,7 @@ import { setBraceletOwnerId } from "../db/bracelets";
 export async function registerOwner({owner, braceletId} : {owner: Owners, braceletId: string}) {
   const result = await createOwner(owner)
   if (!result) return {error: true, message: "There seems to be a problem registering owner. Please try again later."}
-  const resultTwo = await setBraceletOwnerId({braceletId, ownerId: result.ownerId})
+  const resultTwo = braceletId !== "" ? (await setBraceletOwnerId({braceletId, ownerId: result.ownerId})) : true
 
   if (resultTwo) return { error: false, message: "Successfully registered new owner to bracelet" }
   return {error: true, message: "There seems to be a problem registering owner. Please try again later."}
