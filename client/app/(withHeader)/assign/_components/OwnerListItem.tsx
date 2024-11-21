@@ -3,7 +3,7 @@ import { Owners, Rescuers } from "@prisma/client";
 
 export function OwnerListItem({ owner, onClick }: { owner: Owners | Rescuers; onClick: (value: Owners | Rescuers) => void }) {
 	return (
-		<li className="cursor-pointer rounded-sm border hover:shadow-md p-4" onClick={() => onClick(owner)}>
+		<li className="mt-1 cursor-pointer rounded-sm border hover:shadow-md p-4" onClick={() => onClick(owner)}>
 			{isOwner(owner) ? (
 				<>
 					<div className="flex justify-between items-center">
