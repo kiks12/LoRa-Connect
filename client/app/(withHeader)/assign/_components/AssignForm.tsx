@@ -127,15 +127,19 @@ export function AssignForm({
 	}
 
 	function filterBracelets(newVal: string) {
-		setBracelets(backupBracelets.filter((bracelet) => bracelet.name.includes(newVal) || bracelet.braceletId.includes(newVal)));
+		setBracelets(
+			backupBracelets.filter(
+				(bracelet) => bracelet.name.toLowerCase().includes(newVal.toLowerCase()) || bracelet.braceletId.toLowerCase().includes(newVal.toLowerCase())
+			)
+		);
 	}
 
 	function filterOwners(newVal: string) {
 		setOwners(() => {
-			return backupOwners.filter((owner) => owner.name.includes(newVal));
+			return backupOwners.filter((owner) => owner.name.toLowerCase().includes(newVal.toLowerCase()));
 		});
 		setRescuers(() => {
-			return backupRescuers.filter((owner) => owner.name.includes(newVal));
+			return backupRescuers.filter((owner) => owner.name.toLowerCase().includes(newVal.toLowerCase()));
 		});
 	}
 
