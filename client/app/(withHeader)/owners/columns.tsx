@@ -102,7 +102,9 @@ export const columns: ColumnDef<OwnerWithBracelet>[] = [
 							>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
-							<DropdownMenuItem>Delete</DropdownMenuItem>
+							<Link href={`/owners/delete?ownerId=${ownerId}&name=${name}`}>
+								<DropdownMenuItem>Delete</DropdownMenuItem>
+							</Link>
 						</Card>
 					</DropdownMenuContent>
 				</DropdownMenu>

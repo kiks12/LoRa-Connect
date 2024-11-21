@@ -39,3 +39,11 @@ export async function updateOwner(owner: Owners) {
     }
   })
 }
+
+export async function deleteOwner(ownerId: number) {
+  return await client.owners.delete({
+    where: {
+      ownerId: ownerId,
+    },
+  })
+}

@@ -1,7 +1,7 @@
 "use server"
 
 import { Owners } from "@prisma/client";
-import { createOwner, updateOwner as updateOwnerDB } from "../db/owners";
+import { createOwner, updateOwner as updateOwnerDB, deleteOwner as deleteOwnerDB } from "../db/owners";
 import { setBraceletOwnerId } from "../db/bracelets";
 import { revalidateTag } from "next/cache";
 import { OWNERS_TAG } from "@/utils/tags";
@@ -28,4 +28,11 @@ export async function setOwnerBracelet({ownerId, braceletId}: {ownerId: number, 
   revalidateTag(OWNERS_TAG)
   if (result) return { error: false, message: "Successfully set owner of bracelet" }
   return { error: true, message: "There seems to be a problem setting the owner of bracelet. Please try again later" }
+}
+
+export async function deleteOwner({ownerId}: {ownerId: number}) {
+  const result = await deleteOwnerDB(ownerId)
+  revalidateTag(OWNERS_TAG)
+  if (result) return { error: false, message: "Successfully deleted owner record" }
+  return { error: true, message: "There seems to be a problem deleting owner. Please try again later" }
 }
