@@ -12,7 +12,6 @@ export default function BraceletsPages() {
 	return (
 		<main>
 			<ContainerWithTitle title="Bracelets">
-				<div className="flex justify-end py-2"></div>
 				<DataTable filter="name" columns={columns} data={bracelets}>
 					<Link href="/bracelets/new">
 						<Button>

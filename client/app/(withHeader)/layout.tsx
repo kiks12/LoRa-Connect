@@ -8,14 +8,14 @@ export default function Layout({ children }: { children: ReactNode }) {
 	return (
 		<main className="flex flex-col">
 			<Header />
-			{children}
+			<div className="mt-2">{children}</div>
 		</main>
 	);
 }
 
 const Header = () => {
 	return (
-		<header className="flex h-20 w-screen">
+		<header className="flex h-20 w-screen border-b">
 			<Container className="flex justify-between items-center">
 				<div>
 					<h1 className="text-lg font-semibold">LoRa Connect</h1>
