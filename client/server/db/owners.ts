@@ -1,13 +1,15 @@
 import { client } from "@/prisma/client"
+import { OWNERS_TAG } from "@/utils/tags"
 import { Owners } from "@prisma/client"
+import { unstable_cache } from "next/cache"
 
-export async function getOwners(){
+export const getOwners = unstable_cache(async () => {
   return await client.owners.findMany({
     include: {
       bracelet: true
     }
   })
-}
+}, [OWNERS_TAG], {tags: [OWNERS_TAG]})
 
 export async function getOwnersWithoutBracelet() {
   return await client.owners.findMany({

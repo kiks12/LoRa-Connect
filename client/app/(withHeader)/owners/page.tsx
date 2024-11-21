@@ -5,9 +5,8 @@ import { ContainerWithTitle } from "../_components/ContainerWithTitle";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-const owners = await getOwners();
-
-export default function OwnersPage() {
+export default async function OwnersPage() {
+	const owners = await getOwners();
 	return (
 		<main>
 			<ContainerWithTitle title="Owners">
