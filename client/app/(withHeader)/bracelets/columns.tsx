@@ -63,7 +63,7 @@ export const columns: ColumnDef<Bracelets>[] = [
 							{ownerId != null || rescuerId != null ? (
 								<DropdownMenuItem disabled={true}>Assign Owner</DropdownMenuItem>
 							) : (
-								<Link href={`#`}>
+								<Link href={`/assign?braceletId=${braceletId}&braceletName=${name}&previousLink=bracelets`}>
 									<DropdownMenuItem>Assign Owner</DropdownMenuItem>
 								</Link>
 							)}

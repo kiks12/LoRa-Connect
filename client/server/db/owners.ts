@@ -5,6 +5,14 @@ export async function getOwners(){
   return await client.owners.findMany()
 }
 
+export async function getOwnersWithoutBracelet() {
+  return await client.owners.findMany({
+    where: {
+      bracelet: null
+    }
+  })
+}
+
 export async function createOwner({...data}: Owners) {
   return await client.owners.create({
     data: {

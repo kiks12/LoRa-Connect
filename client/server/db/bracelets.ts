@@ -13,9 +13,6 @@ export async function getAvailableBracelets() {
         {rescuerId: null}
       ]
     },
-    select: {
-      braceletId: true
-    }
   })
 }
 
@@ -31,7 +28,18 @@ export async function setBraceletOwnerId({braceletId, ownerId}: {braceletId: str
       braceletId,
     },
     data: {
-      ownerId
+      ownerId,
+    }
+  })
+}
+
+export async function setBraceletRescuerId({braceletId, rescuerId}: {braceletId: string, rescuerId: number}) {
+  return await client.bracelets.update({
+    where: {
+      braceletId,
+    },
+    data: {
+      rescuerId,
     }
   })
 }
