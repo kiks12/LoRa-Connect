@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-const bracelets = await getBracelets();
+export default async function BraceletsPages() {
+	const bracelets = await getBracelets();
 
-export default function BraceletsPages() {
 	return (
 		<main>
 			<ContainerWithTitle title="Bracelets">
