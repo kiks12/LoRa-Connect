@@ -1,11 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Bracelets } from "@prisma/client";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 
 export const columns: ColumnDef<Bracelets>[] = [
 	{
@@ -43,19 +45,33 @@ export const columns: ColumnDef<Bracelets>[] = [
 	},
 	{
 		id: "actions",
-		cell: ({}) => {
+		cell: ({ row }) => {
+			const { ownerId, rescuerId, braceletId, name } = row.original;
+
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
+						<Button size="icon" variant="ghost" className="h-8 w-8 p-0">
 							<span className="sr-only">Open menu</span>
 							<MoreHorizontal className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem>Update</DropdownMenuItem>
-						<DropdownMenuItem>Delete</DropdownMenuItem>
+					<DropdownMenuContent className="w-36" align="end">
+						<Card className="z-30">
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							{ownerId != null || rescuerId != null ? (
+								<DropdownMenuItem disabled={true}>Assign Owner</DropdownMenuItem>
+							) : (
+								<Link href={`#`}>
+									<DropdownMenuItem>Assign Owner</DropdownMenuItem>
+								</Link>
+							)}
+							<Link href={`/bracelets/update?braceletId=${braceletId}&name=${name}`}>
+								<DropdownMenuItem>Update</DropdownMenuItem>
+							</Link>
+							<DropdownMenuItem>Delete</DropdownMenuItem>
+						</Card>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);

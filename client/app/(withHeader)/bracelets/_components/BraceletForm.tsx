@@ -6,30 +6,59 @@ import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { braceletSchema } from "@/schema/bracelets";
-import { createBracelet } from "@/server/actions/bracelets";
+import { createBracelet, updateBracelet } from "@/server/actions/bracelets";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export const BraceletForm = () => {
+export type BraceletFormType = "CREATE" | "UPDATE";
+
+export function BraceletForm({ name, braceletId, type = "CREATE" }: { name?: string; braceletId?: string; type?: BraceletFormType }) {
 	const { toast } = useToast();
 	const form = useForm<z.infer<typeof braceletSchema>>({
 		resolver: zodResolver(braceletSchema),
 		defaultValues: {
-			name: "",
-			braceletId: "",
+			name: name ?? "",
+			braceletId: braceletId ?? "",
 		},
 	});
 
-	const onSubmit = form.handleSubmit(async (values: z.infer<typeof braceletSchema>) => {
-		const { error, message } = await createBracelet({ name: values.name, braceletId: values.braceletId, createdAt: new Date() });
+	const onCreateSubmit = async (values: z.infer<typeof braceletSchema>) => {
+		const result = await createBracelet({
+			name: values.name,
+			braceletId: values.braceletId,
+			createdAt: new Date(),
+			ownerId: null,
+			rescuerId: null,
+		});
 
+		showToast(result);
+	};
+
+	const onUpdateSubmit = async (values: z.infer<typeof braceletSchema>) => {
+		if (braceletId === undefined) return;
+		const result = await updateBracelet(braceletId, {
+			name: values.name,
+			braceletId: values.braceletId,
+			createdAt: new Date(),
+			ownerId: null,
+			rescuerId: null,
+		});
+		showToast(result);
+	};
+
+	const onSubmit = form.handleSubmit(async (values: z.infer<typeof braceletSchema>) => {
+		if (type === "CREATE") onCreateSubmit(values);
+		if (type === "UPDATE") onUpdateSubmit(values);
+	});
+
+	const showToast = ({ error, message }: { error: boolean; message: string }) => {
 		toast({
 			variant: error ? "destructive" : "default",
 			title: "Confirmation",
 			description: message,
 		});
-	});
+	};
 
 	return (
 		<>
@@ -73,4 +102,4 @@ export const BraceletForm = () => {
 			<Toaster />
 		</>
 	);
-};
+}

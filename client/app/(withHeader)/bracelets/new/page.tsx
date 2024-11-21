@@ -1,7 +1,7 @@
 "use server";
 
 import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWithTitleAndBackButton";
-import { BraceletForm } from "./_components/BraceletForm";
+import { BraceletForm } from "../_components/BraceletForm";
 
 export default async function NewBraceletPage() {
 	return (

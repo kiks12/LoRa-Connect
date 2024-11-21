@@ -36,11 +36,14 @@ export async function setBraceletOwnerId({braceletId, ownerId}: {braceletId: str
   })
 }
 
-export async function updateBracelet({bracelet}: {bracelet: Bracelets}) {
+export async function updateBracelet({braceletId, bracelet}: {braceletId: string, bracelet: Bracelets}) {
   return await client.bracelets.update({
-    data: bracelet,
+    data: {
+      name: bracelet.name,
+      braceletId: bracelet.braceletId,
+    },
     where: {
-      braceletId: bracelet.braceletId
+      braceletId
     }
   })
 }
