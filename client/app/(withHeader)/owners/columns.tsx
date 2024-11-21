@@ -76,7 +76,7 @@ export const columns: ColumnDef<OwnerWithBracelet>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			const { bracelet, ownerId, name } = row.original;
+			const { bracelet, ownerId, name, numberOfMembersInFamily } = row.original;
 
 			return (
 				<DropdownMenu>
@@ -97,7 +97,11 @@ export const columns: ColumnDef<OwnerWithBracelet>[] = [
 									<DropdownMenuItem>Assign Bracelet</DropdownMenuItem>
 								</Link>
 							)}
-							<DropdownMenuItem>Update</DropdownMenuItem>
+							<Link
+								href={`/owners/update?ownerId=${ownerId}&name=${name}&members=${numberOfMembersInFamily}&braceletId=${bracelet?.braceletId ?? ""}`}
+							>
+								<DropdownMenuItem>Update</DropdownMenuItem>
+							</Link>
 							<DropdownMenuItem>Delete</DropdownMenuItem>
 						</Card>
 					</DropdownMenuContent>

@@ -6,25 +6,53 @@ import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { ownerSchema } from "@/schema/owners";
-import { registerOwner } from "@/server/actions/owners";
+import { registerOwner, updateOwner } from "@/server/actions/owners";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import AvailableBraceletsDialog from "./AvailableBracelets";
 
-export const OwnerForm = () => {
+export type OwnerFormType = "CREATE" | "UPDATE";
+
+export const OwnerForm = ({
+	ownerId,
+	name,
+	braceletId,
+	numberOfMembersInFamily,
+	type = "CREATE",
+}: {
+	ownerId?: number;
+	name?: string;
+	braceletId?: string;
+	numberOfMembersInFamily?: number;
+	type?: OwnerFormType;
+}) => {
 	const { toast } = useToast();
 	const form = useForm<z.infer<typeof ownerSchema>>({
 		resolver: zodResolver(ownerSchema),
 		defaultValues: {
-			name: "",
-			numberOfMembersInFamily: 0,
-			braceletId: "",
+			name: name ?? "",
+			numberOfMembersInFamily: numberOfMembersInFamily ?? 0,
+			braceletId: braceletId ?? "",
 		},
 	});
 
-	const onSubmit = form.handleSubmit(async (values: z.infer<typeof ownerSchema>) => {
-		const { error, message } = await registerOwner({
+	async function onUpdateSubmit(values: z.infer<typeof ownerSchema>) {
+		const result = await updateOwner({
+			owner: {
+				name: values.name,
+				numberOfMembersInFamily: values.numberOfMembersInFamily,
+				ownerId: ownerId ?? 0,
+				createdAt: new Date(),
+				latitude: 0,
+				longitude: 0,
+			},
+		});
+		showToast(result);
+	}
+
+	async function onCreateSubmit(values: z.infer<typeof ownerSchema>) {
+		const result = await registerOwner({
 			owner: {
 				createdAt: new Date(),
 				name: values.name,
@@ -35,12 +63,20 @@ export const OwnerForm = () => {
 			},
 			braceletId: values.braceletId,
 		});
+		showToast(result);
+	}
 
+	function showToast({ error, message }: { error: boolean; message: string }) {
 		toast({
 			variant: error ? "destructive" : "default",
 			title: "Confirmation",
 			description: message,
 		});
+	}
+
+	const onSubmit = form.handleSubmit(async (values: z.infer<typeof ownerSchema>) => {
+		if (type === "CREATE") onCreateSubmit(values);
+		if (type === "UPDATE") onUpdateSubmit(values);
 	});
 
 	return (

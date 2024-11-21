@@ -1,5 +1,5 @@
 import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWithTitleAndBackButton";
-import { OwnerForm } from "./_components/OwnerForm";
+import { OwnerForm } from "../_components/OwnerForm";
 
 export default function CreateOwnerPage() {
 	return (

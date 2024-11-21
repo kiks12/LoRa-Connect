@@ -25,3 +25,15 @@ export async function createOwner({...data}: Owners) {
     },
   })
 }
+
+export async function updateOwner(owner: Owners) {
+  return await client.owners.update({
+    where: {
+      ownerId: owner.ownerId,
+    },
+    data: {
+      name: owner.name,
+      numberOfMembersInFamily: owner.numberOfMembersInFamily
+    }
+  })
+}

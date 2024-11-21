@@ -1,7 +1,7 @@
 "use server"
 
 import { Owners } from "@prisma/client";
-import { createOwner } from "../db/owners";
+import { createOwner, updateOwner as updateOwnerDB } from "../db/owners";
 import { setBraceletOwnerId } from "../db/bracelets";
 
 export async function registerOwner({owner, braceletId} : {owner: Owners, braceletId: string}) {
@@ -11,6 +11,12 @@ export async function registerOwner({owner, braceletId} : {owner: Owners, bracel
 
   if (resultTwo) return { error: false, message: "Successfully registered new owner to bracelet" }
   return {error: true, message: "There seems to be a problem registering owner. Please try again later."}
+}
+
+export async function updateOwner({owner}: {owner: Owners}) {
+  const result = await updateOwnerDB(owner)
+  if (result) return {error: false, message: "Successfully updated owner information"}
+  return {error: true, message: "There seems to be a problem updating owner information. Please try again later"}
 }
 
 export async function setOwnerBracelet({ownerId, braceletId}: {ownerId: number, braceletId: string}) {
