@@ -5,44 +5,40 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import { ownerSchema } from "@/schema/owners";
-import { registerOwner, updateOwner } from "@/server/actions/owners";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import AvailableBraceletsDialog from "../../_components/AvailableBracelets";
+import { rescuerSchema } from "@/schema/rescuer";
+import { registerRescuer, updateRescuer } from "@/server/actions/rescuers";
 
-export type OwnerFormType = "CREATE" | "UPDATE";
+export type RescuerFormType = "CREATE" | "UPDATE";
 
-export const OwnerForm = ({
-	ownerId,
+export const RescuerForm = ({
+	rescuerId,
 	name,
 	braceletId,
-	numberOfMembersInFamily,
 	type = "CREATE",
 }: {
-	ownerId?: number;
+	rescuerId?: number;
 	name?: string;
 	braceletId?: string;
-	numberOfMembersInFamily?: number;
-	type?: OwnerFormType;
+	type?: RescuerFormType;
 }) => {
 	const { toast } = useToast();
-	const form = useForm<z.infer<typeof ownerSchema>>({
-		resolver: zodResolver(ownerSchema),
+	const form = useForm<z.infer<typeof rescuerSchema>>({
+		resolver: zodResolver(rescuerSchema),
 		defaultValues: {
 			name: name ?? "",
-			numberOfMembersInFamily: numberOfMembersInFamily ?? 0,
 			braceletId: braceletId ?? "",
 		},
 	});
 
-	async function onUpdateSubmit(values: z.infer<typeof ownerSchema>) {
-		const result = await updateOwner({
-			owner: {
+	async function onUpdateSubmit(values: z.infer<typeof rescuerSchema>) {
+		const result = await updateRescuer({
+			rescuer: {
 				name: values.name,
-				numberOfMembersInFamily: values.numberOfMembersInFamily,
-				ownerId: ownerId ?? 0,
+				rescuerId: rescuerId ?? 0,
 				createdAt: new Date(),
 				latitude: 0,
 				longitude: 0,
@@ -51,13 +47,12 @@ export const OwnerForm = ({
 		showToast(result);
 	}
 
-	async function onCreateSubmit(values: z.infer<typeof ownerSchema>) {
-		const result = await registerOwner({
-			owner: {
+	async function onCreateSubmit(values: z.infer<typeof rescuerSchema>) {
+		const result = await registerRescuer({
+			rescuer: {
 				createdAt: new Date(),
 				name: values.name,
-				numberOfMembersInFamily: values.numberOfMembersInFamily,
-				ownerId: 0,
+				rescuerId: 0,
 				longitude: 0,
 				latitude: 0,
 			},
@@ -74,7 +69,7 @@ export const OwnerForm = ({
 		});
 	}
 
-	const onSubmit = form.handleSubmit(async (values: z.infer<typeof ownerSchema>) => {
+	const onSubmit = form.handleSubmit(async (values: z.infer<typeof rescuerSchema>) => {
 		if (type === "CREATE") onCreateSubmit(values);
 		if (type === "UPDATE") onUpdateSubmit(values);
 	});
@@ -111,24 +106,9 @@ export const OwnerForm = ({
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Owner Name</FormLabel>
+									<FormLabel>Rescuer Name</FormLabel>
 									<FormControl>
 										<Input placeholder="Enter fullname..." {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</div>
-					<div className="mt-2">
-						<FormField
-							control={form.control}
-							name="numberOfMembersInFamily"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>No. of Members in Family</FormLabel>
-									<FormControl>
-										<Input type="number" placeholder="Enter number of members in family..." {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

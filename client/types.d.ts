@@ -5,3 +5,9 @@ export type OwnerWithBracelet = Prisma.OwnersGetPayload<{
     bracelet: true
   }
 }>
+
+export type RescuerWithBracelet = Prisma.RescuersGetPayload<{
+  include: {
+    bracelet: true
+  }
+}>

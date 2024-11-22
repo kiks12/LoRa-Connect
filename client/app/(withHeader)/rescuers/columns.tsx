@@ -1,15 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Rescuers } from "@prisma/client";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { RescuerWithBracelet } from "@/types";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 
-export const columns: ColumnDef<Rescuers>[] = [
+export const columns: ColumnDef<RescuerWithBracelet>[] = [
 	{
-		accessorKey: "ownerId",
+		accessorKey: "rescuerId",
 		header: ({ column }) => {
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
@@ -42,17 +44,6 @@ export const columns: ColumnDef<Rescuers>[] = [
 		},
 	},
 	{
-		accessorKey: "braceletsBraceletId",
-		header: ({ column }) => {
-			return (
-				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-					Bracelet ID
-					<ArrowUpDown className="ml-2 h-4 w-4" />
-				</Button>
-			);
-		},
-	},
-	{
 		accessorKey: "latitude",
 		header: "Latitude",
 	},
@@ -62,7 +53,9 @@ export const columns: ColumnDef<Rescuers>[] = [
 	},
 	{
 		id: "actions",
-		cell: ({}) => {
+		cell: ({ row }) => {
+			const { bracelet, rescuerId, name } = row.original;
+
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
@@ -72,9 +65,23 @@ export const columns: ColumnDef<Rescuers>[] = [
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem>Update</DropdownMenuItem>
-						<DropdownMenuItem>Delete</DropdownMenuItem>
+						<Card>
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							{bracelet ? (
+								<DropdownMenuItem disabled={true}>Assign Bracelet</DropdownMenuItem>
+							) : (
+								<Link href={`/assign?previousLink=owners&ownerId=${rescuerId}&ownerName=${name}`}>
+									<DropdownMenuItem>Assign Bracelet</DropdownMenuItem>
+								</Link>
+							)}
+							<Link href={`/rescuers/update?rescuerId=${rescuerId}&name=${name}&braceletId=${bracelet?.braceletId ?? ""}`}>
+								<DropdownMenuItem>Update</DropdownMenuItem>
+							</Link>
+							<Link href={`/rescuers/delete?rescuerId=${rescuerId}&name=${name}`}>
+								<DropdownMenuItem>Delete</DropdownMenuItem>
+							</Link>
+						</Card>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);
