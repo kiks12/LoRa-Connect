@@ -58,10 +58,10 @@ export async function updateBracelet({braceletId, bracelet}: {braceletId: string
   })
 }
 
-export async function deleteBracelet({bracelet}: {bracelet: Bracelets}) {
+export async function deleteBracelet({braceletId}: {braceletId: string}) {
   return await client.bracelets.delete({
     where: {
-      braceletId: bracelet.braceletId
+      braceletId: braceletId
     }
   })
 }

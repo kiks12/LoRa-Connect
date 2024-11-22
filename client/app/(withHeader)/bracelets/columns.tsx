@@ -70,7 +70,9 @@ export const columns: ColumnDef<Bracelets>[] = [
 							<Link href={`/bracelets/update?braceletId=${braceletId}&name=${name}`}>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
-							<DropdownMenuItem>Delete</DropdownMenuItem>
+							<Link href={`/bracelets/delete?braceletId=${braceletId}&name=${name}`}>
+								<DropdownMenuItem>Delete</DropdownMenuItem>
+							</Link>
 						</Card>
 					</DropdownMenuContent>
 				</DropdownMenu>
