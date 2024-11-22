@@ -1,5 +1,6 @@
 "use client";
 
+import { DateCell } from "@/app/components/DateCell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -31,6 +32,7 @@ export const columns: ColumnDef<Bracelets>[] = [
 				</Button>
 			);
 		},
+		cell: DateCell,
 	},
 	{
 		accessorKey: "name",

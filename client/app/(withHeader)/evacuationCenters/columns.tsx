@@ -1,5 +1,6 @@
 "use client";
 
+import { DateCell } from "@/app/components/DateCell";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EvacuationCenters } from "@prisma/client";
@@ -29,6 +30,7 @@ export const columns: ColumnDef<EvacuationCenters>[] = [
 				</Button>
 			);
 		},
+		cell: DateCell,
 	},
 	{
 		accessorKey: "name",

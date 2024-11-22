@@ -5,9 +5,9 @@ import { columns } from "./columns";
 import { getRescuers } from "@/server/db/rescuers";
 import Link from "next/link";
 
-const rescuers = await getRescuers();
+export default async function RescuersPage() {
+	const rescuers = await getRescuers();
 
-export default function RescuersPage() {
 	return (
 		<main>
 			<ContainerWithTitle title="Rescuers">
