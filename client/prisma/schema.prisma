@@ -46,6 +46,7 @@ model Owners {
 
 model EvacuationCenters {
   evacuationId Int          @id @default(autoincrement())
+  createdAt    DateTime     @default(now())
   name         String
   latitude     Float
   longitude    Float
