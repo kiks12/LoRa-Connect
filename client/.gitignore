@@ -42,3 +42,9 @@ next-env.d.ts
 public/map/v3/
 v3/
 output.mbtiles
+philippines-latest.osm.pbf
+config-openmaptiles.json
+style.json
+v3.json
+config-openmaptiles.json
+process-openmaptiles.lua
