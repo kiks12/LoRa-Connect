@@ -39,5 +39,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-public/map/tiles/
-tiles/
+public/map/v3/
+v3/
+output.mbtiles
