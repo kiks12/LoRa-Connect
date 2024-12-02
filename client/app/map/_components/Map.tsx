@@ -7,8 +7,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 const Map = () => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
 	const [{ longitude, latitude }, setLocation] = useState<{ latitude: number; longitude: number }>({
-		latitude: 0,
-		longitude: 0,
+		latitude: 15.0794,
+		longitude: 120.62,
 	});
 
 	useEffect(() => {
@@ -27,8 +27,13 @@ const Map = () => {
 			container: mapContainerRef.current,
 			style: "http://localhost:3000/map/style.json",
 			center: [longitude, latitude],
-			zoom: 0,
+			zoom: 13,
 			hash: true,
+			attributionControl: false,
+		});
+
+		map.on("error", (e) => {
+			console.error(e);
 		});
 
 		return () => map.remove();

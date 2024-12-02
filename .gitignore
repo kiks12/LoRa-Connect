@@ -1,6 +1,7 @@
 node_modules
 
 philippines-latest.osm.pbf
+central_luzon-latest.osm.pbf
 config-openmaptiles.json
 style.json
 v3.json
