@@ -32,6 +32,9 @@ const Map = () => {
 			attributionControl: false,
 		});
 
+		const marker = new maplibregl.Marker().setLngLat([longitude, latitude]);
+		marker.addTo(map);
+
 		map.on("error", (e) => {
 			console.error(e);
 		});
