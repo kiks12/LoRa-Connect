@@ -25,7 +25,7 @@ const Map = () => {
 
 		const map = new maplibregl.Map({
 			container: mapContainerRef.current,
-			style: "http://localhost:3000/map/style.json",
+			style: "http://localhost:3000/map/style-raw-open.json",
 			center: [longitude, latitude],
 			zoom: 13,
 			hash: true,
