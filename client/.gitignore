@@ -41,7 +41,13 @@ next-env.d.ts
 
 public/map/v3/
 v3/
+glyphs/
+public/glyphs/
 output.mbtiles
+*.mbtiles
+*.mbtiles-journal
+*.geojson
+*.osm.pbf
 philippines-latest.osm.pbf
 config-openmaptiles.json
 style.json
