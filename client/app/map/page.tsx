@@ -1,38 +1,28 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowLeft, MenuIcon } from "lucide-react";
-import Link from "next/link";
+import { MenuIcon } from "lucide-react";
 import Map from "./_components/Map";
-import { getOwners } from "@/server/db/owners";
+import { SideBar } from "./_components/Sidebar";
+import { MapProvider } from "@/hooks/use-map";
 
-export default async function MapPage() {
-	const owners = await getOwners();
-
+export default function MapPage() {
 	return (
-		<main className="flex">
-			<div className="w-full relative">
-				<div className="absolute w-screen flex justify-between p-2 z-50">
-					<div></div>
-					<Button size="icon" variant="outline" className="flex md:hidden">
-						<MenuIcon />
-					</Button>
-				</div>
-				<div className="flex items-center justify-center h-screen z-10">
-					<Map owners={owners} />
-				</div>
-			</div>
-			<div className="hidden md:block w-1/4 md:w-1/3 h-screen">
-				<Card className="h-screen p-6 shadow-none rounded-none">
-					<div className="flex items-center">
-						<Link href="/">
-							<Button size="icon" variant="outline" className="rounded-full">
-								<ArrowLeft />
-							</Button>
-						</Link>
-						<h1 className="ml-2 text-xl font-semibold tracking-tight">Control Panel</h1>
+		<MapProvider>
+			<main className="flex">
+				<div className="w-full lg:w-2/3 md:w-1/2 relative">
+					<div className="absolute w-screen flex justify-between p-2 z-50">
+						<div></div>
+						<Button size="icon" variant="outline" className="flex md:hidden">
+							<MenuIcon />
+						</Button>
 					</div>
-				</Card>
-			</div>
-		</main>
+					<div className="flex items-center justify-center h-screen z-10">
+						<Map />
+					</div>
+				</div>
+				<div className="hidden md:block lg:w-1/3 md:w-1/2 h-screen">
+					<SideBar />
+				</div>
+			</main>
+		</MapProvider>
 	);
 }

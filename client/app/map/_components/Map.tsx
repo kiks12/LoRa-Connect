@@ -1,20 +1,10 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useMap } from "@/hooks/use-map";
-import { Owners } from "@prisma/client";
-import { useEffect } from "react";
+import { useMapContext } from "@/hooks/use-map";
 
-const Map = ({ owners }: { owners: Owners[] }) => {
-	const { interactive, map, addOwnerPoint, mapContainerRef } = useMap();
-
-	useEffect(() => {
-		if (interactive) {
-			owners.forEach((owner) => {
-				addOwnerPoint(owner);
-			});
-		}
-	}, [interactive, map, addOwnerPoint, owners]);
+const Map = () => {
+	const { mapContainerRef } = useMapContext();
 
 	return <div ref={mapContainerRef} className="w-full h-full" />;
 };
