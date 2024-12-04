@@ -6,7 +6,7 @@ import { unstable_cache } from "next/cache"
 export const getOwners = unstable_cache(async () => {
   return await client.owners.findMany({
     include: {
-      bracelet: true
+      bracelet: true,
     }
   })
 }, [OWNERS_TAG], {tags: [OWNERS_TAG]})

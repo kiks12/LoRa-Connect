@@ -3,8 +3,11 @@ import { Card } from "@/components/ui/card";
 import { ArrowLeft, MenuIcon } from "lucide-react";
 import Link from "next/link";
 import Map from "./_components/Map";
+import { getOwners } from "@/server/db/owners";
 
-export default function MapPage() {
+export default async function MapPage() {
+	const owners = await getOwners();
+
 	return (
 		<main className="flex">
 			<div className="w-full relative">
@@ -15,7 +18,7 @@ export default function MapPage() {
 					</Button>
 				</div>
 				<div className="flex items-center justify-center h-screen z-10">
-					<Map />
+					<Map owners={owners} />
 				</div>
 			</div>
 			<div className="hidden md:block w-1/4 md:w-1/3 h-screen">
