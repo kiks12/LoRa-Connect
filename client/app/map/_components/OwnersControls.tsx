@@ -9,7 +9,7 @@ import { OwnerWithBracelet } from "@/types";
 import { useEffect, useState } from "react";
 
 export default function OwnersControls() {
-	const { addOwnerPoint, interactive, map, clearOwnersSourcesAndLayers } = useMapContext();
+	const { addOwnerPoint, map, clearOwnersSourcesAndLayers } = useMapContext();
 	const [owners, setOwners] = useState<OwnerWithBracelet[]>([]);
 	const [showLocations, setShowLocations] = useState(false);
 	const [monitorLocations, setMonitorLocations] = useState(false);

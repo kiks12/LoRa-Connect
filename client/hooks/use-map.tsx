@@ -8,7 +8,6 @@ const MapContext = createContext<{
 	map: MutableRefObject<maplibregl.Map | null>;
 	mapContainerRef: RefObject<HTMLDivElement>;
 	addOwnerPoint: ({ latitude, longitude, ownerId }: Owners) => void;
-	interactive: boolean;
 	clearSourcesAndLayers: () => void;
 	clearOwnersSourcesAndLayers: () => void;
 } | null>(null);
@@ -16,7 +15,6 @@ const MapContext = createContext<{
 export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
 	const mapRef = useRef<maplibregl.Map | null>(null);
-	const [interactive, setInteractive] = useState(true);
 	const [{ longitude, latitude }, setLocation] = useState<{ latitude: number; longitude: number }>({
 		latitude: 15.0794,
 		longitude: 120.62,
@@ -44,11 +42,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			attributionControl: false,
 		});
 		mapRef.current = newMap;
-		console.log("Map initialized: ", mapRef.current);
 
 		newMap.on("error", (e) => console.error(e));
 
-		console.log("Map interactive: ", interactive);
 		return () => {
 			clearSourcesAndLayers();
 			newMap.remove();
@@ -140,7 +136,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		console.log(mapRef.current);
 		if (latitude === null && longitude === null) return;
 		if (!mapRef.current) return;
-		if (!interactive) return;
 		const { sourceId, data } = createOwnerPointGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
 
 		mapRef.current.addSource(sourceId, data as SourceSpecification);
@@ -151,7 +146,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	return (
-		<MapContext.Provider value={{ map: mapRef, mapContainerRef, addOwnerPoint, interactive, clearSourcesAndLayers, clearOwnersSourcesAndLayers }}>
+		<MapContext.Provider value={{ map: mapRef, mapContainerRef, addOwnerPoint, clearSourcesAndLayers, clearOwnersSourcesAndLayers }}>
 			{children}
 		</MapContext.Provider>
 	);
