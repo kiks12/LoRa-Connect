@@ -2,14 +2,25 @@
 
 import { createContext, MutableRefObject, ReactNode, RefObject, useContext, useEffect, useRef, useState } from "react";
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { Owners } from "@prisma/client";
-import { createOwnerPointAreaGeoJSON, createOwnerPointAreaLayerGeoJSON, createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON } from "@/utils/map";
+import { Owners, Rescuers } from "@prisma/client";
+import {
+	createOwnerPointAreaGeoJSON,
+	createOwnerPointAreaLayerGeoJSON,
+	createOwnerPointGeoJSON,
+	createOwnerPointLayerGeoJSON,
+	createRescuerPointAreaGeoJSON,
+	createRescuerPointAreaLayerGeoJSON,
+	createRescuerPointGeoJSON,
+	createRescuerPointLayerGeoJSON,
+} from "@/utils/map";
 
 const MapContext = createContext<{
 	map: MutableRefObject<maplibregl.Map | null>;
 	mapContainerRef: RefObject<HTMLDivElement>;
 	addOwnerPoint: ({ latitude, longitude, ownerId }: Owners, showLocation?: boolean) => void;
 	addOwnerArea: ({ latitude, longitude, ownerId }: Owners, showLocation?: boolean) => void;
+	addRescuerPoint: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
+	addRescuerArea: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
 	clearSourcesAndLayers: (includes?: string) => void;
 } | null>(null);
 
@@ -118,8 +129,40 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		mapRef.current.addLayer(createOwnerPointAreaLayerGeoJSON({ sourceId }) as LayerSpecification);
 	}
 
+	function addRescuerPoint(rescuer: Rescuers, showLocation: boolean = false) {
+		const { latitude, longitude, rescuerId } = rescuer;
+		if (latitude === null && longitude === null) return;
+		if (!mapRef.current) return;
+		const { sourceId, data } = createRescuerPointGeoJSON({ rescuerId, latitude: latitude!, longitude: longitude! });
+
+		if (mapRef.current.getSource(sourceId) && showLocation) return;
+		if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
+
+		mapRef.current.addSource(sourceId, data as SourceSpecification);
+		mapRef.current.addLayer(createRescuerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+		mapRef.current.on("click", sourceId, () => {
+			addRescuerArea(rescuer);
+		});
+	}
+
+	function addRescuerArea({ latitude, longitude, rescuerId }: Rescuers, showLocation: boolean = false) {
+		if (latitude === null && longitude === null) return;
+		if (!mapRef.current) return;
+		const { sourceId, data } = createRescuerPointAreaGeoJSON({ rescuerId, latitude: latitude!, longitude: longitude! });
+
+		if (mapRef.current.getSource(sourceId) && showLocation) return;
+		if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
+
+		mapRef.current.addSource(sourceId, data as SourceSpecification);
+		mapRef.current.addLayer(createRescuerPointAreaLayerGeoJSON({ sourceId }) as LayerSpecification);
+	}
+
 	return (
-		<MapContext.Provider value={{ map: mapRef, mapContainerRef, addOwnerPoint, clearSourcesAndLayers, addOwnerArea }}>{children}</MapContext.Provider>
+		<MapContext.Provider
+			value={{ map: mapRef, mapContainerRef, addOwnerPoint, clearSourcesAndLayers, addOwnerArea, addRescuerPoint, addRescuerArea }}
+		>
+			{children}
+		</MapContext.Provider>
 	);
 };
 

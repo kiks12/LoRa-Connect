@@ -9,6 +9,7 @@ import { createRescuer, updateRescuer as updateRescuerDB, deleteRescuer as delet
 export async function setRescuerBracelet({rescuerId, braceletId}: {rescuerId: number, braceletId: string}) {
   const result = await setBraceletRescuerId({braceletId, rescuerId})
   revalidateTag(BRACELETS_TAG)
+  revalidateTag(RESCUERS_TAG)
   if (result) return { error: false, message: "Successfully set owner of bracelet" }
   return { error: true, message: "There seems to be a problem setting the owner of bracelet. Please try again later" }
 }

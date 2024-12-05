@@ -3,6 +3,14 @@ import { RESCUERS_TAG } from "@/utils/tags"
 import { Rescuers } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 
+export async function getRescuersLatest() {
+  return await client.rescuers.findMany({
+    include: {
+      bracelet: true
+    }
+  })
+}
+
 export const getRescuers = unstable_cache(async () => {
   return await client.rescuers.findMany({
     include: {

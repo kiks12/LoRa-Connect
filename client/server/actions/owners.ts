@@ -27,6 +27,7 @@ export async function updateOwner({owner}: {owner: Owners}) {
 export async function setOwnerBracelet({ownerId, braceletId}: {ownerId: number, braceletId: string}) {
   const result = await setBraceletOwnerId({braceletId, ownerId})
   revalidateTag(BRACELETS_TAG)
+  revalidateTag(OWNERS_TAG)
   if (result) return { error: false, message: "Successfully set owner of bracelet" }
   return { error: true, message: "There seems to be a problem setting the owner of bracelet. Please try again later" }
 }

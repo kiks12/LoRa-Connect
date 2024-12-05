@@ -10,6 +10,10 @@ export const OWNER_SOURCE_BASE = "OWNER"
 export const OWNER_POINT_SOURCE = `${OWNER_SOURCE_BASE}_POINT`
 export const OWNER_AREA_SOURCE = `${OWNER_SOURCE_BASE}_AREA`
 
+export const RESCUER_SOURCE_BASE = "RESCUER"
+export const RESCUER_POINT_SOURCE = `${RESCUER_SOURCE_BASE}_POINT`
+export const RESCUER_AREA_SOURCE = `${RESCUER_SOURCE_BASE}_AREA`
+
 export function createGeoJsonSourceId(tags: string[], id: number) {
   return `${tags.join("_")}-${id}`
 }
