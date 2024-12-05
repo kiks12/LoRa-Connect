@@ -3,13 +3,14 @@
 import { createContext, MutableRefObject, ReactNode, RefObject, useContext, useEffect, useRef, useState } from "react";
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { Owners } from "@prisma/client";
+import { createOwnerPointAreaGeoJSON, createOwnerPointAreaLayerGeoJSON, createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON } from "@/utils/map";
 
 const MapContext = createContext<{
 	map: MutableRefObject<maplibregl.Map | null>;
 	mapContainerRef: RefObject<HTMLDivElement>;
-	addOwnerPoint: ({ latitude, longitude, ownerId }: Owners) => void;
-	clearSourcesAndLayers: () => void;
-	clearOwnersSourcesAndLayers: () => void;
+	addOwnerPoint: ({ latitude, longitude, ownerId }: Owners, showLocation?: boolean) => void;
+	addOwnerArea: ({ latitude, longitude, ownerId }: Owners, showLocation?: boolean) => void;
+	clearSourcesAndLayers: (includes?: string) => void;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -60,14 +61,14 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [latitude, longitude, mapRef]);
 
-	function clearSourcesAndLayers() {
+	function clearSourcesAndLayers(includes: string = "") {
 		if (!mapRef.current) return;
 		const style = mapRef.current.getStyle();
 		if (style === undefined) return;
 		const layers = style.layers;
 		if (layers) {
 			for (const layer of layers) {
-				if (mapRef.current.getLayer(layer.id)) {
+				if (layer.id.includes(includes) && mapRef.current.getLayer(layer.id)) {
 					mapRef.current.removeLayer(layer.id);
 				}
 			}
@@ -75,80 +76,50 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		const sources = style.sources;
 		if (sources) {
 			for (const sourceId in sources) {
-				if (mapRef.current.getSource(sourceId)) {
+				if (sourceId.includes(includes) && mapRef.current.getSource(sourceId)) {
 					mapRef.current.removeSource(sourceId);
 				}
 			}
 		}
 	}
 
-	function clearOwnersSourcesAndLayers() {
+	function removeSourceAndLayer(sourceId: string) {
 		if (!mapRef.current) return;
-		const style = mapRef.current.getStyle();
-		if (style === undefined) return;
-		const layers = style.layers;
-		if (layers) {
-			for (const layer of layers) {
-				if (layer.id.includes("owner") && mapRef.current.getLayer(layer.id)) {
-					mapRef.current.removeLayer(layer.id);
-				}
-			}
-		}
-		const sources = style.sources;
-		if (sources) {
-			for (const sourceId in sources) {
-				if (sourceId.includes("owner") && mapRef.current.getSource(sourceId)) {
-					mapRef.current.removeSource(sourceId);
-				}
-			}
-		}
+		mapRef.current.removeLayer(sourceId);
+		mapRef.current.removeSource(sourceId);
 	}
 
-	function createOwnerPointGeoJSON({ ownerId, latitude, longitude }: { latitude: number; longitude: number; ownerId: number }) {
-		return {
-			sourceId: `owner-point-${ownerId}`,
-			data: {
-				type: "geojson",
-				data: {
-					type: "Point",
-					coordinates: [longitude, latitude],
-				},
-			},
-		};
-	}
-
-	function createOwnerPointLayerGeoJSON({ sourceId }: { sourceId: string }) {
-		return {
-			id: sourceId,
-			source: sourceId,
-			type: "circle",
-			paint: {
-				"circle-radius": 10,
-				"circle-color": "#007cbf",
-				"circle-opacity": 0.5,
-				"circle-stroke-width": 2,
-				"circle-stroke-color": "#007cbf",
-			},
-		};
-	}
-
-	function addOwnerPoint({ latitude, longitude, ownerId }: Owners) {
-		console.log(mapRef.current);
+	function addOwnerPoint(owner: Owners, showLocation: boolean = false) {
+		const { latitude, longitude, ownerId } = owner;
 		if (latitude === null && longitude === null) return;
 		if (!mapRef.current) return;
 		const { sourceId, data } = createOwnerPointGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
 
+		if (mapRef.current.getSource(sourceId) && showLocation) return;
+		if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
+
 		mapRef.current.addSource(sourceId, data as SourceSpecification);
 		mapRef.current.addLayer(createOwnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
 		mapRef.current.on("click", sourceId, () => {
-			console.log("Clicked");
+			console.log("click");
+			addOwnerArea(owner);
 		});
 	}
 
+	function addOwnerArea({ latitude, longitude, ownerId }: Owners, showLocation: boolean = false) {
+		if (latitude === null && longitude === null) return;
+		if (!mapRef.current) return;
+		const { sourceId, data } = createOwnerPointAreaGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
+
+		if (mapRef.current.getSource(sourceId) && showLocation) return;
+		if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
+
+		mapRef.current.addSource(sourceId, data as SourceSpecification);
+		mapRef.current.addLayer(createOwnerPointAreaLayerGeoJSON({ sourceId }) as LayerSpecification);
+	}
+
 	return (
-		<MapContext.Provider value={{ map: mapRef, mapContainerRef, addOwnerPoint, clearSourcesAndLayers, clearOwnersSourcesAndLayers }}>
-			{children}
-		</MapContext.Provider>
+		<MapContext.Provider value={{ map: mapRef, mapContainerRef, addOwnerPoint, clearSourcesAndLayers, addOwnerArea }}>{children}</MapContext.Provider>
 	);
 };
 

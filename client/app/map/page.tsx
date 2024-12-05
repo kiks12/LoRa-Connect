@@ -3,6 +3,7 @@ import { MenuIcon } from "lucide-react";
 import Map from "./_components/Map";
 import { SideBar } from "./_components/Sidebar";
 import { MapProvider } from "@/hooks/use-map";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function MapPage() {
 	return (
@@ -23,6 +24,7 @@ export default function MapPage() {
 					<SideBar />
 				</div>
 			</main>
+			<Toaster />
 		</MapProvider>
 	);
 }
