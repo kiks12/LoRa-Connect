@@ -5,30 +5,11 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
 import { RescuerWithBracelet } from "@/types";
-import { RESCUER_SOURCE_BASE } from "@/utils/tags";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function RescuersControls() {
-	const { clearSourcesAndLayers, addRescuerPoint, addRescuerArea } = useMapContext();
-	const [rescuers, setRescuers] = useState<RescuerWithBracelet[]>([]);
-	const [showLocations, setShowLocations] = useState(false);
+	const { rescuers, showRescuersLocations, setShowRescuersLocations, clearSourcesAndLayers, addRescuerPoint, addRescuerArea } = useMapContext();
 	const [monitorLocations, setMonitorLocations] = useState(false);
-
-	useEffect(() => {
-		async function getRescuers() {
-			return (await fetch("/api/rescuers")).json();
-		}
-
-		getRescuers().then(({ rescuers }) => setRescuers(rescuers));
-	}, []);
-
-	useEffect(() => {
-		if (!showLocations) {
-			clearSourcesAndLayers(RESCUER_SOURCE_BASE);
-			return;
-		}
-		rescuers.forEach((rescuer) => addRescuerPoint(rescuer, true));
-	}, [addRescuerPoint, clearSourcesAndLayers, rescuers, showLocations]);
 
 	function onRescuerItemClick(rescuer: RescuerWithBracelet) {
 		addRescuerPoint(rescuer);
@@ -84,7 +65,7 @@ export default function RescuersControls() {
 					<Label className="ml-3" htmlFor="showLocations">
 						Show Locations
 					</Label>
-					<Switch id="showLocations" checked={showLocations} onCheckedChange={() => setShowLocations(!showLocations)} />
+					<Switch id="showLocations" checked={showRescuersLocations} onCheckedChange={() => setShowRescuersLocations(!showRescuersLocations)} />
 				</div>
 				<div className="flex justify-between items-center my-2 border rounded-md p-3">
 					<Label className="ml-3" htmlFor="monitorLocations">

@@ -9,29 +9,11 @@ import { useMapContext } from "@/hooks/use-map";
 import { OwnerWithBracelet } from "@/types";
 import { OWNER_SOURCE_BASE } from "@/utils/tags";
 import { Owners } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function OwnersControls() {
-	const { addOwnerPoint, clearSourcesAndLayers, addOwnerArea } = useMapContext();
-	const [owners, setOwners] = useState<OwnerWithBracelet[]>([]);
-	const [showLocations, setShowLocations] = useState(false);
+	const { addOwnerPoint, owners, showOwnerLocations, setShowOwnerLocations, clearSourcesAndLayers, addOwnerArea } = useMapContext();
 	const [monitorLocations, setMonitorLocations] = useState(false);
-
-	useEffect(() => {
-		async function getOwners() {
-			return (await fetch("/api/owners")).json();
-		}
-
-		getOwners().then(({ owners }) => setOwners(owners));
-	}, []);
-
-	useEffect(() => {
-		if (!showLocations) {
-			clearSourcesAndLayers(OWNER_SOURCE_BASE);
-			return;
-		}
-		owners.forEach((owner) => addOwnerPoint(owner, true));
-	}, [addOwnerPoint, clearSourcesAndLayers, owners, showLocations]);
 
 	function onOwnerItemClick(owner: Owners) {
 		addOwnerPoint(owner);
@@ -87,7 +69,7 @@ export default function OwnersControls() {
 					<Label className="ml-3" htmlFor="showLocations">
 						Show Locations
 					</Label>
-					<Switch id="showLocations" checked={showLocations} onCheckedChange={() => setShowLocations(!showLocations)} />
+					<Switch id="showLocations" checked={showOwnerLocations} onCheckedChange={() => setShowOwnerLocations(!showOwnerLocations)} />
 				</div>
 				<div className="flex justify-between items-center my-2 border rounded-md p-3">
 					<Label className="ml-3" htmlFor="monitorLocations">
