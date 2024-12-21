@@ -5,11 +5,15 @@ plugins {
 
 android {
     namespace = "com.lora_connect.application"
-    compileSdk = 34
+    compileSdk = 35
+
+    androidResources {
+        noCompress += "pbf"
+    }
 
     defaultConfig {
         applicationId = "com.lora_connect.application"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -66,4 +70,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("org.maplibre.gl:android-sdk:11.5.2")
+    implementation("org.ramani-maps:ramani-maplibre:0.8.2")
 }

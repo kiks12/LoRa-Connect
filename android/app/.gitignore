@@ -1,1 +1,5 @@
 /build
+/glyphs
+*.mbtiles
+*.pbf
+*.json

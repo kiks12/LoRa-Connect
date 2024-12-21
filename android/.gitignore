@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+/v3
+*.mbtiles
+*.json
+*.pbf
+/glpyhs
