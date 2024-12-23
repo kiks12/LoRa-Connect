@@ -8,14 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
 import { OwnerWithBracelet } from "@/types";
 import { OWNER_SOURCE_BASE } from "@/utils/tags";
-import { Owners } from "@prisma/client";
-import { useState } from "react";
 
 export default function OwnersControls() {
 	const { addOwnerPoint, owners, showOwnerLocations, setShowOwnerLocations, clearSourcesAndLayers, addOwnerArea } = useMapContext();
-	const [monitorLocations, setMonitorLocations] = useState(false);
 
-	function onOwnerItemClick(owner: Owners) {
+	function onOwnerItemClick(owner: OwnerWithBracelet) {
 		addOwnerPoint(owner);
 		addOwnerArea(owner);
 	}
@@ -71,12 +68,12 @@ export default function OwnersControls() {
 					</Label>
 					<Switch id="showLocations" checked={showOwnerLocations} onCheckedChange={() => setShowOwnerLocations(!showOwnerLocations)} />
 				</div>
-				<div className="flex justify-between items-center my-2 border rounded-md p-3">
+				{/* <div className="flex justify-between items-center my-2 border rounded-md p-3">
 					<Label className="ml-3" htmlFor="monitorLocations">
 						Monitor Owner Locations
 					</Label>
 					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={() => setMonitorLocations(!monitorLocations)} />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);

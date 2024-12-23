@@ -5,11 +5,11 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
 import { RescuerWithBracelet } from "@/types";
-import { useState } from "react";
+import { RESCUER_SOURCE_BASE } from "@/utils/tags";
 
 export default function RescuersControls() {
 	const { rescuers, showRescuersLocations, setShowRescuersLocations, clearSourcesAndLayers, addRescuerPoint, addRescuerArea } = useMapContext();
-	const [monitorLocations, setMonitorLocations] = useState(false);
+	// const [monitorLocations, setMonitorLocations] = useState(false);
 
 	function onRescuerItemClick(rescuer: RescuerWithBracelet) {
 		addRescuerPoint(rescuer);
@@ -28,7 +28,7 @@ export default function RescuersControls() {
 								<TabsTrigger value="WITH-BRACELET">W/ Bracelet</TabsTrigger>
 								<TabsTrigger value="WITHOUT-BRACELET">W/O Bracelet</TabsTrigger>
 							</TabsList>
-							<Button variant="outline" onClick={() => clearSourcesAndLayers()}>
+							<Button variant="outline" onClick={() => clearSourcesAndLayers(RESCUER_SOURCE_BASE)}>
 								Clear
 							</Button>
 						</div>
@@ -67,12 +67,12 @@ export default function RescuersControls() {
 					</Label>
 					<Switch id="showLocations" checked={showRescuersLocations} onCheckedChange={() => setShowRescuersLocations(!showRescuersLocations)} />
 				</div>
-				<div className="flex justify-between items-center my-2 border rounded-md p-3">
+				{/* <div className="flex justify-between items-center my-2 border rounded-md p-3">
 					<Label className="ml-3" htmlFor="monitorLocations">
 						Monitor Owner Locations
 					</Label>
 					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={() => setMonitorLocations(!monitorLocations)} />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);
