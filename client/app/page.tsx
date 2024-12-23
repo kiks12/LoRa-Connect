@@ -1,11 +1,6 @@
-import { socket } from "@/socket/socket";
 import { Container } from "./components/Container";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-
-socket.on("connect", () => {
-	console.log("Connecting");
-});
 
 export const LINKS = [
 	{ title: "Home", link: "/" },
