@@ -1,5 +1,6 @@
-import { client } from "@/prisma/client"
-import { BRACELETS_TAG } from "@/utils/tags"
+import { client } from "../../prisma/client"
+import { BraceletWithOwnerRescuer } from "@/types"
+import { BRACELETS_TAG } from "../../utils/tags"
 import { Bracelets } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 
@@ -15,6 +16,18 @@ export async function getAvailableBracelets() {
         {rescuerId: null}
       ]
     },
+  })
+}
+
+export async function getBracelet({braceletId}: {braceletId: string}): Promise<BraceletWithOwnerRescuer | null> {
+  return await client.bracelets.findFirst({
+    where: {
+      braceletId
+    },
+    include: {
+      owner: true,
+      rescuer: true,
+    }
   })
 }
 
@@ -64,4 +77,32 @@ export async function deleteBracelet({braceletId}: {braceletId: string}) {
       braceletId: braceletId
     }
   })
+}
+
+export async function updateBraceletLocation({braceletId, latitude, longitude}: {braceletId: string, latitude: number, longitude: number}) {
+  const bracelet = await getBracelet({braceletId})  
+  if (bracelet === null) return
+  if (bracelet.ownerId && !bracelet.rescuerId) {
+    await client.owners.update({
+      where: {
+        ownerId: bracelet.ownerId,
+      },
+      data: {
+        latitude,
+        longitude
+      }
+    })
+  }
+
+  if (!bracelet.ownerId && bracelet.rescuerId) {
+    await client.rescuers.update({
+      where: {
+        rescuerId: bracelet.rescuerId,
+      },
+      data: {
+        latitude,
+        longitude
+      }
+    })
+  }
 }
