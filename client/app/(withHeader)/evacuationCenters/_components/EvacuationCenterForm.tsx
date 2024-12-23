@@ -1,8 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { evacuationCenterSchema } from "@/schema/evacuationCenters";
@@ -10,6 +12,8 @@ import { createEvacuationCenter, updateEvacuationCenter } from "@/server/actions
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import LocationSelector from "./LocationSelector";
+import { useEffect, useState } from "react";
 
 export type EvacuationFormType = "CREATE" | "UPDATE";
 
@@ -29,6 +33,10 @@ export function EvacuationForm({
 	type?: EvacuationFormType;
 }) {
 	const { toast } = useToast();
+	const [evacuationLocation, setEvacuationLocation] = useState<{ latitude: number | null; longitude: number | null }>({
+		latitude: null,
+		longitude: null,
+	});
 	const form = useForm<z.infer<typeof evacuationCenterSchema>>({
 		resolver: zodResolver(evacuationCenterSchema),
 		defaultValues: {
@@ -78,6 +86,13 @@ export function EvacuationForm({
 		});
 	};
 
+	useEffect(() => {
+		if (evacuationLocation.latitude && evacuationLocation.longitude) {
+			form.setValue("latitude", evacuationLocation.latitude);
+			form.setValue("longitude", evacuationLocation.longitude);
+		}
+	}, [evacuationLocation]);
+
 	return (
 		<>
 			<Form {...form}>
@@ -112,6 +127,27 @@ export function EvacuationForm({
 							)}
 						/>
 					</div>
+					<div className="mt-8">
+						<div>
+							<h2 className="text-xl font-semibold">Location</h2>
+							<Label>Select the location of the Evacuation Center</Label>
+						</div>
+						<Dialog>
+							<DialogTrigger className="w-full mt-4" asChild>
+								<Button className="w-full" variant="secondary" type="button">
+									Select Location
+								</Button>
+							</DialogTrigger>
+							<DialogContent className="max-w-screen p-0 m-0">
+								<DialogHeader hidden>
+									<DialogTitle></DialogTitle>
+								</DialogHeader>
+								<div className="w-screen h-screen">
+									<LocationSelector evacuationLocation={evacuationLocation} setEvacuationLocation={setEvacuationLocation} />
+								</div>
+							</DialogContent>
+						</Dialog>
+					</div>
 					<div className="mt-2">
 						<FormField
 							control={form.control}
@@ -120,7 +156,7 @@ export function EvacuationForm({
 								<FormItem>
 									<FormLabel>Latitude</FormLabel>
 									<FormControl>
-										<Input type="number" placeholder="Enter evacuation center latitude..." {...field} />
+										<Input readOnly type="number" placeholder="Enter evacuation center latitude..." {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -135,7 +171,7 @@ export function EvacuationForm({
 								<FormItem>
 									<FormLabel>Longitude</FormLabel>
 									<FormControl>
-										<Input type="number" placeholder="Enter evacuation center longitude..." {...field} />
+										<Input readOnly type="number" placeholder="Enter evacuation center longitude..." {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
