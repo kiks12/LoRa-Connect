@@ -25,14 +25,16 @@ import {
 	createRescuerPointGeoJSON,
 	createRescuerPointLayerGeoJSON,
 } from "@/utils/map";
-import { OwnerWithBracelet, RescuerWithBracelet } from "@/types";
+import { LocationDataFromLoRa, OwnerWithBracelet, RescuerWithBracelet } from "@/types";
 import { OWNER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
+import { socket } from "@/socket/socket";
+import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/tags";
 
 const MapContext = createContext<{
 	map: MutableRefObject<maplibregl.Map | null>;
 	mapContainerRef: RefObject<HTMLDivElement>;
-	addOwnerPoint: ({ latitude, longitude, ownerId }: Owners, showLocation?: boolean) => void;
-	addOwnerArea: ({ latitude, longitude, ownerId }: Owners, showLocation?: boolean) => void;
+	addOwnerPoint: ({ latitude, longitude, ownerId }: OwnerWithBracelet, showLocation?: boolean) => void;
+	addOwnerArea: ({ latitude, longitude, ownerId }: OwnerWithBracelet, showLocation?: boolean) => void;
 	addRescuerPoint: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
 	addRescuerArea: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
 	clearSourcesAndLayers: (includes?: string) => void;
@@ -42,6 +44,9 @@ const MapContext = createContext<{
 	owners: OwnerWithBracelet[];
 	showOwnerLocations: boolean;
 	setShowOwnerLocations: Dispatch<SetStateAction<boolean>>;
+	sendTransmitLocationSignalToBracelets: () => void;
+	monitorLocations: boolean;
+	toggleMonitorLocations: () => void;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -55,7 +60,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [showRescuersLocations, setShowRescuersLocations] = useState(false);
 	const [owners, setOwners] = useState<OwnerWithBracelet[]>([]);
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
+	const [monitorLocations, setMonitorLocations] = useState(false);
 
+	/* --- MAP RENDERING --- */
 	// GET CURRENT LOCATION OF CENTRAL NODE
 	useEffect(() => {
 		if ("geolocation" in navigator) {
@@ -95,7 +102,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			marker.addTo(mapRef.current);
 		}
 	}, [latitude, longitude, mapRef]);
+	/* --- MAP RENDERING --- */
 
+	/* --- OWNER FUNCTIONS --- */
 	const addOwnerArea = useCallback(({ latitude, longitude, ownerId }: Owners, showLocation: boolean = false) => {
 		if (latitude === null && longitude === null) return;
 		if (!mapRef.current) return;
@@ -109,14 +118,15 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const addOwnerPoint = useCallback(
-		(owner: Owners, showLocation: boolean = false) => {
+		(owner: Owners, showLocation: boolean = false, monitorLocation: boolean = false) => {
 			const { latitude, longitude, ownerId } = owner;
 			if (latitude === null && longitude === null) return;
 			if (!mapRef.current) return;
 			const { sourceId, data } = createOwnerPointGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
 
 			if (mapRef.current.getSource(sourceId) && showLocation) return;
-			if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
+			if (mapRef.current.getSource(sourceId) && !showLocation && !monitorLocation) return removeSourceAndLayer(sourceId);
+			if (mapRef.current.getSource(sourceId) && monitorLocation) removeSourceAndLayer(sourceId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
 			mapRef.current.addLayer(createOwnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
@@ -142,8 +152,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			return;
 		}
 		owners.forEach((owner) => addOwnerPoint(owner, true));
-	}, [addOwnerPoint, owners, showOwnerLocations]);
+	}, [addOwnerPoint, showOwnerLocations]);
+	/* --- OWNER FUNCTIONS --- */
 
+	/* --- RESCUER FUNCTIONS --- */
 	const addRescuerArea = useCallback(({ latitude, longitude, rescuerId }: Rescuers, showLocation: boolean = false) => {
 		if (latitude === null && longitude === null) return;
 		if (!mapRef.current) return;
@@ -157,14 +169,15 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const addRescuerPoint = useCallback(
-		(rescuer: Rescuers, showLocation: boolean = false) => {
+		(rescuer: Rescuers, showLocation: boolean = false, monitorLocation: boolean = false) => {
 			const { latitude, longitude, rescuerId } = rescuer;
 			if (latitude === null && longitude === null) return;
 			if (!mapRef.current) return;
 			const { sourceId, data } = createRescuerPointGeoJSON({ rescuerId, latitude: latitude!, longitude: longitude! });
 
 			if (mapRef.current.getSource(sourceId) && showLocation) return;
-			if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
+			if (mapRef.current.getSource(sourceId) && !showLocation && !monitorLocation) return removeSourceAndLayer(sourceId);
+			if (mapRef.current.getSource(sourceId) && monitorLocation) removeSourceAndLayer(sourceId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
 			mapRef.current.addLayer(createRescuerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
@@ -189,8 +202,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			return;
 		}
 		rescuers.forEach((rescuer) => addRescuerPoint(rescuer, true));
-	}, [addRescuerPoint, rescuers, showRescuersLocations]);
+	}, [addRescuerPoint, showRescuersLocations]);
+	/* --- RESCUER FUNCTIONS --- */
 
+	/* --- UTILITY FUNCTIONS --- */
 	function clearSourcesAndLayers(includes: string = "") {
 		if (!mapRef.current) return;
 		const style = mapRef.current.getStyle();
@@ -218,6 +233,70 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		mapRef.current.removeLayer(sourceId);
 		mapRef.current.removeSource(sourceId);
 	}
+	/* --- UTILITY FUNCTIONS --- */
+
+	/* --- MONITOR LOCATION FUNCTIONS --- */
+	async function saveNewLocationToDatabase({
+		braceletId,
+		latitude,
+		longitude,
+		rescuer,
+	}: {
+		braceletId: string;
+		latitude: number;
+		longitude: number;
+		rescuer: boolean;
+	}) {
+		await fetch("/api/bracelets/update-location", {
+			method: "PATCH",
+			body: JSON.stringify({ braceletId, latitude, longitude }),
+		});
+		if (rescuer) {
+			setRescuers(
+				(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
+			);
+		} else {
+			setOwners((prev) => (prev = owners.map((owner) => (owner.bracelet?.braceletId === braceletId ? { ...owner, latitude, longitude } : owner))));
+		}
+	}
+
+	function sendTransmitLocationSignalToBracelets() {
+		// Send the signal to monitor locations
+		socket.emit(SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS);
+
+		// Receive the signal from bracelets
+		socket.on(SEND_RECEIVED_LOCATION_TO_CLIENT, async (data: LocationDataFromLoRa) => {
+			const { rescuer, braceletId, latitude, longitude } = data;
+			const correctOwner = rescuer
+				? rescuers.filter((rescuer) => rescuer.bracelet?.braceletId === braceletId)
+				: owners.filter((owner) => owner.bracelet?.braceletId === braceletId);
+			if (correctOwner.length === 0) return;
+			if (rescuer) {
+				addRescuerPoint({ ...(correctOwner[0] as RescuerWithBracelet), latitude, longitude }, false, true);
+			} else {
+				addOwnerPoint({ ...(correctOwner[0] as OwnerWithBracelet), latitude, longitude }, false, true);
+			}
+			await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer });
+		});
+	}
+
+	// Location Monitoring Code block - as long as monitorLocation is true this triggers
+	useEffect(() => {
+		if (!monitorLocations) {
+			socket.off(SEND_RECEIVED_LOCATION_TO_CLIENT);
+			return;
+		}
+		sendTransmitLocationSignalToBracelets();
+		return () => {
+			socket.off(SEND_RECEIVED_LOCATION_TO_CLIENT);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [monitorLocations]);
+
+	function toggleMonitorLocations() {
+		setMonitorLocations(!monitorLocations);
+	}
+	/* --- MONITOR LOCATION FUNCTIONS --- */
 
 	return (
 		<MapContext.Provider
@@ -235,6 +314,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				owners,
 				showOwnerLocations,
 				setShowOwnerLocations,
+				sendTransmitLocationSignalToBracelets,
+				monitorLocations,
+				toggleMonitorLocations,
 			}}
 		>
 			{children}
