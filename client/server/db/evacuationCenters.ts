@@ -3,6 +3,10 @@ import { EVACUATION_CENTERS_TAG } from "@/utils/tags"
 import { EvacuationCenters } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 
+export async function getLatestEvacuationCenters() {
+  return await client.evacuationCenters.findMany()
+}
+
 export const getEvacuationCenters = unstable_cache(async () => {
   return await client.evacuationCenters.findMany()
 }, [], {tags: [EVACUATION_CENTERS_TAG]})
