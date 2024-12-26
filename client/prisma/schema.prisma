@@ -82,3 +82,13 @@ model Operations {
   evacuationCenter              EvacuationCenters @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
   evacuationCentersEvacuationId Int
 }
+
+model Obstacle {
+  obstacleId Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  dateTime   DateTime @default(now())
+  type       String
+  name       String
+  longitude  Float
+  latitude   Float
+}
