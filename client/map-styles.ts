@@ -1,0 +1,2 @@
+
+export const EVACUATION_CENTER_MARKER_COLOR = "#3a9e3e"
