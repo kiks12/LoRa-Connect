@@ -91,6 +91,7 @@ export function EvacuationForm({
 			form.setValue("latitude", evacuationLocation.latitude);
 			form.setValue("longitude", evacuationLocation.longitude);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [evacuationLocation]);
 
 	return (
