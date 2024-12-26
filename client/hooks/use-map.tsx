@@ -14,7 +14,7 @@ import {
 	useState,
 } from "react";
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { Owners, Rescuers } from "@prisma/client";
+import { EvacuationCenters, Owners, Rescuers } from "@prisma/client";
 import {
 	createOwnerPointAreaGeoJSON,
 	createOwnerPointAreaLayerGeoJSON,
@@ -29,6 +29,7 @@ import { LocationDataFromLoRa, OwnerWithBracelet, RescuerWithBracelet } from "@/
 import { OWNER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
 import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/tags";
+import { EVACUATION_CENTER_MARKER_COLOR } from "@/map-styles";
 
 const MapContext = createContext<{
 	map: MutableRefObject<maplibregl.Map | null>;
@@ -48,6 +49,9 @@ const MapContext = createContext<{
 	sendTransmitLocationSignalToBracelets: () => void;
 	monitorLocations: boolean;
 	toggleMonitorLocations: () => void;
+	evacuationCenters: EvacuationCenters[];
+	showEvacuationCenters: boolean;
+	toggleShowEvacuationCenters: () => void;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -63,6 +67,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
 	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [mapLoading, setMapLoading] = useState(true);
+	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenters[]>([]);
+	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<maplibregl.Marker[]>([]);
+	const [showEvacuationCenters, setShowEvacuationCenters] = useState(false);
 
 	/* --- MAP RENDERING --- */
 	// GET CURRENT LOCATION OF CENTRAL NODE
@@ -106,6 +113,37 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [latitude, longitude, mapRef, setMapLoading]);
 	/* --- MAP RENDERING --- */
+
+	/* --- EVAUCATION CENTERS FUNCTIONS --- */
+	useEffect(() => {
+		async function fetchEvacuationCenters() {
+			return (await fetch("/api/evacuation-centers")).json();
+		}
+
+		fetchEvacuationCenters().then((res) => setEvacuationCenters(res.evacuationCenters));
+	}, []);
+
+	useEffect(() => {
+		if (showEvacuationCenters && mapRef.current) {
+			evacuationCenters.forEach((evacuationCenter) => {
+				const marker = new maplibregl.Marker({
+					color: EVACUATION_CENTER_MARKER_COLOR,
+				}).setLngLat([evacuationCenter.longitude, evacuationCenter.latitude]);
+				marker.addTo(mapRef.current!);
+				setEvacuationCentersMarkers((prev) => [...prev, marker]);
+			});
+		} else {
+			evacuationCentersMarkers.forEach((marker) => {
+				marker.remove();
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [showEvacuationCenters]);
+
+	function toggleShowEvacuationCenters() {
+		setShowEvacuationCenters(!showEvacuationCenters);
+	}
+	/* --- EVAUCATION CENTERS FUNCTIONS --- */
 
 	/* --- OWNER FUNCTIONS --- */
 	const addOwnerArea = useCallback(({ latitude, longitude, ownerId }: Owners, showLocation: boolean = false) => {
@@ -323,6 +361,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				sendTransmitLocationSignalToBracelets,
 				monitorLocations,
 				toggleMonitorLocations,
+				evacuationCenters,
+				showEvacuationCenters,
+				toggleShowEvacuationCenters,
 			}}
 		>
 			{children}
