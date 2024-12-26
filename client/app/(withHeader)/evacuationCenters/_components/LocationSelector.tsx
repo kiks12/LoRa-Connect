@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { EVACUATION_CENTER_MARKER_COLOR } from "@/map-styles";
 
 const LocationSelector = ({
 	evacuationLocation,
@@ -68,6 +69,7 @@ const LocationSelector = ({
 				markerRef.current.addTo(mapRef.current!);
 			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [latitude, longitude, mapRef]);
 	/* --- MAP RENDERING --- */
 
@@ -78,11 +80,12 @@ const LocationSelector = ({
 				setEvacuationLocation({ latitude: lat, longitude: lng });
 				if (markerRef.current) markerRef.current.remove();
 				markerRef.current = new maplibregl.Marker({
-					color: "#3a9e3e",
+					color: EVACUATION_CENTER_MARKER_COLOR,
 				}).setLngLat([lng, lat]);
 				markerRef.current.addTo(mapRef.current!);
 			});
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [mapRef.current]);
 
 	return (
