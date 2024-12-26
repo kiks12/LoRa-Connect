@@ -33,6 +33,7 @@ import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRAC
 const MapContext = createContext<{
 	map: MutableRefObject<maplibregl.Map | null>;
 	mapContainerRef: RefObject<HTMLDivElement>;
+	mapLoading: boolean;
 	addOwnerPoint: ({ latitude, longitude, ownerId }: OwnerWithBracelet, showLocation?: boolean) => void;
 	addOwnerArea: ({ latitude, longitude, ownerId }: OwnerWithBracelet, showLocation?: boolean) => void;
 	addRescuerPoint: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
@@ -61,6 +62,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [owners, setOwners] = useState<OwnerWithBracelet[]>([]);
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
 	const [monitorLocations, setMonitorLocations] = useState(false);
+	const [mapLoading, setMapLoading] = useState(true);
 
 	/* --- MAP RENDERING --- */
 	// GET CURRENT LOCATION OF CENTRAL NODE
@@ -100,8 +102,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		if (mapRef.current) {
 			const marker = new maplibregl.Marker().setLngLat([longitude, latitude]);
 			marker.addTo(mapRef.current);
+			setMapLoading(false);
 		}
-	}, [latitude, longitude, mapRef]);
+	}, [latitude, longitude, mapRef, setMapLoading]);
 	/* --- MAP RENDERING --- */
 
 	/* --- OWNER FUNCTIONS --- */
@@ -152,6 +155,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			return;
 		}
 		owners.forEach((owner) => addOwnerPoint(owner, true));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [addOwnerPoint, showOwnerLocations]);
 	/* --- OWNER FUNCTIONS --- */
 
@@ -202,6 +206,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			return;
 		}
 		rescuers.forEach((rescuer) => addRescuerPoint(rescuer, true));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [addRescuerPoint, showRescuersLocations]);
 	/* --- RESCUER FUNCTIONS --- */
 
@@ -303,6 +308,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			value={{
 				map: mapRef,
 				mapContainerRef,
+				mapLoading,
 				clearSourcesAndLayers,
 				addOwnerPoint,
 				addOwnerArea,
