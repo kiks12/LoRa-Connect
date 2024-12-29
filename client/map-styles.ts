@@ -1,2 +1,3 @@
 
 export const EVACUATION_CENTER_MARKER_COLOR = "#3a9e3e"
+export const OBSTACLE_MARKER_COLOR = "#FF0000"
