@@ -1,8 +1,12 @@
 import { z } from "zod";
 
 export const obstacleSchema = z.object({
-	name: z.string(),
-  type: z.string(),
+	name: z.string().nonempty({
+    message: "Name should not be empty"
+  }),
+  type: z.string().nonempty({
+    message: "Type should not be empty"
+  }),
   longitude: z.coerce.number(),
   latitude: z.coerce.number()
 });
