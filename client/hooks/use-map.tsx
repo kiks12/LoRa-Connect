@@ -14,7 +14,7 @@ import {
 	useState,
 } from "react";
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { EvacuationCenters, Owners, Rescuers } from "@prisma/client";
+import { EvacuationCenters, Obstacle, Owners, Rescuers } from "@prisma/client";
 import {
 	createOwnerPointAreaGeoJSON,
 	createOwnerPointAreaLayerGeoJSON,
@@ -29,7 +29,7 @@ import { LocationDataFromLoRa, OwnerWithBracelet, RescuerWithBracelet } from "@/
 import { OWNER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
 import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/tags";
-import { EVACUATION_CENTER_MARKER_COLOR } from "@/map-styles";
+import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR } from "@/map-styles";
 
 const MapContext = createContext<{
 	map: MutableRefObject<maplibregl.Map | null>;
@@ -52,6 +52,14 @@ const MapContext = createContext<{
 	evacuationCenters: EvacuationCenters[];
 	showEvacuationCenters: boolean;
 	toggleShowEvacuationCenters: () => void;
+	obstacles: Obstacle[];
+	showObstacles: boolean;
+	toggleShowObstacles: () => void;
+	addObstacle: (obstacle: Obstacle) => void;
+	removeObstacle: (Obstacle: Obstacle) => void;
+	addingObstacle: boolean;
+	toggleAddingObstacle: () => void;
+	currentObstacleMarkerLngLat: { lng: number; lat: number } | null;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -70,6 +78,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenters[]>([]);
 	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<maplibregl.Marker[]>([]);
 	const [showEvacuationCenters, setShowEvacuationCenters] = useState(false);
+	const [obstacles, setObstacles] = useState<Obstacle[]>([]);
+	const [obstaclesMarkers, setObstaclesMarkers] = useState<maplibregl.Marker[]>([]);
+	const [showObstacles, setShowObstacles] = useState(false);
+	const [addingObstacle, setAddingObstacle] = useState(false);
+	const currentObstacleMarker = useRef<maplibregl.Marker | null>(null);
+	const [currentObstacleMarkerLngLat, setCurrentObstacleMarkerLngLat] = useState<{ lng: number; lat: number } | null>(null);
 
 	/* --- MAP RENDERING --- */
 	// GET CURRENT LOCATION OF CENTRAL NODE
@@ -296,9 +310,11 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		});
 		if (rescuer) {
 			setRescuers(
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
 			);
 		} else {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			setOwners((prev) => (prev = owners.map((owner) => (owner.bracelet?.braceletId === braceletId ? { ...owner, latitude, longitude } : owner))));
 		}
 	}
@@ -341,6 +357,69 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}
 	/* --- MONITOR LOCATION FUNCTIONS --- */
 
+	/* --- OBSTACLES FUNCTIONS --- */
+	const onAddObtacleMapClick = useCallback(({ lngLat }: maplibregl.MapMouseEvent) => {
+		const { lat, lng } = lngLat;
+		if (currentObstacleMarker.current) currentObstacleMarker.current.remove();
+		currentObstacleMarker.current = new maplibregl.Marker({
+			color: OBSTACLE_MARKER_COLOR,
+		}).setLngLat([lng, lat]);
+		currentObstacleMarker.current.addTo(mapRef.current!);
+		setCurrentObstacleMarkerLngLat({ lat, lng });
+	}, []);
+
+	useEffect(() => {
+		if (mapRef.current) {
+			if (addingObstacle) {
+				mapRef.current.on("click", onAddObtacleMapClick);
+			} else {
+				mapRef.current.off("click", onAddObtacleMapClick);
+			}
+		}
+	}, [addingObstacle, onAddObtacleMapClick]);
+
+	useEffect(() => {
+		async function fetchObstacles() {
+			return (await fetch("/api/obstacles")).json();
+		}
+
+		fetchObstacles().then(({ obstacles }) => setObstacles(obstacles));
+	}, []);
+
+	useEffect(() => {
+		if (showObstacles && mapRef.current) {
+			obstacles.forEach((obstacle) => {
+				const marker = new maplibregl.Marker({
+					color: OBSTACLE_MARKER_COLOR,
+				}).setLngLat([obstacle.longitude, obstacle.latitude]);
+				marker.addTo(mapRef.current!);
+				setObstaclesMarkers((prev) => [...prev, marker]);
+			});
+		} else {
+			obstaclesMarkers.forEach((marker) => {
+				marker.remove();
+			});
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [showObstacles]);
+
+	function toggleShowObstacles() {
+		setShowObstacles(!showObstacles);
+	}
+
+	function toggleAddingObstacle() {
+		setAddingObstacle(!addingObstacle);
+	}
+
+	function addObstacle(newObstacle: Obstacle) {
+		setObstacles((prev) => [...prev, newObstacle]);
+	}
+
+	function removeObstacle(obstacle: Obstacle) {
+		setObstacles((prev) => prev.filter((o) => o.obstacleId === obstacle.obstacleId));
+	}
+	/* --- OBSTACLES FUNCTIONS --- */
+
 	return (
 		<MapContext.Provider
 			value={{
@@ -364,6 +443,14 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				evacuationCenters,
 				showEvacuationCenters,
 				toggleShowEvacuationCenters,
+				obstacles,
+				showObstacles,
+				toggleShowObstacles,
+				addObstacle,
+				removeObstacle,
+				addingObstacle,
+				toggleAddingObstacle,
+				currentObstacleMarkerLngLat,
 			}}
 		>
 			{children}
