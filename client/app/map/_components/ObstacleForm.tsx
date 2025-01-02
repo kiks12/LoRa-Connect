@@ -87,7 +87,7 @@ export default function ObstacleForm({
 			form.setValue("latitude", currentObstacleMarkerLngLat.lat);
 			form.setValue("longitude", currentObstacleMarkerLngLat.lng);
 		}
-	}, [currentObstacleMarkerLngLat]);
+	}, [currentObstacleMarkerLngLat, form]);
 
 	return (
 		<div className="max-w-lg">
