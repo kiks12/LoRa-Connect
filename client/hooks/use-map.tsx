@@ -60,6 +60,7 @@ const MapContext = createContext<{
 	addingObstacle: boolean;
 	toggleAddingObstacle: () => void;
 	currentObstacleMarkerLngLat: { lng: number; lat: number } | null;
+	showObstacleMarkerOnMap: (obstacle: Obstacle) => void;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -79,7 +80,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<maplibregl.Marker[]>([]);
 	const [showEvacuationCenters, setShowEvacuationCenters] = useState(false);
 	const [obstacles, setObstacles] = useState<Obstacle[]>([]);
-	const [obstaclesMarkers, setObstaclesMarkers] = useState<maplibregl.Marker[]>([]);
+	const [obstaclesMarkers, setObstaclesMarkers] = useState<
+		{
+			obstacleId: number;
+			marker: maplibregl.Marker;
+		}[]
+	>([]);
 	const [showObstacles, setShowObstacles] = useState(false);
 	const [addingObstacle, setAddingObstacle] = useState(false);
 	const currentObstacleMarker = useRef<maplibregl.Marker | null>(null);
@@ -388,20 +394,28 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		if (showObstacles && mapRef.current) {
-			obstacles.forEach((obstacle) => {
-				const marker = new maplibregl.Marker({
-					color: OBSTACLE_MARKER_COLOR,
-				}).setLngLat([obstacle.longitude, obstacle.latitude]);
-				marker.addTo(mapRef.current!);
-				setObstaclesMarkers((prev) => [...prev, marker]);
-			});
+			obstacles.forEach((obstacle) => showObstacleMarkerOnMap(obstacle, true));
 		} else {
-			obstaclesMarkers.forEach((marker) => {
-				marker.remove();
-			});
+			obstaclesMarkers.forEach((obj) => removeObstacleMarkerFromMap(obj));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [showObstacles]);
+
+	function showObstacleMarkerOnMap(obstacle: Obstacle, showObstacle: boolean = false) {
+		const marker = new maplibregl.Marker({
+			color: OBSTACLE_MARKER_COLOR,
+		}).setLngLat([obstacle.longitude, obstacle.latitude]);
+		const currentMarker = obstaclesMarkers.filter((obj) => obj.obstacleId === obstacle.obstacleId);
+		if (currentMarker.length !== 0 && !showObstacle) return removeObstacleMarkerFromMap(currentMarker[0]);
+		if (currentMarker.length !== 0 && showObstacle) return;
+		marker.addTo(mapRef.current!);
+		setObstaclesMarkers((prev) => [...prev, { obstacleId: obstacle.obstacleId, marker: marker }]);
+	}
+
+	function removeObstacleMarkerFromMap(obj: { marker: maplibregl.Marker; obstacleId: number }) {
+		setObstaclesMarkers(obstaclesMarkers.filter((m) => obj.obstacleId !== m.obstacleId));
+		obj.marker.remove();
+	}
 
 	function toggleShowObstacles() {
 		setShowObstacles(!showObstacles);
@@ -451,6 +465,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				addingObstacle,
 				toggleAddingObstacle,
 				currentObstacleMarkerLngLat,
+				showObstacleMarkerOnMap,
 			}}
 		>
 			{children}
