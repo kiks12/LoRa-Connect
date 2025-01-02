@@ -1,19 +1,31 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
-import { RescuerWithBracelet } from "@/types";
+import { RescuerWithStatusIdentifier } from "@/types";
 import { RESCUER_SOURCE_BASE } from "@/utils/tags";
+import RescuerListItem from "./RescuerListItem";
 
 export default function RescuersControls() {
-	const { rescuers, showRescuersLocations, setShowRescuersLocations, clearSourcesAndLayers, addRescuerPoint, addRescuerArea } = useMapContext();
-	// const [monitorLocations, setMonitorLocations] = useState(false);
+	const {
+		rescuers,
+		showRescuersLocations,
+		setShowRescuersLocations,
+		clearSourcesAndLayers,
+		addRescuerPoint,
+		addRescuerArea,
+		clearRescuerShowStatuses,
+	} = useMapContext();
 
-	function onRescuerItemClick(rescuer: RescuerWithBracelet) {
+	function onRescuerItemClick(rescuer: RescuerWithStatusIdentifier) {
 		addRescuerPoint(rescuer);
 		addRescuerArea(rescuer);
+	}
+
+	function onClearClick() {
+		clearSourcesAndLayers(RESCUER_SOURCE_BASE);
+		clearRescuerShowStatuses();
 	}
 
 	return (
@@ -28,7 +40,7 @@ export default function RescuersControls() {
 								<TabsTrigger value="WITH-BRACELET">W/ Bracelet</TabsTrigger>
 								<TabsTrigger value="WITHOUT-BRACELET">W/O Bracelet</TabsTrigger>
 							</TabsList>
-							<Button variant="outline" onClick={() => clearSourcesAndLayers(RESCUER_SOURCE_BASE)}>
+							<Button variant="outline" onClick={onClearClick}>
 								Clear
 							</Button>
 						</div>
@@ -75,16 +87,5 @@ export default function RescuersControls() {
 				</div> */}
 			</div>
 		</div>
-	);
-}
-
-function RescuerListItem({ rescuer, onClick }: { rescuer: RescuerWithBracelet; onClick: () => void }) {
-	return (
-		<Card className="my-1 shadow-none hover:shadow-sm cursor-pointer" onClick={onClick}>
-			<CardHeader>
-				<CardTitle>{rescuer.name}</CardTitle>
-				<CardDescription>Created At: {new Date(rescuer.createdAt).toDateString()}</CardDescription>
-			</CardHeader>
-		</Card>
 	);
 }

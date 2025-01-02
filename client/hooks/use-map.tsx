@@ -14,7 +14,7 @@ import {
 	useState,
 } from "react";
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { Obstacle, Rescuers } from "@prisma/client";
+import { Obstacle } from "@prisma/client";
 import {
 	createOwnerPointAreaGeoJSON,
 	createOwnerPointAreaLayerGeoJSON,
@@ -56,9 +56,10 @@ const MapContext = createContext<{
 	// RESCUERS
 	rescuers: RescuerWithStatusIdentifier[];
 	showRescuersLocations: boolean;
-	addRescuerPoint: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
-	addRescuerArea: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
+	addRescuerPoint: ({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation?: boolean) => void;
+	addRescuerArea: ({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation?: boolean) => void;
 	setShowRescuersLocations: Dispatch<SetStateAction<boolean>>;
+	clearRescuerShowStatuses: () => void;
 
 	// OWNERS
 	owners: OwnerWithStatusIdentifier[];
@@ -293,7 +294,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- OWNER FUNCTIONS --- */
 
 	/* --- RESCUER FUNCTIONS --- */
-	const addRescuerArea = useCallback(({ latitude, longitude, rescuerId }: Rescuers, showLocation: boolean = false) => {
+	const addRescuerArea = useCallback(({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation: boolean = false) => {
 		if (latitude === null && longitude === null) return;
 		if (!mapRef.current) return;
 		const { sourceId, data } = createRescuerPointAreaGeoJSON({ rescuerId, latitude: latitude!, longitude: longitude! });
@@ -306,24 +307,35 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const addRescuerPoint = useCallback(
-		(rescuer: Rescuers, showLocation: boolean = false, monitorLocation: boolean = false) => {
-			const { latitude, longitude, rescuerId } = rescuer;
+		({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
 			if (latitude === null && longitude === null) return;
 			if (!mapRef.current) return;
 			const { sourceId, data } = createRescuerPointGeoJSON({ rescuerId, latitude: latitude!, longitude: longitude! });
 
 			if (mapRef.current.getSource(sourceId) && showLocation) return;
-			if (mapRef.current.getSource(sourceId) && !showLocation && !monitorLocation) return removeSourceAndLayer(sourceId);
-			if (mapRef.current.getSource(sourceId) && monitorLocation) removeSourceAndLayer(sourceId);
+			if (mapRef.current.getSource(sourceId) && !showLocation && !monitorLocation) return removeRescuerPoint(sourceId, rescuerId);
+			if (mapRef.current.getSource(sourceId) && monitorLocation) removeRescuerPoint(sourceId, rescuerId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
 			mapRef.current.addLayer(createRescuerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
-			mapRef.current.on("click", sourceId, () => {
-				addRescuerArea(rescuer);
-			});
+			toggleRescuerShowStatus(rescuerId);
 		},
-		[addRescuerArea]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[]
 	);
+
+	function removeRescuerPoint(sourceId: string, rescuerId: number) {
+		removeSourceAndLayer(sourceId);
+		toggleRescuerShowStatus(rescuerId);
+	}
+
+	function clearRescuerShowStatuses() {
+		setRescuers((prev) => (prev = prev.map((rescuer) => ({ ...rescuer, showing: false }))));
+	}
+
+	function toggleRescuerShowStatus(rescuerId: number) {
+		setRescuers((prev) => (prev = prev.map((rescuer) => (rescuer.rescuerId === rescuerId ? { ...rescuer, showing: !rescuer.showing } : rescuer))));
+	}
 
 	useEffect(() => {
 		async function getRescuers() {
@@ -338,6 +350,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	useEffect(() => {
 		if (!showRescuersLocations) {
 			clearSourcesAndLayers(RESCUER_SOURCE_BASE);
+			clearRescuerShowStatuses();
 			return;
 		}
 		rescuers.forEach((rescuer) => addRescuerPoint(rescuer, true));
@@ -414,7 +427,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				: owners.filter((owner) => owner.bracelet?.braceletId === braceletId);
 			if (correctOwner.length === 0) return;
 			if (rescuer) {
-				addRescuerPoint({ ...(correctOwner[0] as RescuerWithBracelet), latitude, longitude }, false, true);
+				addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier), latitude, longitude }, false, true);
 			} else {
 				addOwnerPoint({ ...(correctOwner[0] as OwnerWithStatusIdentifier), latitude, longitude }, false, true);
 			}
@@ -543,24 +556,30 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				map: mapRef,
 				mapContainerRef,
 				mapLoading,
+
 				clearSourcesAndLayers,
+				monitorLocations,
+				toggleMonitorLocations,
+				sendTransmitLocationSignalToBracelets,
+
+				owners,
 				addOwnerPoint,
 				addOwnerArea,
-				addRescuerPoint,
-				addRescuerArea,
-				rescuers,
-				showRescuersLocations,
-				setShowRescuersLocations,
-				owners,
 				showOwnerLocations,
 				setShowOwnerLocations,
 				clearOwnerShowStatuses,
-				sendTransmitLocationSignalToBracelets,
-				monitorLocations,
-				toggleMonitorLocations,
+
+				rescuers,
+				addRescuerPoint,
+				addRescuerArea,
+				showRescuersLocations,
+				setShowRescuersLocations,
+				clearRescuerShowStatuses,
+
 				evacuationCenters,
 				showEvacuationCenters,
 				toggleShowEvacuationCenters,
+
 				obstacles,
 				showObstacles,
 				toggleShowObstacles,
