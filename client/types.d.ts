@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { EvacuationCenters, Prisma } from "@prisma/client";
 
 export type OwnerWithBracelet = Prisma.OwnersGetPayload<{
   include: {
@@ -25,3 +25,15 @@ export type LocationDataFromLoRa = {
   braceletId: string,
   rescuer: boolean
 }
+
+type StatusIdentifier = {
+  showing: boolean,
+}
+
+export type ObstacleWithStatusIdentifier = Obstacle & StatusIdentifier
+
+export type EvacuationCenterWithStatusIdentifier = EvacuationCenters & StatusIdentifier 
+
+export type OwnerWithStatusIdentifier = OwnerWithBracelet & StatusIdentifier
+
+export type RescuerWithStatusIdentifier = RescuerWithBracelet & StatusIdentifier
