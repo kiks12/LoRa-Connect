@@ -13,21 +13,58 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export default function AddObstacleCard() {
+export default function ObstacleForm({
+	name,
+	latitude,
+	longitude,
+	type,
+	obstacleId,
+	editing = false,
+}: {
+	name?: string;
+	latitude?: number;
+	longitude?: number;
+	type?: string;
+	obstacleId?: number;
+	editing?: boolean;
+}) {
 	const { toast } = useToast();
-	const { currentObstacleMarkerLngLat, toggleAddingObstacle, addObstacle } = useMapContext();
+	const { currentObstacleMarkerLngLat, toggleAddingObstacle, addObstacle, updateObstacle } = useMapContext();
 	const { toggleSidebar } = useSidebarContext();
 	const form = useForm<z.infer<typeof obstacleSchema>>({
 		resolver: zodResolver(obstacleSchema),
 		defaultValues: {
-			name: "",
-			latitude: 0.0,
-			longitude: 0.0,
-			type: "",
+			name: name ?? "",
+			latitude: latitude ?? 0.0,
+			longitude: longitude ?? 0.0,
+			type: type ?? "",
 		},
 	});
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof obstacleSchema>) => {
+		if (editing) await onUpdateSubmit(values);
+		else await onCreateSubmit(values);
+	});
+
+	async function onUpdateSubmit(values: z.infer<typeof obstacleSchema>) {
+		const data = { obstacleId: obstacleId, name: values.name, latitude: values.latitude, type: values.type, longitude: values.longitude };
+		const res = await fetch("/api/obstacles/update", {
+			method: "PUT",
+			body: JSON.stringify(data),
+		});
+		const { updatedObstacle } = await res.json();
+		if (updatedObstacle) {
+			toggleAddingObstacle();
+			toggleSidebar();
+			toast({
+				title: "Successful",
+				description: "Successfully updated obstacle information",
+			});
+			updateObstacle(updatedObstacle);
+		}
+	}
+
+	async function onCreateSubmit(values: z.infer<typeof obstacleSchema>) {
 		const data = { name: values.name, latitude: values.latitude, type: values.type, longitude: values.longitude };
 		const res = await fetch("/api/obstacles/new", {
 			method: "POST",
@@ -43,7 +80,7 @@ export default function AddObstacleCard() {
 			});
 			addObstacle(createdObstacle);
 		}
-	});
+	}
 
 	useEffect(() => {
 		if (currentObstacleMarkerLngLat) {
@@ -57,7 +94,7 @@ export default function AddObstacleCard() {
 			<Form {...form}>
 				<form className="mx-auto w-96" onSubmit={onSubmit}>
 					<div>
-						<h1 className="text-xl font-semibold">Add new Obstacle</h1>
+						<h1 className="text-xl font-semibold">{editing ? "Update Obstacle" : "Add new Obstacle"}</h1>
 						<Label>Complete the form to continue</Label>
 					</div>
 					<div className="mt-8">
