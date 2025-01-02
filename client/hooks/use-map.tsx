@@ -14,7 +14,7 @@ import {
 	useState,
 } from "react";
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { EvacuationCenters, Obstacle, Owners, Rescuers } from "@prisma/client";
+import { Obstacle, Owners, Rescuers } from "@prisma/client";
 import {
 	createOwnerPointAreaGeoJSON,
 	createOwnerPointAreaLayerGeoJSON,
@@ -25,7 +25,13 @@ import {
 	createRescuerPointGeoJSON,
 	createRescuerPointLayerGeoJSON,
 } from "@/utils/map";
-import { LocationDataFromLoRa, OwnerWithBracelet, RescuerWithBracelet } from "@/types";
+import {
+	EvacuationCenterWithStatusIdentifier,
+	LocationDataFromLoRa,
+	ObstacleWithStatusIdentifier,
+	OwnerWithBracelet,
+	RescuerWithBracelet,
+} from "@/types";
 import { OWNER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
 import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/tags";
@@ -49,7 +55,7 @@ const MapContext = createContext<{
 	sendTransmitLocationSignalToBracelets: () => void;
 	monitorLocations: boolean;
 	toggleMonitorLocations: () => void;
-	evacuationCenters: EvacuationCenters[];
+	evacuationCenters: EvacuationCenterWithStatusIdentifier[];
 	showEvacuationCenters: boolean;
 	toggleShowEvacuationCenters: () => void;
 	obstacles: ObstacleWithStatusIdentifier[];
@@ -66,10 +72,6 @@ const MapContext = createContext<{
 	toggleObstacleOnMap: (obstacle: Obstacle) => void;
 } | null>(null);
 
-export type ObstacleWithStatusIdentifier = Obstacle & {
-	showing: boolean;
-};
-
 export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const mapContainerRef = useRef<HTMLDivElement>(null);
 	const mapRef = useRef<maplibregl.Map | null>(null);
@@ -83,8 +85,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
 	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [mapLoading, setMapLoading] = useState(true);
-	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenters[]>([]);
-	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<maplibregl.Marker[]>([]);
+	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenterWithStatusIdentifier[]>([]);
+	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<{ evacuationCenterId: number; marker: maplibregl.Marker }[]>([]);
 	const [showEvacuationCenters, setShowEvacuationCenters] = useState(false);
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
 	const [obstaclesMarkers, setObstaclesMarkers] = useState<
@@ -152,20 +154,39 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		if (showEvacuationCenters && mapRef.current) {
-			evacuationCenters.forEach((evacuationCenter) => {
-				const marker = new maplibregl.Marker({
-					color: EVACUATION_CENTER_MARKER_COLOR,
-				}).setLngLat([evacuationCenter.longitude, evacuationCenter.latitude]);
-				marker.addTo(mapRef.current!);
-				setEvacuationCentersMarkers((prev) => [...prev, marker]);
-			});
+			evacuationCenters.forEach((evacuationCenter) => showEvacuationCenterMarkerOnMap(evacuationCenter));
 		} else {
-			evacuationCentersMarkers.forEach((marker) => {
-				marker.remove();
-			});
+			evacuationCentersMarkers.forEach((obj) => removeEvacuationCenterMarkerFromMap(obj.evacuationCenterId));
+			setEvacuationCentersMarkers([]);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [showEvacuationCenters]);
+
+	function showEvacuationCenterMarkerOnMap(evacuationCenter: EvacuationCenterWithStatusIdentifier) {
+		const marker = new maplibregl.Marker({
+			color: EVACUATION_CENTER_MARKER_COLOR,
+		}).setLngLat([evacuationCenter.longitude, evacuationCenter.latitude]);
+		marker.addTo(mapRef.current!);
+		setEvacuationCentersMarkers((prev) => [...prev, { marker, evacuationCenterId: evacuationCenter.evacuationId }]);
+		toggleEvacuationCenterStatus(evacuationCenter.evacuationId);
+	}
+
+	function removeEvacuationCenterMarkerFromMap(evacuationCenterId: number) {
+		const evacuationCenterMarker = evacuationCentersMarkers.filter((evacuationCenter) => evacuationCenter.evacuationCenterId === evacuationCenterId);
+		const evacuationCenter = evacuationCenters.filter((ev) => ev.evacuationId === evacuationCenterId);
+		setEvacuationCentersMarkers((prev) => (prev = prev.filter((obj) => obj.evacuationCenterId === evacuationCenterId)));
+		toggleEvacuationCenterStatus(evacuationCenter[0].evacuationId);
+		evacuationCenterMarker[0].marker.remove();
+	}
+
+	function toggleEvacuationCenterStatus(evacuationCenterId: number) {
+		setEvacuationCenters(
+			(prev) =>
+				(prev = prev.map((evacuationCenter) =>
+					evacuationCenter.evacuationId === evacuationCenterId ? { ...evacuationCenter, showing: !evacuationCenter.showing } : evacuationCenter
+				))
+		);
+	}
 
 	function toggleShowEvacuationCenters() {
 		setShowEvacuationCenters(!showEvacuationCenters);
@@ -418,8 +439,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		else showObstacleMarkerOnMap(obstacle);
 	}
 
-	function toggleObstacleShowStatus(obstacle: Obstacle) {
-		setObstacles((prev) => (prev = prev.map((obs) => (obstacle.obstacleId === obs.obstacleId ? { ...obs, showing: !obs.showing } : obs))));
+	function toggleObstacleShowStatus(obstacleId: number) {
+		setObstacles((prev) => (prev = prev.map((obs) => (obstacleId === obs.obstacleId ? { ...obs, showing: !obs.showing } : obs))));
 	}
 
 	function showObstacleMarkerOnMap(obstacle: Obstacle) {
@@ -433,16 +454,14 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		if (currentMarker.length > 0 && showObstacles) return;
 		marker.addTo(mapRef.current!);
 		setObstaclesMarkers((prev) => [...prev, { obstacleId: obstacle.obstacleId, marker: marker }]);
-		toggleObstacleShowStatus(obstacle);
+		toggleObstacleShowStatus(obstacle.obstacleId);
 	}
 
 	async function removeObstacleMarkerFromMap(obstacleId: number) {
 		const obstacleMarkerObject = obstaclesMarkers.filter((obs) => obs.obstacleId === obstacleId);
-		const obstacle = obstacles.filter((obs) => obs.obstacleId === obstacleId);
 		setObstaclesMarkers(obstaclesMarkers.filter((m) => m.obstacleId !== obstacleId));
-		toggleObstacleShowStatus(obstacle[0]);
+		toggleObstacleShowStatus(obstacleId);
 		obstacleMarkerObject[0].marker.remove();
-		return obstacleId;
 	}
 
 	function toggleShowObstacles() {
