@@ -73,21 +73,37 @@ const MapContext = createContext<{
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
+	/* --- MAP VARIABLES --- */
 	const mapContainerRef = useRef<HTMLDivElement>(null);
 	const mapRef = useRef<maplibregl.Map | null>(null);
 	const [{ longitude, latitude }, setLocation] = useState<{ latitude: number; longitude: number }>({
 		latitude: 15.0794,
 		longitude: 120.62,
 	});
+	const [mapLoading, setMapLoading] = useState(true);
+	/* --- MAP VARIABLES --- */
+
+	/* --- ADMIN VARIABLES --- */
+	const [monitorLocations, setMonitorLocations] = useState(false);
+	/* --- ADMIN VARIABLES --- */
+
+	/* --- RESCUERS VARIABLES --- */
 	const [rescuers, setRescuers] = useState<RescuerWithBracelet[]>([]);
 	const [showRescuersLocations, setShowRescuersLocations] = useState(false);
+	/* --- RESCUERS VARIABLES --- */
+
+	/* --- OWNERS VARIABLES --- */
 	const [owners, setOwners] = useState<OwnerWithBracelet[]>([]);
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
-	const [monitorLocations, setMonitorLocations] = useState(false);
-	const [mapLoading, setMapLoading] = useState(true);
+	/* --- OWNERS VARIABLES --- */
+
+	/* --- EVACUATION CENTERS VARIABLES --- */
 	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenterWithStatusIdentifier[]>([]);
 	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<{ evacuationCenterId: number; marker: maplibregl.Marker }[]>([]);
 	const [showEvacuationCenters, setShowEvacuationCenters] = useState(false);
+	/* --- EVACUATION CENTERS VARIABLES --- */
+
+	/* --- OBSTACLES VARIABLES --- */
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
 	const [obstaclesMarkers, setObstaclesMarkers] = useState<
 		{
@@ -99,6 +115,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [addingObstacle, setAddingObstacle] = useState(false);
 	const currentObstacleMarker = useRef<maplibregl.Marker | null>(null);
 	const [currentObstacleMarkerLngLat, setCurrentObstacleMarkerLngLat] = useState<{ lng: number; lat: number } | null>(null);
+	/* --- OBSTACLES VARIABLES --- */
 
 	/* --- MAP RENDERING --- */
 	// GET CURRENT LOCATION OF CENTRAL NODE
