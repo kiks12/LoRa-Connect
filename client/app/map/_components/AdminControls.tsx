@@ -18,6 +18,7 @@ export default function AdminControls() {
 		showObstacles,
 		toggleShowObstacles,
 		toggleAddingObstacle,
+		showObstacleMarkerOnMap,
 	} = useMapContext();
 	const { toggleSidebar, setComponent, setCloseComponentCallback: setCloseCopmonentCallback } = useSidebarContext();
 
@@ -55,7 +56,7 @@ export default function AdminControls() {
 							</div>
 						) : (
 							obstacles.map((obstacle, index) => {
-								return <ObstacleListItem obstacle={obstacle} key={index} />;
+								return <ObstacleListItem obstacle={obstacle} key={index} onClick={showObstacleMarkerOnMap} />;
 							})
 						)}
 					</div>
