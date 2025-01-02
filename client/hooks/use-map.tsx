@@ -14,7 +14,7 @@ import {
 	useState,
 } from "react";
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { Obstacle, Owners, Rescuers } from "@prisma/client";
+import { Obstacle, Rescuers } from "@prisma/client";
 import {
 	createOwnerPointAreaGeoJSON,
 	createOwnerPointAreaLayerGeoJSON,
@@ -30,7 +30,9 @@ import {
 	LocationDataFromLoRa,
 	ObstacleWithStatusIdentifier,
 	OwnerWithBracelet,
+	OwnerWithStatusIdentifier,
 	RescuerWithBracelet,
+	RescuerWithStatusIdentifier,
 } from "@/types";
 import { OWNER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
@@ -38,26 +40,40 @@ import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRAC
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR } from "@/map-styles";
 
 const MapContext = createContext<{
+	// MAP
 	map: MutableRefObject<maplibregl.Map | null>;
 	mapContainerRef: RefObject<HTMLDivElement>;
 	mapLoading: boolean;
-	addOwnerPoint: ({ latitude, longitude, ownerId }: OwnerWithBracelet, showLocation?: boolean) => void;
-	addOwnerArea: ({ latitude, longitude, ownerId }: OwnerWithBracelet, showLocation?: boolean) => void;
+
+	// ADMIN
+	sendTransmitLocationSignalToBracelets: () => void;
+	toggleMonitorLocations: () => void;
+	monitorLocations: boolean;
+
+	// UTILITIES
+	clearSourcesAndLayers: (includes?: string) => void;
+
+	// RESCUERS
+	rescuers: RescuerWithStatusIdentifier[];
+	showRescuersLocations: boolean;
 	addRescuerPoint: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
 	addRescuerArea: ({ latitude, longitude, rescuerId }: Rescuers, showLocation?: boolean) => void;
-	clearSourcesAndLayers: (includes?: string) => void;
-	rescuers: RescuerWithBracelet[];
-	showRescuersLocations: boolean;
 	setShowRescuersLocations: Dispatch<SetStateAction<boolean>>;
-	owners: OwnerWithBracelet[];
+
+	// OWNERS
+	owners: OwnerWithStatusIdentifier[];
 	showOwnerLocations: boolean;
+	addOwnerPoint: ({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation?: boolean) => void;
+	addOwnerArea: ({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation?: boolean) => void;
 	setShowOwnerLocations: Dispatch<SetStateAction<boolean>>;
-	sendTransmitLocationSignalToBracelets: () => void;
-	monitorLocations: boolean;
-	toggleMonitorLocations: () => void;
+	clearOwnerShowStatuses: () => void;
+
+	// EVACUATION CENTERS
 	evacuationCenters: EvacuationCenterWithStatusIdentifier[];
 	showEvacuationCenters: boolean;
 	toggleShowEvacuationCenters: () => void;
+
+	// OBSTACLES
 	obstacles: ObstacleWithStatusIdentifier[];
 	showObstacles: boolean;
 	toggleShowObstacles: () => void;
@@ -88,12 +104,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- ADMIN VARIABLES --- */
 
 	/* --- RESCUERS VARIABLES --- */
-	const [rescuers, setRescuers] = useState<RescuerWithBracelet[]>([]);
+	const [rescuers, setRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
 	const [showRescuersLocations, setShowRescuersLocations] = useState(false);
 	/* --- RESCUERS VARIABLES --- */
 
 	/* --- OWNERS VARIABLES --- */
-	const [owners, setOwners] = useState<OwnerWithBracelet[]>([]);
+	const [owners, setOwners] = useState<OwnerWithStatusIdentifier[]>([]);
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
 	/* --- OWNERS VARIABLES --- */
 
@@ -211,7 +227,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- EVAUCATION CENTERS FUNCTIONS --- */
 
 	/* --- OWNER FUNCTIONS --- */
-	const addOwnerArea = useCallback(({ latitude, longitude, ownerId }: Owners, showLocation: boolean = false) => {
+	const addOwnerArea = useCallback(({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation: boolean = false) => {
 		if (latitude === null && longitude === null) return;
 		if (!mapRef.current) return;
 		const { sourceId, data } = createOwnerPointAreaGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
@@ -224,37 +240,51 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const addOwnerPoint = useCallback(
-		(owner: Owners, showLocation: boolean = false, monitorLocation: boolean = false) => {
-			const { latitude, longitude, ownerId } = owner;
+		({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
 			if (latitude === null && longitude === null) return;
 			if (!mapRef.current) return;
 			const { sourceId, data } = createOwnerPointGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
+			const mapRefSource = mapRef.current.getSource(sourceId);
 
-			if (mapRef.current.getSource(sourceId) && showLocation) return;
-			if (mapRef.current.getSource(sourceId) && !showLocation && !monitorLocation) return removeSourceAndLayer(sourceId);
-			if (mapRef.current.getSource(sourceId) && monitorLocation) removeSourceAndLayer(sourceId);
+			if (mapRefSource && showLocation) return;
+			if (mapRefSource && !showLocation && !monitorLocation) return removeOwnerPoint(sourceId, ownerId);
+			if (mapRefSource && monitorLocation) removeOwnerPoint(sourceId, ownerId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
 			mapRef.current.addLayer(createOwnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
-			mapRef.current.on("click", sourceId, () => {
-				console.log("click");
-				addOwnerArea(owner);
-			});
+			toggleOwnerShowStatus(ownerId);
 		},
-		[addOwnerArea]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[]
 	);
+
+	function removeOwnerPoint(sourceId: string, ownerId: number) {
+		removeSourceAndLayer(sourceId);
+		toggleOwnerShowStatus(ownerId);
+	}
+
+	function toggleOwnerShowStatus(ownerId: number) {
+		setOwners((prev) => (prev = prev.map((owner) => (owner.ownerId === ownerId ? { ...owner, showing: !owner.showing } : owner))));
+	}
+
+	function clearOwnerShowStatuses() {
+		setOwners((prev) => (prev = prev.map((owner) => ({ ...owner, showing: false }))));
+	}
 
 	useEffect(() => {
 		async function getOwners() {
 			return (await fetch("/api/owners")).json();
 		}
 
-		getOwners().then(({ owners }) => setOwners(owners));
+		getOwners()
+			.then(({ owners }: { owners: OwnerWithBracelet[] }) => owners.map((owner) => ({ ...owner, showing: false })))
+			.then((values) => setOwners(values));
 	}, []);
 
 	useEffect(() => {
 		if (!showOwnerLocations) {
 			clearSourcesAndLayers(OWNER_SOURCE_BASE);
+			clearOwnerShowStatuses();
 			return;
 		}
 		owners.forEach((owner) => addOwnerPoint(owner, true));
@@ -300,7 +330,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			return (await fetch("/api/rescuers")).json();
 		}
 
-		getRescuers().then(({ rescuers }) => setRescuers(rescuers));
+		getRescuers()
+			.then(({ rescuers }: { rescuers: RescuerWithBracelet[] }) => rescuers.map((rescuer) => ({ ...rescuer, showing: false })))
+			.then((values) => setRescuers(values));
 	}, []);
 
 	useEffect(() => {
@@ -384,7 +416,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			if (rescuer) {
 				addRescuerPoint({ ...(correctOwner[0] as RescuerWithBracelet), latitude, longitude }, false, true);
 			} else {
-				addOwnerPoint({ ...(correctOwner[0] as OwnerWithBracelet), latitude, longitude }, false, true);
+				addOwnerPoint({ ...(correctOwner[0] as OwnerWithStatusIdentifier), latitude, longitude }, false, true);
 			}
 			await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer });
 		});
@@ -522,6 +554,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				owners,
 				showOwnerLocations,
 				setShowOwnerLocations,
+				clearOwnerShowStatuses,
 				sendTransmitLocationSignalToBracelets,
 				monitorLocations,
 				toggleMonitorLocations,

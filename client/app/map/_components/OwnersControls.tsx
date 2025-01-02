@@ -1,20 +1,26 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
-import { OwnerWithBracelet } from "@/types";
+import { OwnerWithStatusIdentifier } from "@/types";
 import { OWNER_SOURCE_BASE } from "@/utils/tags";
+import OwnerListItem from "./OwnerListItem";
 
 export default function OwnersControls() {
-	const { addOwnerPoint, owners, showOwnerLocations, setShowOwnerLocations, clearSourcesAndLayers, addOwnerArea } = useMapContext();
+	const { addOwnerPoint, owners, showOwnerLocations, setShowOwnerLocations, clearSourcesAndLayers, addOwnerArea, clearOwnerShowStatuses } =
+		useMapContext();
 
-	function onOwnerItemClick(owner: OwnerWithBracelet) {
+	function onOwnerItemClick(owner: OwnerWithStatusIdentifier) {
 		addOwnerPoint(owner);
 		addOwnerArea(owner);
+	}
+
+	function onClearClick() {
+		clearSourcesAndLayers(OWNER_SOURCE_BASE);
+		clearOwnerShowStatuses();
 	}
 
 	return (
@@ -29,7 +35,7 @@ export default function OwnersControls() {
 								<TabsTrigger value="WITH-BRACELET">W/ Bracelet</TabsTrigger>
 								<TabsTrigger value="WITHOUT-BRACELET">W/O Bracelet</TabsTrigger>
 							</TabsList>
-							<Button variant="outline" onClick={() => clearSourcesAndLayers(OWNER_SOURCE_BASE)}>
+							<Button variant="outline" onClick={onClearClick}>
 								Clear
 							</Button>
 						</div>
@@ -68,24 +74,7 @@ export default function OwnersControls() {
 					</Label>
 					<Switch id="showLocations" checked={showOwnerLocations} onCheckedChange={() => setShowOwnerLocations(!showOwnerLocations)} />
 				</div>
-				{/* <div className="flex justify-between items-center my-2 border rounded-md p-3">
-					<Label className="ml-3" htmlFor="monitorLocations">
-						Monitor Owner Locations
-					</Label>
-					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={() => setMonitorLocations(!monitorLocations)} />
-				</div> */}
 			</div>
 		</div>
-	);
-}
-
-function OwnerListItem({ owner, onClick }: { owner: OwnerWithBracelet; onClick: () => void }) {
-	return (
-		<Card className="my-1 shadow-none hover:shadow-sm cursor-pointer" onClick={onClick}>
-			<CardHeader>
-				<CardTitle>{owner.name}</CardTitle>
-				<CardDescription>Created At: {new Date(owner.createdAt).toDateString()}</CardDescription>
-			</CardHeader>
-		</Card>
 	);
 }
