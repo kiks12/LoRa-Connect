@@ -402,9 +402,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}, [showObstacles]);
 
 	function showObstacleMarkerOnMap(obstacle: Obstacle, showObstacle: boolean = false) {
+		const popup = new maplibregl.Popup().setText(obstacle.name).addTo(mapRef.current!);
 		const marker = new maplibregl.Marker({
 			color: OBSTACLE_MARKER_COLOR,
-		}).setLngLat([obstacle.longitude, obstacle.latitude]);
+		})
+			.setLngLat([obstacle.longitude, obstacle.latitude])
+			.setPopup(popup);
 		const currentMarker = obstaclesMarkers.filter((obj) => obj.obstacleId === obstacle.obstacleId);
 		if (currentMarker.length !== 0 && !showObstacle) return removeObstacleMarkerFromMap(currentMarker[0]);
 		if (currentMarker.length !== 0 && showObstacle) return;
