@@ -13,19 +13,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useMapContext } from "@/hooks/use-map";
+import { ObstacleWithStatusIdentifier, useMapContext } from "@/hooks/use-map";
 import { useSidebarContext } from "@/hooks/use-sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { Obstacle } from "@prisma/client";
 import { MoreVerticalIcon } from "lucide-react";
 import ObstacleForm from "./ObstacleForm";
+import ShowStatusIndicator from "./ShowStatusIndicator";
 
 export default function ObstacleListItem({
 	obstacle,
 	onClick,
 	onDelete,
 }: {
-	obstacle: Obstacle;
+	obstacle: ObstacleWithStatusIdentifier;
 	onClick: (obstacle: Obstacle) => void;
 	onDelete: (obstacle: number) => void;
 }) {
@@ -53,7 +54,6 @@ export default function ObstacleListItem({
 			});
 			onDelete(obstacle.obstacleId);
 		}
-		console.log(obstacle);
 	}
 
 	return (
@@ -62,9 +62,14 @@ export default function ObstacleListItem({
 				<CardHeader>
 					<div className="flex justify-between items-start">
 						<div>
-							<CardTitle className="hover:underline" onClick={() => onClick(obstacle)}>
-								{obstacle.name}
-							</CardTitle>
+							<div className="flex items-center">
+								<CardTitle className="hover:underline" onClick={() => onClick(obstacle)}>
+									{obstacle.name}
+								</CardTitle>
+								<div className="mx-2">
+									<ShowStatusIndicator show={obstacle.showing} />
+								</div>
+							</div>
 							<CardDescription className="mt-2 text-xs">Type: {obstacle.type}</CardDescription>
 						</div>
 						<AlertDialog>
