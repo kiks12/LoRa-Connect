@@ -15,3 +15,22 @@ export async function createObstacle({name, latitude, longitude, type}: {name: s
     }
   })
 }
+
+export async function deleteObstacle({obstacleId}: {obstacleId: number}) {
+  return await client.obstacle.delete({
+    where: {
+      obstacleId: obstacleId
+    }
+  })
+}
+
+export async function updateObstacle({obstacleId, ...rest}: {obstacleId: number, name: string, type: string, latitude: number, longitude: number}) {
+  return await client.obstacle.update({
+    where: {
+      obstacleId: obstacleId
+    },
+    data: {
+      ...rest 
+    }
+  })
+}

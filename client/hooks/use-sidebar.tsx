@@ -4,7 +4,8 @@ import AdminControls from "@/app/map/_components/AdminControls";
 import OwnersControls from "@/app/map/_components/OwnersControls";
 import RescuersControls from "@/app/map/_components/RescuersControls";
 import TasksControls from "@/app/map/_components/TasksControls";
-import { createContext, ReactNode, useContext, useState } from "react";
+import React, { createContext, ReactNode, useContext, useState } from "react";
+import { useMapContext } from "./use-map";
 
 export type activeTab = "ADMIN" | "TASKS" | "OWNERS" | "RESCUERS";
 export const SIDEBAR_TABS: { [key: string]: ReactNode } = {
@@ -13,6 +14,7 @@ export const SIDEBAR_TABS: { [key: string]: ReactNode } = {
 	OWNERS: <OwnersControls />,
 	RESCUERS: <RescuersControls />,
 };
+type CLOSE_COMPONENT_CALLBACK = "TOGGLE_ADDING_OBSTACLE";
 
 const SidebarContext = createContext<{
 	open: boolean;
@@ -21,8 +23,7 @@ const SidebarContext = createContext<{
 	toggleSidebar: () => void;
 	component: ReactNode | null;
 	setComponent: React.Dispatch<React.SetStateAction<ReactNode>>;
-	closeComponentCallback: () => void;
-	setCloseComponentCallback: React.Dispatch<React.SetStateAction<() => void>>;
+	setCloseCallback: React.Dispatch<React.SetStateAction<CLOSE_COMPONENT_CALLBACK[]>>;
 } | null>(null);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
@@ -32,16 +33,27 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 		controls: SIDEBAR_TABS["ADMIN"],
 	});
 	const [component, setComponent] = useState<ReactNode>(null);
-	const [closeComponentCallback, setCloseComponentCallback] = useState<() => void>(() => () => {});
+	const [closeCallback, setCloseCallback] = useState<CLOSE_COMPONENT_CALLBACK[]>([]);
+	const { toggleAddingObstacle } = useMapContext();
 
 	function onListClick(newActive: activeTab) {
 		setActive({ key: newActive, controls: SIDEBAR_TABS[newActive] });
 	}
 
+	function callbackSwitch(callback: CLOSE_COMPONENT_CALLBACK) {
+		switch (callback) {
+			case "TOGGLE_ADDING_OBSTACLE":
+				toggleAddingObstacle();
+				break;
+			default:
+				break;
+		}
+	}
+
 	function toggleSidebar() {
-		closeComponentCallback();
+		closeCallback.forEach((callback) => callbackSwitch(callback));
 		setOpen(!open);
-		setCloseComponentCallback(() => () => {});
+		setCloseCallback([]);
 		if (!open) setComponent(null);
 	}
 
@@ -54,8 +66,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 				toggleSidebar,
 				component,
 				setComponent,
-				closeComponentCallback,
-				setCloseComponentCallback,
+				setCloseCallback,
 			}}
 		>
 			{children}

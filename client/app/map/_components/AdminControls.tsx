@@ -5,7 +5,7 @@ import { useMapContext } from "@/hooks/use-map";
 import EvacuationCenterListItem from "./EvacuationCenterListItem";
 import ObstacleListItem from "./ObstacleListItem";
 import { useSidebarContext } from "@/hooks/use-sidebar";
-import AddObstacleCard from "./AddObstacleCard";
+import ObstacleForm from "./ObstacleForm";
 
 export default function AdminControls() {
 	const {
@@ -16,20 +16,20 @@ export default function AdminControls() {
 		toggleShowEvacuationCenters,
 		obstacles,
 		showObstacles,
+		removeObstacle,
 		toggleShowObstacles,
 		toggleAddingObstacle,
-		showObstacleMarkerOnMap,
+		toggleObstacleOnMap,
+		removeObstacleMarkerFromMap,
 	} = useMapContext();
-	const { toggleSidebar, setComponent, setCloseComponentCallback: setCloseCopmonentCallback } = useSidebarContext();
+	const { toggleSidebar, setComponent, setCloseCallback } = useSidebarContext();
 
 	function onAddObstacleClick() {
 		toggleAddingObstacle();
 		toggleSidebar();
 
-		setComponent(<AddObstacleCard />);
-		setCloseCopmonentCallback(() => () => {
-			toggleAddingObstacle();
-		});
+		setComponent(<ObstacleForm />);
+		setCloseCallback(["TOGGLE_ADDING_OBSTACLE"]);
 	}
 
 	return (
@@ -49,14 +49,24 @@ export default function AdminControls() {
 						</Label>
 						<Switch checked={showObstacles} id="showObstacles" onCheckedChange={toggleShowObstacles} />
 					</div>
-					<div className="max-h-54 min-h-56 overflow-y-auto">
+					<div className="max-h-56 min-h-56 overflow-y-auto">
 						{obstacles.length === 0 ? (
 							<div className="text-center my-6">
 								<Label>No Obstacles</Label>
 							</div>
 						) : (
 							obstacles.map((obstacle, index) => {
-								return <ObstacleListItem obstacle={obstacle} key={index} onClick={showObstacleMarkerOnMap} />;
+								return (
+									<ObstacleListItem
+										obstacle={obstacle}
+										key={index}
+										onClick={toggleObstacleOnMap}
+										onDelete={async () => {
+											await removeObstacleMarkerFromMap(obstacle.obstacleId);
+											removeObstacle(obstacle);
+										}}
+									/>
+								);
 							})
 						)}
 					</div>
