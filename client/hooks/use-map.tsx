@@ -79,6 +79,8 @@ const MapContext = createContext<{
 	evacuationCenters: EvacuationCenterWithStatusIdentifier[];
 	showEvacuationCenters: boolean;
 	toggleShowEvacuationCenters: () => void;
+	evacuationCentersLoading: boolean;
+	refreshEvacuationCenters: () => void;
 
 	// OBSTACLES
 	obstacles: ObstacleWithStatusIdentifier[];
@@ -93,6 +95,8 @@ const MapContext = createContext<{
 	showObstacleMarkerOnMap: (obstacle: Obstacle) => void;
 	removeObstacleMarkerFromMap: (obstacleId: number) => void;
 	toggleObstacleOnMap: (obstacle: Obstacle) => void;
+	obstaclesLoading: boolean;
+	refreshObstacles: () => void;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -126,12 +130,14 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	/* --- EVACUATION CENTERS VARIABLES --- */
 	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenterWithStatusIdentifier[]>([]);
+	const [evacuationCentersLoading, setEvacuationCentersLoading] = useState(true);
 	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<{ evacuationCenterId: number; marker: maplibregl.Marker }[]>([]);
 	const [showEvacuationCenters, setShowEvacuationCenters] = useState(false);
 	/* --- EVACUATION CENTERS VARIABLES --- */
 
 	/* --- OBSTACLES VARIABLES --- */
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
+	const [obstaclesLoading, setObstaclesLoading] = useState(true);
 	const [obstaclesMarkers, setObstaclesMarkers] = useState<
 		{
 			obstacleId: number;
@@ -188,12 +194,22 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- MAP RENDERING --- */
 
 	/* --- EVAUCATION CENTERS FUNCTIONS --- */
-	useEffect(() => {
-		async function fetchEvacuationCenters() {
-			return (await fetch("/api/evacuation-centers")).json();
-		}
+	async function fetchEvacuationCentersAPI() {
+		setEvacuationCentersLoading(true);
+		const { evacuationCenters } = await (await fetch("/api/evacuation-centers")).json();
+		setEvacuationCenters(evacuationCenters);
+		setEvacuationCentersLoading(false);
+	}
 
-		fetchEvacuationCenters().then((res) => setEvacuationCenters(res.evacuationCenters));
+	function refreshEvacuationCenters() {
+		fetchEvacuationCentersAPI();
+	}
+
+	// API FETCHING OF EVACUATION CENTER
+	useEffect(() => {
+		fetchEvacuationCentersAPI();
+
+		return () => setEvacuationCenters([]);
 	}, []);
 
 	useEffect(() => {
@@ -520,14 +536,23 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [addingObstacle, onAddObtacleMapClick]);
 
-	useEffect(() => {
-		async function fetchObstacles() {
-			return (await fetch("/api/obstacles")).json();
-		}
+	async function fetchObstaclesAPI() {
+		setObstaclesLoading(true);
+		const { obstacles }: { obstacles: Obstacle[] } = await (await fetch("/api/obstacles")).json();
+		const mappedObstacles = obstacles.map((obstacle) => ({ ...obstacle, showing: false }));
+		setObstacles(mappedObstacles);
+		setObstaclesLoading(false);
+	}
 
-		fetchObstacles()
-			.then(({ obstacles }: { obstacles: Obstacle[] }) => obstacles.map((obs) => ({ ...obs, showing: false })))
-			.then((values) => setObstacles(values));
+	function refreshObstacles() {
+		fetchObstaclesAPI();
+	}
+
+	// API FETCHING OF OBSTACLES
+	useEffect(() => {
+		fetchObstaclesAPI();
+
+		return () => setObstacles([]);
 	}, []);
 
 	useEffect(() => {
@@ -629,6 +654,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				evacuationCenters,
 				showEvacuationCenters,
 				toggleShowEvacuationCenters,
+				evacuationCentersLoading,
+				refreshEvacuationCenters,
 
 				obstacles,
 				showObstacles,
@@ -642,6 +669,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				removeObstacleMarkerFromMap,
 				toggleObstacleOnMap,
 				updateObstacle,
+				obstaclesLoading,
+				refreshObstacles,
 			}}
 		>
 			{children}

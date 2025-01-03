@@ -6,6 +6,8 @@ import EvacuationCenterListItem from "./EvacuationCenterListItem";
 import ObstacleListItem from "./ObstacleListItem";
 import { useSidebarContext } from "@/hooks/use-sidebar";
 import ObstacleForm from "./ObstacleForm";
+import Spinner from "@/app/components/Spinner";
+import { RefreshCcw } from "lucide-react";
 
 export default function AdminControls() {
 	const {
@@ -14,6 +16,9 @@ export default function AdminControls() {
 		evacuationCenters,
 		showEvacuationCenters,
 		toggleShowEvacuationCenters,
+		evacuationCentersLoading,
+		refreshEvacuationCenters,
+
 		obstacles,
 		showObstacles,
 		removeObstacle,
@@ -21,6 +26,8 @@ export default function AdminControls() {
 		toggleAddingObstacle,
 		toggleObstacleOnMap,
 		removeObstacleMarkerFromMap,
+		refreshObstacles,
+		obstaclesLoading,
 	} = useMapContext();
 	const { toggleSidebar, setComponent, setCloseCallback } = useSidebarContext();
 
@@ -42,34 +49,45 @@ export default function AdminControls() {
 					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={toggleMonitorLocations} />
 				</div>
 				<div className="mt-2">
-					<h2 className="text-lg font-medium">Obstacles</h2>
+					<div className="flex items-center justify-between">
+						<h2 className="text-lg font-medium">Obstacles</h2>
+						<Button size="icon" variant="secondary" onClick={refreshObstacles}>
+							<RefreshCcw />
+						</Button>
+					</div>
 					<div className="flex justify-between items-center my-2 border rounded-md p-3">
 						<Label className="ml-3" htmlFor="showObstacles">
 							Show Obstacles
 						</Label>
 						<Switch checked={showObstacles} id="showObstacles" onCheckedChange={toggleShowObstacles} />
 					</div>
-					<div className="max-h-56 min-h-56 overflow-y-auto">
-						{obstacles.length === 0 ? (
-							<div className="text-center my-6">
-								<Label>No Obstacles</Label>
-							</div>
-						) : (
-							obstacles.map((obstacle, index) => {
-								return (
-									<ObstacleListItem
-										obstacle={obstacle}
-										key={index}
-										onClick={toggleObstacleOnMap}
-										onDelete={async () => {
-											await removeObstacleMarkerFromMap(obstacle.obstacleId);
-											removeObstacle(obstacle);
-										}}
-									/>
-								);
-							})
-						)}
-					</div>
+					{obstaclesLoading ? (
+						<div className="flex items-center justify-center mt-10">
+							<Spinner />
+						</div>
+					) : (
+						<div className="max-h-56 min-h-56 overflow-y-auto">
+							{obstacles.length > 0 ? (
+								obstacles.map((obstacle, index) => {
+									return (
+										<ObstacleListItem
+											obstacle={obstacle}
+											key={index}
+											onClick={toggleObstacleOnMap}
+											onDelete={async () => {
+												await removeObstacleMarkerFromMap(obstacle.obstacleId);
+												removeObstacle(obstacle);
+											}}
+										/>
+									);
+								})
+							) : (
+								<div className="h-56 flex items-center justify-center my-10">
+									<p>No Obstacles to show</p>
+								</div>
+							)}
+						</div>
+					)}
 					<div>
 						<Button className="w-full mt-2" variant="secondary" onClick={onAddObstacleClick}>
 							Add Obstacle
@@ -79,18 +97,35 @@ export default function AdminControls() {
 			</div>
 			<div>
 				<div className="mt-2">
-					<h2 className="text-lg font-medium">Evacuation Centers</h2>
+					<div className="flex items-center justify-between">
+						<h2 className="text-lg font-medium">Evacuation Centers</h2>
+						<Button size="icon" variant="secondary" onClick={refreshEvacuationCenters}>
+							<RefreshCcw />
+						</Button>
+					</div>
 					<div className="flex justify-between items-center my-2 border rounded-md p-3">
 						<Label className="ml-3" htmlFor="showEvacuationCenters">
 							Show Evacuation Centers
 						</Label>
 						<Switch checked={showEvacuationCenters} id="showEvacuationCenters" onCheckedChange={toggleShowEvacuationCenters} />
 					</div>
-					<div className="max-h-54 min-h-56 overflow-y-auto">
-						{evacuationCenters.map((evacuationCenter, index) => {
-							return <EvacuationCenterListItem evacuationCenter={evacuationCenter} key={index} />;
-						})}
-					</div>
+					{evacuationCentersLoading ? (
+						<div className="flex items-center justify-center mt-10">
+							<Spinner />
+						</div>
+					) : (
+						<div className="max-h-56 min-h-56 overflow-y-auto">
+							{evacuationCenters.length > 0 ? (
+								evacuationCenters.map((evacuationCenter, index) => {
+									return <EvacuationCenterListItem evacuationCenter={evacuationCenter} key={index} />;
+								})
+							) : (
+								<div className="h-56 flex items-center justify-center my-10">
+									<p>No Evacuation Centers to show</p>
+								</div>
+							)}
+						</div>
+					)}
 					<Button className="w-full mt-2">Send Evacuation Instruction</Button>
 				</div>
 			</div>
