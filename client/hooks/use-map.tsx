@@ -62,6 +62,7 @@ const MapContext = createContext<{
 	clearRescuerShowStatuses: () => void;
 	filterSearchRescuer: (value: string) => void;
 	refreshRescuers: () => void;
+	rescuersLoading: boolean;
 
 	// OWNERS
 	owners: OwnerWithStatusIdentifier[];
@@ -110,6 +111,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	/* --- RESCUERS VARIABLES --- */
 	const [rescuers, setRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
+	const [rescuersLoading, setRescuersLoading] = useState(false);
 	const [backupRescuers, setBackupRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
 	const [showRescuersLocations, setShowRescuersLocations] = useState(false);
 	/* --- RESCUERS VARIABLES --- */
@@ -363,10 +365,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	async function fetchRescuersAPI() {
+		setRescuersLoading(true);
 		const { rescuers }: { rescuers: RescuerWithBracelet[] } = await (await fetch("/api/rescuers")).json();
 		const mappedRescuers = rescuers.map((rescuer) => ({ ...rescuer, showing: false }));
 		setRescuers(mappedRescuers);
 		setBackupRescuers(mappedRescuers);
+		setRescuersLoading(false);
 	}
 
 	function refreshRescuers() {
@@ -615,6 +619,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				clearRescuerShowStatuses,
 				filterSearchRescuer,
 				refreshRescuers,
+				rescuersLoading,
 
 				evacuationCenters,
 				showEvacuationCenters,

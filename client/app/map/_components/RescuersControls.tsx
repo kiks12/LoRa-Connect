@@ -9,6 +9,7 @@ import RescuerListItem from "./RescuerListItem";
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { RefreshCcw } from "lucide-react";
+import Spinner from "@/app/components/Spinner";
 
 export default function RescuersControls() {
 	const {
@@ -21,6 +22,7 @@ export default function RescuersControls() {
 		clearRescuerShowStatuses,
 		filterSearchRescuer,
 		refreshRescuers,
+		rescuersLoading,
 	} = useMapContext();
 	const [search, setSearch] = useState("");
 
@@ -70,31 +72,51 @@ export default function RescuersControls() {
 								Clear
 							</Button>
 						</div>
-						<TabsContent value="ALL">
-							<ul className="h-[550px] overflow-y-auto">
-								{rescuers.map((rescuer, index) => {
-									return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
-								})}
-							</ul>
-						</TabsContent>
-						<TabsContent value="WITH-BRACELET">
-							<ul className="h-[550px] overflow-y-auto">
-								{rescuers
-									.filter((rescuer) => rescuer.bracelet)
-									.map((rescuer, index) => {
-										return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
-									})}
-							</ul>
-						</TabsContent>
-						<TabsContent value="WITHOUT-BRACELET">
-							<ul className="h-[550px] overflow-y-auto">
-								{rescuers
-									.filter((rescuer) => !rescuer.bracelet)
-									.map((rescuer, index) => {
-										return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
-									})}
-							</ul>
-						</TabsContent>
+						{rescuersLoading ? (
+							<div className="mt-10 flex items-center justify-center">
+								<Spinner />
+							</div>
+						) : (
+							<>
+								<TabsContent value="ALL">
+									<ul className="h-[550px] overflow-y-auto">
+										{rescuers.length > 0 ? (
+											rescuers.map((rescuer, index) => {
+												return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
+											})
+										) : (
+											<p className="text-center mt-20">No Rescuers to show</p>
+										)}
+									</ul>
+								</TabsContent>
+								<TabsContent value="WITH-BRACELET">
+									<ul className="h-[550px] overflow-y-auto">
+										{rescuers.length > 0 ? (
+											rescuers
+												.filter((rescuer) => rescuer.bracelet)
+												.map((rescuer, index) => {
+													return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
+												})
+										) : (
+											<p className="text-center mt-20">No Rescuers to show</p>
+										)}
+									</ul>
+								</TabsContent>
+								<TabsContent value="WITHOUT-BRACELET">
+									<ul className="h-[550px] overflow-y-auto">
+										{rescuers.length > 0 ? (
+											rescuers
+												.filter((rescuer) => !rescuer.bracelet)
+												.map((rescuer, index) => {
+													return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
+												})
+										) : (
+											<p className="text-center mt-20">No Rescuers to show</p>
+										)}
+									</ul>
+								</TabsContent>
+							</>
+						)}
 					</Tabs>
 				</div>
 			</div>
