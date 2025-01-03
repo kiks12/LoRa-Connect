@@ -4,10 +4,10 @@ import ShowStatusIndicator from "./ShowStatusIndicator";
 
 export default function EvacuationCenterListItem({ evacuationCenter }: { evacuationCenter: EvacuationCenterWithStatusIdentifier }) {
 	return (
-		<Card className="my-1 shadow-none hover:shadow-sm cursor-pointer">
+		<Card className="my-1 shadow-none hover:border-primary cursor-pointer">
 			<CardHeader>
 				<div className="flex items-center">
-					<CardTitle className="hover:underline">{evacuationCenter.name}</CardTitle>
+					<CardTitle className="">{evacuationCenter.name}</CardTitle>
 					<div className="mx-2">
 						<ShowStatusIndicator show={evacuationCenter.showing} />
 					</div>
