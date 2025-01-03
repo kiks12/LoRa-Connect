@@ -22,7 +22,7 @@ export default function MapPage() {
 							<Map />
 						</div>
 					</div>
-					<div className={`hidden md:block max-w-lg h-screen shadow-lg z-40`}>
+					<div className={`hidden md:block min-w-[512px] max-w-lg h-screen shadow-lg z-40`}>
 						<SideBar />
 					</div>
 				</main>
