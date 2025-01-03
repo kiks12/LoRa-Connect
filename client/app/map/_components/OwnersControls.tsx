@@ -8,10 +8,23 @@ import { useMapContext } from "@/hooks/use-map";
 import { OwnerWithStatusIdentifier } from "@/types";
 import { OWNER_SOURCE_BASE } from "@/utils/tags";
 import OwnerListItem from "./OwnerListItem";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { RefreshCcw } from "lucide-react";
 
 export default function OwnersControls() {
-	const { addOwnerPoint, owners, showOwnerLocations, setShowOwnerLocations, clearSourcesAndLayers, addOwnerArea, clearOwnerShowStatuses } =
-		useMapContext();
+	const {
+		addOwnerPoint,
+		owners,
+		showOwnerLocations,
+		setShowOwnerLocations,
+		clearSourcesAndLayers,
+		addOwnerArea,
+		clearOwnerShowStatuses,
+		filterSearchOwner,
+		refreshOwners,
+	} = useMapContext();
+	const [search, setSearch] = useState("");
 
 	function onOwnerItemClick(owner: OwnerWithStatusIdentifier) {
 		addOwnerPoint(owner);
@@ -23,11 +36,31 @@ export default function OwnersControls() {
 		clearOwnerShowStatuses();
 	}
 
+	function onChange(e: React.FormEvent<HTMLInputElement>) {
+		setSearch(e.currentTarget.value);
+		filterSearchOwner(e.currentTarget.value);
+	}
+
 	return (
-		<div className="py-6 h-full flex flex-col justify-content">
-			<h2 className="text-md">Owners List</h2>
+		<div className="pt-6 pb-2 h-full flex flex-col justify-content">
+			<div className="flex items-center justify-between">
+				<h2 className="text-lg font-medium">Owners List</h2>
+				<Button size="icon" variant="secondary" onClick={refreshOwners}>
+					<RefreshCcw />
+				</Button>
+			</div>
 			<div className="flex-1 overflow-y-auto">
 				<div>
+					<div className="flex justify-between items-center mt-2 border rounded-md p-3">
+						<Label className="ml-3" htmlFor="showLocations">
+							Show Locations
+						</Label>
+						<Switch id="showLocations" checked={showOwnerLocations} onCheckedChange={() => setShowOwnerLocations(!showOwnerLocations)} />
+					</div>
+					<div className="my-2">
+						<Label>Search Owner</Label>
+						<Input placeholder="Francis Tolentino..." onChange={onChange} value={search} />
+					</div>
 					<Tabs defaultValue="ALL">
 						<div className="flex justify-between">
 							<TabsList>
@@ -68,12 +101,7 @@ export default function OwnersControls() {
 				</div>
 			</div>
 			<div>
-				<div className="flex justify-between items-center my-2 border rounded-md p-3">
-					<Label className="ml-3" htmlFor="showLocations">
-						Show Locations
-					</Label>
-					<Switch id="showLocations" checked={showOwnerLocations} onCheckedChange={() => setShowOwnerLocations(!showOwnerLocations)} />
-				</div>
+				<Button className="w-full">Send Evacuation Instructions</Button>
 			</div>
 		</div>
 	);

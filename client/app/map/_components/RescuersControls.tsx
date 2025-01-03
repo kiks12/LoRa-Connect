@@ -6,6 +6,9 @@ import { useMapContext } from "@/hooks/use-map";
 import { RescuerWithStatusIdentifier } from "@/types";
 import { RESCUER_SOURCE_BASE } from "@/utils/tags";
 import RescuerListItem from "./RescuerListItem";
+import { Input } from "@/components/ui/input";
+import React, { useState } from "react";
+import { RefreshCcw } from "lucide-react";
 
 export default function RescuersControls() {
 	const {
@@ -16,7 +19,10 @@ export default function RescuersControls() {
 		addRescuerPoint,
 		addRescuerArea,
 		clearRescuerShowStatuses,
+		filterSearchRescuer,
+		refreshRescuers,
 	} = useMapContext();
+	const [search, setSearch] = useState("");
 
 	function onRescuerItemClick(rescuer: RescuerWithStatusIdentifier) {
 		addRescuerPoint(rescuer);
@@ -28,11 +34,31 @@ export default function RescuersControls() {
 		clearRescuerShowStatuses();
 	}
 
+	function onChange(e: React.FormEvent<HTMLInputElement>) {
+		setSearch(e.currentTarget.value);
+		filterSearchRescuer(e.currentTarget.value);
+	}
+
 	return (
 		<div className="py-6 h-full flex flex-col justify-content">
-			<h2 className="text-md">Owners List</h2>
+			<div className="flex items-center justify-between">
+				<h2 className="text-lg text-medium">Rescuers List</h2>
+				<Button size="icon" variant="secondary" onClick={refreshRescuers}>
+					<RefreshCcw />
+				</Button>
+			</div>
 			<div className="flex-1 overflow-y-auto">
 				<div>
+					<div className="flex justify-between items-center mt-2 border rounded-md p-3">
+						<Label className="ml-3" htmlFor="showLocations">
+							Show Locations
+						</Label>
+						<Switch id="showLocations" checked={showRescuersLocations} onCheckedChange={() => setShowRescuersLocations(!showRescuersLocations)} />
+					</div>
+					<div className="my-2">
+						<Label>Search Rescuer</Label>
+						<Input placeholder="Rescuer Name..." onChange={onChange} value={search} />
+					</div>
 					<Tabs defaultValue="ALL">
 						<div className="flex justify-between">
 							<TabsList>
@@ -71,20 +97,6 @@ export default function RescuersControls() {
 						</TabsContent>
 					</Tabs>
 				</div>
-			</div>
-			<div>
-				<div className="flex justify-between items-center my-2 border rounded-md p-3">
-					<Label className="ml-3" htmlFor="showLocations">
-						Show Locations
-					</Label>
-					<Switch id="showLocations" checked={showRescuersLocations} onCheckedChange={() => setShowRescuersLocations(!showRescuersLocations)} />
-				</div>
-				{/* <div className="flex justify-between items-center my-2 border rounded-md p-3">
-					<Label className="ml-3" htmlFor="monitorLocations">
-						Monitor Owner Locations
-					</Label>
-					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={() => setMonitorLocations(!monitorLocations)} />
-				</div> */}
 			</div>
 		</div>
 	);
