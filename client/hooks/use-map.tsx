@@ -73,6 +73,7 @@ const MapContext = createContext<{
 	clearOwnerShowStatuses: () => void;
 	filterSearchOwner: (value: string) => void;
 	refreshOwners: () => void;
+	ownersLoading: boolean;
 
 	// EVACUATION CENTERS
 	evacuationCenters: EvacuationCenterWithStatusIdentifier[];
@@ -118,6 +119,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	/* --- OWNERS VARIABLES --- */
 	const [owners, setOwners] = useState<OwnerWithStatusIdentifier[]>([]);
+	const [ownersLoading, setOwnersLoading] = useState(false);
 	const [backupOwners, setBackupOwners] = useState<OwnerWithStatusIdentifier[]>([]);
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
 	/* --- OWNERS VARIABLES --- */
@@ -285,10 +287,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	async function fetchOwnersAPI() {
+		setOwnersLoading(true);
 		const { owners }: { owners: OwnerWithBracelet[] } = await (await fetch("/api/owners")).json();
 		const mappedOwners = owners.map((owner) => ({ ...owner, showing: false }));
 		setOwners(mappedOwners);
 		setBackupOwners(mappedOwners);
+		setOwnersLoading(false);
 	}
 
 	function refreshOwners() {
@@ -610,6 +614,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				clearOwnerShowStatuses,
 				filterSearchOwner,
 				refreshOwners,
+				ownersLoading,
 
 				rescuers,
 				addRescuerPoint,

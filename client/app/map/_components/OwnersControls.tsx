@@ -11,6 +11,7 @@ import OwnerListItem from "./OwnerListItem";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { RefreshCcw } from "lucide-react";
+import Spinner from "@/app/components/Spinner";
 
 export default function OwnersControls() {
 	const {
@@ -23,6 +24,7 @@ export default function OwnersControls() {
 		clearOwnerShowStatuses,
 		filterSearchOwner,
 		refreshOwners,
+		ownersLoading,
 	} = useMapContext();
 	const [search, setSearch] = useState("");
 
@@ -72,31 +74,51 @@ export default function OwnersControls() {
 								Clear
 							</Button>
 						</div>
-						<TabsContent value="ALL">
-							<ul className="h-[550px] overflow-y-auto">
-								{owners.map((owner, index) => {
-									return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
-								})}
-							</ul>
-						</TabsContent>
-						<TabsContent value="WITH-BRACELET">
-							<ul className="h-[550px] overflow-y-auto">
-								{owners
-									.filter((owner) => owner.bracelet)
-									.map((owner, index) => {
-										return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
-									})}
-							</ul>
-						</TabsContent>
-						<TabsContent value="WITHOUT-BRACELET">
-							<ul className="h-[550px] overflow-y-auto">
-								{owners
-									.filter((owner) => !owner.bracelet)
-									.map((owner, index) => {
-										return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
-									})}
-							</ul>
-						</TabsContent>
+						{ownersLoading ? (
+							<div className="mt-10 flex items-center justify-center">
+								<Spinner />
+							</div>
+						) : (
+							<>
+								<TabsContent value="ALL">
+									<ul className="h-[550px] overflow-y-auto">
+										{owners.length > 0 ? (
+											owners.map((owner, index) => {
+												return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
+											})
+										) : (
+											<p className="mt-20 text-center">No Owners to show</p>
+										)}
+									</ul>
+								</TabsContent>
+								<TabsContent value="WITH-BRACELET">
+									<ul className="h-[550px] overflow-y-auto">
+										{owners.length > 0 ? (
+											owners
+												.filter((owner) => owner.bracelet)
+												.map((owner, index) => {
+													return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
+												})
+										) : (
+											<p className="mt-20 text-center">No Owners to show</p>
+										)}
+									</ul>
+								</TabsContent>
+								<TabsContent value="WITHOUT-BRACELET">
+									<ul className="h-[550px] overflow-y-auto">
+										{owners.length > 0 ? (
+											owners
+												.filter((owner: OwnerWithStatusIdentifier) => !owner.bracelet)
+												.map((owner, index) => {
+													return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
+												})
+										) : (
+											<p className="mt-20 text-center">No Owners to show</p>
+										)}
+									</ul>
+								</TabsContent>
+							</>
+						)}
 					</Tabs>
 				</div>
 			</div>
