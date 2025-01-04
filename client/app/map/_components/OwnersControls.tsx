@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
 import { OwnerWithStatusIdentifier } from "@/types";
 import { OWNER_SOURCE_BASE } from "@/utils/tags";
-import OwnerListItem from "./OwnerListItem";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
+import BraceletWithOwnerListItem from "./BraceletWithOwnerListItem";
 
 export default function OwnersControls() {
 	const {
@@ -27,11 +27,6 @@ export default function OwnersControls() {
 		ownersLoading,
 	} = useMapContext();
 	const [search, setSearch] = useState("");
-
-	function onOwnerItemClick(owner: OwnerWithStatusIdentifier) {
-		addOwnerPoint(owner);
-		addOwnerArea(owner);
-	}
 
 	function onClearClick() {
 		clearSourcesAndLayers(OWNER_SOURCE_BASE);
@@ -84,7 +79,15 @@ export default function OwnersControls() {
 									<ul className="h-[550px] overflow-y-auto">
 										{owners.length > 0 ? (
 											owners.map((owner, index) => {
-												return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
+												return (
+													<BraceletWithOwnerListItem
+														key={index}
+														name={owner.name}
+														showing={owner.showing}
+														onShowArea={() => addOwnerArea(owner)}
+														onShowLocation={() => addOwnerPoint(owner)}
+													/>
+												);
 											})
 										) : (
 											<p className="mt-20 text-center">No Owners to show</p>
@@ -97,7 +100,15 @@ export default function OwnersControls() {
 											owners
 												.filter((owner) => owner.bracelet)
 												.map((owner, index) => {
-													return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
+													return (
+														<BraceletWithOwnerListItem
+															key={index}
+															name={owner.name}
+															showing={owner.showing}
+															onShowArea={() => addOwnerArea(owner)}
+															onShowLocation={() => addOwnerPoint(owner)}
+														/>
+													);
 												})
 										) : (
 											<p className="mt-20 text-center">No Owners to show</p>
@@ -110,7 +121,15 @@ export default function OwnersControls() {
 											owners
 												.filter((owner: OwnerWithStatusIdentifier) => !owner.bracelet)
 												.map((owner, index) => {
-													return <OwnerListItem key={index} owner={owner} onClick={() => onOwnerItemClick(owner)} />;
+													return (
+														<BraceletWithOwnerListItem
+															key={index}
+															name={owner.name}
+															showing={owner.showing}
+															onShowArea={() => addOwnerArea(owner)}
+															onShowLocation={() => addOwnerPoint(owner)}
+														/>
+													);
 												})
 										) : (
 											<p className="mt-20 text-center">No Owners to show</p>

@@ -3,13 +3,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
-import { RescuerWithStatusIdentifier } from "@/types";
 import { RESCUER_SOURCE_BASE } from "@/utils/tags";
-import RescuerListItem from "./RescuerListItem";
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
+import BraceletWithOwnerListItem from "./BraceletWithOwnerListItem";
 
 export default function RescuersControls() {
 	const {
@@ -25,11 +24,6 @@ export default function RescuersControls() {
 		rescuersLoading,
 	} = useMapContext();
 	const [search, setSearch] = useState("");
-
-	function onRescuerItemClick(rescuer: RescuerWithStatusIdentifier) {
-		addRescuerPoint(rescuer);
-		addRescuerArea(rescuer);
-	}
 
 	function onClearClick() {
 		clearSourcesAndLayers(RESCUER_SOURCE_BASE);
@@ -82,7 +76,15 @@ export default function RescuersControls() {
 									<ul className="h-[550px] overflow-y-auto">
 										{rescuers.length > 0 ? (
 											rescuers.map((rescuer, index) => {
-												return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
+												return (
+													<BraceletWithOwnerListItem
+														key={index}
+														name={rescuer.name}
+														showing={rescuer.showing}
+														onShowArea={() => addRescuerArea(rescuer)}
+														onShowLocation={() => addRescuerPoint(rescuer)}
+													/>
+												);
 											})
 										) : (
 											<p className="text-center mt-20">No Rescuers to show</p>
@@ -95,7 +97,15 @@ export default function RescuersControls() {
 											rescuers
 												.filter((rescuer) => rescuer.bracelet)
 												.map((rescuer, index) => {
-													return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
+													return (
+														<BraceletWithOwnerListItem
+															key={index}
+															name={rescuer.name}
+															showing={rescuer.showing}
+															onShowArea={() => addRescuerArea(rescuer)}
+															onShowLocation={() => addRescuerPoint(rescuer)}
+														/>
+													);
 												})
 										) : (
 											<p className="text-center mt-20">No Rescuers to show</p>
@@ -108,7 +118,15 @@ export default function RescuersControls() {
 											rescuers
 												.filter((rescuer) => !rescuer.bracelet)
 												.map((rescuer, index) => {
-													return <RescuerListItem key={index} rescuer={rescuer} onClick={() => onRescuerItemClick(rescuer)} />;
+													return (
+														<BraceletWithOwnerListItem
+															key={index}
+															name={rescuer.name}
+															showing={rescuer.showing}
+															onShowArea={() => addRescuerArea(rescuer)}
+															onShowLocation={() => addRescuerPoint(rescuer)}
+														/>
+													);
 												})
 										) : (
 											<p className="text-center mt-20">No Rescuers to show</p>
