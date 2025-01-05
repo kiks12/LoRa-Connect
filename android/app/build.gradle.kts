@@ -73,4 +73,7 @@ dependencies {
 
     implementation("org.maplibre.gl:android-sdk:11.5.2")
     implementation("org.ramani-maps:ramani-maplibre:0.8.2")
+
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
 }
