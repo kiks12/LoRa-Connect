@@ -6,7 +6,7 @@ This is the repository of the LoRa-Connect Ecosystem, it is divided into 3 main 
 - [Web Application](https://github.com/kiks12/LoRa-Connect/tree/main/client)
 - [Hardware Script](https://github.com/kiks12/LoRa-Connect/tree/main/arduino)
 
-## Instructions
+## Getting Started
 
 Clone the repository using
 
