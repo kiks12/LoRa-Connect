@@ -13,3 +13,20 @@ Clone the repository using
 ```bash
 git clone https://github.com/kiks12/LoRa-Connect.git
 ```
+
+## Pull Requests
+
+Create a branch with the following pattern (ECOSYSTEM_PART-FEATURE)
+example:
+
+```bash
+git checkout ANDROID-Offline-Map
+```
+
+Push the branch to the Github Repository
+
+```bash
+git push origin ANDROID-Offline-Map
+```
+
+Create a pull request in Github
