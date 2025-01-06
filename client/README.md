@@ -5,20 +5,24 @@ This is the source code for the web application of the LoRa-Connect ecosystem bu
 ## Getting Started
 
 After cloning the repository run:
-'''bash
+
+```bash
 npm install
-'''
+```
 
 Run Prisma Migrations
-'''bash
+
+```bash
 npx prisma migrate dev --name "Message"
+```
 
 > [!NOTE]
 > Make sure that the .env file variables is consistent with your local device
 
 Run Development
-'''bash
+
+```bash
 npm run dev
-'''
+```
 
 Then go to [homepage](http://localhost:3000)
