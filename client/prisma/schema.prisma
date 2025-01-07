@@ -37,6 +37,7 @@ model Owners {
   ownerId                 Int          @id @default(autoincrement())
   createdAt               DateTime     @default(now())
   name                    String
+  address                 String?
   numberOfMembersInFamily Int
   bracelet                Bracelets?
   latitude                Float?
