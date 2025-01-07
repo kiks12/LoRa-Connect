@@ -17,12 +17,14 @@ export type OwnerFormType = "CREATE" | "UPDATE";
 export const OwnerForm = ({
 	ownerId,
 	name,
+	address,
 	braceletId,
 	numberOfMembersInFamily,
 	type = "CREATE",
 }: {
 	ownerId?: number;
 	name?: string;
+	address?: string;
 	braceletId?: string;
 	numberOfMembersInFamily?: number;
 	type?: OwnerFormType;
@@ -34,6 +36,7 @@ export const OwnerForm = ({
 			name: name ?? "",
 			numberOfMembersInFamily: numberOfMembersInFamily ?? 0,
 			braceletId: braceletId ?? "",
+			address: address ?? "",
 		},
 	});
 
@@ -41,6 +44,7 @@ export const OwnerForm = ({
 		const result = await updateOwner({
 			owner: {
 				name: values.name,
+				address: values.address,
 				numberOfMembersInFamily: values.numberOfMembersInFamily,
 				ownerId: ownerId ?? 0,
 				createdAt: new Date(),
@@ -56,6 +60,7 @@ export const OwnerForm = ({
 			owner: {
 				createdAt: new Date(),
 				name: values.name,
+				address: values.address,
 				numberOfMembersInFamily: values.numberOfMembersInFamily,
 				ownerId: 0,
 				longitude: 0,
@@ -129,6 +134,21 @@ export const OwnerForm = ({
 									<FormLabel>No. of Members in Family</FormLabel>
 									<FormControl>
 										<Input type="number" placeholder="Enter number of members in family..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="address"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Current Address</FormLabel>
+									<FormControl>
+										<Input type="text" placeholder="Enter full address..." {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
