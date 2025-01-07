@@ -57,11 +57,11 @@ export const columns: ColumnDef<OwnerWithBracelet>[] = [
 		},
 	},
 	{
-		accessorKey: "braceletsBraceletId",
+		accessorKey: "address",
 		header: ({ column }) => {
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-					Bracelet ID
+					Address
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
 			);
