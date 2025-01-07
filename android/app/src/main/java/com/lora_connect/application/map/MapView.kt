@@ -1,31 +1,29 @@
-package com.lora_connect.application.components
+package com.lora_connect.application.map
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
 import com.lora_connect.application.MapStyleManager
-import com.lora_connect.application.map.MapViewModel
 import com.lora_connect.application.permissions.RequestLocationPermissionUsingRememberLauncherForActivityResult
 import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.location.modes.CameraMode
+import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
-import org.ramani.compose.CameraPosition
-import org.ramani.compose.MapLibre
 
+@SuppressLint("MissingPermission")
 @Composable
-fun OfflineMap(
-    mapViewModel: MapViewModel,
-    modifier : Modifier = Modifier
-) {
-    val context = LocalContext.current
+fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
     val state by mapViewModel.state.collectAsState()
 
+    val context = LocalContext.current
     val styleBuilder = remember {
         val styleManager = MapStyleManager(context)
         val style = when (val result = styleManager.setupStyle()) {
@@ -40,22 +38,10 @@ fun OfflineMap(
         )
     }
 
-    val cameraPosition = rememberSaveable {
-        CameraPosition(
-            target = LatLng(state.latitude, state.longitude),
-            zoom = 9.0,
-        )
-    }
-
-    LaunchedEffect(state.latitude, state.longitude) {
-        cameraPosition.target = LatLng(latitude = state.latitude, longitude = state.longitude)
-    }
-
     RequestLocationPermissionUsingRememberLauncherForActivityResult(
         onPermissionGranted = {
             mapViewModel.getCurrentLocation(
                 onGetCurrentLocationSuccess = {
-                    Log.w("OFFLINE MAP", it.toString())
                     mapViewModel.setLatLng(it.first, it.second)
                 },
                 onGetCurrentLocationFailed = {
@@ -68,11 +54,23 @@ fun OfflineMap(
         }
     )
 
-    MapLibre(
-        modifier = modifier,
-        styleBuilder = styleBuilder,
-        cameraPosition = cameraPosition
-    ) {
-        // Add map markers, polylines, etc.
-    }
+    AndroidView(
+        factory = {
+            mapView.getMapAsync { map ->
+                map.setStyle(styleBuilder) { style ->
+                    val locationComponent = map.locationComponent
+                    val locationComponentOptions = mapViewModel.buildLocationComponentOptions()
+                    val locationComponentActivationOptions = mapViewModel.buildLocationComponentActivationOptions(style, locationComponentOptions)
+                    locationComponent.activateLocationComponent(locationComponentActivationOptions)
+                    locationComponent.isLocationComponentEnabled = true
+                    locationComponent.cameraMode = CameraMode.TRACKING
+
+                }
+                map.cameraPosition = org.maplibre.android.camera.CameraPosition.Builder().target(location = LatLng(state.latitude, state.longitude)).zoom(10.0).build()
+            }
+
+            mapView
+        },
+        modifier = Modifier.fillMaxSize()
+    )
 }
