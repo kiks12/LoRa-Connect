@@ -32,18 +32,20 @@ export async function createOwner({...data}: Owners) {
     data: {
       name: data.name,
       numberOfMembersInFamily: data.numberOfMembersInFamily,
+      address: data.address,
     },
   })
 }
 
-export async function updateOwner(owner: Owners) {
+export async function updateOwner({...data}: Owners) {
   return await client.owners.update({
     where: {
-      ownerId: owner.ownerId,
+      ownerId: data.ownerId,
     },
     data: {
-      name: owner.name,
-      numberOfMembersInFamily: owner.numberOfMembersInFamily
+      name: data.name,
+      numberOfMembersInFamily: data.numberOfMembersInFamily,
+      address: data.address
     }
   })
 }
