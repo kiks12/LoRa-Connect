@@ -8,10 +8,15 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.maplibre.android.location.LocationComponentActivationOptions
+import org.maplibre.android.location.LocationComponentOptions
+import org.maplibre.android.maps.Style
 
 class MapViewModel(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     private val areLocationPermissionGranted: () -> Boolean,
+    val buildLocationComponentOptions: () -> LocationComponentOptions,
+    val buildLocationComponentActivationOptions: (style: Style, locationComponentOptions: LocationComponentOptions) -> LocationComponentActivationOptions
 ): ViewModel() {
     private val _state = MutableStateFlow(MapState())
     val state : StateFlow<MapState> = _state.asStateFlow()
