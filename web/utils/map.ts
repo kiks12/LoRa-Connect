@@ -1,6 +1,8 @@
 
 import * as turf from "@turf/turf"
 import { createGeoJsonSourceId, OWNER_AREA_SOURCE, OWNER_POINT_SOURCE, RESCUER_AREA_SOURCE, RESCUER_POINT_SOURCE } from "./tags";
+import { GeoJSONSourceSpecification, LayerSpecification } from "maplibre-gl";
+import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR, OWNER_MARKER_COLOR, RESCUER_MARKER_COLOR, ROUTE_COLOR } from "@/map-styles";
 
 export function createOwnerPointGeoJSON({ ownerId, latitude, longitude }: { latitude: number; longitude: number; ownerId: number }) {
   return {
@@ -22,10 +24,10 @@ export function createOwnerPointLayerGeoJSON({ sourceId }: { sourceId: string })
     type: "circle",
     paint: {
       "circle-radius": 10,
-      "circle-color": "#007cbf",
+      "circle-color": OWNER_MARKER_COLOR,
       "circle-opacity": 0.5,
       "circle-stroke-width": 2,
-      "circle-stroke-color": "#007cbf",
+      "circle-stroke-color": OWNER_MARKER_COLOR,
     },
   };
 }
@@ -51,7 +53,7 @@ export function createOwnerPointAreaLayerGeoJSON({ sourceId }: { sourceId: strin
     source: sourceId,
     type: "fill",
     paint: {
-      "fill-color": "#007cbf",
+      "fill-color": OWNER_MARKER_COLOR,
       "fill-opacity": 0.2,
     },
   };
@@ -77,7 +79,7 @@ export function createRescuerPointLayerGeoJSON({ sourceId }: { sourceId: string 
     type: "circle",
     paint: {
       "circle-radius": 10,
-      "circle-color": "#bf8900",
+      "circle-color": RESCUER_MARKER_COLOR,
       "circle-opacity": 0.5,
       "circle-stroke-width": 2,
       "circle-stroke-color": "#bf8900",
@@ -106,8 +108,45 @@ export function createRescuerPointAreaLayerGeoJSON({ sourceId }: { sourceId: str
     source: sourceId,
     type: "fill",
     paint: {
-      "fill-color": "#bf8900",
+      "fill-color": RESCUER_MARKER_COLOR,
       "fill-opacity": 0.2,
     },
   };
+}
+
+export function createRouteSource(coordinates: number[][]) : GeoJSONSourceSpecification {
+  return {
+    type: "geojson",
+    data: {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "LineString",
+        coordinates: coordinates
+      }
+    }
+  }
+}
+
+export function createRouteLayerGeoJSON(): LayerSpecification {
+  return {
+    id: 'ROUTE',
+    type: 'line',
+    source: 'ROUTE',
+    layout: {
+      'line-join': 'bevel',
+      'line-cap': 'round'
+    },
+    paint: {
+      'line-color': ROUTE_COLOR,
+      'line-width': 6.5,
+    }
+  }
+}
+
+export const COLOR_MAP = {
+  "RESCUERS": RESCUER_MARKER_COLOR,
+  "OWNERS": OWNER_MARKER_COLOR,
+  "EVACUATION_CENTERS": EVACUATION_CENTER_MARKER_COLOR,
+  "OBSTACLES": OBSTACLE_MARKER_COLOR
 }
