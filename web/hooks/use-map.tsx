@@ -16,6 +16,7 @@ import {
 import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { Obstacle } from "@prisma/client";
 import {
+	COLOR_MAP,
 	createOwnerPointAreaGeoJSON,
 	createOwnerPointAreaLayerGeoJSON,
 	createOwnerPointGeoJSON,
@@ -24,9 +25,12 @@ import {
 	createRescuerPointAreaLayerGeoJSON,
 	createRescuerPointGeoJSON,
 	createRescuerPointLayerGeoJSON,
+	createRouteLayerGeoJSON,
+	createRouteSource,
 } from "@/utils/map";
 import {
 	EvacuationCenterWithStatusIdentifier,
+	GraphHopperAPIResult,
 	LocationDataFromLoRa,
 	ObstacleWithStatusIdentifier,
 	OwnerWithBracelet,
@@ -38,6 +42,7 @@ import { OWNER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
 import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/tags";
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR } from "@/map-styles";
+import { generalType } from "@/app/map/_components/RoutingControls";
 
 const MapContext = createContext<{
 	// MAP
@@ -97,6 +102,10 @@ const MapContext = createContext<{
 	toggleObstacleOnMap: (obstacle: Obstacle) => void;
 	obstaclesLoading: boolean;
 	refreshObstacles: () => void;
+
+	// ROUTING
+	createRoute: (from: generalType, to: generalType, data: GraphHopperAPIResult) => void;
+	clearRoute: () => void;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -149,6 +158,11 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const currentObstacleMarker = useRef<maplibregl.Marker | null>(null);
 	const [currentObstacleMarkerLngLat, setCurrentObstacleMarkerLngLat] = useState<{ lng: number; lat: number } | null>(null);
 	/* --- OBSTACLES VARIABLES --- */
+
+	/* --- ROUTING VARIABLES --- */
+	const fromMarker = useRef<maplibregl.Marker | null>(null);
+	const toMarker = useRef<maplibregl.Marker | null>(null);
+	/* --- ROUTING VARIABLES --- */
 
 	/* --- MAP RENDERING --- */
 	// GET CURRENT LOCATION OF CENTRAL NODE
@@ -619,6 +633,35 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	}
 	/* --- OBSTACLES FUNCTIONS --- */
 
+	/* --- ROUTING FUNCTIONS --- */
+	function createRoute(from: generalType, to: generalType, data: GraphHopperAPIResult) {
+		if (!mapRef.current) return;
+		if (fromMarker.current) fromMarker.current.remove();
+		if (toMarker.current) toMarker.current.remove();
+		clearSourcesAndLayers("ROUTE");
+		mapRef.current.addSource("ROUTE", createRouteSource(data.paths[0].points.coordinates));
+		mapRef.current.addLayer(createRouteLayerGeoJSON());
+		fromMarker.current = new maplibregl.Marker({
+			color: COLOR_MAP[from.type],
+		})
+			.setLngLat([from.longitude!, from.latitude!])
+			.addTo(mapRef.current);
+		toMarker.current = new maplibregl.Marker({
+			color: COLOR_MAP[to.type],
+		})
+			.setLngLat([to.longitude!, to.latitude!])
+			.addTo(mapRef.current);
+	}
+
+	function clearRoute() {
+		clearSourcesAndLayers("ROUTE");
+		if (fromMarker.current) fromMarker.current.remove();
+		if (toMarker.current) toMarker.current.remove();
+		fromMarker.current = null;
+		toMarker.current = null;
+	}
+	/* --- ROUTING FUNCTIONS --- */
+
 	return (
 		<MapContext.Provider
 			value={{
@@ -671,6 +714,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				updateObstacle,
 				obstaclesLoading,
 				refreshObstacles,
+
+				createRoute,
+				clearRoute,
 			}}
 		>
 			{children}
