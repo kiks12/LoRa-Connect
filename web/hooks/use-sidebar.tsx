@@ -6,13 +6,15 @@ import RescuersControls from "@/app/map/_components/RescuersControls";
 import TasksControls from "@/app/map/_components/TasksControls";
 import React, { createContext, ReactNode, useContext, useState } from "react";
 import { useMapContext } from "./use-map";
+import RoutingControls from "@/app/map/_components/RoutingControls";
 
-export type activeTab = "ADMIN" | "TASKS" | "OWNERS" | "RESCUERS";
+export type activeTab = "ADMIN" | "TASKS" | "OWNERS" | "RESCUERS" | "ROUTING";
 export const SIDEBAR_TABS: { [key: string]: ReactNode } = {
 	ADMIN: <AdminControls />,
 	TASKS: <TasksControls />,
 	OWNERS: <OwnersControls />,
 	RESCUERS: <RescuersControls />,
+	ROUTING: <RoutingControls />,
 };
 type CLOSE_COMPONENT_CALLBACK = "TOGGLE_ADDING_OBSTACLE";
 
