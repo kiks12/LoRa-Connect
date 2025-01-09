@@ -2,6 +2,7 @@
 #include <SoftwareSerial.h>
 #include <SPI.h>
 #include <LoRa.h>
+#include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD13086.h>
 
@@ -61,8 +62,16 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
   }
-
+  
+  millis();
   display.clearDisplay(); //OLED
+
+  dispaly.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0); //temporary
+  display.println(instruction);
+  display.display();
+  millis();
 
   instructionreceived[] = {};
 
@@ -127,6 +136,20 @@ void loop() {
   sendData(received);
 
   //OLED Display
-
+  //temporary block of code
+  display.startscrollright(0x00, 0x0F);
+  millis();
+  display.stopscroll();
+  millis();
+  display.startscrollleft(0x00, 0x0F);
+  millis();
+  display.stopscroll();
+  millis();
+  display.startscrolldiagright(0x00, 0x07);
+  millis();
+  display.startscrolldiagleft(0x00, 0x07);
+  millis();
+  display.stopscroll();
+  millis();
 
 }
