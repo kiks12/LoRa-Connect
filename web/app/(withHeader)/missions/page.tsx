@@ -1,11 +1,11 @@
-import { getOperations } from "@/server/db/operations";
+import { getOperationsCached } from "@/server/db/operations";
 import { DataTable } from "../../components/DataTable";
 import { columns } from "./columns";
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
 
-const operations = await getOperations();
+export default async function MissionPage() {
+	const operations = await getOperationsCached();
 
-export default function MissionPage() {
 	return (
 		<main>
 			<ContainerWithTitle title="Missions">
