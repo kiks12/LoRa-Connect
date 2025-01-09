@@ -13,7 +13,16 @@ export const getOperationsCached = unstable_cache(async () => {
 
 export async function createOperation({operation}: {operation: Operations}) {
   return await client.operations.create({
-    data: operation
+    data: {
+      rescuersRescuerId: operation.rescuersRescuerId,
+      ownersOwnerId: operation.ownersOwnerId,
+      evacuationCentersEvacuationId: operation.evacuationCentersEvacuationId,
+      numberOfRescuee: operation.numberOfRescuee,
+      status: operation.status,
+      urgency: operation.urgency,
+      createAt: operation.createAt,
+      dateTime: operation.dateTime
+    } 
   })
 }
 
