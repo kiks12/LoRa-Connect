@@ -1,13 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Operations } from "@prisma/client";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { OperationsWithPayload } from "@/types";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
 
-export const columns: ColumnDef<Operations>[] = [
+export const columns: ColumnDef<OperationsWithPayload>[] = [
 	{
 		accessorKey: "missionId",
 		header: ({ column }) => {
@@ -54,23 +56,42 @@ export const columns: ColumnDef<Operations>[] = [
 	},
 	{
 		accessorKey: "numberOfRescuee",
-		header: "Victims",
+		header: "No. of victims",
 	},
 	{
-		accessorKey: "ownersOwnerId",
-		header: "Owner ID",
+		header: "Owner",
+		cell: ({ row }) => {
+			return <p>{row.original.owner.name}</p>;
+		},
 	},
 	{
-		accessorKey: "rescuersRescuerId",
-		header: "Rescuer ID",
+		header: "Rescuer",
+		cell: ({ row }) => {
+			return <p>{row.original.rescuer.name}</p>;
+		},
 	},
 	{
-		accessorKey: "evacuationCentersEvacuationId",
 		header: "Evacuation ID",
+		cell: ({ row }) => {
+			return <p>{row.original.evacuationCenter.name}</p>;
+		},
 	},
 	{
 		id: "actions",
-		cell: ({}) => {
+		cell: ({ row }) => {
+			const {
+				missionId,
+				owner,
+				ownersOwnerId,
+				evacuationCenter,
+				evacuationCentersEvacuationId,
+				numberOfRescuee,
+				rescuer,
+				rescuersRescuerId,
+				status,
+				urgency,
+			} = row.original;
+
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
@@ -80,9 +101,18 @@ export const columns: ColumnDef<Operations>[] = [
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem>Update</DropdownMenuItem>
-						<DropdownMenuItem>Delete</DropdownMenuItem>
+						<Card>
+							<DropdownMenuLabel>Actions</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							<Link
+								href={`/missions/update?operationId=${missionId}&ownerId=${ownersOwnerId}&ownerName=${owner.name}&rescuerId=${rescuersRescuerId}&rescuerName=${rescuer.name}&evacuationCenterId=${evacuationCentersEvacuationId}&evacuationCenterName=${evacuationCenter.name}&numberOfRescuee=${numberOfRescuee}&operationStatus=${status}&urgency=${urgency}`}
+							>
+								<DropdownMenuItem>Update</DropdownMenuItem>
+							</Link>
+							<Link href={`/missions/delete?operationId=${missionId}`}>
+								<DropdownMenuItem>Delete</DropdownMenuItem>
+							</Link>
+						</Card>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);
