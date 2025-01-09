@@ -6,15 +6,23 @@
 #include <Adafruit_SSD13086.h>
 
 #define idLength = 8 //temporary
+//GPS
 #define RXPin = 0
 #define TXPin = 1
+//LoRa
 #define NSS = 2
 #define MOSI = 3
 #define DIO0 = 4
 #define MISO = 5
 #define SCK = 6
+//3-way switch
+#define lvl1 = 9
+#define lvl2 = 10
+#define lvl3 = 11
+//OLED
 #define SCL = 14
 #define SDA = 15
+//LED
 #define LED1 = 16
 #define LED2 = 17
 
@@ -58,6 +66,8 @@ void setup() {
 
   instructionreceived[] = {};
 
+  int severity = 1;
+
 }
 
 void loop() {
@@ -70,11 +80,24 @@ void loop() {
   String currentLatitude = gps.location.lat
   String currentLongitude = gps.location.lng
 
-  String messageFormat = id + "-" + currentLatitude + "-" + currentLongitude;
+//3-way switch
+  if(lvl1 = HIGH){
+    severity == 1;
+  }
+
+  if(lvl2 = HIGH){
+    severity == 2;
+  }
+
+  if(lvl3 = HIGH){
+    severity == 3;
+  }
+
+  String currentLocation = id + "-" + currentLatitude + "-" + currentLongitude + "-" + severity;
   //di ko pa alam pano gagawin yung id
 
   //LoRa - transmitting of bracelet's current location
-  sendData(messageFormat);
+  sendData(currentLocation);
 
   //LoRa - Recieving
   int packetSize = LoRa.parsePacket();
