@@ -22,7 +22,6 @@ export default function OwnersControls() {
 		clearSourcesAndLayers,
 		addOwnerArea,
 		clearOwnerShowStatuses,
-		filterSearchOwner,
 		refreshOwners,
 		ownersLoading,
 	} = useMapContext();
@@ -35,7 +34,6 @@ export default function OwnersControls() {
 
 	function onChange(e: React.FormEvent<HTMLInputElement>) {
 		setSearch(e.currentTarget.value);
-		filterSearchOwner(e.currentTarget.value);
 	}
 
 	return (
@@ -79,15 +77,16 @@ export default function OwnersControls() {
 									<ul className="h-[550px] overflow-y-auto">
 										{owners.length > 0 ? (
 											owners.map((owner, index) => {
-												return (
-													<BraceletWithOwnerListItem
-														key={index}
-														name={owner.name}
-														showing={owner.showing}
-														onShowArea={() => addOwnerArea(owner)}
-														onShowLocation={() => addOwnerPoint(owner)}
-													/>
-												);
+												if (owner.name.toLowerCase().includes(search.toLowerCase()))
+													return (
+														<BraceletWithOwnerListItem
+															key={index}
+															name={owner.name}
+															showing={owner.showing}
+															onShowArea={() => addOwnerArea(owner)}
+															onShowLocation={() => addOwnerPoint(owner)}
+														/>
+													);
 											})
 										) : (
 											<p className="mt-20 text-center">No Owners to show</p>
@@ -100,15 +99,16 @@ export default function OwnersControls() {
 											owners
 												.filter((owner) => owner.bracelet)
 												.map((owner, index) => {
-													return (
-														<BraceletWithOwnerListItem
-															key={index}
-															name={owner.name}
-															showing={owner.showing}
-															onShowArea={() => addOwnerArea(owner)}
-															onShowLocation={() => addOwnerPoint(owner)}
-														/>
-													);
+													if (owner.name.toLowerCase().includes(search.toLowerCase()))
+														return (
+															<BraceletWithOwnerListItem
+																key={index}
+																name={owner.name}
+																showing={owner.showing}
+																onShowArea={() => addOwnerArea(owner)}
+																onShowLocation={() => addOwnerPoint(owner)}
+															/>
+														);
 												})
 										) : (
 											<p className="mt-20 text-center">No Owners to show</p>
@@ -121,15 +121,16 @@ export default function OwnersControls() {
 											owners
 												.filter((owner: OwnerWithStatusIdentifier) => !owner.bracelet)
 												.map((owner, index) => {
-													return (
-														<BraceletWithOwnerListItem
-															key={index}
-															name={owner.name}
-															showing={owner.showing}
-															onShowArea={() => addOwnerArea(owner)}
-															onShowLocation={() => addOwnerPoint(owner)}
-														/>
-													);
+													if (owner.name.toLowerCase().includes(search.toLowerCase()))
+														return (
+															<BraceletWithOwnerListItem
+																key={index}
+																name={owner.name}
+																showing={owner.showing}
+																onShowArea={() => addOwnerArea(owner)}
+																onShowLocation={() => addOwnerPoint(owner)}
+															/>
+														);
 												})
 										) : (
 											<p className="mt-20 text-center">No Owners to show</p>

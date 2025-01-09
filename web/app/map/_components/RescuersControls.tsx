@@ -19,7 +19,6 @@ export default function RescuersControls() {
 		addRescuerPoint,
 		addRescuerArea,
 		clearRescuerShowStatuses,
-		filterSearchRescuer,
 		refreshRescuers,
 		rescuersLoading,
 	} = useMapContext();
@@ -32,7 +31,6 @@ export default function RescuersControls() {
 
 	function onChange(e: React.FormEvent<HTMLInputElement>) {
 		setSearch(e.currentTarget.value);
-		filterSearchRescuer(e.currentTarget.value);
 	}
 
 	return (
@@ -76,15 +74,16 @@ export default function RescuersControls() {
 									<ul className="h-[550px] overflow-y-auto">
 										{rescuers.length > 0 ? (
 											rescuers.map((rescuer, index) => {
-												return (
-													<BraceletWithOwnerListItem
-														key={index}
-														name={rescuer.name}
-														showing={rescuer.showing}
-														onShowArea={() => addRescuerArea(rescuer)}
-														onShowLocation={() => addRescuerPoint(rescuer)}
-													/>
-												);
+												if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
+													return (
+														<BraceletWithOwnerListItem
+															key={index}
+															name={rescuer.name}
+															showing={rescuer.showing}
+															onShowArea={() => addRescuerArea(rescuer)}
+															onShowLocation={() => addRescuerPoint(rescuer)}
+														/>
+													);
 											})
 										) : (
 											<p className="text-center mt-20">No Rescuers to show</p>
@@ -97,15 +96,16 @@ export default function RescuersControls() {
 											rescuers
 												.filter((rescuer) => rescuer.bracelet)
 												.map((rescuer, index) => {
-													return (
-														<BraceletWithOwnerListItem
-															key={index}
-															name={rescuer.name}
-															showing={rescuer.showing}
-															onShowArea={() => addRescuerArea(rescuer)}
-															onShowLocation={() => addRescuerPoint(rescuer)}
-														/>
-													);
+													if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
+														return (
+															<BraceletWithOwnerListItem
+																key={index}
+																name={rescuer.name}
+																showing={rescuer.showing}
+																onShowArea={() => addRescuerArea(rescuer)}
+																onShowLocation={() => addRescuerPoint(rescuer)}
+															/>
+														);
 												})
 										) : (
 											<p className="text-center mt-20">No Rescuers to show</p>
@@ -118,15 +118,16 @@ export default function RescuersControls() {
 											rescuers
 												.filter((rescuer) => !rescuer.bracelet)
 												.map((rescuer, index) => {
-													return (
-														<BraceletWithOwnerListItem
-															key={index}
-															name={rescuer.name}
-															showing={rescuer.showing}
-															onShowArea={() => addRescuerArea(rescuer)}
-															onShowLocation={() => addRescuerPoint(rescuer)}
-														/>
-													);
+													if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
+														return (
+															<BraceletWithOwnerListItem
+																key={index}
+																name={rescuer.name}
+																showing={rescuer.showing}
+																onShowArea={() => addRescuerArea(rescuer)}
+																onShowLocation={() => addRescuerPoint(rescuer)}
+															/>
+														);
 												})
 										) : (
 											<p className="text-center mt-20">No Rescuers to show</p>
