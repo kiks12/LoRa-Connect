@@ -19,6 +19,14 @@ export type RescuerWithBracelet = Prisma.RescuersGetPayload<{
   }
 }>
 
+export type OperationsWithPayload = Prisma.OperationsGetPayload<{
+  include: {
+    evacuationCenter: true,
+    owner: true,
+    rescuer: true
+  }
+}>
+
 export type LocationDataFromLoRa = {
   latitude: number, 
   longitude: number,
