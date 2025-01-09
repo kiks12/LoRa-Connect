@@ -5,11 +5,22 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD13086.h>
 
-static const int RXPin = 0, TXPin = 1, NSS = 2, MOSI = 3, DIO0 = 4, MISO = 5, SCK = 6, SCL = 14, SDA = 15, LED1 = 16, LED2 = 17;
+#define idLength = 8 //temporary
+#define RXPin = 0
+#define TXPin = 1
+#define NSS = 2
+#define MOSI = 3
+#define DIO0 = 4
+#define MISO = 5
+#define SCK = 6
+#define SCL = 14
+#define SDA = 15
+#define LED1 = 16
+#define LED2 = 17
 
 TinyGPSPlus gps;
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1); //OLED
 
 SoftwareSerial ss(RXPin, TXPin);
 
@@ -43,7 +54,9 @@ void setup() {
     for(;;);
   }
 
-  display.clearDisplay();
+  display.clearDisplay(); //OLED
+
+  instructionreceived[] = {};
 
 }
 
@@ -60,7 +73,7 @@ void loop() {
   String messageFormat = id + "-" + currentLatitude + "-" + currentLongitude;
   //di ko pa alam pano gagawin yung id
 
-  //LoRa - transmitting
+  //LoRa - transmitting of bracelet's current location
   sendData(messageFormat);
 
   //LoRa - Recieving
@@ -73,8 +86,22 @@ void loop() {
     LoRa.packetRssi();    
   }
 
-  // LoRa - Resending of Recieved data
-  sendData(recieved);
+  //Recieving - Extraction of instruction from message from central node
+  for (int i = 0; i < idLength; i++) {
+    char character = received[i];
+    if(character == centralNodeID[i]){
+      checker++;
+    }
+  }
+
+  if (checker == idLength){
+    for (int i = idLength + 1; i < strlen(received); i++) {
+    String instruction = received.substring(idLength + 1 , received.length());
+    checker = 0;
+  }
+
+  // LoRa - Retransmitting of received data form other bracelets
+  sendData(received);
 
   //OLED Display
 
