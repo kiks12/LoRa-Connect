@@ -65,7 +65,6 @@ const MapContext = createContext<{
 	addRescuerArea: ({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation?: boolean) => void;
 	setShowRescuersLocations: Dispatch<SetStateAction<boolean>>;
 	clearRescuerShowStatuses: () => void;
-	filterSearchRescuer: (value: string) => void;
 	refreshRescuers: () => void;
 	rescuersLoading: boolean;
 
@@ -76,7 +75,6 @@ const MapContext = createContext<{
 	addOwnerArea: ({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation?: boolean) => void;
 	setShowOwnerLocations: Dispatch<SetStateAction<boolean>>;
 	clearOwnerShowStatuses: () => void;
-	filterSearchOwner: (value: string) => void;
 	refreshOwners: () => void;
 	ownersLoading: boolean;
 
@@ -126,14 +124,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- RESCUERS VARIABLES --- */
 	const [rescuers, setRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
 	const [rescuersLoading, setRescuersLoading] = useState(false);
-	const [backupRescuers, setBackupRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
 	const [showRescuersLocations, setShowRescuersLocations] = useState(false);
 	/* --- RESCUERS VARIABLES --- */
 
 	/* --- OWNERS VARIABLES --- */
 	const [owners, setOwners] = useState<OwnerWithStatusIdentifier[]>([]);
 	const [ownersLoading, setOwnersLoading] = useState(false);
-	const [backupOwners, setBackupOwners] = useState<OwnerWithStatusIdentifier[]>([]);
 	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
 	/* --- OWNERS VARIABLES --- */
 
@@ -312,16 +308,11 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		setOwners((prev) => (prev = prev.map((owner) => ({ ...owner, showing: false }))));
 	}
 
-	function filterSearchOwner(value: string) {
-		setOwners(backupOwners.filter((owner) => owner.name.toLowerCase().includes(value.toLowerCase())));
-	}
-
 	async function fetchOwnersAPI() {
 		setOwnersLoading(true);
 		const { owners }: { owners: OwnerWithBracelet[] } = await (await fetch("/api/owners")).json();
 		const mappedOwners = owners.map((owner) => ({ ...owner, showing: false }));
 		setOwners(mappedOwners);
-		setBackupOwners(mappedOwners);
 		setOwnersLoading(false);
 	}
 
@@ -335,7 +326,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 		return () => {
 			setOwners([]);
-			setBackupOwners([]);
 		};
 	}, []);
 
@@ -394,16 +384,11 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		setRescuers((prev) => (prev = prev.map((rescuer) => (rescuer.rescuerId === rescuerId ? { ...rescuer, showing: !rescuer.showing } : rescuer))));
 	}
 
-	function filterSearchRescuer(value: string) {
-		setRescuers(backupRescuers.filter((rescuer) => rescuer.name.toLowerCase().includes(value.toLowerCase())));
-	}
-
 	async function fetchRescuersAPI() {
 		setRescuersLoading(true);
 		const { rescuers }: { rescuers: RescuerWithBracelet[] } = await (await fetch("/api/rescuers")).json();
 		const mappedRescuers = rescuers.map((rescuer) => ({ ...rescuer, showing: false }));
 		setRescuers(mappedRescuers);
-		setBackupRescuers(mappedRescuers);
 		setRescuersLoading(false);
 	}
 
@@ -417,7 +402,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 		return () => {
 			setRescuers([]);
-			setBackupRescuers([]);
 		};
 	}, []);
 
@@ -680,7 +664,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				showOwnerLocations,
 				setShowOwnerLocations,
 				clearOwnerShowStatuses,
-				filterSearchOwner,
 				refreshOwners,
 				ownersLoading,
 
@@ -690,7 +673,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				showRescuersLocations,
 				setShowRescuersLocations,
 				clearRescuerShowStatuses,
-				filterSearchRescuer,
 				refreshRescuers,
 				rescuersLoading,
 
