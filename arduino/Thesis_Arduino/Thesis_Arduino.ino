@@ -17,9 +17,9 @@
 #define MISO = 5
 #define SCK = 6
 //3-way switch
-#define lvl1 = 9
-#define lvl2 = 10
-#define lvl3 = 11
+#define levelOne = 9
+#define levelTwo = 10
+#define levelThree = 11
 //OLED
 #define SCL = 14
 #define SDA = 15
@@ -34,7 +34,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1); //OLED
 SoftwareSerial ss(RXPin, TXPin);
 
 #define SCREEN_WIDTH 128 
-#define SCREEN_HEIGHT 64 
+#define SCREEN_HEIGHT 64
+
+unsigned long startMillis;
+unsigned long currentMillis;
+unsigned long intervalMillis = 500; //temporary value
 
 void sendData(data) {
   LoRa.beginPacket();
@@ -62,8 +66,7 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;);
   }
-  
-  millis();
+
   display.clearDisplay(); //OLED
 
   dispaly.setTextSize(1);
@@ -71,7 +74,6 @@ void setup() {
   display.setCursor(0,0); //temporary
   display.println(instruction);
   display.display();
-  millis();
 
   instructionreceived[] = {};
 
@@ -90,15 +92,15 @@ void loop() {
   String currentLongitude = gps.location.lng
 
 //3-way switch
-  if(lvl1 = HIGH){
+  if(levelOne = HIGH){
     severity == 1;
   }
 
-  if(lvl2 = HIGH){
+  if(levelTwo = HIGH){
     severity == 2;
   }
 
-  if(lvl3 = HIGH){
+  if(levelThree = HIGH){
     severity == 3;
   }
 
@@ -137,19 +139,12 @@ void loop() {
 
   //OLED Display
   //temporary block of code
-  display.startscrollright(0x00, 0x0F);
-  millis();
+  startMillis = millis();
+
+  if (startMillis - currentMillis >= intervalMillis) {
+    display.startscrollleft(0x00, 0x0F);
+    currentMillis = startMillis;
+  }
   display.stopscroll();
-  millis();
-  display.startscrollleft(0x00, 0x0F);
-  millis();
-  display.stopscroll();
-  millis();
-  display.startscrolldiagright(0x00, 0x07);
-  millis();
-  display.startscrolldiagleft(0x00, 0x07);
-  millis();
-  display.stopscroll();
-  millis();
 
 }
