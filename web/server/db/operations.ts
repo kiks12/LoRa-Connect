@@ -8,7 +8,13 @@ export async function getLatestOperations() {
 }
 
 export const getOperationsCached = unstable_cache(async () => {
-  return await client.operations.findMany()
+  return await client.operations.findMany({
+    include: {
+      evacuationCenter: true,
+      owner: true,
+      rescuer: true,
+    }
+  })
 }, [OPERATIONS_TAG], {tags: [OPERATIONS_TAG]})
 
 export async function createOperation({operation}: {operation: Operations}) {
