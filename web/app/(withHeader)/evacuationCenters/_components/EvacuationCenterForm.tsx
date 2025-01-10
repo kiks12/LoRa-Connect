@@ -12,7 +12,7 @@ import { createEvacuationCenter, updateEvacuationCenter } from "@/server/actions
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import LocationSelector from "./LocationSelector";
+import EvacuationCenterLocationSelector from "./EvacuationCenterLocationSelector";
 import { useEffect, useState } from "react";
 
 export type EvacuationFormType = "CREATE" | "UPDATE";
@@ -144,7 +144,7 @@ export function EvacuationForm({
 									<DialogTitle></DialogTitle>
 								</DialogHeader>
 								<div className="w-screen h-screen">
-									<LocationSelector evacuationLocation={evacuationLocation} setEvacuationLocation={setEvacuationLocation} />
+									<EvacuationCenterLocationSelector evacuationLocation={evacuationLocation} setEvacuationLocation={setEvacuationLocation} />
 								</div>
 							</DialogContent>
 						</Dialog>

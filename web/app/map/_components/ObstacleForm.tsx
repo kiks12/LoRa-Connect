@@ -84,8 +84,8 @@ export default function ObstacleForm({
 
 	useEffect(() => {
 		if (currentObstacleMarkerLngLat) {
-			form.setValue("latitude", currentObstacleMarkerLngLat.lat);
-			form.setValue("longitude", currentObstacleMarkerLngLat.lng);
+			form.setValue("latitude", parseFloat(currentObstacleMarkerLngLat.lat.toFixed(6)));
+			form.setValue("longitude", parseFloat(currentObstacleMarkerLngLat.lng.toFixed(6)));
 		}
 	}, [currentObstacleMarkerLngLat, form]);
 
