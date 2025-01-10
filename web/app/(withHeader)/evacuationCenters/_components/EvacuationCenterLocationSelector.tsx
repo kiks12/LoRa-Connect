@@ -10,7 +10,7 @@ import { DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { EVACUATION_CENTER_MARKER_COLOR } from "@/map-styles";
 
-const LocationSelector = ({
+const EvacuationCenterLocationSelector = ({
 	evacuationLocation,
 	setEvacuationLocation,
 }: {
@@ -77,7 +77,7 @@ const LocationSelector = ({
 		if (mapRef.current) {
 			mapRef.current.on("click", ({ lngLat }) => {
 				const { lat, lng } = lngLat;
-				setEvacuationLocation({ latitude: lat, longitude: lng });
+				setEvacuationLocation({ latitude: parseFloat(lat.toFixed(6)), longitude: parseFloat(lng.toFixed(6)) });
 				if (markerRef.current) markerRef.current.remove();
 				markerRef.current = new maplibregl.Marker({
 					color: EVACUATION_CENTER_MARKER_COLOR,
@@ -125,4 +125,4 @@ const LocationSelector = ({
 	);
 };
 
-export default LocationSelector;
+export default EvacuationCenterLocationSelector;
