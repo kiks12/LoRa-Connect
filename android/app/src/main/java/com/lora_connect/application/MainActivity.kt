@@ -1,98 +1,105 @@
 package com.lora_connect.application
 
-import android.content.pm.PackageManager
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.core.content.ContextCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.lora_connect.application.map.MapView
-import com.lora_connect.application.map.MapViewModel
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import com.lora_connect.application.authentication.AuthenticationScreen
+import com.lora_connect.application.authentication.AuthenticationViewModel
+import com.lora_connect.application.map.MapActivity
 import com.lora_connect.application.ui.theme.ApplicationTheme
-import org.maplibre.android.MapLibre
-import org.maplibre.android.location.LocationComponentActivationOptions
-import org.maplibre.android.location.LocationComponentOptions
-import org.maplibre.android.location.engine.LocationEngineRequest
-import org.maplibre.android.maps.MapView
-import org.maplibre.android.maps.Style
+import com.lora_connect.application.utils.LOGGED_IN_KEY
+import com.lora_connect.application.utils.PREFERENCES_KEY
 
 class MainActivity : ComponentActivity() {
-    private lateinit var mapView: MapView
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private lateinit var sharedPreferences : SharedPreferences
+    private lateinit var bluetoothManager : BluetoothManager
+    private lateinit var bluetoothAdapter: BluetoothAdapter
+    private lateinit var authenticationViewModel: AuthenticationViewModel
+
+    private val bluetoothLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        Log.w("MAIN ACTIVITY", it.data?.data.toString())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        MapLibre.getInstance(this)
-        mapView = MapView(this)
-        mapView.onCreate(savedInstanceState)
+        sharedPreferences = getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+        bluetoothManager = getSystemService(BluetoothManager::class.java)
+        bluetoothAdapter = bluetoothManager.adapter
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        val mapViewModel = MapViewModel(fusedLocationProviderClient, ::areLocationPermissionsGranted,::buildLocationComponentOptions, ::buildLocationComponentActivationOptions)
+        if (bluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not supported in this device", Toast.LENGTH_SHORT).show()
+            setContent {
+                ApplicationTheme {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(text = "Bluetooth not supported")
+                    }
+                }
+            }
+        }
+
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        registerReceiver(bluetoothBroadcastReceiver, filter)
+        authenticationViewModel = AuthenticationViewModel(bluetoothAdapter)
 
         setContent {
             ApplicationTheme {
-                MapView(mapView, mapViewModel)
+                AuthenticationScreen(authenticationViewModel)
             }
         }
     }
 
-    private fun areLocationPermissionsGranted() : Boolean {
-        val fineLocationPermission =
-            ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-        val coarseLocationPermission =
-            ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-
-        return fineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-                coarseLocationPermission == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun buildLocationComponentOptions() : LocationComponentOptions {
-        return LocationComponentOptions.builder(this)
-            .pulseEnabled(true)
-            .build()
-    }
-
-    private fun buildLocationComponentActivationOptions(
-        style: Style,
-        locationComponentOptions: LocationComponentOptions
-    ): LocationComponentActivationOptions {
-        return LocationComponentActivationOptions
-            .builder(this, style)
-            .locationComponentOptions(locationComponentOptions)
-            .useDefaultLocationEngine(true)
-            .locationEngineRequest(
-                LocationEngineRequest.Builder(750)
-                    .setFastestInterval(750)
-                    .setPriority(LocationEngineRequest.PRIORITY_HIGH_ACCURACY)
-                    .build()
-            )
-            .build()
-    }
-
     override fun onStart() {
         super.onStart()
-        mapView.onStart()
+
+        val loggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false)
+        if (loggedIn) startMapActivity()
+
+        if (!(bluetoothAdapter.isEnabled)) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            bluetoothLauncher.launch(enableBtIntent)
+        }
     }
 
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
+    private fun startMapActivity() {
+        val intent = Intent(this, MapActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapView.onStop()
+    private val bluetoothBroadcastReceiver = object : BroadcastReceiver() {
+        @SuppressLint("MissingPermission")
+        override fun onReceive(context: Context, intent: Intent) {
+            val action: String = intent.action!!
+            when(action) {
+                BluetoothDevice.ACTION_FOUND -> {
+                    val device: BluetoothDevice? =
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    if (device != null) authenticationViewModel.addDiscoveredDevice(device)
+//                    Log.w("MAIN ACTIVITY", device?.name!!.toString())
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView.onDestroy()
+        unregisterReceiver(bluetoothBroadcastReceiver)
     }
 }
