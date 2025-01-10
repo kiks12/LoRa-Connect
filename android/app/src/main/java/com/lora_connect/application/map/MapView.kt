@@ -11,7 +11,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.lora_connect.application.MapStyleManager
 import com.lora_connect.application.permissions.RequestLocationPermissionUsingRememberLauncherForActivityResult
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.location.modes.CameraMode

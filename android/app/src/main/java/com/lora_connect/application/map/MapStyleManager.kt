@@ -1,4 +1,4 @@
-package com.lora_connect.application
+package com.lora_connect.application.map
 
 import android.content.Context
 import java.io.File
