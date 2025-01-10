@@ -30,3 +30,11 @@ git push origin ANDROID-Offline-Map
 ```
 
 Create a pull request in Github
+
+## GraphHopper
+
+To run the graphhopper server run the server bash file
+
+```bash
+source server.bash
+```
