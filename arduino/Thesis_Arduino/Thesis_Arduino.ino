@@ -20,6 +20,8 @@
 #define levelOne = 9
 #define levelTwo = 10
 #define levelThree = 11
+//Interrupt
+#define interruptPin = 12
 //OLED
 #define SCL = 14
 #define SDA = 15
@@ -46,6 +48,34 @@ void sendData(data) {
   LoRa.endPacket();
 }
 
+  //Interrupt
+void transmitLocation(){
+  //GPS
+  while (ss.available() > 0){
+  gps.encode(ss.read());
+  if (gps.location.isUpdated()){
+
+  String currentLatitude = gps.location.lat
+  String currentLongitude = gps.location.lng
+
+  String currentLocation = id + "-" + currentLatitude + "-" + currentLongitude + "-" + severity;
+ //di ko pa alam pano gagawin yung id
+
+  //LoRa - transmitting of bracelet's current location
+  sendData(currentLocation);
+
+  //OLED Display
+  //temporary block of code
+  startMillis = millis();
+
+  if (startMillis - currentMillis >= intervalMillis) {
+    display.startscrollleft(0x00, 0x0F);
+    currentMillis = startMillis;
+  }
+  display.stopscroll();
+
+}
+
 void setup() {
 
   Serial.begin(9600);
@@ -53,6 +83,7 @@ void setup() {
 
   pinMode(LED1, OUTPUT)
   pinMode(LED2, OUTPUT)
+  pinMode(interruptPin, OUTPUT)
 
   LoRa.setPins(NSS, -1, DIO0);
 
@@ -68,7 +99,6 @@ void setup() {
   }
 
   display.clearDisplay(); //OLED
-
   dispaly.setTextSize(1);
   display.setTextColor(WHITE);
   display.setCursor(0,0); //temporary
@@ -79,17 +109,11 @@ void setup() {
 
   int severity = 1;
 
+  attachInterrupt(digitalPinToInterrupt(interruptPin), transmitLocation, RISING);
+
 }
 
 void loop() {
-
-  //GPS
-  while (ss.available() > 0){
-  gps.encode(ss.read());
-  if (gps.location.isUpdated()){
-
-  String currentLatitude = gps.location.lat
-  String currentLongitude = gps.location.lng
 
 //3-way switch
   if(levelOne = HIGH){
@@ -103,13 +127,7 @@ void loop() {
   if(levelThree = HIGH){
     severity == 3;
   }
-
-  String currentLocation = id + "-" + currentLatitude + "-" + currentLongitude + "-" + severity;
-  //di ko pa alam pano gagawin yung id
-
-  //LoRa - transmitting of bracelet's current location
-  sendData(currentLocation);
-
+ 
   //LoRa - Recieving
   int packetSize = LoRa.parsePacket();
   if (packetSize) { 
@@ -120,7 +138,11 @@ void loop() {
     LoRa.packetRssi();    
   }
 
+  // LoRa - Retransmitting of received data form other bracelets
+  sendData(received);
+
   //Recieving - Extraction of instruction from message from central node
+  //ID checker
   for (int i = 0; i < idLength; i++) {
     char character = received[i];
     if(character == centralNodeID[i]){
@@ -132,19 +154,7 @@ void loop() {
     for (int i = idLength + 1; i < strlen(received); i++) {
     String instruction = received.substring(idLength + 1 , received.length());
     checker = 0;
+    digitalwrite(interruptPin, HIGH)
   }
-
-  // LoRa - Retransmitting of received data form other bracelets
-  sendData(received);
-
-  //OLED Display
-  //temporary block of code
-  startMillis = millis();
-
-  if (startMillis - currentMillis >= intervalMillis) {
-    display.startscrollleft(0x00, 0x0F);
-    currentMillis = startMillis;
-  }
-  display.stopscroll();
 
 }
