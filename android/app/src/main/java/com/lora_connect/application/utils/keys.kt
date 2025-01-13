@@ -1,4 +1,4 @@
 package com.lora_connect.application.utils
 
-val PREFERENCES_KEY = "PREFERENCES_KEY"
-val LOGGED_IN_KEY = "LOGGED_IN_KEY"
+const val PREFERENCES_KEY = "PREFERENCES_KEY"
+const val LOGGED_IN_KEY = "LOGGED_IN_KEY"
