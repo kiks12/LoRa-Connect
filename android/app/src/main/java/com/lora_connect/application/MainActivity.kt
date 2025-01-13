@@ -9,21 +9,20 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.SharedPreferences
+import android.os.Build
+import android.os.Build.VERSION
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.ui.Modifier
+import androidx.annotation.RequiresApi
 import com.lora_connect.application.authentication.AuthenticationScreen
+import com.lora_connect.application.authentication.AuthenticationSocket
 import com.lora_connect.application.authentication.AuthenticationViewModel
 import com.lora_connect.application.map.MapActivity
 import com.lora_connect.application.ui.theme.ApplicationTheme
-import com.lora_connect.application.utils.LOGGED_IN_KEY
+import com.lora_connect.application.utils.ActivityStarterHelper
 import com.lora_connect.application.utils.PREFERENCES_KEY
 
 class MainActivity : ComponentActivity() {
@@ -36,6 +35,7 @@ class MainActivity : ComponentActivity() {
         Log.w("MAIN ACTIVITY", it.data?.data.toString())
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -43,20 +43,10 @@ class MainActivity : ComponentActivity() {
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
 
-        if (bluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not supported in this device", Toast.LENGTH_SHORT).show()
-            setContent {
-                ApplicationTheme {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Text(text = "Bluetooth not supported")
-                    }
-                }
-            }
-        }
-
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
         registerReceiver(bluetoothBroadcastReceiver, filter)
-        authenticationViewModel = AuthenticationViewModel(bluetoothAdapter)
+        val activityStarterHelper = ActivityStarterHelper(this)
+        authenticationViewModel = AuthenticationViewModel(bluetoothAdapter, activityStarterHelper)
 
         setContent {
             ApplicationTheme {
@@ -68,7 +58,8 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        val loggedIn = sharedPreferences.getBoolean(LOGGED_IN_KEY, false)
+        AuthenticationSocket.init(this)
+        val loggedIn = AuthenticationSocket.getLoggedIn()
         if (loggedIn) startMapActivity()
 
         if (!(bluetoothAdapter.isEnabled)) {
@@ -89,10 +80,15 @@ class MainActivity : ComponentActivity() {
             val action: String = intent.action!!
             when(action) {
                 BluetoothDevice.ACTION_FOUND -> {
-                    val device: BluetoothDevice? =
+                    val device = if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                       intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
                         intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
-                    if (device != null) authenticationViewModel.addDiscoveredDevice(device)
-//                    Log.w("MAIN ACTIVITY", device?.name!!.toString())
+                    }
+                    val name = device?.name
+                    if (device != null && name != null) authenticationViewModel.addNamedDiscoveredDevice(device)
+                    if (device != null && name == null) authenticationViewModel.addUnnamedDiscoveredDevice(device)
                 }
             }
         }
