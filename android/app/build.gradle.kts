@@ -22,6 +22,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags += ""
+            }
+        }
     }
 
     buildTypes {
@@ -79,6 +84,8 @@ dependencies {
 
 
     implementation("org.maplibre.gl:android-sdk:11.5.2")
+    implementation("com.graphhopper:graphhopper-core:0.10.0")
+//    implementation("com.github.maplibre:maplibre-navigation-android:4.0.0")
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
