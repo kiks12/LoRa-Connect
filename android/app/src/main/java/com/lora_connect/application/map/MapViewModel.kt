@@ -1,13 +1,16 @@
 package com.lora_connect.application.map
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.graphhopper.ResponsePath
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.location.LocationComponentActivationOptions
 import org.maplibre.android.location.LocationComponentOptions
 import org.maplibre.android.maps.Style
@@ -16,7 +19,8 @@ class MapViewModel(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
     private val areLocationPermissionGranted: () -> Boolean,
     val buildLocationComponentOptions: () -> LocationComponentOptions,
-    val buildLocationComponentActivationOptions: (style: Style, locationComponentOptions: LocationComponentOptions) -> LocationComponentActivationOptions
+    val buildLocationComponentActivationOptions: (style: Style, locationComponentOptions: LocationComponentOptions) -> LocationComponentActivationOptions,
+    private val getRoute: (startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double) -> ResponsePath?
 ): ViewModel() {
     private val _state = MutableStateFlow(MapState())
     val state : StateFlow<MapState> = _state.asStateFlow()
@@ -25,6 +29,12 @@ class MapViewModel(
         _state.value = _state.value.copy(
             latitude=latitude,
             longitude=longitude
+        )
+    }
+
+    fun setMarkerLatLng(latLng: LatLng) {
+        _state.value = _state.value.copy(
+            markerLatLng = latLng
         )
     }
 
@@ -53,5 +63,17 @@ class MapViewModel(
                 onGetCurrentLocationFailed(exception)
             }
         }
+    }
+
+    fun createRoute() {
+        Log.w("MAP VIEW MODEL", _state.value.markerLatLng.toString())
+        Log.w("MAP VIEW MODEL", _state.value.latitude.toString())
+        Log.w("MAP VIEW MODEL", _state.value.longitude.toString())
+        if (_state.value.markerLatLng == null) return
+        val best = getRoute(_state.value.latitude, _state.value.longitude, _state.value.markerLatLng!!.latitude, _state.value.markerLatLng!!.longitude)
+        Log.w("MAP VIEW MODEL", "PATH: ${best?.points}")
+        _state.value = _state.value.copy(
+            path = best
+        )
     }
 }
