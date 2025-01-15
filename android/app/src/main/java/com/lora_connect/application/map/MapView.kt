@@ -1,17 +1,29 @@
+@file:Suppress("DEPRECATION")
+
 package com.lora_connect.application.map
 
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.lora_connect.application.permissions.RequestLocationPermissionUsingRememberLauncherForActivityResult
+import org.maplibre.android.annotations.MarkerOptions
+import org.maplibre.android.annotations.Polyline
+import org.maplibre.android.annotations.PolylineOptions
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.location.modes.CameraMode
 import org.maplibre.android.maps.MapView
@@ -21,6 +33,9 @@ import org.maplibre.android.maps.Style
 @Composable
 fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
     val state by mapViewModel.state.collectAsState()
+    var polyline by remember {
+        mutableStateOf<Polyline?>(null)
+    }
 
     val context = LocalContext.current
     val styleBuilder = remember {
@@ -53,23 +68,61 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         }
     )
 
-    AndroidView(
-        factory = {
-            mapView.getMapAsync { map ->
-                map.setStyle(styleBuilder) { style ->
-                    val locationComponent = map.locationComponent
-                    val locationComponentOptions = mapViewModel.buildLocationComponentOptions()
-                    val locationComponentActivationOptions = mapViewModel.buildLocationComponentActivationOptions(style, locationComponentOptions)
-                    locationComponent.activateLocationComponent(locationComponentActivationOptions)
-                    locationComponent.isLocationComponentEnabled = true
-                    locationComponent.cameraMode = CameraMode.TRACKING
+    LaunchedEffect(state.markerLatLng) {
+        if (state.markerLatLng != null) {
+            mapView.getMapAsync {map ->
+                map.clear()
+                val newMarker : MarkerOptions = MarkerOptions().position(state.markerLatLng)
+                map.addMarker(newMarker)
+            }
+        }
+    }
 
+    LaunchedEffect(state.path) {
+        if (state.path != null) {
+            if (polyline != null) {
+                polyline.let {
+                    mapView.getMapAsync { map ->
+                        map.removeAnnotation(it!!.id)
+                    }
                 }
-                map.cameraPosition = org.maplibre.android.camera.CameraPosition.Builder().target(location = LatLng(state.latitude, state.longitude)).zoom(10.0).build()
             }
 
-            mapView
-        },
-        modifier = Modifier.fillMaxSize()
-    )
+            val newPolyline = PolylineOptions().addAll(state.path!!.points.map { LatLng(it.lat, it.lon) }).width(5f)
+            mapView.getMapAsync { map ->
+                map.addPolyline(newPolyline)
+                polyline = newPolyline.polyline
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        AndroidView(
+            factory = {
+                mapView.getMapAsync { map ->
+                    map.setStyle(styleBuilder) { style ->
+                        val locationComponent = map.locationComponent
+                        val locationComponentOptions = mapViewModel.buildLocationComponentOptions()
+                        val locationComponentActivationOptions = mapViewModel.buildLocationComponentActivationOptions(style, locationComponentOptions)
+                        locationComponent.activateLocationComponent(locationComponentActivationOptions)
+                        locationComponent.isLocationComponentEnabled = true
+                        locationComponent.cameraMode = CameraMode.TRACKING
+
+                    }
+                    map.cameraPosition = org.maplibre.android.camera.CameraPosition.Builder().target(location = LatLng(state.latitude, state.longitude)).zoom(10.0).build()
+
+                    map.addOnMapClickListener {
+                        mapViewModel.setMarkerLatLng(LatLng(it.latitude, it.longitude))
+                        true
+                    }
+                }
+
+                mapView
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+        Button(onClick = mapViewModel::createRoute) {
+            Text(text = "Show Route")
+        }
+    }
 }
