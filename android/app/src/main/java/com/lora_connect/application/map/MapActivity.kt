@@ -8,16 +8,22 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.lora_connect.application.ui.theme.ApplicationTheme
+import com.lora_connect.application.utils.copyAssetsToFilesDir
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.maplibre.android.MapLibre
 import org.maplibre.android.location.LocationComponentActivationOptions
 import org.maplibre.android.location.LocationComponentOptions
 import org.maplibre.android.location.engine.LocationEngineRequest
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
+import java.io.File
 
 class MapActivity : ComponentActivity() {
     private lateinit var mapView: MapView
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    private val ioScope = CoroutineScope(Dispatchers.IO)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +33,15 @@ class MapActivity : ComponentActivity() {
         mapView.onCreate(savedInstanceState)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        val mapViewModel = MapViewModel(fusedLocationProviderClient, ::areLocationPermissionsGranted,::buildLocationComponentOptions, ::buildLocationComponentActivationOptions)
+        val offlineRouting = OfflineRouting(this)
+        offlineRouting.initializeGraphHopper()
+        val mapViewModel = MapViewModel(
+            fusedLocationProviderClient,
+            ::areLocationPermissionsGranted,
+            ::buildLocationComponentOptions,
+            ::buildLocationComponentActivationOptions,
+            offlineRouting::getRoute,
+        )
 
         setContent {
             ApplicationTheme {
@@ -72,6 +86,11 @@ class MapActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         mapView.onStart()
+
+        val graphCacheFilesDir = File(filesDir, "graph-cache")
+        ioScope.launch {
+            copyAssetsToFilesDir(this@MapActivity, "graph-cache", graphCacheFilesDir)
+        }
     }
 
     override fun onPause() {
