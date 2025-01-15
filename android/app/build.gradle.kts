@@ -56,6 +56,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    dexOptions {
+        javaMaxHeapSize;"4G"
+    }
+
 }
 
 dependencies {
@@ -84,7 +89,7 @@ dependencies {
 
 
     implementation("org.maplibre.gl:android-sdk:11.5.2")
-    implementation("com.graphhopper:graphhopper-core:0.10.0")
+    implementation("com.graphhopper:graphhopper-core:1.0")
 //    implementation("com.github.maplibre:maplibre-navigation-android:4.0.0")
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
