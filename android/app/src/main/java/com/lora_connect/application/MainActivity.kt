@@ -18,7 +18,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import com.lora_connect.application.authentication.AuthenticationScreen
-import com.lora_connect.application.authentication.AuthenticationSocket
 import com.lora_connect.application.authentication.AuthenticationViewModel
 import com.lora_connect.application.map.MapActivity
 import com.lora_connect.application.ui.theme.ApplicationTheme
@@ -58,14 +57,18 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
 
-        AuthenticationSocket.init(this)
-        val loggedIn = AuthenticationSocket.getLoggedIn()
-        if (loggedIn) startMapActivity()
+        val intent = Intent(this, MapActivity::class.java)
+        startActivity(intent)
+        finish()
 
-        if (!(bluetoothAdapter.isEnabled)) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            bluetoothLauncher.launch(enableBtIntent)
-        }
+//        AuthenticationSocket.init(this)
+//        val loggedIn = AuthenticationSocket.getLoggedIn()
+//        if (loggedIn) startMapActivity()
+//
+//        if (!(bluetoothAdapter.isEnabled)) {
+//            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+//            bluetoothLauncher.launch(enableBtIntent)
+//        }
     }
 
     private fun startMapActivity() {
