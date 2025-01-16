@@ -16,12 +16,11 @@ export default function RoutingControls() {
 	const [from, setFrom] = useState<generalType | null>(null);
 	const [to, setTo] = useState<generalType | null>(null);
 	const [list, setList] = useState<generalType[]>([]);
-	const [listBackup, setListBackup] = useState<generalType[]>([]);
 	const { owners, rescuers, evacuationCenters, obstacles, createRoute, clearRoute } = useMapContext();
 	const distance: null | number = useMemo(() => {
 		if (!data) return null;
 		const path = data?.paths[0];
-		return path?.distance! / 1000;
+		return path?.distance / 1000;
 	}, [data]);
 	const time: null | number = useMemo(() => {
 		if (!data) return null;
@@ -56,7 +55,6 @@ export default function RoutingControls() {
 		}));
 
 		setList([...mappedOwners, ...mappedRescuers, ...mappedEvacuationCenters, ...mappedObstacles]);
-		setListBackup([...mappedOwners, ...mappedRescuers, ...mappedEvacuationCenters, ...mappedObstacles]);
 	}, [owners, rescuers, evacuationCenters, obstacles]);
 
 	useEffect(() => {
@@ -73,19 +71,12 @@ export default function RoutingControls() {
 		fetchGraphHopperAPI();
 	}, [createRoute, from, to]);
 
-	useEffect(() => {
-		if (!from || !to) return;
-		setList(listBackup.filter((value) => value.name !== from.name && value.name !== to.name));
-	}, [from, to]);
-
 	function onFromListItemClick(obj: generalType) {
 		setFrom(obj);
-		setList(listBackup.filter((value) => value.name !== obj.name));
 	}
 
 	function onToListItemClick(obj: generalType) {
 		setTo(obj);
-		setList(listBackup.filter((value) => value.name !== obj.name));
 	}
 
 	function onClearRouteClick() {
@@ -93,7 +84,6 @@ export default function RoutingControls() {
 		setTo(null);
 		setData(null);
 		clearRoute();
-		setList(listBackup);
 	}
 
 	return (
@@ -115,9 +105,13 @@ export default function RoutingControls() {
 							<Input value={from ? from?.name : ""} readOnly />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent className="h-96 w-full overflow-auto">
-							{list.map((item, index) => (
-								<ListItem key={index} obj={item} onClick={() => onFromListItemClick(item)} />
-							))}
+							{list.map((item, index) =>
+								!from?.name.toLowerCase().includes(item.name.toLowerCase()) ? (
+									<ListItem key={index} obj={item} onClick={() => onFromListItemClick(item)} />
+								) : (
+									<div key={index}></div>
+								)
+							)}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
@@ -130,9 +124,13 @@ export default function RoutingControls() {
 							<Input value={to ? to?.name : ""} readOnly />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent>
-							{list.map((item, index) => (
-								<ListItem key={index} obj={item} onClick={() => onToListItemClick(item)} />
-							))}
+							{list.map((item, index) =>
+								!from?.name.toLowerCase().includes(item.name.toLowerCase()) ? (
+									<ListItem key={index} obj={item} onClick={() => onToListItemClick(item)} />
+								) : (
+									<div key={index}></div>
+								)
+							)}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
