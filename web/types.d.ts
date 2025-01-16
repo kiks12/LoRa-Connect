@@ -42,6 +42,16 @@ export type ObstacleWithStatusIdentifier = Obstacle & StatusIdentifier
 
 export type EvacuationCenterWithStatusIdentifier = EvacuationCenters & StatusIdentifier 
 
+export type EvacuationInstruction = {
+  ownerId: number,
+  ownerName: string,
+  evacuationCenterId: number,
+  evacuationCenterName: string,
+  time: number, 
+  distance: number,
+  coordinates: number[][]
+}
+
 export type OwnerWithStatusIdentifier = OwnerWithBracelet & StatusIdentifier
 
 export type RescuerWithStatusIdentifier = RescuerWithBracelet & StatusIdentifier
