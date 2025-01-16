@@ -8,9 +8,13 @@ import { useSidebarContext } from "@/hooks/use-sidebar";
 import ObstacleForm from "./ObstacleForm";
 import Spinner from "@/app/components/Spinner";
 import { RefreshCcw } from "lucide-react";
+import EvacuationInstructionButton from "./EvacuationInstructionButton";
+import { useEffect } from "react";
 
 export default function AdminControls() {
 	const {
+		owners,
+
 		monitorLocations,
 		toggleMonitorLocations,
 		evacuationCenters,
@@ -18,6 +22,9 @@ export default function AdminControls() {
 		toggleShowEvacuationCenters,
 		evacuationCentersLoading,
 		refreshEvacuationCenters,
+		evacuationInstructions,
+		createEvacuationInstructions,
+		calculatingEvacuationInstructions,
 
 		obstacles,
 		showObstacles,
@@ -38,6 +45,11 @@ export default function AdminControls() {
 		setComponent(<ObstacleForm />);
 		setCloseCallback(["TOGGLE_ADDING_OBSTACLE"]);
 	}
+
+	useEffect(() => {
+		createEvacuationInstructions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [owners, evacuationCenters]);
 
 	return (
 		<div className="pt-6 pb-2 h-full flex flex-col justify-between">
@@ -126,7 +138,11 @@ export default function AdminControls() {
 							)}
 						</div>
 					)}
-					<Button className="w-full mt-2">Send Evacuation Instruction</Button>
+					<EvacuationInstructionButton
+						calculatingEvacuationInstructions={calculatingEvacuationInstructions}
+						evacuationCenterInstructions={evacuationInstructions}
+						createEvacuationInstructions={createEvacuationInstructions}
+					/>
 				</div>
 			</div>
 		</div>
