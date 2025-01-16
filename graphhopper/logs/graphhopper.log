@@ -1,25 +1,135 @@
-2025-01-15 00:09:32.456 [main] INFO  i.d.core.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 00:09:32.458 [main] INFO  i.d.core.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 00:13:50.466 [main] INFO  i.d.core.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 00:13:50.468 [main] INFO  i.d.core.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 00:13:50.605 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: assets for path /maps/*
-2025-01-15 00:13:50.606 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: webjars for path /webjars/*
-2025-01-15 00:13:50.609 [main] INFO  i.d.core.server.ServerFactory - Starting GraphHopperApplication
+2025-01-16 12:55:26.302 [main] INFO  i.d.core.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
+2025-01-16 12:55:26.303 [main] INFO  i.d.core.server.DefaultServerFactory - Registering admin handler with root path prefix: /
+2025-01-16 12:55:26.403 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: assets for path /maps/*
+2025-01-16 12:55:26.403 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: webjars for path /webjars/*
+2025-01-16 12:55:26.406 [main] INFO  i.d.core.server.ServerFactory - Starting GraphHopperApplication
                         _     _
    __ _ _ __ __ _ _ __ | |__ | |__   ___  _ __  _ __   ___ _ __
   / _` | '__/ _` | '_ \| '_ \| '_ \ / _ \| '_ \| '_ \ / _ \ '__|
  | (_| | | | (_| | |_) | | | | | | | (_) | |_) | |_) |  __/ |
   \__, |_|  \__,_| .__/|_| |_|_| |_|\___/| .__/| .__/ \___|_|
   |___/          |_|                     |_|   |_|
-2025-01-15 00:13:50.673 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened application@39008c9f{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 00:13:50.673 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened admin@162b3d47{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 00:13:50.674 [main] INFO  org.eclipse.jetty.server.Server - jetty-10.0.23; built: 2024-08-14T01:14:42.815Z; git: 570aa4a1395ca8f9f800045f3a1fe5fe3af9a598; jvm 21.0.2+13-58
-2025-01-15 00:13:51.028 [main] INFO  c.g.routing.ch.CHPreparationHandler - There are no CHs to prepare
-2025-01-15 00:13:51.030 [main] INFO  com.graphhopper.GraphHopper - version 10.0|2024-11-04T16:04:43Z (9,23,7,5,2,9)
-2025-01-15 00:13:51.038 [main] INFO  com.graphhopper.GraphHopper - graph car|RAM_STORE|2D|no_turn_cost|nodes:9,edges:23,geometry:7,location_index:5,string_index:2,nodesCH:0,shortcuts:9, details:edges: 2,699,871(93MB), nodes: 2,223,234(26MB), bounds: 109.4882011,127.0887888,4.4787369,22.6193592, name:(4MB), geo:76,050,633/-1(73MB)
-2025-01-15 00:13:51.051 [main] INFO  c.g.http.GraphHopperManaged - loaded graph at:graph-cache, data_reader_file:philippines-latest.osm.pbf, encoded values:["{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"car_access\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":0,\"bwd_shift\":1,\"fwd_mask\":1,\"bwd_mask\":2}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"car_average_speed\",\"bits\":7,\"min_storable_value\":0,\"max_storable_value\":127,\"max_value\":68,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":2,\"bwd_shift\":9,\"fwd_mask\":508,\"bwd_mask\":65024,\"factor\":2.0,\"use_maximum_as_infinity\":false}","{\"className\":\"com.graphhopper.routing.ev.EnumEncodedValue\",\"name\":\"road_class\",\"bits\":5,\"min_storable_value\":0,\"max_storable_value\":31,\"max_value\":20,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":16,\"bwd_shift\":-1,\"fwd_mask\":2031616,\"bwd_mask\":0,\"enum_type\":\"com.graphhopper.routing.ev.RoadClass\"}","{\"className\":\"com.graphhopper.routing.ev.EnumEncodedValue\",\"name\":\"road_environment\",\"bits\":3,\"min_storable_value\":0,\"max_storable_value\":7,\"max_value\":5,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":21,\"bwd_shift\":-1,\"fwd_mask\":14680064,\"bwd_mask\":0,\"enum_type\":\"com.graphhopper.routing.ev.RoadEnvironment\"}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"roundabout\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":24,\"bwd_shift\":-1,\"fwd_mask\":16777216,\"bwd_mask\":0}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"road_class_link\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":25,\"bwd_shift\":-1,\"fwd_mask\":33554432,\"bwd_mask\":0}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"max_speed\",\"bits\":7,\"min_storable_value\":0,\"max_storable_value\":127,\"max_value\":127,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":1,\"bwd_data_index\":1,\"fwd_shift\":0,\"bwd_shift\":7,\"fwd_mask\":127,\"bwd_mask\":16256,\"factor\":2.0,\"use_maximum_as_infinity\":true}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"ferry_speed\",\"bits\":5,\"min_storable_value\":0,\"max_storable_value\":31,\"max_value\":25,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":1,\"bwd_data_index\":0,\"fwd_shift\":14,\"bwd_shift\":-1,\"fwd_mask\":507904,\"bwd_mask\":0,\"factor\":2.0,\"use_maximum_as_infinity\":false}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"car_subnetwork\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":1,\"bwd_data_index\":0,\"fwd_shift\":19,\"bwd_shift\":-1,\"fwd_mask\":524288,\"bwd_mask\":0}"], 7 bytes for edge flags, edges: 2,699,871(93MB), nodes: 2,223,234(26MB), bounds: 109.4882011,127.0887888,4.4787369,22.6193592, name:(4MB), geo:76,050,633/-1(73MB)
-2025-01-15 00:13:51.259 [main] WARN  o.g.jersey.internal.inject.Providers - A provider com.codahale.metrics.health.HealthCheckRegistry registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.codahale.metrics.health.HealthCheckRegistry will be ignored. 
-2025-01-15 00:13:51.359 [main] INFO  i.d.jersey.DropwizardResourceConfig - The following paths were found for the configured resources:
+2025-01-16 12:55:26.451 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened application@5d7835a8{HTTP/1.1, (http/1.1)}{localhost:8989}
+2025-01-16 12:55:26.451 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened admin@736048ed{HTTP/1.1, (http/1.1)}{localhost:8990}
+2025-01-16 12:55:26.452 [main] INFO  org.eclipse.jetty.server.Server - jetty-10.0.23; built: 2024-08-14T01:14:42.815Z; git: 570aa4a1395ca8f9f800045f3a1fe5fe3af9a598; jvm 21.0.2+13-58
+2025-01-16 12:55:26.464 [main] ERROR i.dropwizard.core.cli.ServerCommand - Unable to start server, shutting down
+java.lang.IllegalStateException: The GraphHopper file format is not compatible with the data you are trying to load. You either need to use an older version of GraphHopper or run a new import
+	at com.graphhopper.routing.util.EncodingManager.fromProperties(EncodingManager.java:60)
+	at com.graphhopper.GraphHopper.load(GraphHopper.java:1046)
+	at com.graphhopper.GraphHopper.importOrLoad(GraphHopper.java:772)
+	at com.graphhopper.http.GraphHopperManaged.start(GraphHopperManaged.java:44)
+	at io.dropwizard.lifecycle.JettyManaged.doStart(JettyManaged.java:27)
+	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:93)
+	at org.eclipse.jetty.util.component.ContainerLifeCycle.start(ContainerLifeCycle.java:171)
+	at org.eclipse.jetty.server.Server.start(Server.java:470)
+	at org.eclipse.jetty.util.component.ContainerLifeCycle.doStart(ContainerLifeCycle.java:121)
+	at org.eclipse.jetty.server.handler.AbstractHandler.doStart(AbstractHandler.java:89)
+	at org.eclipse.jetty.server.Server.doStart(Server.java:415)
+	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:93)
+	at io.dropwizard.core.cli.ServerCommand.run(ServerCommand.java:52)
+	at io.dropwizard.core.cli.EnvironmentCommand.run(EnvironmentCommand.java:67)
+	at io.dropwizard.core.cli.ConfiguredCommand.run(ConfiguredCommand.java:98)
+	at io.dropwizard.core.cli.Cli.run(Cli.java:78)
+	at io.dropwizard.core.Application.run(Application.java:94)
+	at com.graphhopper.application.GraphHopperApplication.main(GraphHopperApplication.java:38)
+2025-01-16 12:55:26.465 [main] INFO  org.eclipse.jetty.server.Server - Stopped Server@7acfb656{STOPPING}[10.0.23,sto=30000]
+2025-01-16 12:55:26.465 [main] INFO  org.eclipse.jetty.server.Server - Shutdown Server@7acfb656{STOPPING}[10.0.23,sto=30000]
+2025-01-16 12:55:26.466 [main] WARN  i.dropwizard.core.cli.ServerCommand - Failure during stop server
+java.util.concurrent.ExecutionException: java.lang.IllegalStateException: STOPPED
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:396)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at org.eclipse.jetty.server.Server.doStop(Server.java:490)
+	at org.eclipse.jetty.util.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:132)
+	at io.dropwizard.core.cli.ServerCommand.run(ServerCommand.java:56)
+	at io.dropwizard.core.cli.EnvironmentCommand.run(EnvironmentCommand.java:67)
+	at io.dropwizard.core.cli.ConfiguredCommand.run(ConfiguredCommand.java:98)
+	at io.dropwizard.core.cli.Cli.run(Cli.java:78)
+	at io.dropwizard.core.Application.run(Application.java:94)
+	at com.graphhopper.application.GraphHopperApplication.main(GraphHopperApplication.java:38)
+Caused by: java.lang.IllegalStateException: STOPPED
+	at org.eclipse.jetty.server.handler.ContextHandler.shutdown(ContextHandler.java:773)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:575)
+	at java.base/java.util.stream.AbstractPipeline.evaluateToArrayNode(AbstractPipeline.java:260)
+	at java.base/java.util.stream.ReferencePipeline.toArray(ReferencePipeline.java:616)
+	at org.eclipse.jetty.util.component.Graceful.shutdown(Graceful.java:146)
+	... 8 common frames omitted
+2025-01-16 12:55:59.976 [main] INFO  i.d.core.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
+2025-01-16 12:55:59.977 [main] INFO  i.d.core.server.DefaultServerFactory - Registering admin handler with root path prefix: /
+2025-01-16 12:56:00.068 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: assets for path /maps/*
+2025-01-16 12:56:00.068 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: webjars for path /webjars/*
+2025-01-16 12:56:00.071 [main] INFO  i.d.core.server.ServerFactory - Starting GraphHopperApplication
+                        _     _
+   __ _ _ __ __ _ _ __ | |__ | |__   ___  _ __  _ __   ___ _ __
+  / _` | '__/ _` | '_ \| '_ \| '_ \ / _ \| '_ \| '_ \ / _ \ '__|
+ | (_| | | | (_| | |_) | | | | | | | (_) | |_) | |_) |  __/ |
+  \__, |_|  \__,_| .__/|_| |_|_| |_|\___/| .__/| .__/ \___|_|
+  |___/          |_|                     |_|   |_|
+2025-01-16 12:56:00.117 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened application@5d7835a8{HTTP/1.1, (http/1.1)}{localhost:8989}
+2025-01-16 12:56:00.117 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened admin@736048ed{HTTP/1.1, (http/1.1)}{localhost:8990}
+2025-01-16 12:56:00.118 [main] INFO  org.eclipse.jetty.server.Server - jetty-10.0.23; built: 2024-08-14T01:14:42.815Z; git: 570aa4a1395ca8f9f800045f3a1fe5fe3af9a598; jvm 21.0.2+13-58
+2025-01-16 12:56:00.125 [main] INFO  com.graphhopper.GraphHopper - version 10.0|2024-11-04T16:04:43Z (9,23,7,5,2,9)
+2025-01-16 12:56:00.271 [main] INFO  com.graphhopper.GraphHopper - No custom areas are used, custom_areas.directory not given
+2025-01-16 12:56:00.275 [main] INFO  com.graphhopper.GraphHopper - No country rules available
+2025-01-16 12:56:00.276 [main] INFO  com.graphhopper.GraphHopper - start creating graph from philippines-latest-2.osm.pbf
+2025-01-16 12:56:00.289 [main] INFO  com.graphhopper.GraphHopper - using car|RAM_STORE|2D|no_turn_cost|nodes:9,edges:23,geometry:7,location_index:5,string_index:2,nodesCH:0,shortcuts:9, memory:totalMB:59, usedMB:24
+2025-01-16 12:56:00.293 [main] INFO  c.g.reader.osm.WaySegmentParser - Start reading OSM file: 'philippines-latest-2.osm.pbf'
+2025-01-16 12:56:00.293 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - start
+2025-01-16 12:56:04.085 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - start reading OSM ways
+2025-01-16 12:56:10.791 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - processed ways: 10,000,000, accepted ways: 881,604, way nodes: 11,232,083, totalMB:1504, usedMB:1200
+2025-01-16 12:56:13.070 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - start reading OSM relations
+2025-01-16 12:56:13.236 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - finished, processed ways: 13,824,969, accepted ways: 1,322,824, way nodes: 13,865,323, relations: 48,375, totalMB:1689, usedMB:1212
+2025-01-16 12:56:13.236 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - finished, took: 12.94s
+2025-01-16 12:56:13.237 [main] INFO  c.g.reader.osm.WaySegmentParser - Creating graph. Node count (pillar+tower): 13865323, totalMB:1689, usedMB:1212
+2025-01-16 12:56:13.237 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start
+2025-01-16 12:56:13.247 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start reading OSM nodes
+2025-01-16 12:56:15.385 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 10,000,000, accepted nodes: 3,103,322, totalMB:1689, usedMB:981
+2025-01-16 12:56:17.843 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 20,000,000, accepted nodes: 4,104,027, totalMB:1731, usedMB:1231
+2025-01-16 12:56:20.031 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 30,000,000, accepted nodes: 4,619,807, totalMB:1767, usedMB:1340
+2025-01-16 12:56:21.945 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 40,000,000, accepted nodes: 6,046,701, totalMB:1801, usedMB:1443
+2025-01-16 12:56:23.819 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 50,000,000, accepted nodes: 7,188,502, totalMB:1801, usedMB:1361
+2025-01-16 12:56:25.659 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 60,000,000, accepted nodes: 11,087,620, totalMB:1801, usedMB:1684
+2025-01-16 12:56:26.956 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 70,000,000, accepted nodes: 12,705,008, totalMB:1801, usedMB:1012
+2025-01-16 12:56:28.259 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 80,000,000, accepted nodes: 13,566,126, totalMB:1801, usedMB:1435
+2025-01-16 12:56:28.685 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start reading OSM ways
+2025-01-16 12:56:44.377 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed ways: 10,000,000, totalMB:1801, usedMB:1137
+2025-01-16 12:56:48.909 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start reading OSM relations
+2025-01-16 12:56:48.917 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - finished, processed ways: 13,824,969, way nodes: 13,865,323, nodes with tags: 102,756, node tag capacity: 2,105,344, ignored barriers at junctions: 179
+2025-01-16 12:56:48.918 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - finished, took: 35.68s
+2025-01-16 12:56:48.922 [main] INFO  c.g.reader.osm.WaySegmentParser - Finished reading OSM file. pass1: 12s,  pass2: 35s,  total: 48s
+2025-01-16 12:56:48.922 [main] INFO  c.graphhopper.reader.osm.OSMReader - Finished reading OSM file: /Users/francisjamestolentino/Desktop/school/4th-year/design-1/LoRa-Paper/source-code/graphhopper/philippines-latest-2.osm.pbf, nodes: 2,231,221, edges: 2,708,928, zero distance edges: 61,192
+2025-01-16 12:56:48.929 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Start marking subnetworks, prepare.min_network_size: 200, threads: 1, nodes: 2,231,221, edges: 2,708,928, jobs: [car_subnetwork|com.graphhopper.routing.weighting.custom.CustomWeighting@6015a4a5], totalMB:1801, usedMB:1461
+2025-01-16 12:56:50.155 [ForkJoinPool-1-worker-1] INFO  c.g.r.s.PrepareRoutingSubnetworks - car - Found 663549 subnetworks (657491 single edges and 6058 components with more than one edge, total nodes: 5417856), took: 1.2132562s
+2025-01-16 12:56:50.218 [ForkJoinPool-1-worker-1] INFO  c.g.r.s.PrepareRoutingSubnetworks - car - Marked 663528 subnetworks (biggest: 392 edges) -> 21 components(s) remain (smallest: 410, biggest: 4682138 edges), total marked edges: 36254, took: 0.06058083s
+2025-01-16 12:56:50.304 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Finished finding and marking subnetworks for 1 jobs, took: 1.3764918s, totalMB:1707, usedMB:769
+2025-01-16 12:56:50.304 [main] INFO  com.graphhopper.GraphHopper - nodes: 2,231,221, edges: 2,708,928
+2025-01-16 12:56:51.633 [main] INFO  c.g.storage.index.LocationIndexTree - location index created in 1.3073916s, size:3,839,722, leafs:593,961, precision:300, depth:7, checksum:745077, entries:[16, 16, 16, 16, 16, 4, 4], entriesPerLeaf:6.464603
+2025-01-16 12:56:51.636 [main] INFO  c.g.routing.ch.CHPreparationHandler - Creating CH preparations, totalMB:1707, usedMB:1416
+2025-01-16 12:56:51.638 [main] INFO  c.g.routing.ch.CHPreparationHandler - 1/1 Setting up CH preparation for profile 'car' NODE_BASED ... (totalMB:1707, usedMB:1416)
+2025-01-16 12:56:51.662 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Creating CH prepare graph, totalMB:1707, usedMB:1485
+2025-01-16 12:56:51.675 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Building CH prepare graph, totalMB:1707, usedMB:1539
+2025-01-16 12:56:52.009 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Finished building CH prepare graph, took: 0.33335602s, totalMB:1707, usedMB:1651
+2025-01-16 12:56:52.022 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Building initial queue of nodes to be contracted: 2231221 nodes, totalMB:1725, usedMB:1669
+2025-01-16 12:56:54.107 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Finished building queue, took: 2.0845966s, totalMB:1842, usedMB:989
+2025-01-16 12:56:54.110 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  2,231,221, shortcuts:          0, updates:  0, checked-nodes:          0, t(total):   2.45,  t(period):   2.08, t(lazy):   0.00, t(neighbor):   0.00, t(contr):   0.00, t(other) :   0.36, dijkstra-ratio:  53.99%, meanDegree: 1.21, dijkstras:  8,305,693, mem:       17MB, totalMB:1842, usedMB:989
+2025-01-16 12:56:55.265 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  1,787,487, shortcuts:     11,028, updates:  0, checked-nodes:    446,244, t(total):   3.60,  t(period):   2.08, t(lazy):   0.22, t(neighbor):   0.60, t(contr):   0.24, t(other) :   0.46, dijkstra-ratio:  53.88%, meanDegree: 1.04, dijkstras: 10,224,834, mem:       17MB, totalMB:1842, usedMB:1094
+2025-01-16 12:56:55.828 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  1,341,284, shortcuts:     13,641, updates:  0, checked-nodes:    892,488, t(total):   4.17,  t(period):   2.08, t(lazy):   0.28, t(neighbor):   0.94, t(contr):   0.33, t(other) :   0.54, dijkstra-ratio:  51.96%, meanDegree: 1.00, dijkstras: 11,010,640, mem:       17MB, totalMB:1842, usedMB:1181
+2025-01-16 12:56:58.269 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:    895,842, shortcuts:     80,423, updates:  0, checked-nodes:  1,338,732, t(total):   6.61,  t(period):   2.08, t(lazy):   0.81, t(neighbor):   2.21, t(contr):   0.87, t(other) :   0.63, dijkstra-ratio:  56.13%, meanDegree: 1.44, dijkstras: 15,601,418, mem:       17MB, totalMB:1842, usedMB:863
+2025-01-16 12:57:01.942 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:    458,070, shortcuts:    553,338, updates:  0, checked-nodes:  1,784,976, t(total):  10.28,  t(period):   2.08, t(lazy):   1.70, t(neighbor):   4.09, t(contr):   1.68, t(other) :   0.74, dijkstra-ratio:  60.82%, meanDegree: 1.00, dijkstras: 21,965,736, mem:       17MB, totalMB:1842, usedMB:1098
+2025-01-16 12:57:04.895 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:     35,987, shortcuts:  1,022,500, updates:  0, checked-nodes:  2,231,220, t(total):  13.23,  t(period):   2.08, t(lazy):   2.45, t(neighbor):   5.54, t(contr):   2.35, t(other) :   0.81, dijkstra-ratio:  63.69%, meanDegree: 2.88, dijkstras: 27,386,684, mem:       17MB, totalMB:1842, usedMB:1276
+2025-01-16 12:57:06.414 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:          0, shortcuts:  1,197,548, updates:  0, checked-nodes:  2,277,317, t(total):  14.75,  t(period):   2.08, t(lazy):   2.86, t(neighbor):   6.27, t(contr):   2.69, t(other) :   0.85, dijkstra-ratio:  65.71%, meanDegree: 1.26, dijkstras: 30,264,503, mem:       17MB, totalMB:1842, usedMB:1321
+2025-01-16 12:57:06.417 [car] INFO  c.g.r.c.PrepareContractionHierarchies - new shortcuts: 1,197,548, initSize:2,231,221, com.graphhopper.routing.weighting.custom.CustomWeighting@2b8a17b8, periodic:0, lazy:100, neighbor:100, t(total):  14.75,  t(period):   2.08, t(lazy):   2.86, t(neighbor):   6.27, t(contr):   2.69, t(other) :   0.85, dijkstra-ratio:  65.70%, lazy-overhead: 2%, totalMB:1842, usedMB:1321
+2025-01-16 12:57:06.417 [car] INFO  c.g.r.c.PrepareContractionHierarchies - shortcuts that exceed maximum weight: 0
+2025-01-16 12:57:06.417 [car] INFO  c.g.r.c.PrepareContractionHierarchies - took: 14s, graph now - num edges: 2,708,928, num nodes: 2,231,221, num shortcuts: 1,197,548
+2025-01-16 12:57:06.496 [main] INFO  c.g.routing.ch.CHPreparationHandler - Finished CH preparation, totalMB:1842, usedMB:1404
+2025-01-16 12:57:06.502 [main] INFO  com.graphhopper.GraphHopper - flushing graph car|RAM_STORE|2D|no_turn_cost|nodes:9,edges:23,geometry:7,location_index:5,string_index:2,nodesCH:0,shortcuts:9, details:edges: 2,708,928(94MB), nodes: 2,231,221(26MB), bounds: 109.4882011,127.0887888,4.4787369,22.6193592, name:(4MB), geo:76,234,630/-1(73MB), totalMB:1842, usedMB:1405)
+2025-01-16 12:57:06.869 [main] INFO  com.graphhopper.GraphHopper - flushed graph totalMB:1842, usedMB:1457)
+2025-01-16 12:57:06.877 [main] INFO  c.g.http.GraphHopperManaged - loaded graph at:graph-cache, data_reader_file:philippines-latest-2.osm.pbf, encoded values:["{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"car_access\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":0,\"bwd_shift\":1,\"fwd_mask\":1,\"bwd_mask\":2}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"car_average_speed\",\"bits\":7,\"min_storable_value\":0,\"max_storable_value\":127,\"max_value\":68,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":2,\"bwd_shift\":9,\"fwd_mask\":508,\"bwd_mask\":65024,\"factor\":2.0,\"use_maximum_as_infinity\":false}","{\"className\":\"com.graphhopper.routing.ev.EnumEncodedValue\",\"name\":\"road_class\",\"bits\":5,\"min_storable_value\":0,\"max_storable_value\":31,\"max_value\":20,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":16,\"bwd_shift\":-1,\"fwd_mask\":2031616,\"bwd_mask\":0,\"enum_type\":\"com.graphhopper.routing.ev.RoadClass\"}","{\"className\":\"com.graphhopper.routing.ev.EnumEncodedValue\",\"name\":\"road_environment\",\"bits\":3,\"min_storable_value\":0,\"max_storable_value\":7,\"max_value\":5,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":21,\"bwd_shift\":-1,\"fwd_mask\":14680064,\"bwd_mask\":0,\"enum_type\":\"com.graphhopper.routing.ev.RoadEnvironment\"}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"roundabout\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":24,\"bwd_shift\":-1,\"fwd_mask\":16777216,\"bwd_mask\":0}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"road_class_link\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":25,\"bwd_shift\":-1,\"fwd_mask\":33554432,\"bwd_mask\":0}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"max_speed\",\"bits\":7,\"min_storable_value\":0,\"max_storable_value\":127,\"max_value\":127,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":1,\"bwd_data_index\":1,\"fwd_shift\":0,\"bwd_shift\":7,\"fwd_mask\":127,\"bwd_mask\":16256,\"factor\":2.0,\"use_maximum_as_infinity\":true}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"ferry_speed\",\"bits\":5,\"min_storable_value\":0,\"max_storable_value\":31,\"max_value\":25,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":1,\"bwd_data_index\":0,\"fwd_shift\":14,\"bwd_shift\":-1,\"fwd_mask\":507904,\"bwd_mask\":0,\"factor\":2.0,\"use_maximum_as_infinity\":false}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"car_subnetwork\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":1,\"bwd_data_index\":0,\"fwd_shift\":19,\"bwd_shift\":-1,\"fwd_mask\":524288,\"bwd_mask\":0}"], 7 bytes for edge flags, edges: 2,708,928(94MB), nodes: 2,231,221(26MB), bounds: 109.4882011,127.0887888,4.4787369,22.6193592, name:(4MB), geo:76,234,630/-1(73MB)
+2025-01-16 12:57:07.113 [main] WARN  o.g.jersey.internal.inject.Providers - A provider com.codahale.metrics.health.HealthCheckRegistry registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.codahale.metrics.health.HealthCheckRegistry will be ignored. 
+2025-01-16 12:57:07.178 [main] INFO  i.d.jersey.DropwizardResourceConfig - The following paths were found for the configured resources:
 
     GET     / (com.graphhopper.application.resources.RootResource)
     GET     /health (com.graphhopper.resources.HealthCheckResource)
@@ -35,263 +145,23 @@
     POST    /route (com.graphhopper.resources.RouteResource)
     GET     /spt (com.graphhopper.resources.SPTResource)
 
-2025-01-15 00:13:51.361 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@3a1b36a1{/,null,AVAILABLE}
-2025-01-15 00:13:51.363 [main] INFO  i.d.core.setup.AdminEnvironment - tasks = 
+2025-01-16 12:57:07.179 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@7c588adc{/,null,AVAILABLE}
+2025-01-16 12:57:07.182 [main] INFO  i.d.core.setup.AdminEnvironment - tasks = 
 
     POST    /tasks/log-level (io.dropwizard.servlets.tasks.LogConfigurationTask)
     POST    /tasks/gc (io.dropwizard.servlets.tasks.GarbageCollectionTask)
 
-2025-01-15 00:13:51.363 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@78d23d6a{/,null,AVAILABLE}
-2025-01-15 00:13:51.370 [main] INFO  o.e.jetty.server.AbstractConnector - Started application@39008c9f{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 00:13:51.371 [main] INFO  o.e.jetty.server.AbstractConnector - Started admin@162b3d47{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 00:13:51.373 [main] INFO  org.eclipse.jetty.server.Server - Started Server@58b71ceb{STARTING}[10.0.23,sto=30000] @1967ms
-2025-01-15 00:13:57.636 [JettyShutdownThread] INFO  org.eclipse.jetty.server.Server - Stopped Server@58b71ceb{STOPPING}[10.0.23,sto=30000]
-2025-01-15 00:13:57.637 [JettyShutdownThread] INFO  org.eclipse.jetty.server.Server - Shutdown Server@58b71ceb{STOPPING}[10.0.23,sto=30000]
-2025-01-15 00:13:57.646 [JettyShutdownThread] INFO  o.e.jetty.server.AbstractConnector - Stopped application@39008c9f{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 00:13:57.647 [JettyShutdownThread] INFO  o.e.jetty.server.AbstractConnector - Stopped admin@162b3d47{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 00:13:57.648 [JettyShutdownThread] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@78d23d6a{/,null,STOPPED}
-2025-01-15 00:13:57.655 [JettyShutdownThread] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@3a1b36a1{/,null,STOPPED}
-2025-01-15 00:14:31.221 [main] INFO  i.d.core.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 00:14:31.223 [main] INFO  i.d.core.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 00:14:31.358 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: assets for path /maps/*
-2025-01-15 00:14:31.359 [main] INFO  io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: webjars for path /webjars/*
-2025-01-15 00:14:31.362 [main] INFO  i.d.core.server.ServerFactory - Starting GraphHopperApplication
-                        _     _
-   __ _ _ __ __ _ _ __ | |__ | |__   ___  _ __  _ __   ___ _ __
-  / _` | '__/ _` | '_ \| '_ \| '_ \ / _ \| '_ \| '_ \ / _ \ '__|
- | (_| | | | (_| | |_) | | | | | | | (_) | |_) | |_) |  __/ |
-  \__, |_|  \__,_| .__/|_| |_|_| |_|\___/| .__/| .__/ \___|_|
-  |___/          |_|                     |_|   |_|
-2025-01-15 00:14:31.421 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened application@1816e24a{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 00:14:31.421 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened admin@6940f685{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 00:14:31.422 [main] INFO  org.eclipse.jetty.server.Server - jetty-10.0.23; built: 2024-08-14T01:14:42.815Z; git: 570aa4a1395ca8f9f800045f3a1fe5fe3af9a598; jvm 21.0.2+13-58
-2025-01-15 00:14:31.431 [main] INFO  com.graphhopper.GraphHopper - version 10.0|2024-11-04T16:04:43Z (9,23,7,5,2,9)
-2025-01-15 00:14:31.631 [main] INFO  com.graphhopper.GraphHopper - No custom areas are used, custom_areas.directory not given
-2025-01-15 00:14:31.638 [main] INFO  com.graphhopper.GraphHopper - No country rules available
-2025-01-15 00:14:31.638 [main] INFO  com.graphhopper.GraphHopper - start creating graph from philippines-latest-2.osm.pbf
-2025-01-15 00:14:31.652 [main] INFO  com.graphhopper.GraphHopper - using car|RAM_STORE|2D|no_turn_cost|nodes:9,edges:23,geometry:7,location_index:5,string_index:2,nodesCH:0,shortcuts:9, memory:totalMB:62, usedMB:21
-2025-01-15 00:14:31.659 [main] INFO  c.g.reader.osm.WaySegmentParser - Start reading OSM file: 'philippines-latest-2.osm.pbf'
-2025-01-15 00:14:31.659 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - start
-2025-01-15 00:14:37.815 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - start reading OSM ways
-2025-01-15 00:14:46.650 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - processed ways: 10,000,000, accepted ways: 881,604, way nodes: 11,232,083, totalMB:1449, usedMB:583
-2025-01-15 00:14:49.879 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - start reading OSM relations
-2025-01-15 00:14:50.094 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - finished, processed ways: 13,824,969, accepted ways: 1,322,824, way nodes: 13,865,323, relations: 48,375, totalMB:1622, usedMB:959
-2025-01-15 00:14:50.095 [main] INFO  c.g.reader.osm.WaySegmentParser - pass1 - finished, took: 18.44s
-2025-01-15 00:14:50.096 [main] INFO  c.g.reader.osm.WaySegmentParser - Creating graph. Node count (pillar+tower): 13865323, totalMB:1622, usedMB:959
-2025-01-15 00:14:50.097 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start
-2025-01-15 00:14:50.110 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start reading OSM nodes
-2025-01-15 00:14:53.150 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 10,000,000, accepted nodes: 3,103,322, totalMB:1666, usedMB:539
-2025-01-15 00:14:56.432 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 20,000,000, accepted nodes: 4,104,027, totalMB:1666, usedMB:1088
-2025-01-15 00:14:58.422 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 30,000,000, accepted nodes: 4,619,807, totalMB:1666, usedMB:604
-2025-01-15 00:15:01.257 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 40,000,000, accepted nodes: 6,046,701, totalMB:1666, usedMB:1132
-2025-01-15 00:15:03.289 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 50,000,000, accepted nodes: 7,188,502, totalMB:1666, usedMB:603
-2025-01-15 00:15:06.445 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 60,000,000, accepted nodes: 11,087,620, totalMB:1666, usedMB:1368
-2025-01-15 00:15:09.480 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 70,000,000, accepted nodes: 12,705,008, totalMB:1666, usedMB:914
-2025-01-15 00:15:11.583 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed nodes: 80,000,000, accepted nodes: 13,566,126, totalMB:1666, usedMB:1449
-2025-01-15 00:15:12.689 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start reading OSM ways
-2025-01-15 00:15:37.136 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - processed ways: 10,000,000, totalMB:1666, usedMB:1489
-2025-01-15 00:15:43.845 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - start reading OSM relations
-2025-01-15 00:15:43.856 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - finished, processed ways: 13,824,969, way nodes: 13,865,323, nodes with tags: 102,756, node tag capacity: 2,105,344, ignored barriers at junctions: 179
-2025-01-15 00:15:43.856 [main] INFO  c.g.reader.osm.WaySegmentParser - pass2 - finished, took: 53.76s
-2025-01-15 00:15:43.861 [main] INFO  c.g.reader.osm.WaySegmentParser - Finished reading OSM file. pass1: 18s,  pass2: 53s,  total: 72s
-2025-01-15 00:15:43.861 [main] INFO  c.graphhopper.reader.osm.OSMReader - Finished reading OSM file: /Users/francisjamestolentino/Desktop/school/4th-year/design-1/LoRa-Paper/source-code/graphhopper/philippines-latest-2.osm.pbf, nodes: 2,231,221, edges: 2,708,928, zero distance edges: 61,192
-2025-01-15 00:15:43.868 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Start marking subnetworks, prepare.min_network_size: 200, threads: 1, nodes: 2,231,221, edges: 2,708,928, jobs: [car_subnetwork|com.graphhopper.routing.weighting.custom.CustomWeighting@5478ce1e], totalMB:1666, usedMB:905
-2025-01-15 00:15:45.959 [ForkJoinPool-1-worker-1] INFO  c.g.r.s.PrepareRoutingSubnetworks - car - Found 663549 subnetworks (657491 single edges and 6058 components with more than one edge, total nodes: 5417856), took: 2.0778081s
-2025-01-15 00:15:46.048 [ForkJoinPool-1-worker-1] INFO  c.g.r.s.PrepareRoutingSubnetworks - car - Marked 663528 subnetworks (biggest: 392 edges) -> 21 components(s) remain (smallest: 410, biggest: 4682138 edges), total marked edges: 36254, took: 0.08603133s
-2025-01-15 00:15:46.194 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Finished finding and marking subnetworks for 1 jobs, took: 2.3272874s, totalMB:1697, usedMB:661
-2025-01-15 00:15:46.195 [main] INFO  com.graphhopper.GraphHopper - nodes: 2,231,221, edges: 2,708,928
-2025-01-15 00:15:48.195 [main] INFO  c.g.storage.index.LocationIndexTree - location index created in 1.9652654s, size:3,839,722, leafs:593,961, precision:300, depth:7, checksum:745077, entries:[16, 16, 16, 16, 16, 4, 4], entriesPerLeaf:6.464603
-2025-01-15 00:15:48.203 [main] INFO  c.g.routing.ch.CHPreparationHandler - Creating CH preparations, totalMB:1697, usedMB:1342
-2025-01-15 00:15:48.204 [main] INFO  c.g.routing.ch.CHPreparationHandler - 1/1 Setting up CH preparation for profile 'car' NODE_BASED ... (totalMB:1697, usedMB:1342)
-2025-01-15 00:15:48.250 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Creating CH prepare graph, totalMB:1697, usedMB:1411
-2025-01-15 00:15:48.284 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Building CH prepare graph, totalMB:1697, usedMB:1465
-2025-01-15 00:15:48.744 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Finished building CH prepare graph, took: 0.45931086s, totalMB:1697, usedMB:1578
-2025-01-15 00:15:48.760 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Building initial queue of nodes to be contracted: 2231221 nodes, totalMB:1697, usedMB:1596
-2025-01-15 00:15:51.580 [car] INFO  c.g.r.c.PrepareContractionHierarchies - Finished building queue, took: 2.82028s, totalMB:1810, usedMB:789
-2025-01-15 00:15:51.581 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  2,231,221, shortcuts:          0, updates:  0, checked-nodes:          0, t(total):   3.33,  t(period):   2.82, t(lazy):   0.00, t(neighbor):   0.00, t(contr):   0.00, t(other) :   0.51, dijkstra-ratio:  56.76%, meanDegree: 1.21, dijkstras:  8,305,693, mem:       17MB, totalMB:1810, usedMB:789
-2025-01-15 00:15:53.163 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  1,787,487, shortcuts:     11,028, updates:  0, checked-nodes:    446,244, t(total):   4.91,  t(period):   2.82, t(lazy):   0.30, t(neighbor):   0.79, t(contr):   0.34, t(other) :   0.66, dijkstra-ratio:  54.90%, meanDegree: 1.04, dijkstras: 10,224,834, mem:       17MB, totalMB:1810, usedMB:908
-2025-01-15 00:15:53.876 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  1,341,284, shortcuts:     13,641, updates:  0, checked-nodes:    892,488, t(total):   5.63,  t(period):   2.82, t(lazy):   0.37, t(neighbor):   1.20, t(contr):   0.47, t(other) :   0.77, dijkstra-ratio:  52.61%, meanDegree: 1.00, dijkstras: 11,010,640, mem:       17MB, totalMB:1810, usedMB:992
-2025-01-15 00:15:56.812 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:    895,842, shortcuts:     80,423, updates:  0, checked-nodes:  1,338,732, t(total):   8.56,  t(period):   2.82, t(lazy):   0.97, t(neighbor):   2.77, t(contr):   1.10, t(other) :   0.90, dijkstra-ratio:  55.77%, meanDegree: 1.44, dijkstras: 15,601,418, mem:       17MB, totalMB:1810, usedMB:1176
-2025-01-15 00:16:01.442 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:    458,070, shortcuts:    553,338, updates:  0, checked-nodes:  1,784,976, t(total):  13.19,  t(period):   2.82, t(lazy):   2.01, t(neighbor):   5.17, t(contr):   2.15, t(other) :   1.05, dijkstra-ratio:  59.62%, meanDegree: 1.00, dijkstras: 21,965,736, mem:       17MB, totalMB:1810, usedMB:1408
-2025-01-15 00:16:05.228 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:     35,987, shortcuts:  1,022,500, updates:  0, checked-nodes:  2,231,220, t(total):  16.98,  t(period):   2.82, t(lazy):   2.89, t(neighbor):   7.06, t(contr):   3.06, t(other) :   1.15, dijkstra-ratio:  62.06%, meanDegree: 2.88, dijkstras: 27,386,684, mem:       17MB, totalMB:1810, usedMB:784
-2025-01-15 00:16:07.255 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:          0, shortcuts:  1,197,548, updates:  0, checked-nodes:  2,277,317, t(total):  19.00,  t(period):   2.82, t(lazy):   3.40, t(neighbor):   8.06, t(contr):   3.51, t(other) :   1.21, dijkstra-ratio:  64.10%, meanDegree: 1.26, dijkstras: 30,264,503, mem:       17MB, totalMB:1810, usedMB:830
-2025-01-15 00:16:07.259 [car] INFO  c.g.r.c.PrepareContractionHierarchies - new shortcuts: 1,197,548, initSize:2,231,221, com.graphhopper.routing.weighting.custom.CustomWeighting@25daa0b4, periodic:0, lazy:100, neighbor:100, t(total):  19.01,  t(period):   2.82, t(lazy):   3.40, t(neighbor):   8.06, t(contr):   3.51, t(other) :   1.21, dijkstra-ratio:  64.10%, lazy-overhead: 2%, totalMB:1810, usedMB:830
-2025-01-15 00:16:07.259 [car] INFO  c.g.r.c.PrepareContractionHierarchies - shortcuts that exceed maximum weight: 0
-2025-01-15 00:16:07.259 [car] INFO  c.g.r.c.PrepareContractionHierarchies - took: 19s, graph now - num edges: 2,708,928, num nodes: 2,231,221, num shortcuts: 1,197,548
-2025-01-15 00:16:07.329 [main] INFO  c.g.routing.ch.CHPreparationHandler - Finished CH preparation, totalMB:1810, usedMB:688
-2025-01-15 00:16:07.343 [main] INFO  com.graphhopper.GraphHopper - flushing graph car|RAM_STORE|2D|no_turn_cost|nodes:9,edges:23,geometry:7,location_index:5,string_index:2,nodesCH:0,shortcuts:9, details:edges: 2,708,928(94MB), nodes: 2,231,221(26MB), bounds: 109.4882011,127.0887888,4.4787369,22.6193592, name:(4MB), geo:76,234,630/-1(73MB), totalMB:1810, usedMB:614)
-2025-01-15 00:16:07.563 [main] INFO  com.graphhopper.GraphHopper - flushed graph totalMB:1810, usedMB:666)
-2025-01-15 00:16:07.570 [main] INFO  c.g.http.GraphHopperManaged - loaded graph at:graph-cache, data_reader_file:philippines-latest-2.osm.pbf, encoded values:["{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"car_access\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":0,\"bwd_shift\":1,\"fwd_mask\":1,\"bwd_mask\":2}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"car_average_speed\",\"bits\":7,\"min_storable_value\":0,\"max_storable_value\":127,\"max_value\":68,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":2,\"bwd_shift\":9,\"fwd_mask\":508,\"bwd_mask\":65024,\"factor\":2.0,\"use_maximum_as_infinity\":false}","{\"className\":\"com.graphhopper.routing.ev.EnumEncodedValue\",\"name\":\"road_class\",\"bits\":5,\"min_storable_value\":0,\"max_storable_value\":31,\"max_value\":20,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":16,\"bwd_shift\":-1,\"fwd_mask\":2031616,\"bwd_mask\":0,\"enum_type\":\"com.graphhopper.routing.ev.RoadClass\"}","{\"className\":\"com.graphhopper.routing.ev.EnumEncodedValue\",\"name\":\"road_environment\",\"bits\":3,\"min_storable_value\":0,\"max_storable_value\":7,\"max_value\":5,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":21,\"bwd_shift\":-1,\"fwd_mask\":14680064,\"bwd_mask\":0,\"enum_type\":\"com.graphhopper.routing.ev.RoadEnvironment\"}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"roundabout\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":24,\"bwd_shift\":-1,\"fwd_mask\":16777216,\"bwd_mask\":0}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"road_class_link\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":0,\"bwd_data_index\":0,\"fwd_shift\":25,\"bwd_shift\":-1,\"fwd_mask\":33554432,\"bwd_mask\":0}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"max_speed\",\"bits\":7,\"min_storable_value\":0,\"max_storable_value\":127,\"max_value\":127,\"negate_reverse_direction\":false,\"store_two_directions\":true,\"fwd_data_index\":1,\"bwd_data_index\":1,\"fwd_shift\":0,\"bwd_shift\":7,\"fwd_mask\":127,\"bwd_mask\":16256,\"factor\":2.0,\"use_maximum_as_infinity\":true}","{\"className\":\"com.graphhopper.routing.ev.DecimalEncodedValueImpl\",\"name\":\"ferry_speed\",\"bits\":5,\"min_storable_value\":0,\"max_storable_value\":31,\"max_value\":25,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":1,\"bwd_data_index\":0,\"fwd_shift\":14,\"bwd_shift\":-1,\"fwd_mask\":507904,\"bwd_mask\":0,\"factor\":2.0,\"use_maximum_as_infinity\":false}","{\"className\":\"com.graphhopper.routing.ev.SimpleBooleanEncodedValue\",\"name\":\"car_subnetwork\",\"bits\":1,\"min_storable_value\":0,\"max_storable_value\":1,\"max_value\":1,\"negate_reverse_direction\":false,\"store_two_directions\":false,\"fwd_data_index\":1,\"bwd_data_index\":0,\"fwd_shift\":19,\"bwd_shift\":-1,\"fwd_mask\":524288,\"bwd_mask\":0}"], 7 bytes for edge flags, edges: 2,708,928(94MB), nodes: 2,231,221(26MB), bounds: 109.4882011,127.0887888,4.4787369,22.6193592, name:(4MB), geo:76,234,630/-1(73MB)
-2025-01-15 00:16:07.777 [main] WARN  o.g.jersey.internal.inject.Providers - A provider com.codahale.metrics.health.HealthCheckRegistry registered in SERVER runtime does not implement any provider interfaces applicable in the SERVER runtime. Due to constraint configuration problems the provider com.codahale.metrics.health.HealthCheckRegistry will be ignored. 
-2025-01-15 00:16:07.869 [main] INFO  i.d.jersey.DropwizardResourceConfig - The following paths were found for the configured resources:
-
-    GET     / (com.graphhopper.application.resources.RootResource)
-    GET     /health (com.graphhopper.resources.HealthCheckResource)
-    GET     /i18n (com.graphhopper.resources.I18NResource)
-    GET     /i18n/{locale} (com.graphhopper.resources.I18NResource)
-    GET     /info (com.graphhopper.resources.InfoResource)
-    GET     /isochrone (com.graphhopper.resources.IsochroneResource)
-    POST    /match (com.graphhopper.resources.MapMatchingResource)
-    GET     /mvt/{z}/{x}/{y}.mvt (com.graphhopper.resources.MVTResource)
-    GET     /navigate/directions/v5/gh/{profile}/{coordinatesArray : .+} (com.graphhopper.navigation.NavigateResource)
-    GET     /nearest (com.graphhopper.resources.NearestResource)
-    GET     /route (com.graphhopper.resources.RouteResource)
-    POST    /route (com.graphhopper.resources.RouteResource)
-    GET     /spt (com.graphhopper.resources.SPTResource)
-
-2025-01-15 00:16:07.871 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@526f6427{/,null,AVAILABLE}
-2025-01-15 00:16:07.873 [main] INFO  i.d.core.setup.AdminEnvironment - tasks = 
-
-    POST    /tasks/log-level (io.dropwizard.servlets.tasks.LogConfigurationTask)
-    POST    /tasks/gc (io.dropwizard.servlets.tasks.GarbageCollectionTask)
-
-2025-01-15 00:16:07.873 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@76396509{/,null,AVAILABLE}
-2025-01-15 00:16:07.884 [main] INFO  o.e.jetty.server.AbstractConnector - Started application@1816e24a{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 00:16:07.884 [main] INFO  o.e.jetty.server.AbstractConnector - Started admin@6940f685{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 00:16:07.886 [main] INFO  org.eclipse.jetty.server.Server - Started Server@3c782d8e{STARTING}[10.0.23,sto=30000] @97638ms
-2025-01-15 00:16:26.148 [JettyShutdownThread] INFO  org.eclipse.jetty.server.Server - Stopped Server@3c782d8e{STOPPING}[10.0.23,sto=30000]
-2025-01-15 00:16:26.149 [JettyShutdownThread] INFO  org.eclipse.jetty.server.Server - Shutdown Server@3c782d8e{STOPPING}[10.0.23,sto=30000]
-2025-01-15 00:16:26.160 [JettyShutdownThread] INFO  o.e.jetty.server.AbstractConnector - Stopped application@1816e24a{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 00:16:26.160 [JettyShutdownThread] INFO  o.e.jetty.server.AbstractConnector - Stopped admin@6940f685{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 00:16:26.162 [JettyShutdownThread] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@76396509{/,null,STOPPED}
-2025-01-15 00:16:26.181 [JettyShutdownThread] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@526f6427{/,null,STOPPED}
-2025-01-15 12:42:40.169 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:42:40.171 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:43:45.982 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:43:45.983 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:44:24.104 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:44:24.106 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:51:43.407 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:51:43.409 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:52:23.655 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:52:23.656 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:53:08.947 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:53:08.948 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:54:21.176 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:54:21.178 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:59:06.308 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 12:59:06.309 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 12:59:06.498 [main] INFO  i.d.b.assets.ConfiguredAssetsBundle - Registering ConfiguredAssetBundle with name: assets for path /webjars/*
-2025-01-15 12:59:06.498 [main] INFO  i.d.b.assets.ConfiguredAssetsBundle - Registering ConfiguredAssetBundle with name: assets for path /maps/*
-2025-01-15 12:59:06.498 [main] WARN  i.d.jetty.setup.ServletEnvironment - Overriding the existing servlet registered with the name: assets
-2025-01-15 12:59:06.515 [main] INFO  io.dropwizard.server.ServerFactory - Starting GraphHopperApplication
-                        _     _
-   __ _ _ __ __ _ _ __ | |__ | |__   ___  _ __  _ __   ___ _ __
-  / _` | '__/ _` | '_ \| '_ \| '_ \ / _ \| '_ \| '_ \ / _ \ '__|
- | (_| | | | (_| | |_) | | | | | | | (_) | |_) | |_) |  __/ |
-  \__, |_|  \__,_| .__/|_| |_|_| |_|\___/| .__/| .__/ \___|_|
-  |___/          |_|                     |_|   |_|
-2025-01-15 12:59:06.551 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened application@2b2f5fcf{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 12:59:06.551 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened admin@858d8b4{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 12:59:06.552 [main] INFO  org.eclipse.jetty.server.Server - jetty-9.4.28.v20200408; built: 2020-04-08T17:49:39.557Z; git: ab228fde9e55e9164c738d7fa121f8ac5acd51c9; jvm 21.0.2+13-58
-2025-01-15 12:59:06.563 [main] INFO  c.g.reader.osm.GraphHopperOSM - version 1.0|2020-05-22T12:08:02Z (5,15,4,3,5,6)
-2025-01-15 12:59:06.565 [main] INFO  c.g.reader.osm.GraphHopperOSM - graph CH|car|RAM_STORE|2D|no_turn_cost|,,,,, details:edges:0(0MB), nodes:0(0MB), name:(0MB), geo:0(0MB), bounds:1.7976931348623157E308,-1.7976931348623157E308,1.7976931348623157E308,-1.7976931348623157E308, CHGraph|car|NODE_BASED, shortcuts:0, nodesCH:(0MB)
-2025-01-15 12:59:06.572 [main] INFO  c.g.reader.osm.GraphHopperOSM - start creating graph from philippines-latest-2.osm.pbf
-2025-01-15 12:59:06.572 [main] INFO  c.g.reader.osm.GraphHopperOSM - using CH|car|RAM_STORE|2D|no_turn_cost|,,,,, memory:totalMB:40, usedMB:33
-2025-01-15 12:59:06.572 [main] INFO  com.graphhopper.reader.osm.OSMReader - Starting to process OSM file: 'philippines-latest-2.osm.pbf'
-2025-01-15 12:59:23.029 [main] INFO  com.graphhopper.reader.osm.OSMReader - creating graph. Found nodes (pillar+tower):13 330 361, totalMB:1524, usedMB:1283
-2025-01-15 12:59:39.680 [main] INFO  com.graphhopper.reader.osm.OSMReader - 84 125 974, now parsing ways
-2025-01-15 12:59:50.159 [main] INFO  com.graphhopper.reader.osm.OSMReader - 97 950 943, now parsing relations
-2025-01-15 12:59:50.181 [main] INFO  com.graphhopper.reader.osm.OSMReader - finished way processing. nodes: 2010617, osmIdMap.size:13369530, osmIdMap:166MB, nodeFlagsMap.size:39169, relFlagsMap.size:56370, zeroCounter:39096 totalMB:1621, usedMB:1031
-2025-01-15 12:59:50.181 [main] INFO  com.graphhopper.reader.osm.OSMReader - time pass1:16s, pass2:27s, total:43s
-2025-01-15 12:59:50.184 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Start removing subnetworks (prepare.min_network_size:200) totalMB:1621, usedMB:1031
-2025-01-15 12:59:50.184 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Subnetwork removal jobs: [car|node-based]
-2025-01-15 12:59:50.184 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Graph nodes: 2 010 617
-2025-01-15 12:59:50.185 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Graph edges: 2 431 690
-2025-01-15 12:59:50.185 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - --- vehicle: 'car'
-2025-01-15 12:59:50.565 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Found 43741 subnetworks (25336 single nodes and 18405 components with more than one node, total nodes: 2010617), took: 0.38004348s
-2025-01-15 12:59:50.592 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Removed 43711 subnetworks (biggest removed: 197 nodes) -> 30 subnetwork(s) left (smallest: 202, biggest: 1874136 nodes), total removed edges: 107806, took: 0.026632624s
-2025-01-15 12:59:50.740 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Removed 126722 nodes from the graph as they aren't used by any vehicle after removing subnetworks
-2025-01-15 12:59:51.771 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Optimized storage after subnetwork removal, took: 1.0313089s,totalMB:1621, usedMB:1297
-2025-01-15 12:59:51.771 [main] INFO  c.g.r.s.PrepareRoutingSubnetworks - Finished finding and removing subnetworks for 1 vehicles, took: 1.587268s, totalMB:1621, usedMB:1297
-2025-01-15 12:59:51.771 [main] INFO  c.g.reader.osm.GraphHopperOSM - nodes: 1 883 895, edges: 2 431 690
-2025-01-15 12:59:53.390 [main] INFO  c.g.storage.index.LocationIndexTree - location index created in 1.6168808s, size:2 448 428, leafs:540 973, precision:300, depth:7, checksum:1883895, entries:[16, 16, 16, 16, 16, 4, 4], entriesPerLeaf:4.525971
-2025-01-15 12:59:53.412 [main] INFO  c.g.routing.ch.CHPreparationHandler - 1/1 calling CH prepare.doWork for profile 'car' NODE_BASED ... (totalMB:1695, usedMB:746)
-2025-01-15 12:59:55.659 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  1 883 895, shortcuts:          0, updates:  0, checked-nodes:          0, t(total):   2.24,  t(period):   2.22, t(lazy):   0.00, t(neighbor):   0.00, t(contr):   0.00, t(other) :   0.02, dijkstra-ratio:  37.12%, meanDegree: 1.00, dijkstras:  7 885 752, mem:       28MB, totalMB:1695, usedMB:901
-2025-01-15 13:00:04.489 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  1 507 116, shortcuts:        141, updates:  1, checked-nodes:    376 779, t(total):  11.07,  t(period):  10.42, t(lazy):   0.00, t(neighbor):   0.41, t(contr):   0.09, t(other) :   0.15, dijkstra-ratio:  72.43%, meanDegree: 1.00, dijkstras: 14 459 616, mem:       28MB, totalMB:1695, usedMB:1013
-2025-01-15 13:00:13.127 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:  1 130 337, shortcuts:    114 020, updates:  2, checked-nodes:    753 558, t(total):  19.71,  t(period):  17.29, t(lazy):   0.00, t(neighbor):   1.16, t(contr):   0.98, t(other) :   0.29, dijkstra-ratio:  76.00%, meanDegree: 2.00, dijkstras: 19 785 204, mem:       28MB, totalMB:1695, usedMB:1130
-2025-01-15 13:00:21.498 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:    753 558, shortcuts:    374 815, updates:  3, checked-nodes:  1 130 337, t(total):  28.08,  t(period):  22.95, t(lazy):   0.00, t(neighbor):   2.31, t(contr):   2.38, t(other) :   0.44, dijkstra-ratio:  77.45%, meanDegree: 1.67, dijkstras: 24 236 094, mem:       28MB, totalMB:1695, usedMB:1270
-2025-01-15 13:00:30.220 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:    376 779, shortcuts:    703 019, updates:  4, checked-nodes:  1 507 116, t(total):  36.81,  t(period):  27.53, t(lazy):   0.00, t(neighbor):   4.14, t(contr):   4.52, t(other) :   0.62, dijkstra-ratio:  78.70%, meanDegree: 2.99, dijkstras: 27 821 767, mem:       28MB, totalMB:1695, usedMB:1400
-2025-01-15 13:00:41.207 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:     54 229, shortcuts:  1 092 242, updates:  5, checked-nodes:  1 883 895, t(total):  47.79,  t(period):  28.88, t(lazy):   3.12, t(neighbor):   7.53, t(contr):   7.42, t(other) :   0.84, dijkstra-ratio:  80.07%, meanDegree: 2.85, dijkstras: 32 197 504, mem:       28MB, totalMB:1695, usedMB:1537
-2025-01-15 13:00:47.290 [car] INFO  c.g.r.c.PrepareContractionHierarchies - node, nodes:          0, shortcuts:  1 192 370, updates:  5, checked-nodes:  1 963 260, t(total):  53.88,  t(period):  28.88, t(lazy):   5.50, t(neighbor):  10.14, t(contr):   8.45, t(other) :   0.90, dijkstra-ratio:  81.35%, meanDegree: 1.08, dijkstras: 34 074 236, mem:       28MB, totalMB:1695, usedMB:1565
-2025-01-15 13:00:47.290 [car] INFO  c.g.r.c.PrepareContractionHierarchies - new shortcuts: 1 192 370, initSize:1 883 895, fastest|car, periodic:20, lazy:10, neighbor:20, t(total):  53.88,  t(period):  28.88, t(lazy):   5.50, t(neighbor):  10.14, t(contr):   8.45, t(other) :   0.90, dijkstra-ratio:  81.35%, lazy-overhead: 4%, totalMB:1695, usedMB:1565
-2025-01-15 13:00:47.290 [car] INFO  c.g.r.c.PrepareContractionHierarchies - took: 53s, graph now - num edges: 2 431 690, num nodes: 1 883 895, num shortcuts: 1 192 370
-2025-01-15 13:00:47.291 [main] INFO  c.g.reader.osm.GraphHopperOSM - flushing graph CH|car|RAM_STORE|2D|no_turn_cost|5,15,4,3,5, details:edges:2 431 690(75MB), nodes:1 883 895(22MB), name:(3MB), geo:15 029 568(58MB), bounds:109.48820098090621,127.08878875722264,4.588655484959233,22.619359142020922, CHGraph|car|NODE_BASED, shortcuts:1 192 370, nodesCH:(15MB), totalMB:1695, usedMB:1565)
-2025-01-15 13:00:47.507 [main] INFO  c.g.reader.osm.GraphHopperOSM - flushed graph totalMB:1895, usedMB:1853)
-2025-01-15 13:00:47.513 [main] INFO  c.g.http.GraphHopperManaged - loaded graph at:graph-cache, data_reader_file:philippines-latest-2.osm.pbf, encoded values:roundabout|version=283388307|bits=1|index=0|shift=0|store_both_directions=false,road_class|version=2007543510|bits=5|index=0|shift=1|store_both_directions=false,road_class_link|version=146075245|bits=1|index=0|shift=6|store_both_directions=false,road_environment|version=-446726394|bits=3|index=0|shift=7|store_both_directions=false,max_speed|version=-1300485567|bits=5|index=0|shift=10|store_both_directions=true,road_access|version=-313723172|bits=4|index=0|shift=20|store_both_directions=false, edges:2 431 690(75MB), nodes:1 883 895(22MB), name:(3MB), geo:15 029 568(58MB), bounds:109.48820098090621,127.08878875722264,4.588655484959233,22.619359142020922, CHGraph|car|NODE_BASED, shortcuts:1 192 370, nodesCH:(15MB)
-2025-01-15 13:00:47.746 [main] INFO  i.d.jersey.DropwizardResourceConfig - The following paths were found for the configured resources:
-
-    GET     / (com.graphhopper.http.resources.RootResource)
-    GET     /i18n (com.graphhopper.resources.I18NResource)
-    GET     /i18n/{locale} (com.graphhopper.resources.I18NResource)
-    GET     /info (com.graphhopper.resources.InfoResource)
-    GET     /isochrone (com.graphhopper.resources.IsochroneResource)
-    GET     /mvt/{z}/{x}/{y}.mvt (com.graphhopper.resources.MVTResource)
-    GET     /nearest (com.graphhopper.resources.NearestResource)
-    GET     /route (com.graphhopper.resources.RouteResource)
-    POST    /route (com.graphhopper.resources.RouteResource)
-    POST    /route-custom (com.graphhopper.resources.CustomWeightingRouteResource)
-    GET     /spt (com.graphhopper.resources.SPTResource)
-
-2025-01-15 13:00:47.747 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@55e1192{/,null,AVAILABLE}
-2025-01-15 13:00:47.748 [main] INFO  io.dropwizard.setup.AdminEnvironment - tasks = 
-
-    POST    /tasks/log-level (io.dropwizard.servlets.tasks.LogConfigurationTask)
-    POST    /tasks/gc (io.dropwizard.servlets.tasks.GarbageCollectionTask)
-
-2025-01-15 13:00:47.751 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@44e4cb76{/,null,AVAILABLE}
-2025-01-15 13:00:47.758 [main] INFO  o.e.jetty.server.AbstractConnector - Started application@2b2f5fcf{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 13:00:47.758 [main] INFO  o.e.jetty.server.AbstractConnector - Started admin@858d8b4{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 13:00:47.758 [main] INFO  org.eclipse.jetty.server.Server - Started @102147ms
-2025-01-15 13:01:27.263 [Thread-10] INFO  o.e.jetty.server.AbstractConnector - Stopped application@2b2f5fcf{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 13:01:27.265 [Thread-10] INFO  o.e.jetty.server.AbstractConnector - Stopped admin@858d8b4{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 13:01:27.267 [Thread-10] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@44e4cb76{/,null,UNAVAILABLE}
-2025-01-15 13:01:27.277 [Thread-10] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@55e1192{/,null,UNAVAILABLE}
-2025-01-15 13:16:02.371 [main] INFO  i.d.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
-2025-01-15 13:16:02.372 [main] INFO  i.d.server.DefaultServerFactory - Registering admin handler with root path prefix: /
-2025-01-15 13:16:02.561 [main] INFO  i.d.b.assets.ConfiguredAssetsBundle - Registering ConfiguredAssetBundle with name: assets for path /webjars/*
-2025-01-15 13:16:02.561 [main] INFO  i.d.b.assets.ConfiguredAssetsBundle - Registering ConfiguredAssetBundle with name: assets for path /maps/*
-2025-01-15 13:16:02.561 [main] WARN  i.d.jetty.setup.ServletEnvironment - Overriding the existing servlet registered with the name: assets
-2025-01-15 13:16:02.579 [main] INFO  io.dropwizard.server.ServerFactory - Starting GraphHopperApplication
-                        _     _
-   __ _ _ __ __ _ _ __ | |__ | |__   ___  _ __  _ __   ___ _ __
-  / _` | '__/ _` | '_ \| '_ \| '_ \ / _ \| '_ \| '_ \ / _ \ '__|
- | (_| | | | (_| | |_) | | | | | | | (_) | |_) | |_) |  __/ |
-  \__, |_|  \__,_| .__/|_| |_|_| |_|\___/| .__/| .__/ \___|_|
-  |___/          |_|                     |_|   |_|
-2025-01-15 13:16:02.611 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened application@2b2f5fcf{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 13:16:02.611 [main] INFO  o.e.jetty.setuid.SetUIDListener - Opened admin@858d8b4{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 13:16:02.612 [main] INFO  org.eclipse.jetty.server.Server - jetty-9.4.28.v20200408; built: 2020-04-08T17:49:39.557Z; git: ab228fde9e55e9164c738d7fa121f8ac5acd51c9; jvm 21.0.2+13-58
-2025-01-15 13:16:02.797 [main] INFO  c.g.reader.osm.GraphHopperOSM - version 1.0|2020-05-22T12:08:02Z (5,15,4,3,5,6)
-2025-01-15 13:16:02.800 [main] INFO  c.g.reader.osm.GraphHopperOSM - graph CH|car|RAM_STORE|2D|no_turn_cost|5,15,4,3,5, details:edges:2 431 690(75MB), nodes:1 883 895(22MB), name:(3MB), geo:15 029 568(58MB), bounds:109.48820098090621,127.08878875722264,4.588655484959233,22.619359142020922, CHGraph|car|NODE_BASED, shortcuts:1 192 370, nodesCH:(15MB)
-2025-01-15 13:16:02.800 [main] INFO  c.g.http.GraphHopperManaged - loaded graph at:graph-cache, data_reader_file:philippines-latest-2.osm.pbf, encoded values:roundabout|version=283388307|bits=1|index=0|shift=0|store_both_directions=false,road_class|version=2007543510|bits=5|index=0|shift=1|store_both_directions=false,road_class_link|version=146075245|bits=1|index=0|shift=6|store_both_directions=false,road_environment|version=-446726394|bits=3|index=0|shift=7|store_both_directions=false,max_speed|version=-1300485567|bits=5|index=0|shift=10|store_both_directions=true,road_access|version=-313723172|bits=4|index=0|shift=20|store_both_directions=false, edges:2 431 690(75MB), nodes:1 883 895(22MB), name:(3MB), geo:15 029 568(58MB), bounds:109.48820098090621,127.08878875722264,4.588655484959233,22.619359142020922, CHGraph|car|NODE_BASED, shortcuts:1 192 370, nodesCH:(15MB)
-2025-01-15 13:16:03.020 [main] INFO  i.d.jersey.DropwizardResourceConfig - The following paths were found for the configured resources:
-
-    GET     / (com.graphhopper.http.resources.RootResource)
-    GET     /i18n (com.graphhopper.resources.I18NResource)
-    GET     /i18n/{locale} (com.graphhopper.resources.I18NResource)
-    GET     /info (com.graphhopper.resources.InfoResource)
-    GET     /isochrone (com.graphhopper.resources.IsochroneResource)
-    GET     /mvt/{z}/{x}/{y}.mvt (com.graphhopper.resources.MVTResource)
-    GET     /nearest (com.graphhopper.resources.NearestResource)
-    GET     /route (com.graphhopper.resources.RouteResource)
-    POST    /route (com.graphhopper.resources.RouteResource)
-    POST    /route-custom (com.graphhopper.resources.CustomWeightingRouteResource)
-    GET     /spt (com.graphhopper.resources.SPTResource)
-
-2025-01-15 13:16:03.021 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@195580ba{/,null,AVAILABLE}
-2025-01-15 13:16:03.023 [main] INFO  io.dropwizard.setup.AdminEnvironment - tasks = 
-
-    POST    /tasks/log-level (io.dropwizard.servlets.tasks.LogConfigurationTask)
-    POST    /tasks/gc (io.dropwizard.servlets.tasks.GarbageCollectionTask)
-
-2025-01-15 13:16:03.024 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@7fb8bad0{/,null,AVAILABLE}
-2025-01-15 13:16:03.029 [main] INFO  o.e.jetty.server.AbstractConnector - Started application@2b2f5fcf{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 13:16:03.029 [main] INFO  o.e.jetty.server.AbstractConnector - Started admin@858d8b4{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 13:16:03.029 [main] INFO  org.eclipse.jetty.server.Server - Started @1368ms
-2025-01-15 13:21:56.880 [dw-34 - POST /route] ERROR c.g.resources.RouteResource - 127.0.0.1 en_PH PostmanRuntime/7.43.0 0, took: 1.0 ms, algo: , profile: car, weighting: fastest, vehicle: car, errors:[java.lang.IllegalArgumentException: You have to pass at least one point]
-2025-01-15 13:21:56.884 [dw-34 - POST /route] INFO  c.g.http.MultiExceptionMapper - bad request: unknown reason
-2025-01-15 13:27:03.830 [Thread-10] INFO  o.e.jetty.server.AbstractConnector - Stopped application@2b2f5fcf{HTTP/1.1, (http/1.1)}{localhost:8989}
-2025-01-15 13:27:03.834 [Thread-10] INFO  o.e.jetty.server.AbstractConnector - Stopped admin@858d8b4{HTTP/1.1, (http/1.1)}{localhost:8990}
-2025-01-15 13:27:03.842 [Thread-10] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@7fb8bad0{/,null,UNAVAILABLE}
-2025-01-15 13:27:03.864 [Thread-10] INFO  o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@195580ba{/,null,UNAVAILABLE}
+2025-01-16 12:57:07.183 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@77a0dd63{/,null,AVAILABLE}
+2025-01-16 12:57:07.195 [main] INFO  o.e.jetty.server.AbstractConnector - Started application@5d7835a8{HTTP/1.1, (http/1.1)}{localhost:8989}
+2025-01-16 12:57:07.196 [main] INFO  o.e.jetty.server.AbstractConnector - Started admin@736048ed{HTTP/1.1, (http/1.1)}{localhost:8990}
+2025-01-16 12:57:07.197 [main] INFO  org.eclipse.jetty.server.Server - Started Server@4d27d9d{STARTING}[10.0.23,sto=30000] @67904ms
+2025-01-16 13:06:40.500 [pool-2-thread-8 - GET /route?point=15.15725648533686,120.5906040299809&point=15.15482567695634,120.6054678098399&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15725648533686,120.5906040299809, 15.15482567695634,120.6054678098399], took: 45.8ms, algo: , profile: car, alternatives: 1, distance0: 2861.787685280413, weight0: 471.2730639088868, time0: 4min, points0: 50, debugInfo: idLookup:0.011271625s; , algoInit:1417 μs, dijkstrabi|ch-routing:7 ms, path extraction: 2045 μs, visited nodes sum: 50
+2025-01-16 13:06:44.091 [pool-2-thread-5 - GET /route?point=15.15725648533686,120.5906040299809&point=15.15880242879448,120.5929933498121&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15725648533686,120.5906040299809, 15.15880242879448,120.5929933498121], took: 5.0ms, algo: , profile: car, alternatives: 1, distance0: 765.2028967269274, weight0: 122.05177484354314, time0: 1min, points0: 27, debugInfo: idLookup:0.002140125s; , algoInit:50 μs, dijkstrabi|ch-routing:1 ms, path extraction: 595 μs, visited nodes sum: 24
+2025-01-16 13:06:51.347 [pool-2-thread-4 - GET /route?point=15.15482567695634,120.6054678098399&point=15.15880242879448,120.5929933498121&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15482567695634,120.6054678098399, 15.15880242879448,120.5929933498121], took: 28.1ms, algo: , profile: car, alternatives: 1, distance0: 2821.4665820073396, weight0: 470.52842602515716, time0: 4min, points0: 44, debugInfo: idLookup:0.001535625s; , algoInit:32 μs, dijkstrabi|ch-routing:18 ms, path extraction: 16052 μs, visited nodes sum: 44
+2025-01-16 13:24:54.045 [pool-2-thread-4 - GET /route?point=15.15482567695634,120.6054678098399&point=15.15880242879448,120.5929933498121&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15482567695634,120.6054678098399, 15.15880242879448,120.5929933498121], took: 14.7ms, algo: , profile: car, alternatives: 1, distance0: 2821.4665820073396, weight0: 470.52842602515716, time0: 4min, points0: 44, debugInfo: idLookup:0.007095334s; , algoInit:719 μs, dijkstrabi|ch-routing:3 ms, path extraction: 708 μs, visited nodes sum: 44
+2025-01-16 13:24:59.158 [pool-2-thread-3 - GET /route?point=15.15482567695634,120.6054678098399&point=15.15880242879448,120.5929933498121&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15482567695634,120.6054678098399, 15.15880242879448,120.5929933498121], took: 5.9ms, algo: , profile: car, alternatives: 1, distance0: 2821.4665820073396, weight0: 470.52842602515716, time0: 4min, points0: 44, debugInfo: idLookup:0.002022666s; , algoInit:67 μs, dijkstrabi|ch-routing:0 ms, path extraction: 257 μs, visited nodes sum: 44
+2025-01-16 13:25:06.166 [pool-2-thread-8 - GET /route?point=15.15725648533686,120.5906040299809&point=15.15482567695634,120.6054678098399&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15725648533686,120.5906040299809, 15.15482567695634,120.6054678098399], took: 10.9ms, algo: , profile: car, alternatives: 1, distance0: 2861.787685280413, weight0: 471.2730639088868, time0: 4min, points0: 50, debugInfo: idLookup:0.001990625s; , algoInit:299 μs, dijkstrabi|ch-routing:5 ms, path extraction: 691 μs, visited nodes sum: 50
+2025-01-16 13:25:09.573 [pool-2-thread-5 - GET /route?point=15.15880242879448,120.5929933498121&point=15.15482567695634,120.6054678098399&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15880242879448,120.5929933498121, 15.15482567695634,120.6054678098399], took: 14.7ms, algo: , profile: car, alternatives: 1, distance0: 3031.8465820073397, weight0: 504.8890360251572, time0: 4min, points0: 56, debugInfo: idLookup:0.001126417s; , algoInit:567 μs, dijkstrabi|ch-routing:7 ms, path extraction: 2090 μs, visited nodes sum: 52
+2025-01-16 13:25:12.581 [pool-2-thread-6 - GET /route?point=15.15880242879448,120.5929933498121&point=15.15725648533686,120.5906040299809&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.15880242879448,120.5929933498121, 15.15725648533686,120.5906040299809], took: 2.6ms, algo: , profile: car, alternatives: 1, distance0: 488.1818967269274, weight0: 84.6618321162704, time0: 1min, points0: 15, debugInfo: idLookup:4.61375E-4s; , algoInit:35 μs, dijkstrabi|ch-routing:0 ms, path extraction: 48 μs, visited nodes sum: 22
+2025-01-16 13:25:14.540 [pool-2-thread-8 - GET /route?point=15.150941,120.593335&point=15.15725648533686,120.5906040299809&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.150941,120.593335, 15.15725648533686,120.5906040299809], took: 25.5ms, algo: , profile: car, alternatives: 1, distance0: 1242.3232859648442, weight0: 193.14258005261726, time0: 1min, points0: 35, debugInfo: idLookup:0.004025459s; , algoInit:60 μs, dijkstrabi|ch-routing:19 ms, path extraction: 170 μs, visited nodes sum: 74
+2025-01-16 13:25:16.631 [pool-2-thread-7 - GET /route?point=15.150941,120.593335&point=15.15482567695634,120.6054678098399&profile=car&points_encoded=false] INFO  c.g.resources.RouteResource - 127.0.0.1 en_GB Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 [15.150941,120.593335, 15.15482567695634,120.6054678098399], took: 9.4ms, algo: , profile: car, alternatives: 1, distance0: 1875.1125866232444, weight0: 347.3134831908813, time0: 3min, points0: 23, debugInfo: idLookup:0.001503083s; , algoInit:838 μs, dijkstrabi|ch-routing:4 ms, path extraction: 868 μs, visited nodes sum: 92
