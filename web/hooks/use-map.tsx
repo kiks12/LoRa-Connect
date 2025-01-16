@@ -30,6 +30,7 @@ import {
 } from "@/utils/map";
 import {
 	EvacuationCenterWithStatusIdentifier,
+	EvacuationInstruction,
 	GraphHopperAPIResult,
 	LocationDataFromLoRa,
 	ObstacleWithStatusIdentifier,
@@ -84,6 +85,9 @@ const MapContext = createContext<{
 	toggleShowEvacuationCenters: () => void;
 	evacuationCentersLoading: boolean;
 	refreshEvacuationCenters: () => void;
+	evacuationInstructions: EvacuationInstruction[];
+	calculatingEvacuationInstructions: boolean;
+	createEvacuationInstructions: () => void;
 
 	// OBSTACLES
 	obstacles: ObstacleWithStatusIdentifier[];
@@ -138,6 +142,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	const [evacuationCentersLoading, setEvacuationCentersLoading] = useState(true);
 	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<{ evacuationCenterId: number; marker: maplibregl.Marker }[]>([]);
 	const [showEvacuationCenters, setShowEvacuationCenters] = useState(false);
+	const [evacuationInstructions, setEvacuationInstructions] = useState<EvacuationInstruction[]>([]);
+	const [calculatingEvacuationInstructions, setCalculatingEvacuationInstructions] = useState(false);
 	/* --- EVACUATION CENTERS VARIABLES --- */
 
 	/* --- OBSTACLES VARIABLES --- */
@@ -260,6 +266,48 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	function toggleShowEvacuationCenters() {
 		setShowEvacuationCenters(!showEvacuationCenters);
+	}
+
+	async function createEvacuationInstructions() {
+		setCalculatingEvacuationInstructions(true);
+		setEvacuationInstructions([]);
+		const familyDistances = await fetchFamilyDistanceFromEvacuationCenter();
+
+		owners.forEach((owner) => {
+			const distances = familyDistances.filter((familyDistance) => familyDistance.ownerId === owner.ownerId);
+			const minimumDistanceForFamily = distances.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
+			setEvacuationInstructions((prev) => [...prev, minimumDistanceForFamily]);
+		});
+		setCalculatingEvacuationInstructions(false);
+	}
+
+	async function fetchFamilyDistanceFromEvacuationCenter(): Promise<EvacuationInstruction[]> {
+		const requests: Promise<EvacuationInstruction>[] = [];
+
+		for (const owner of owners) {
+			for (const evacuationCenter of evacuationCenters) {
+				const request: Promise<EvacuationInstruction> = (async () => {
+					const result = await fetch(
+						`http://localhost:8989/route?point=${owner.latitude},${owner.longitude}&point=${evacuationCenter.latitude},${evacuationCenter.longitude}&profile=car&points_encoded=false`
+					);
+					const json: GraphHopperAPIResult = await result.json();
+					const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
+					return {
+						ownerId: owner.ownerId,
+						ownerName: owner.name,
+						evacuationCenterId: evacuationCenter.evacuationId,
+						evacuationCenterName: evacuationCenter.name,
+						time: minimumTime.time,
+						coordinates: minimumTime.points.coordinates,
+						distance: minimumTime.distance,
+					} as EvacuationInstruction;
+				})();
+
+				requests.push(request);
+			}
+		}
+
+		return Promise.all(requests);
 	}
 	/* --- EVAUCATION CENTERS FUNCTIONS --- */
 
@@ -623,7 +671,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		if (fromMarker.current) fromMarker.current.remove();
 		if (toMarker.current) toMarker.current.remove();
 		clearSourcesAndLayers("ROUTE");
-		mapRef.current.addSource("ROUTE", createRouteSource(data.paths[0].points.coordinates));
+		const minimumTime = data.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
+		mapRef.current.addSource("ROUTE", createRouteSource(minimumTime.points.coordinates));
 		mapRef.current.addLayer(createRouteLayerGeoJSON());
 		fromMarker.current = new maplibregl.Marker({
 			color: COLOR_MAP[from.type],
@@ -681,6 +730,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				toggleShowEvacuationCenters,
 				evacuationCentersLoading,
 				refreshEvacuationCenters,
+				evacuationInstructions,
+				calculatingEvacuationInstructions,
+				createEvacuationInstructions,
 
 				obstacles,
 				showObstacles,
