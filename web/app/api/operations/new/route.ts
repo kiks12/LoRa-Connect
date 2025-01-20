@@ -1,6 +1,6 @@
 import { createOperation } from "@/server/db/operations"
-import { methodNotAllowed } from "@/utils/api"
-import { PrismaClientValidationError } from "@prisma/client/runtime/library"
+import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue, syntaxErrorReturnValue } from "@/utils/api"
+import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library"
 import { NextResponse } from "next/server"
 
 
@@ -40,23 +40,13 @@ export async function POST(req: Request) {
       createdOperation
     })
   } catch (error) {
-    if (error instanceof PrismaClientValidationError) {
-      return NextResponse.json({
-        cause: error.cause,
-        clientVersion: error.clientVersion,
-        stack: error.stack,
-        message: error.message,
-        name: error.name
-      }, {
-        status: 400
-      })
-    }
-
-    return NextResponse.json({
-      error
-    }, {
-      status: 500
-    })
+    if (error instanceof SyntaxError)
+      return syntaxErrorReturnValue(error)
+    if (error instanceof PrismaClientInitializationError)
+      return prismaClientInitializationErrorReturnValue(error)
+    if (error instanceof PrismaClientValidationError)
+      return prismaClientValidationErrorReturnValue(error)
+    return internalServerErrorReturnValue(error)
   }
 }
 
