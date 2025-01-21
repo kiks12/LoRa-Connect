@@ -70,18 +70,37 @@ enum RescueUrgency {
 }
 
 model Operations {
-  missionId                     Int               @id @default(autoincrement())
-  createAt                      DateTime          @default(now())
-  dateTime                      DateTime          @default(now())
-  rescuer                       Rescuers          @relation(fields: [rescuersRescuerId], references: [rescuerId])
-  owner                         Owners            @relation(fields: [ownersOwnerId], references: [ownerId])
+  missionId                     Int                  @id @default(autoincrement())
+  createAt                      DateTime             @default(now())
+  dateTime                      DateTime             @default(now())
+  rescuer                       Rescuers             @relation(fields: [rescuersRescuerId], references: [rescuerId])
+  owner                         Owners               @relation(fields: [ownersOwnerId], references: [ownerId])
   rescuersRescuerId             Int
   ownersOwnerId                 Int
   status                        OperationStatus
   urgency                       RescueUrgency
   numberOfRescuee               Int
-  evacuationCenter              EvacuationCenters @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
+  evacuationCenter              EvacuationCenters    @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
   evacuationCentersEvacuationId Int
+  VictimStatusReport            VictimStatusReport[]
+}
+
+enum VictimStatus {
+  OKAY
+  MINOR_INJURY
+  MODERATE_INJURY
+  SEVERE_INJURY
+  DECEASED
+}
+
+model VictimStatusReport {
+  victimStatusReportId Int          @id @default(autoincrement())
+  name                 String
+  age                  Int
+  status               VictimStatus
+  notes                String
+  operation            Operations   @relation(fields: [operationsMissionId], references: [missionId], onDelete: Cascade)
+  operationsMissionId  Int
 }
 
 model Obstacle {
