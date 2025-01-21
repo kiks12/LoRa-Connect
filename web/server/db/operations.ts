@@ -21,6 +21,8 @@ export const getOperationsCached = unstable_cache(async () => {
       evacuationCenter: true,
       owner: true,
       rescuer: true,
+      VictimStatusReport: true,
+      _count: true
     }
   })
 }, [OPERATIONS_TAG], {tags: [OPERATIONS_TAG]})
