@@ -4,7 +4,15 @@ import { Operations } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 
 export async function getLatestOperations() {
-  return await client.operations.findMany() 
+  return await client.operations.findMany({
+    include: {
+      evacuationCenter: true,
+      owner: true,
+      rescuer: true,
+      VictimStatusReport: true,
+      _count: true
+    }
+  }) 
 }
 
 export const getOperationsCached = unstable_cache(async () => {
