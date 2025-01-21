@@ -23,7 +23,9 @@ export type OperationsWithPayload = Prisma.OperationsGetPayload<{
   include: {
     evacuationCenter: true,
     owner: true,
-    rescuer: true
+    rescuer: true,
+    VictimStatusReport: true,
+    _count: true
   }
 }>
 
