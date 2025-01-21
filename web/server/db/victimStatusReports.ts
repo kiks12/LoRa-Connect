@@ -54,3 +54,54 @@ export async function updateVictimStatusReport({victimStatusReport}: {victimStat
     }
   })
 }
+
+export async function syncVictimStatusReports({newVictimStatusReports, existingVictimStatusReports}: {newVictimStatusReports: VictimStatusReport[], existingVictimStatusReports: VictimStatusReport[]}) {
+
+  const recordsToDelete = existingVictimStatusReports.filter(
+    (existing) =>
+      !newVictimStatusReports.some(
+        (updated) => updated.victimStatusReportId === existing.victimStatusReportId
+      )
+  );
+
+  const recordsToUpdate = newVictimStatusReports.filter((updated) =>
+    existingVictimStatusReports.some(
+      (existing) =>
+        existing.victimStatusReportId === updated.victimStatusReportId &&
+        (existing.name !== updated.name ||
+          existing.age !== updated.age ||
+          existing.status !== updated.status ||
+          existing.notes !== updated.notes)
+    )
+  );
+
+  const recordsToCreate = newVictimStatusReports.filter(
+    (updated) => updated.victimStatusReportId === 0
+  );
+
+  const result = await client.$transaction([
+    client.victimStatusReport.deleteMany({
+      where: {
+        victimStatusReportId: { in: recordsToDelete.map((r) => r.victimStatusReportId) },
+      },
+    }),
+    ...recordsToUpdate.map(({victimStatusReportId, ...data}) => 
+      client.victimStatusReport.update({
+        where: { victimStatusReportId: victimStatusReportId },
+        data: data
+      })
+    ),
+    client.victimStatusReport.createMany({
+      data: recordsToCreate.map((record) => ({
+        name: record.name,
+        age: record.age,
+        status: record.status,
+        notes: record.notes,
+        operationsMissionId: record.operationsMissionId
+      })),
+    }),
+
+  ])
+
+  return result
+}
