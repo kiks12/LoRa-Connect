@@ -45,8 +45,8 @@ export async function POST(req: Request) {
       }
     })
 
-    const victimStatusReportList = victimStatusReport as VictimStatusReport[]
-    if (victimStatusReportList.length > 0) {
+    if (victimStatusReport) {
+      const victimStatusReportList = victimStatusReport as VictimStatusReport[]
       await createMultipleVictimStatusReports({operationId: createdOperation.missionId, victimStatusReports: victimStatusReportList})
     }
 
@@ -55,6 +55,7 @@ export async function POST(req: Request) {
       createdOperation
     })
   } catch (error) {
+    console.error(error)
     if (error instanceof SyntaxError)
       return syntaxErrorReturnValue(error)
     if (error instanceof PrismaClientInitializationError)
