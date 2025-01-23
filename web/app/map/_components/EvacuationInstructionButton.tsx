@@ -1,31 +1,34 @@
 import Spinner from "@/app/components/Spinner";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { socket } from "@/socket/socket";
 import { SEND_EVACUATION_INSTRUCTION_TO_BRACELETS } from "@/tags";
 import { EvacuationInstruction } from "@/types";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export default function EvacuationInstructionButton({
+	onOpenChange,
+	onRerunClick,
+	setMessage,
 	calculatingEvacuationInstructions,
 	evacuationCenterInstructions,
 }: {
+	onOpenChange: () => void;
+	onRerunClick: () => void;
 	calculatingEvacuationInstructions: boolean;
 	evacuationCenterInstructions: EvacuationInstruction[];
 	createEvacuationInstructions: () => void;
+	setMessage: (index: number, message: string) => void;
 }) {
-	useEffect(() => {
-		console.log(evacuationCenterInstructions);
-	}, [evacuationCenterInstructions]);
-
 	function sendViaLoRa() {
 		socket.emit(SEND_EVACUATION_INSTRUCTION_TO_BRACELETS, { evacuationCenterInstructions });
 	}
 
 	return (
-		<Dialog>
+		<Dialog onOpenChange={onOpenChange}>
 			<DialogTrigger asChild className="w-full">
 				<Button className="w-full">Send Evacuation Instructions</Button>
 			</DialogTrigger>
@@ -39,9 +42,9 @@ export default function EvacuationInstructionButton({
 					</div>
 				) : (
 					<div className="flex">
-						<div className="max-h-[700px] overflow-scroll">
+						<div className="max-h-[700px] overflow-scroll w-full">
 							{evacuationCenterInstructions.map((instruction, index) => {
-								return <OwnerEvacuationCenterListItem instruction={instruction} key={index} />;
+								return <OwnerEvacuationCenterListItem index={index} instruction={instruction} setMessage={setMessage} key={index} />;
 							})}
 						</div>
 					</div>
@@ -50,13 +53,24 @@ export default function EvacuationInstructionButton({
 					<Button onClick={sendViaLoRa} className="w-full">
 						Send via LoRa
 					</Button>
+					<Button variant={"secondary"} onClick={onRerunClick} className="w-full mt-4">
+						Re-Run Algorithm
+					</Button>
 				</div>
 			</DialogContent>
 		</Dialog>
 	);
 }
 
-function OwnerEvacuationCenterListItem({ instruction }: { instruction: EvacuationInstruction }) {
+function OwnerEvacuationCenterListItem({
+	index,
+	instruction,
+	setMessage,
+}: {
+	index: number;
+	instruction: EvacuationInstruction;
+	setMessage: (index: number, message: string) => void;
+}) {
 	const distance: number = useMemo(() => {
 		return instruction.distance / 1000;
 	}, [instruction]);
@@ -64,8 +78,8 @@ function OwnerEvacuationCenterListItem({ instruction }: { instruction: Evacuatio
 		return instruction.time / 1000 / 60;
 	}, [instruction]);
 	return (
-		<Card className="border-none shadow-none py-3 px-10">
-			<CardHeader className="p-0">
+		<Card className="border-none shadow-none py-3 px-10 w-full">
+			<CardHeader className="p-0 w-full">
 				<CardTitle>
 					{instruction.ownerId} - {instruction.ownerName}
 				</CardTitle>
@@ -74,6 +88,12 @@ function OwnerEvacuationCenterListItem({ instruction }: { instruction: Evacuatio
 					<Label className="mx-8">{instruction.distance > 1000 ? `${distance.toFixed(2)} km` : `${instruction.distance.toFixed(2)} m`}</Label>
 					<Label>{instruction.time > 1000 * 60 ? `${time.toFixed(2)} mins.` : `${instruction.time} seconds`}</Label>
 				</CardDescription>
+				<CardContent className="p-0">
+					<div>
+						<Label>Message {instruction.message.length}/10</Label>
+						<Input className="w-full" maxLength={10} value={instruction.message} onChange={(e) => setMessage(index, e.target.value)} />
+					</div>
+				</CardContent>
 			</CardHeader>
 		</Card>
 	);
