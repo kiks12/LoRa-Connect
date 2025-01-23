@@ -9,7 +9,7 @@ import ObstacleForm from "./ObstacleForm";
 import Spinner from "@/app/components/Spinner";
 import { RefreshCcw } from "lucide-react";
 import EvacuationInstructionButton from "./EvacuationInstructionButton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminControls() {
 	const {
@@ -25,6 +25,7 @@ export default function AdminControls() {
 		evacuationInstructions,
 		createEvacuationInstructions,
 		calculatingEvacuationInstructions,
+		setEvacuationInstructionMessage,
 
 		obstacles,
 		showObstacles,
@@ -37,6 +38,8 @@ export default function AdminControls() {
 		obstaclesLoading,
 	} = useMapContext();
 	const { toggleSidebar, setComponent, setCloseCallback } = useSidebarContext();
+	const [runEvacuationInstructionAlgorithm, setRunEvacuationInstructionAlgorithm] = useState(false);
+	const [rerunEvacuationInstructionAlgorithm, setRerunEvacuationInstructionAlgorithm] = useState(false);
 
 	function onAddObstacleClick() {
 		toggleAddingObstacle();
@@ -47,9 +50,14 @@ export default function AdminControls() {
 	}
 
 	useEffect(() => {
-		createEvacuationInstructions();
+		if (rerunEvacuationInstructionAlgorithm) createEvacuationInstructions();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [owners, evacuationCenters]);
+	}, [rerunEvacuationInstructionAlgorithm]);
+
+	useEffect(() => {
+		if (runEvacuationInstructionAlgorithm && evacuationInstructions.length === 0) createEvacuationInstructions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [owners, evacuationCenters, runEvacuationInstructionAlgorithm]);
 
 	return (
 		<div className="pt-6 pb-2 h-full flex flex-col justify-between">
@@ -139,6 +147,9 @@ export default function AdminControls() {
 						</div>
 					)}
 					<EvacuationInstructionButton
+						onRerunClick={() => setRerunEvacuationInstructionAlgorithm(!rerunEvacuationInstructionAlgorithm)}
+						onOpenChange={() => setRunEvacuationInstructionAlgorithm(!runEvacuationInstructionAlgorithm)}
+						setMessage={setEvacuationInstructionMessage}
 						calculatingEvacuationInstructions={calculatingEvacuationInstructions}
 						evacuationCenterInstructions={evacuationInstructions}
 						createEvacuationInstructions={createEvacuationInstructions}
