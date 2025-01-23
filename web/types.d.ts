@@ -51,7 +51,8 @@ export type EvacuationInstruction = {
   evacuationCenterName: string,
   time: number, 
   distance: number,
-  coordinates: number[][]
+  coordinates: number[][],
+  message: string,
 }
 
 export type OwnerWithStatusIdentifier = OwnerWithBracelet & StatusIdentifier
