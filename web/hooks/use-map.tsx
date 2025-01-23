@@ -88,6 +88,7 @@ const MapContext = createContext<{
 	evacuationInstructions: EvacuationInstruction[];
 	calculatingEvacuationInstructions: boolean;
 	createEvacuationInstructions: () => void;
+	setEvacuationInstructionMessage: (index: number, message: string) => void;
 
 	// OBSTACLES
 	obstacles: ObstacleWithStatusIdentifier[];
@@ -281,6 +282,15 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		setCalculatingEvacuationInstructions(false);
 	}
 
+	function setEvacuationInstructionMessage(idx: number, newMessage: string) {
+		setEvacuationInstructions((prev) => {
+			return prev.map((row, index) => {
+				if (index === idx) return { ...row, message: newMessage };
+				return row;
+			});
+		});
+	}
+
 	async function fetchFamilyDistanceFromEvacuationCenter(): Promise<EvacuationInstruction[]> {
 		const requests: Promise<EvacuationInstruction>[] = [];
 
@@ -300,6 +310,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 						time: minimumTime.time,
 						coordinates: minimumTime.points.coordinates,
 						distance: minimumTime.distance,
+						message: "",
 					} as EvacuationInstruction;
 				})();
 
@@ -733,6 +744,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				evacuationInstructions,
 				calculatingEvacuationInstructions,
 				createEvacuationInstructions,
+				setEvacuationInstructionMessage,
 
 				obstacles,
 				showObstacles,
