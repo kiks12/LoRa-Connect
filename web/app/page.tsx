@@ -5,6 +5,7 @@ import Link from "next/link";
 export const LINKS = [
 	{ title: "Home", link: "/" },
 	{ title: "Map", link: "/map" },
+	{ title: "Dashboard", link: "/dashboard" },
 	{ title: "Missions", link: "/missions" },
 	{ title: "Bracelets", link: "/bracelets" },
 	{ title: "Owners", link: "/owners" },
