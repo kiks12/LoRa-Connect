@@ -1,5 +1,4 @@
 import { client } from "@/prisma/client";
-import { Obstacle } from "@prisma/client";
 
 export async function getLatestObstacles() {
   return await client.obstacle.findMany()
