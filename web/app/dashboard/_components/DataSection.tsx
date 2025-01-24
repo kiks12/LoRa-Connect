@@ -1,7 +1,8 @@
 import Spinner from "@/app/components/Spinner";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
-export default function DataSection({ loading, title, data }: { loading: boolean; title: string; data: number }) {
+export default function DataSection({ loading, title, data, link }: { loading: boolean; title: string; data: number; link?: string }) {
 	return (
 		<Card className="border-0 shadow-md flex-1">
 			<CardHeader>
@@ -12,7 +13,13 @@ export default function DataSection({ loading, title, data }: { loading: boolean
 				) : (
 					<div>
 						<CardTitle className="text-3xl font-bold">{data}</CardTitle>
-						<CardDescription>{title}</CardDescription>
+						{link ? (
+							<Link href={link}>
+								<CardDescription className="hover:underline">{title}</CardDescription>
+							</Link>
+						) : (
+							<CardDescription>{title}</CardDescription>
+						)}
 					</div>
 				)}
 			</CardHeader>
