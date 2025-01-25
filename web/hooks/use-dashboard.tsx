@@ -2,7 +2,7 @@
 
 import { OperationsWithPayload, OwnerWithBracelet, RescuerWithBracelet } from "@/types";
 import { EvacuationCenters, Obstacle } from "@prisma/client";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const DAYS_MAP = {
 	"Last 7 Days": 7,
@@ -91,50 +91,90 @@ export default function useDashboard() {
 		return breakdown;
 	}, [operations.operations]);
 
-	useEffect(() => {
+	const fetchOwners = useCallback(async () => {
 		setOwners((prev) => ({ ...prev, loading: true }));
-		fetch("/api/owners")
-			.then((res) => res.json())
-			.then(({ owners }) => setOwners(() => ({ owners, loading: false })));
+		const result = await fetch("/api/owners");
+		const { owners } = await result.json();
+		setOwners(() => ({ owners, loading: false }));
 	}, []);
 
+	// FETCH OWNERS API
 	useEffect(() => {
+		fetchOwners();
+		return () => setOwners({ owners: [], loading: true });
+	}, [fetchOwners]);
+
+	const fetchRescuers = useCallback(async () => {
 		setRescuers((prev) => ({ ...prev, loading: true }));
-		fetch("/api/rescuers")
-			.then((res) => res.json())
-			.then(({ rescuers }) => setRescuers(() => ({ rescuers, loading: false })));
+		const result = await fetch("/api/rescuers");
+		const { rescuers } = await result.json();
+		setRescuers(() => ({ rescuers, loading: false }));
 	}, []);
 
 	useEffect(() => {
+		fetchRescuers();
+		return () => setRescuers({ rescuers: [], loading: true });
+	}, [fetchRescuers]);
+
+	const fetchEvacuationCenters = useCallback(async () => {
 		setEvacuationCenters((prev) => ({ ...prev, loading: true }));
-		fetch("/api/evacuation-centers")
-			.then((res) => res.json())
-			.then(({ evacuationCenters }) => setEvacuationCenters(() => ({ evacuationCenters, loading: false })));
+		const result = await fetch("/api/evacuation-centers");
+		const { evacuationCenters } = await result.json();
+		setEvacuationCenters(() => ({ evacuationCenters, loading: false }));
 	}, []);
 
 	useEffect(() => {
+		fetchEvacuationCenters();
+		return () => setEvacuationCenters({ evacuationCenters: [], loading: true });
+	}, [fetchEvacuationCenters]);
+
+	const fetchObstacles = useCallback(async () => {
 		setObstacles((prev) => ({ ...prev, loading: true }));
-		fetch("/api/obstacles")
-			.then((res) => res.json())
-			.then(({ obstacles }) => setObstacles(() => ({ obstacles, loading: false })));
+		const result = await fetch("/api/obstacles");
+		const { obstacles } = await result.json();
+		setObstacles(() => ({ obstacles, loading: false }));
 	}, []);
 
 	useEffect(() => {
+		fetchObstacles();
+		return () => setObstacles({ obstacles: [], loading: true });
+	}, [fetchObstacles]);
+
+	const fetchOperations = useCallback(async () => {
 		setOperations((prev) => ({ ...prev, loading: true }));
-		fetch("/api/operations")
-			.then((res) => res.json())
-			.then(({ operations }) => setOperations(() => ({ operations, loading: false })));
+		const result = await fetch("/api/operations");
+		const { operations } = await result.json();
+		setOperations(() => ({ operations, loading: false }));
 	}, []);
 
 	useEffect(() => {
+		fetchOperations();
+		return () => setOperations({ operations: [], loading: true });
+	}, [fetchOperations]);
+
+	const fetchOperationsLineChartData = useCallback(async () => {
 		setOperationsLineChartData((prev) => ({ ...prev, loading: true }));
-		fetch(`/api/operations/last-days?lastDays=${DAYS_MAP[operationsLineChartData.option]}`)
-			.then((res) => res.json())
-			.then(({ operations }) => setOperationsLineChartData((prev) => ({ ...prev, data: operations, loading: false })));
+		const result = await fetch(`/api/operations/last-days?lastDays=${DAYS_MAP[operationsLineChartData.option]}`);
+		const { operations } = await result.json();
+		setOperationsLineChartData((prev) => ({ ...prev, data: operations, loading: false }));
 	}, [operationsLineChartData.option]);
+
+	useEffect(() => {
+		fetchOperationsLineChartData();
+		return () => setOperationsLineChartData({ data: [], loading: true, option: "Last 7 Days" });
+	}, [fetchOperationsLineChartData, operationsLineChartData.option]);
 
 	function onOperationsLineChartOptionChange(option: "Last 7 Days" | "Last 30 Days" | "Last 60 Days") {
 		setOperationsLineChartData((prev) => ({ ...prev, option }));
+	}
+
+	function refreshDashboard() {
+		fetchOwners();
+		fetchRescuers();
+		fetchEvacuationCenters();
+		fetchObstacles();
+		fetchOperations();
+		fetchOperationsLineChartData();
 	}
 
 	return {
@@ -148,5 +188,6 @@ export default function useDashboard() {
 		operationsBreakdown,
 		operationsLineChartData,
 		onOperationsLineChartOptionChange,
+		refreshDashboard,
 	};
 }
