@@ -1,8 +1,21 @@
 import Spinner from "@/app/components/Spinner";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { ReactNode } from "react";
 
-export default function DataSection({ loading, title, data, link }: { loading: boolean; title: string; data: number; link?: string }) {
+export default function DataSection({
+	loading,
+	title,
+	data,
+	link,
+	icon,
+}: {
+	loading: boolean;
+	title: string;
+	data: number;
+	link?: string;
+	icon?: ReactNode;
+}) {
 	return (
 		<Card className="border-0 shadow-md flex-1">
 			<CardHeader>
@@ -11,15 +24,18 @@ export default function DataSection({ loading, title, data, link }: { loading: b
 						<Spinner />
 					</div>
 				) : (
-					<div>
-						<CardTitle className="text-3xl font-bold">{data}</CardTitle>
-						{link ? (
-							<Link href={link}>
-								<CardDescription className="hover:underline">{title}</CardDescription>
-							</Link>
-						) : (
-							<CardDescription>{title}</CardDescription>
-						)}
+					<div className="flex">
+						{icon && <div className="mr-4">{icon}</div>}
+						<div>
+							<CardTitle className="text-3xl font-bold">{data}</CardTitle>
+							{link ? (
+								<Link href={link}>
+									<CardDescription className="hover:underline">{title.toUpperCase()}</CardDescription>
+								</Link>
+							) : (
+								<CardDescription>{title.toUpperCase()}</CardDescription>
+							)}
+						</div>
 					</div>
 				)}
 			</CardHeader>
