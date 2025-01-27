@@ -46,9 +46,20 @@ export const columns: ColumnDef<Bracelets>[] = [
 		},
 	},
 	{
+		accessorKey: "type",
+		header: ({ column }) => {
+			return (
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+					Type
+					<ArrowUpDown className="ml-2 h-4 w-4" />
+				</Button>
+			);
+		},
+	},
+	{
 		id: "actions",
 		cell: ({ row }) => {
-			const { ownerId, rescuerId, braceletId, name } = row.original;
+			const { ownerId, rescuerId, braceletId, name, type } = row.original;
 
 			return (
 				<DropdownMenu>
@@ -69,7 +80,7 @@ export const columns: ColumnDef<Bracelets>[] = [
 									<DropdownMenuItem>Assign Owner</DropdownMenuItem>
 								</Link>
 							)}
-							<Link href={`/bracelets/update?braceletId=${braceletId}&name=${name}`}>
+							<Link href={`/bracelets/update?braceletId=${braceletId}&name=${name}&type=${type}`}>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
 							<Link href={`/bracelets/delete?braceletId=${braceletId}&name=${name}`}>
