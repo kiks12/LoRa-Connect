@@ -178,8 +178,7 @@ export default function useDashboard() {
 
 	useEffect(() => {
 		fetchOperationsLineChartData();
-		return () => setOperationsLineChartData({ data: [], loading: true, option: "Last 7 Days" });
-	}, [fetchOperationsLineChartData, operationsLineChartData.option]);
+	}, [operationsLineChartData.option]);
 
 	function onOperationsLineChartOptionChange(option: "Last 7 Days" | "Last 30 Days" | "Last 60 Days") {
 		setOperationsLineChartData((prev) => ({ ...prev, option }));
