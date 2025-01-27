@@ -13,14 +13,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BraceletType {
+  VICTIM
+  RESCUER
+}
+
 model Bracelets {
-  braceletId String    @id
-  createdAt  DateTime  @default(now())
+  braceletId String       @id
+  createdAt  DateTime     @default(now())
   name       String
-  rescuer    Rescuers? @relation(fields: [rescuerId], references: [rescuerId])
-  rescuerId  Int?      @unique
-  owner      Owners?   @relation(fields: [ownerId], references: [ownerId])
-  ownerId    Int?      @unique
+  type       BraceletType @default(VICTIM)
+  rescuer    Rescuers?    @relation(fields: [rescuerId], references: [rescuerId])
+  rescuerId  Int?         @unique
+  owner      Owners?      @relation(fields: [ownerId], references: [ownerId])
+  ownerId    Int?         @unique
 }
 
 model Rescuers {
