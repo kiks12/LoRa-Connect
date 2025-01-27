@@ -7,10 +7,10 @@ import Link from "next/link";
 import DataSection from "./_components/DataSection";
 import useDashboard from "@/hooks/use-dashboard";
 import { Chart as ChartJs, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from "chart.js";
-import LineChartWithDropdown from "./_components/LineChartWithDropdown";
 import OwnersData from "./_components/OwnersData";
 import RescuersData from "./_components/RescuersData";
 import BraceletsData from "./_components/BraceletsData";
+import MissionsData from "./_components/MissionsData";
 
 ChartJs.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ArcElement, Tooltip, Legend);
 
@@ -94,52 +94,12 @@ export default function DashboardPage() {
 					</div>
 				</div>
 				<div className="mt-8">
-					<div>
-						<Link href="/missions">
-							<h2 className="text-xl font-medium hover:underline">Missions</h2>
-						</Link>
-					</div>
-					<div className="mt-2 flex">
-						<div className="flex-1 mr-1">
-							<DataSection loading={operations.loading} title="LOW URGENCY" data={operationsBreakdown.low.length} />
-						</div>
-						<div className="flex-1 mx-1">
-							<DataSection loading={operations.loading} title="MODERATE URGENCY" data={operationsBreakdown.moderate.length} />
-						</div>
-						<div className="flex-1 ml-1">
-							<DataSection loading={operations.loading} title="SEVERE URGENCY" data={operationsBreakdown.severe.length} />
-						</div>
-					</div>
-					<div>
-						<LineChartWithDropdown
-							labels={operationsLineChartData.data.map((o) => new Date(o.date).toLocaleDateString())}
-							data={operationsLineChartData.data.map((o) => o.count)}
-							option={operationsLineChartData.option}
-							loading={operationsLineChartData.loading}
-							options={[
-								{ value: "Last 7 Days", onClick: () => onOperationsLineChartOptionChange("Last 7 Days") },
-								{ value: "Last 30 Days", onClick: () => onOperationsLineChartOptionChange("Last 30 Days") },
-								{ value: "Last 60 Days", onClick: () => onOperationsLineChartOptionChange("Last 60 Days") },
-							]}
-						/>
-					</div>
-					<div className="flex mt-2 mb-10">
-						<div className="flex-1 mr-1">
-							<DataSection loading={operations.loading} title="ASSIGNED" data={operationsBreakdown.assigned.length} />
-						</div>
-						<div className="flex-1 mx-1">
-							<DataSection loading={operations.loading} title="PENDING" data={operationsBreakdown.pending.length} />
-						</div>
-						<div className="flex-1 mx-1">
-							<DataSection loading={operations.loading} title="CANCELED" data={operationsBreakdown.canceled.length} />
-						</div>
-						<div className="flex-1 mx-1">
-							<DataSection loading={operations.loading} title="COMPLETE" data={operationsBreakdown.complete.length} />
-						</div>
-						<div className="flex-1 ml-1">
-							<DataSection loading={operations.loading} title="FAILED" data={operationsBreakdown.failed.length} />
-						</div>
-					</div>
+					<MissionsData
+						data={operations}
+						dataBreakdown={operationsBreakdown}
+						lineChartData={operationsLineChartData}
+						onLineChartOptionChange={onOperationsLineChartOptionChange}
+					/>
 				</div>
 			</div>
 		</main>
