@@ -64,6 +64,7 @@ export async function updateBracelet({braceletId, bracelet}: {braceletId: string
     data: {
       name: bracelet.name,
       braceletId: bracelet.braceletId,
+      type: bracelet.type,
     },
     where: {
       braceletId

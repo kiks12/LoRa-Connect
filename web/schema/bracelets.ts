@@ -7,5 +7,6 @@ export const braceletSchema = z.object({
 	name: z.string().min(5, {
 		message: "Name should be at least 5 characters",
 	}),
+  type: z.string()
 });
 
