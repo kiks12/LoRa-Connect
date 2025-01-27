@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,18 +9,30 @@ import { useToast } from "@/hooks/use-toast";
 import { braceletSchema } from "@/schema/bracelets";
 import { createBracelet, updateBracelet } from "@/server/actions/bracelets";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BraceletType } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 export type BraceletFormType = "CREATE" | "UPDATE";
 
-export function BraceletForm({ name, braceletId, type = "CREATE" }: { name?: string; braceletId?: string; type?: BraceletFormType }) {
+export function BraceletForm({
+	name,
+	braceletId,
+	type,
+	formType = "CREATE",
+}: {
+	name?: string;
+	braceletId?: string;
+	type?: string;
+	formType?: BraceletFormType;
+}) {
 	const { toast } = useToast();
 	const form = useForm<z.infer<typeof braceletSchema>>({
 		resolver: zodResolver(braceletSchema),
 		defaultValues: {
 			name: name ?? "",
 			braceletId: braceletId ?? "",
+			type: type ?? "VICTIM",
 		},
 	});
 
@@ -30,6 +43,7 @@ export function BraceletForm({ name, braceletId, type = "CREATE" }: { name?: str
 			createdAt: new Date(),
 			ownerId: null,
 			rescuerId: null,
+			type: values.type as BraceletType,
 		});
 
 		showToast(result);
@@ -43,13 +57,14 @@ export function BraceletForm({ name, braceletId, type = "CREATE" }: { name?: str
 			createdAt: new Date(),
 			ownerId: null,
 			rescuerId: null,
+			type: values.type as BraceletType,
 		});
 		showToast(result);
 	};
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof braceletSchema>) => {
-		if (type === "CREATE") onCreateSubmit(values);
-		if (type === "UPDATE") onUpdateSubmit(values);
+		if (formType === "CREATE") onCreateSubmit(values);
+		if (formType === "UPDATE") onUpdateSubmit(values);
 	});
 
 	const showToast = ({ error, message }: { error: boolean; message: string }) => {
@@ -88,6 +103,29 @@ export function BraceletForm({ name, braceletId, type = "CREATE" }: { name?: str
 									<FormLabel>Bracelet Name</FormLabel>
 									<FormControl>
 										<Input placeholder="Enter bracelet name..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-4">
+						<FormField
+							control={form.control}
+							name="type"
+							render={({ field }) => (
+								<FormItem className="flex flex-col">
+									<FormLabel>Bracelet Type</FormLabel>
+									<FormControl>
+										<DropdownMenu>
+											<DropdownMenuTrigger>
+												<Input value={field.value} readOnly className="cursor-pointer" />
+											</DropdownMenuTrigger>
+											<DropdownMenuContent>
+												<DropdownMenuItem onClick={() => field.onChange("VICTIM")}>VICTIM</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => field.onChange("RESCUER")}>RESCUER</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
