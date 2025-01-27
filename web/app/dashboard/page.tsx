@@ -10,11 +10,13 @@ import { Chart as ChartJs, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import LineChartWithDropdown from "./_components/LineChartWithDropdown";
 import OwnersData from "./_components/OwnersData";
 import RescuersData from "./_components/RescuersData";
+import BraceletsData from "./_components/BraceletsData";
 
 ChartJs.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ArcElement, Tooltip, Legend);
 
 export default function DashboardPage() {
 	const {
+		bracelets,
 		owners,
 		ownersDoughnut,
 		rescuers,
@@ -52,6 +54,9 @@ export default function DashboardPage() {
 						</Button>
 						<Button>Generate Report</Button>
 					</div>
+				</div>
+				<div className="mt-4">
+					<BraceletsData data={bracelets} />
 				</div>
 				<div className="flex flex-col lg:flex-row mt-4">
 					<div className="flex-1 mr-2">
