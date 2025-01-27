@@ -4,6 +4,10 @@ import { BRACELETS_TAG } from "../../utils/tags"
 import { Bracelets } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 
+export async function getLatestBracelets() {
+  return await client.bracelets.findMany()
+}
+
 export const getBracelets = unstable_cache(async () => {
   return await client.bracelets.findMany()
 }, [BRACELETS_TAG], { tags: [BRACELETS_TAG]})
