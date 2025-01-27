@@ -1,7 +1,7 @@
 "use client";
 
 import { OperationsWithPayload, OwnerWithBracelet, RescuerWithBracelet } from "@/types";
-import { EvacuationCenters, Obstacle } from "@prisma/client";
+import { Bracelets, EvacuationCenters, Obstacle } from "@prisma/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const DAYS_MAP = {
@@ -11,6 +11,10 @@ const DAYS_MAP = {
 };
 
 export default function useDashboard() {
+	const [bracelets, setBracelets] = useState<{ bracelets: Bracelets[]; loading: boolean }>({
+		bracelets: [],
+		loading: true,
+	});
 	const [owners, setOwners] = useState<{ owners: OwnerWithBracelet[]; loading: boolean }>({
 		owners: [],
 		loading: true,
@@ -91,6 +95,19 @@ export default function useDashboard() {
 		return breakdown;
 	}, [operations.operations]);
 
+	const fetchBracelets = useCallback(async () => {
+		setBracelets((prev) => ({ ...prev, loading: true }));
+		const result = await fetch("/api/bracelets");
+		const { bracelets } = await result.json();
+		setBracelets(() => ({ bracelets, loading: false }));
+	}, []);
+
+	// FETCH BRACELETS API
+	useEffect(() => {
+		fetchBracelets();
+		return () => setBracelets({ bracelets: [], loading: true });
+	}, [fetchBracelets]);
+
 	const fetchOwners = useCallback(async () => {
 		setOwners((prev) => ({ ...prev, loading: true }));
 		const result = await fetch("/api/owners");
@@ -169,6 +186,7 @@ export default function useDashboard() {
 	}
 
 	function refreshDashboard() {
+		fetchBracelets();
 		fetchOwners();
 		fetchRescuers();
 		fetchEvacuationCenters();
@@ -178,6 +196,7 @@ export default function useDashboard() {
 	}
 
 	return {
+		bracelets,
 		owners,
 		ownersDoughnut,
 		rescuers,
