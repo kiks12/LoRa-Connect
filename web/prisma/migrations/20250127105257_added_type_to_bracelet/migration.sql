@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Bracelets` ADD COLUMN `type` ENUM('VICTIM', 'RESCUER') NOT NULL DEFAULT 'VICTIM';
