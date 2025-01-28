@@ -34,8 +34,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.lora_connect.application.tasks.Task
 import com.lora_connect.application.tasks.TaskItem
 import com.lora_connect.application.tasks.TaskStatus
@@ -69,7 +71,8 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
         }
     ){ innerPadding ->
         if (state.task == null) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = "Task not Found", fontWeight = FontWeight.SemiBold, fontSize = 32.sp)
             }
         } else {
             Column(modifier = Modifier
