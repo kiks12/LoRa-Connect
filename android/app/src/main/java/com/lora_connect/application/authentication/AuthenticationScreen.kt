@@ -19,6 +19,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,78 +44,90 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
         onPermissionDenied = {}
     )
 
+    LaunchedEffect(authenticationViewModel.bluetoothAdapter.isEnabled) {
+        authenticationViewModel.setEnabledBluetoothState(authenticationViewModel.bluetoothAdapter.isEnabled)
+    }
+
     Scaffold { innerPadding ->
-        if (state.permissionDenied) {
-            Box(modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = "Bluetooth Permission Denied")
+        if (!state.enabledBluetooth) {
+            Box(modifier = Modifier.padding(innerPadding).fillMaxSize(), contentAlignment = Alignment.Center) {
+                Button(onClick ={ authenticationViewModel.enableBluetooth()}) {
+                    Text(text = "Enable Bluetooth")
+                }
             }
         } else {
-           LazyColumn(
-               modifier = Modifier.padding(innerPadding)
-           ) {
-               item {
-                   Text("Paired Devices", modifier = Modifier.padding(15.dp))
-               }
-               item { 
-                   if (state.bondedDevices.isEmpty()) {
-                       Box(modifier = Modifier
-                           .fillMaxWidth()
-                           .padding(15.dp), contentAlignment = Alignment.Center) {
-                           Text(text = "No Paired Devices")
+            if (state.permissionDenied) {
+                Box(modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "Bluetooth Permission Denied")
+                }
+            } else {
+               LazyColumn(
+                   modifier = Modifier.padding(innerPadding)
+               ) {
+                   item {
+                       Text("Paired Devices", modifier = Modifier.padding(15.dp))
+                   }
+                   item {
+                       if (state.bondedDevices.isEmpty()) {
+                           Box(modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(15.dp), contentAlignment = Alignment.Center) {
+                               Text(text = "No Paired Devices")
+                           }
                        }
                    }
-               }
-               items(state.bondedDevices.toList()) {
-                   ListItem(headlineContent = { Text(it.name) })
-               }
-               item {
-                   Row(
-                       horizontalArrangement = Arrangement.SpaceBetween,
-                       verticalAlignment = Alignment.CenterVertically
-                   ){
-                       Text("Discovered Devices", modifier = Modifier.padding(15.dp))
-                       if (state.discoveringDevicesLoading) {
-                           Box {
-                               CircularProgressIndicator(modifier = Modifier.size(10.dp))
+                   items(state.bondedDevices.toList()) {
+                       ListItem(headlineContent = { Text(it.name) })
+                   }
+                   item {
+                       Row(
+                           horizontalArrangement = Arrangement.SpaceBetween,
+                           verticalAlignment = Alignment.CenterVertically
+                       ){
+                           Text("Discovered Devices", modifier = Modifier.padding(15.dp))
+                           if (state.discoveringDevicesLoading) {
+                               Box {
+                                   CircularProgressIndicator(modifier = Modifier.size(10.dp))
+                               }
+                           }
+                       }
+                   }
+                   item {
+                       if (state.namedDiscoveredDevices.isEmpty() && state.unnamedDiscoveredDevices.isEmpty()) {
+                           Box(modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(15.dp), contentAlignment = Alignment.Center) {
+                               Text(text = "No Discovered Devices")
+                           }
+                       }
+                   }
+                   items(state.namedDiscoveredDevices.toList()) {
+                       ListItem(
+                           modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
+                           headlineContent = { Text(it.name ?: "Unknown Device") },
+                           supportingContent = { Text(it.address) }
+                       )
+                   }
+                   items(state.unnamedDiscoveredDevices.toList()) {
+                       ListItem(
+                           modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
+                           headlineContent = { Text(it.address ?: "Unknown Device") },
+                       )
+                   }
+                   item {
+                       Row(
+                           modifier = Modifier.fillMaxWidth(),
+                           horizontalArrangement = Arrangement.Center
+                       ){
+                           Button(onClick = authenticationViewModel::discoverDevices) {
+                               Text(text = "Discover Devices")
                            }
                        }
                    }
                }
-               item {
-                   if (state.namedDiscoveredDevices.isEmpty() && state.unnamedDiscoveredDevices.isEmpty()) {
-                       Box(modifier = Modifier
-                           .fillMaxWidth()
-                           .padding(15.dp), contentAlignment = Alignment.Center) {
-                           Text(text = "No Discovered Devices")
-                       }
-                   }
-               }
-               items(state.namedDiscoveredDevices.toList()) {
-                   ListItem(
-                       modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
-                       headlineContent = { Text(it.name ?: "Unknown Device") },
-                       supportingContent = { Text(it.address) }
-                   )
-               }
-               items(state.unnamedDiscoveredDevices.toList()) {
-                   ListItem(
-                       modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
-                       headlineContent = { Text(it.address ?: "Unknown Device") },
-                   )
-               }
-               item {
-                   Row(
-                       modifier = Modifier.fillMaxWidth(),
-                       horizontalArrangement = Arrangement.Center
-                   ){
-                       Button(onClick = authenticationViewModel::discoverDevices) {
-                           Text(text = "Discover Devices")
-                       }
-                   }
-               }
-           }
+            }
         }
     }
 }

@@ -3,7 +3,6 @@ package com.lora_connect.application.authentication
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.Intent
 import android.os.Looper
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -18,8 +17,9 @@ import java.util.UUID
 
 @SuppressLint("MissingPermission")
 class AuthenticationViewModel(
-    private val bluetoothAdapter: BluetoothAdapter,
+    val bluetoothAdapter: BluetoothAdapter,
     private val activityStarterHelper: ActivityStarterHelper,
+    val enableBluetooth: () -> Unit
 ): ViewModel(){
     private val _state = MutableStateFlow(AuthenticationState())
     val state : StateFlow<AuthenticationState> = _state.asStateFlow()
@@ -35,6 +35,12 @@ class AuthenticationViewModel(
     fun permissionDenied() {
         _state.value = _state.value.copy(
             permissionDenied = true
+        )
+    }
+
+    fun setEnabledBluetoothState(newState: Boolean) {
+        _state.value = _state.value.copy(
+            enabledBluetooth = newState
         )
     }
 
@@ -77,7 +83,6 @@ class AuthenticationViewModel(
             socket.use { bluetoothSocket ->
                 try {
                     bluetoothSocket.connect()
-                    AuthenticationSocket.loginSocket(bluetoothSocket)
                     activityStarterHelper.startActivity(MapActivity::class.java)
                 } catch (e: Error) {
                     Log.w("AUTHENTICATION VIEW MODEL", e.toString())

@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import com.lora_connect.application.utils.LOGGED_IN_KEY
 import com.lora_connect.application.utils.PREFERENCES_KEY
 
+// DELETE IF UNNECESSARY
 object  AuthenticationSocket {
     var socket : BluetoothSocket? = null
     private lateinit var sharedPreferences: SharedPreferences
