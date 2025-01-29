@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -88,6 +90,10 @@ dependencies {
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))
     implementation("androidx.compose.material3:material3")
 
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
 
     implementation("org.maplibre.gl:android-sdk:11.5.2")
     implementation("com.graphhopper:graphhopper-core:1.0")
