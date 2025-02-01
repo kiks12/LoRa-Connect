@@ -1,6 +1,7 @@
 package com.lora_connect.application.tasks.list
 
-import com.lora_connect.application.tasks.Task
+import com.lora_connect.application.room.entities.Task
+
 
 data class TaskListState(
     val severeTasks: List<Task> = emptyList(),

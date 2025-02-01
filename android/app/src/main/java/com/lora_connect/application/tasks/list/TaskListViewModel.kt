@@ -1,21 +1,32 @@
 package com.lora_connect.application.tasks.list
 
+import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
-import com.lora_connect.application.tasks.Task
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.viewModelScope
+import com.lora_connect.application.repositories.TaskRepository
+import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskUrgency
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 
-class TaskListViewModel(tasks: List<Task>) : ViewModel() {
+@RequiresApi(Build.VERSION_CODES.O)
+class TaskListViewModel(application: Application) : ViewModel() {
+    private val taskRepository = TaskRepository(application)
     private val _state = MutableStateFlow(TaskListState())
     val state : StateFlow<TaskListState> = _state.asStateFlow()
+    val tasks = taskRepository.getTasksToday().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    init {
+    fun setTasksBreakdown(tasks: List<Task>) {
         _state.value = _state.value.copy(
-            lowTasks = tasks.filter { task -> task.urgency === TaskUrgency.LOW },
-            moderateTasks = tasks.filter { task -> task.urgency === TaskUrgency.MODERATE},
-            severeTasks = tasks.filter { task -> task.urgency === TaskUrgency.SEVERE},
+            lowTasks = tasks.filter { it.urgency === TaskUrgency.LOW },
+            moderateTasks = tasks.filter { it.urgency === TaskUrgency.MODERATE},
+            severeTasks = tasks.filter { it.urgency === TaskUrgency.SEVERE},
         )
     }
 }

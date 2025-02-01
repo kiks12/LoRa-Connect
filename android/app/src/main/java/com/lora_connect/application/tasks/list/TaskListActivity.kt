@@ -1,17 +1,19 @@
 package com.lora_connect.application.tasks.list
 
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
+import androidx.annotation.RequiresApi
 import com.lora_connect.application.ui.theme.ApplicationTheme
 
-class TaskListActivity : AppCompatActivity() {
+class TaskListActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // GET TASK LISTS FROM DB???
-        val taskListViewModel = TaskListViewModel(listOf())
+        val taskListViewModel = TaskListViewModel(application)
 
         setContent {
             ApplicationTheme {
