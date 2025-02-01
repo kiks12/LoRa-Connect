@@ -1,11 +1,8 @@
 package com.lora_connect.application.services
 
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.Intent
@@ -24,9 +21,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Date
 
-class BluetoothService : Service() {
+class BluetoothDataService : Service() {
 
-    private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private var bluetoothSocket: BluetoothSocket? = null
     private lateinit var repository: TaskRepository
 
@@ -34,7 +30,7 @@ class BluetoothService : Service() {
         super.onCreate()
         repository = TaskRepository(applicationContext)
         startForegroundService()
-        connectToBluetoothDevice()
+        listenForData()
     }
 
     private fun startForegroundService() {
@@ -54,26 +50,6 @@ class BluetoothService : Service() {
             .build()
 
         startForeground(1, notification)
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun connectToBluetoothDevice() {
-        CoroutineScope(Dispatchers.IO).launch{
-            val device: BluetoothDevice? = getPairedDevice()
-
-            device?.let {
-                try {
-                    val uuid = it.uuids[0].uuid
-                    bluetoothSocket = it.createRfcommSocketToServiceRecord(uuid)
-                    bluetoothSocket?.connect()
-
-                    Log.d("BluetoothService", "Connected to ${device.name}")
-                    listenForData()
-                } catch (e: IOException) {
-                    Log.e("BluetoothService", "Connection failed", e)
-                }
-            }
-        }
     }
 
     private fun listenForData() {
@@ -148,11 +124,6 @@ class BluetoothService : Service() {
             .build()
 
         notificationManager.notify(task.hashCode(), notification)
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getPairedDevice(): BluetoothDevice? {
-        return bluetoothAdapter?.bondedDevices?.firstOrNull()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
