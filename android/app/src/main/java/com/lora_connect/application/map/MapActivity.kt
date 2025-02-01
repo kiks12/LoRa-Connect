@@ -53,7 +53,6 @@ class MapActivity : ComponentActivity() {
         val offlineRouting = OfflineRouting(this)
         offlineRouting.initializeGraphHopper()
         val mapViewModel = MapViewModel(
-            application,
             fusedLocationProviderClient,
             ::areLocationPermissionsGranted,
             ::buildLocationComponentOptions,
