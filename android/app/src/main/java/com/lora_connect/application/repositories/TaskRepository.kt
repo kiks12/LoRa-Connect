@@ -3,6 +3,7 @@ package com.lora_connect.application.repositories
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
 import com.lora_connect.application.room.AppDatabase
 import com.lora_connect.application.room.entities.Task
 import java.util.Date
@@ -15,12 +16,12 @@ class TaskRepository(context: Context){
         taskDao.insertAll(task)
     }
 
-    suspend fun getAllTasks() : List<Task> {
+    fun getAllTasks() : LiveData<List<Task>> {
         return taskDao.getTasks()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun getTasksToday() : List<Task> {
+    fun getTasksToday() : LiveData<List<Task>> {
         return taskDao.getTasksToday(Date())
     }
 

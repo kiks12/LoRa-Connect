@@ -2,6 +2,7 @@ package com.lora_connect.application.room.daos
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -14,11 +15,11 @@ import java.util.Date
 @Dao
 interface TaskDao {
     @Query("SELECT * FROM task")
-    fun getTasks() : List<Task>
+    fun getTasks() : LiveData<List<Task>>
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Query("SELECT * FROM task WHERE date=:date")
-    fun getTasksToday(date: Date) : List<Task>
+    fun getTasksToday(date: Date) : LiveData<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(vararg tasks: Task)
