@@ -28,8 +28,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lora_connect.application.ui.theme.ApplicationTheme
+import java.util.Date
 import kotlin.math.pow
 import kotlin.math.roundToInt
+import com.lora_connect.application.room.entities.Task
 
 fun Float.roundTo(numFractionDigits: Int): Double {
     val factor = 10.0.pow(numFractionDigits.toDouble())
@@ -89,7 +91,7 @@ fun TaskItem(task: Task, withStartButton: Boolean = true) {
                     modifier = Modifier.fillMaxWidth()
                 ){
                     Text(text = "Distance:")
-                    Text(text = "${task.distance.roundTo(2)}km")
+                    Text(text = "${task.distance!!.roundTo(2)}km")
                 }
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween ,
@@ -137,10 +139,21 @@ fun TaskItem(task: Task, withStartButton: Boolean = true) {
 fun TaskItemPreview() {
 
     val tasks = arrayOf(
-        Task(1, 1, 2, 1.121f, 1.221f, 1.21212f, 1, 121.1232f, 21.12312f, TaskStatus.ASSIGNED, TaskUrgency.MODERATE),
-        Task(1, 1, 2, 1.121f, 1.221f, 1.21212f, 1, 121.1232f, 21.12312f, TaskStatus.ASSIGNED, TaskUrgency.LOW),
-        Task(1, 1, 2, 1.121f, 1.221f, 1.21212f, 1, 121.1232f, 21.12312f, TaskStatus.ASSIGNED, TaskUrgency.MODERATE),
-        Task(1, 1, 2, 1.121f, 1.221f, 1.21212f, 1, 121.1232f, 21.12312f, TaskStatus.ASSIGNED, TaskUrgency.SEVERE),
+        Task(
+            1,
+            Date(),
+            2,
+            1,
+            1,
+            1.221f,
+            1.21212f,
+            1.2f,
+            2,
+            21.12312f,
+            212.123f,
+            TaskStatus.ASSIGNED,
+            TaskUrgency.MODERATE
+        ),
     )
 
     val severeTasks = tasks.filter { task -> task.urgency === TaskUrgency.SEVERE }
