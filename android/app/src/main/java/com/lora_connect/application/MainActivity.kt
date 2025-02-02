@@ -16,13 +16,22 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.coroutineScope
 import com.lora_connect.application.authentication.AuthenticationScreen
 import com.lora_connect.application.authentication.AuthenticationViewModel
 import com.lora_connect.application.map.MapActivity
+import com.lora_connect.application.repositories.TaskRepository
+import com.lora_connect.application.room.entities.Task
+import com.lora_connect.application.tasks.TaskStatus
+import com.lora_connect.application.tasks.TaskUrgency
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.ActivityStarterHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.util.Date
 
 class MainActivity : ComponentActivity() {
+    private lateinit var taskRepository : TaskRepository
     private lateinit var bluetoothManager : BluetoothManager
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var authenticationViewModel: AuthenticationViewModel
@@ -39,6 +48,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        taskRepository = TaskRepository(this)
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
 
@@ -59,6 +69,9 @@ class MainActivity : ComponentActivity() {
     // USE THIS ONLY FOR TESTING WITHOUT AUTHENTICATION
     override fun onStart() {
         super.onStart()
+
+        // UNCOMMENT ONLY WHEN SEEDING DB
+        // populateTasksDB()
 
         val intent = Intent(this, MapActivity::class.java)
         startActivity(intent)
@@ -114,4 +127,20 @@ class MainActivity : ComponentActivity() {
         unregisterReceiver(bluetoothDeviceBroadcastReceiver)
         unregisterReceiver(bluetoothEnabledStateBroadcastReceiver)
     }
+
+    // UTILITY FUNCTION FOR TESTING
+    // UNCOMMENT ONLY WHEN SEEDING ROOM DB
+//    private fun populateTasksDB() {
+//        lifecycle.coroutineScope.launch(Dispatchers.IO) {
+//            val newTask = Task(2, Date(), 1, 1, 2, 15.157092f, 120.59178f, 1.2f, 1,
+//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.LOW)
+//            val newTask2 = Task(3, Date(), 1, 1, 2, 15.1547985f, 120.6055f, 1.2f, 1,
+//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.MODERATE)
+//            val newTask3 = Task(4, Date(), 1, 1, 2, 15.166502f, 120.60531f, 1.2f, 1,
+//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.SEVERE)
+//            taskRepository.createTask(newTask)
+//            taskRepository.createTask(newTask2)
+//            taskRepository.createTask(newTask3)
+//        }
+//    }
 }
