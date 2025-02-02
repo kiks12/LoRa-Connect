@@ -52,17 +52,17 @@ fun TaskListScreen(viewModel: TaskListViewModel) {
         ){
             items(state.severeTasks) {
                 Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-                    TaskItem(task = it)
+                    TaskItem(task = it, onStartButtonClick = { viewModel.onStartButtonClick(it) })
                 }
             }
             items(state.moderateTasks) {
                 Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-                    TaskItem(task = it)
+                    TaskItem(task = it, onStartButtonClick = { viewModel.onStartButtonClick(it) })
                 }
             }
             items(state.lowTasks) {
                 Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-                    TaskItem(task = it)
+                    TaskItem(task = it, onStartButtonClick = { viewModel.onStartButtonClick(it) })
                 }
             }
         }

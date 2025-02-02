@@ -45,7 +45,7 @@ val URGENCY_COLOR_MAP = mapOf(
 )
 
 @Composable
-fun TaskItem(task: Task, withStartButton: Boolean = true) {
+fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: Boolean = true) {
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -123,7 +123,7 @@ fun TaskItem(task: Task, withStartButton: Boolean = true) {
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ){
-                    Button(onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                    Button(onClick = onStartButtonClick, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Black
                     )) {
                         Text(text = "Start", modifier = Modifier.padding(horizontal = 20.dp))
