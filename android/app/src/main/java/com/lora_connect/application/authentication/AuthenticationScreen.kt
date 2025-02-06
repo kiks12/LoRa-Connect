@@ -79,7 +79,7 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
                        }
                    }
                    items(state.bondedDevices.toList()) {
-                       ListItem(headlineContent = { Text(it.name) })
+                       ListItem(headlineContent = { Text(it.name) }, modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) })
                    }
                    item {
                        Row(
