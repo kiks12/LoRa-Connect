@@ -16,19 +16,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.coroutineScope
 import com.lora_connect.application.authentication.AuthenticationScreen
 import com.lora_connect.application.authentication.AuthenticationViewModel
-import com.lora_connect.application.map.MapActivity
 import com.lora_connect.application.repositories.TaskRepository
-import com.lora_connect.application.room.entities.Task
-import com.lora_connect.application.tasks.TaskStatus
-import com.lora_connect.application.tasks.TaskUrgency
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.ActivityStarterHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.Date
 
 class MainActivity : ComponentActivity() {
     private lateinit var taskRepository : TaskRepository
@@ -67,15 +59,15 @@ class MainActivity : ComponentActivity() {
 
     // REMOVE THIS PART FOR PRODUCTION
     // USE THIS ONLY FOR TESTING WITHOUT AUTHENTICATION
-    override fun onStart() {
-        super.onStart()
+//    override fun onStart() {
+//        super.onStart()
 
         // UNCOMMENT ONLY WHEN SEEDING DB
         // populateTasksDB()
 
-        val intent = Intent(this, MapActivity::class.java)
-        startActivity(intent)
-    }
+//        val intent = Intent(this, MapActivity::class.java)
+//        startActivity(intent)
+//    }
 
     private fun launchEnableBluetoothIntent() {
         val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
