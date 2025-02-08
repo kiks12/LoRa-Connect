@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import com.lora_connect.application.room.AppDatabase
 import com.lora_connect.application.room.entities.Task
+import com.lora_connect.application.tasks.TaskStatus
 import java.util.Date
 
 class TaskRepository(context: Context){
@@ -18,6 +19,10 @@ class TaskRepository(context: Context){
 
     fun getAllTasks() : LiveData<List<Task>> {
         return taskDao.getTasks()
+    }
+
+    fun getAssignedTasks() : LiveData<List<Task>> {
+        return taskDao.getTasksWhereStatus(TaskStatus.ASSIGNED.name)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
