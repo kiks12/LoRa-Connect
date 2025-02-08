@@ -29,6 +29,13 @@ android {
                 cppFlags += ""
             }
         }
+
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments += mapOf("room.schemaLocation" to "${projectDir}/room/entities")
+//            }
+//        }
+
     }
 
     buildTypes {
@@ -93,6 +100,7 @@ dependencies {
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+    implementation("androidx.room:room-gradle-plugin:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
 
     implementation("org.maplibre.gl:android-sdk:11.5.2")
