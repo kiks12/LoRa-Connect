@@ -152,7 +152,8 @@ fun TaskItemPreview() {
             21.12312f,
             212.123f,
             TaskStatus.ASSIGNED,
-            TaskUrgency.MODERATE
+            TaskUrgency.MODERATE,
+            ""
         ),
     )
 

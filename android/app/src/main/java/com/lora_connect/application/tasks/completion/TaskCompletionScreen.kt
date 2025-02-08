@@ -38,11 +38,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lora_connect.application.tasks.Task
+import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskItem
 import com.lora_connect.application.tasks.TaskStatus
 import com.lora_connect.application.tasks.TaskUrgency
 import com.lora_connect.application.ui.theme.ApplicationTheme
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +54,7 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { viewModel.finish() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go Back")
                     }
                 },
@@ -62,7 +63,7 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
         },
         bottomBar = {
             BottomAppBar {
-                Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(
+                Button(onClick = viewModel::updateTask, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Black
                 )) {
                     Text(text = "Okay")
@@ -95,7 +96,8 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
                             Row(
                                 modifier = Modifier
                                     .padding(12.dp)
-                                    .fillMaxWidth(),
+                                    .fillMaxWidth()
+                                    .clickable { viewModel.toggleNewStatusDropdown() },
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ){
                                 Text(text = "NEW STATUS")
@@ -103,11 +105,11 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
                             }
                         }
                         DropdownMenu(expanded = state.showDropdownMenu, onDismissRequest = viewModel::toggleNewStatusDropdown) {
-                            DropdownMenuItem(text = { Text(text = "ASSIGNED") }, onClick = { /*TODO*/ })
-                            DropdownMenuItem(text = { Text(text = "PENDING") }, onClick = { /*TODO*/ })
-                            DropdownMenuItem(text = { Text(text = "CANCELED") }, onClick = { /*TODO*/ })
-                            DropdownMenuItem(text = { Text(text = "FAILED") }, onClick = { /*TODO*/ })
-                            DropdownMenuItem(text = { Text(text = "COMPLETE") }, onClick = { /*TODO*/ })
+                            DropdownMenuItem(text = { Text(text = "ASSIGNED") }, onClick = { viewModel.onNewStatusChange(TaskStatus.ASSIGNED) })
+                            DropdownMenuItem(text = { Text(text = "PENDING") }, onClick = { viewModel.onNewStatusChange(TaskStatus.PENDING) })
+                            DropdownMenuItem(text = { Text(text = "CANCELLED") }, onClick = { viewModel.onNewStatusChange(TaskStatus.CANCELED) })
+                            DropdownMenuItem(text = { Text(text = "FAILED") }, onClick = { viewModel.onNewStatusChange(TaskStatus.COMPLETE) })
+                            DropdownMenuItem(text = { Text(text = "COMPLETE") }, onClick = { viewModel.onNewStatusChange(TaskStatus.FAILED) })
                         }
                     }
                 }
@@ -136,9 +138,9 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
 @Preview
 @Composable
 fun TaskCompletionScreenPreview() {
-    val task = Task(1, 1, 2, 1.121f, 1.221f, 1.21212f, 1, 121.1232f, 21.12312f, TaskStatus.ASSIGNED, TaskUrgency.MODERATE)
-
+    val newTask = Task(2, Date(), 1, 1, 2, 15.157092f, 120.59178f, 1.2f, 1,
+                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
     ApplicationTheme {
-        TaskCompletionScreen(TaskCompletionViewModel(task))
+        TaskCompletionScreen(TaskCompletionViewModel(newTask) {})
     }
 }

@@ -1,6 +1,6 @@
 package com.lora_connect.application.tasks.completion
 
-import com.lora_connect.application.tasks.Task
+import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskStatus
 
 data class TaskCompletionState(

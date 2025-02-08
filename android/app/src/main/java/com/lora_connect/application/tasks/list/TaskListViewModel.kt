@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 
 @RequiresApi(Build.VERSION_CODES.O)
-class TaskListViewModel(application: Application) : ViewModel() {
+class TaskListViewModel(application: Application, val finish: () -> Unit) : ViewModel() {
     private val currentTask = CurrentTask.instance
     private val taskRepository = TaskRepository(application)
     private val _state = MutableStateFlow(TaskListState())
@@ -34,5 +34,6 @@ class TaskListViewModel(application: Application) : ViewModel() {
 
     fun onStartButtonClick(task: Task) {
         currentTask.setTask(task)
+        finish()
     }
 }

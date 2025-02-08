@@ -13,7 +13,9 @@ class TaskListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val taskListViewModel = TaskListViewModel(application)
+        val taskListViewModel = TaskListViewModel(application) {
+            finish()
+        }
 
         setContent {
             ApplicationTheme {
