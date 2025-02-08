@@ -17,6 +17,9 @@ interface TaskDao {
     @Query("SELECT * FROM task")
     fun getTasks() : LiveData<List<Task>>
 
+    @Query("SELECT * FROM task WHERE taskStatus=:status")
+    fun getTasksWhereStatus(status: String) : LiveData<List<Task>>
+
     @RequiresApi(Build.VERSION_CODES.O)
     @Query("SELECT * FROM task WHERE date=:date")
     fun getTasksToday(date: Date) : LiveData<List<Task>>
