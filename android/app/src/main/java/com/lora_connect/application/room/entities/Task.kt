@@ -23,4 +23,7 @@ data class Task(
     @ColumnInfo("evacuationLongitude") val evacuationLongitude: Float?,
     @ColumnInfo("taskStatus") val status: TaskStatus?,
     @ColumnInfo("taskUrgency") val urgency: TaskUrgency?,
+
+    // NEW COLUMN VERSION: 2 OF DB
+    val notes: String? = null,
 ) : Serializable

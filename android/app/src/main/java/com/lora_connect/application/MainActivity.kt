@@ -125,11 +125,11 @@ class MainActivity : ComponentActivity() {
 //    private fun populateTasksDB() {
 //        lifecycle.coroutineScope.launch(Dispatchers.IO) {
 //            val newTask = Task(2, Date(), 1, 1, 2, 15.157092f, 120.59178f, 1.2f, 1,
-//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.LOW)
+//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
 //            val newTask2 = Task(3, Date(), 1, 1, 2, 15.1547985f, 120.6055f, 1.2f, 1,
-//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.MODERATE)
+//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.MODERATE, "")
 //            val newTask3 = Task(4, Date(), 1, 1, 2, 15.166502f, 120.60531f, 1.2f, 1,
-//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.SEVERE)
+//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.SEVERE, "")
 //            taskRepository.createTask(newTask)
 //            taskRepository.createTask(newTask2)
 //            taskRepository.createTask(newTask3)
