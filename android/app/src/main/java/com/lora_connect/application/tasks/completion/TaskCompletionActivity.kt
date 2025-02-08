@@ -23,7 +23,7 @@ class TaskCompletionActivity : ComponentActivity() {
         val currentTask = CurrentTask.instance.getTask().value
 
         if (currentTask != null) {
-            val taskCompletionViewModel = TaskCompletionViewModel(currentTask) {
+            val taskCompletionViewModel = TaskCompletionViewModel(this@TaskCompletionActivity.application, currentTask) {
                 finish()
             }
 

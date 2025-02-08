@@ -38,12 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskItem
 import com.lora_connect.application.tasks.TaskStatus
-import com.lora_connect.application.tasks.TaskUrgency
 import com.lora_connect.application.ui.theme.ApplicationTheme
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,7 +97,7 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
                                     .clickable { viewModel.toggleNewStatusDropdown() },
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ){
-                                Text(text = "NEW STATUS")
+                                Text(text = "${state.newStatus}")
                                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown Icon")
                             }
                         }
@@ -108,8 +105,8 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
                             DropdownMenuItem(text = { Text(text = "ASSIGNED") }, onClick = { viewModel.onNewStatusChange(TaskStatus.ASSIGNED) })
                             DropdownMenuItem(text = { Text(text = "PENDING") }, onClick = { viewModel.onNewStatusChange(TaskStatus.PENDING) })
                             DropdownMenuItem(text = { Text(text = "CANCELLED") }, onClick = { viewModel.onNewStatusChange(TaskStatus.CANCELED) })
-                            DropdownMenuItem(text = { Text(text = "FAILED") }, onClick = { viewModel.onNewStatusChange(TaskStatus.COMPLETE) })
-                            DropdownMenuItem(text = { Text(text = "COMPLETE") }, onClick = { viewModel.onNewStatusChange(TaskStatus.FAILED) })
+                            DropdownMenuItem(text = { Text(text = "FAILED") }, onClick = { viewModel.onNewStatusChange(TaskStatus.FAILED) })
+                            DropdownMenuItem(text = { Text(text = "COMPLETE") }, onClick = { viewModel.onNewStatusChange(TaskStatus.COMPLETE) })
                         }
                     }
                 }
@@ -138,9 +135,9 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
 @Preview
 @Composable
 fun TaskCompletionScreenPreview() {
-    val newTask = Task(2, Date(), 1, 1, 2, 15.157092f, 120.59178f, 1.2f, 1,
-                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
+//    val newTask = Task(2, Date(), 1, 1, 2, 15.157092f, 120.59178f, 1.2f, 1,
+//                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
     ApplicationTheme {
-        TaskCompletionScreen(TaskCompletionViewModel(newTask) {})
+//        TaskCompletionScreen(TaskCompletionViewModel(LocalContext.current.applicationContext, newTask) {})
     }
 }
