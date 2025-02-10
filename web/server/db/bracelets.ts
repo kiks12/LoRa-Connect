@@ -29,7 +29,7 @@ export async function getBracelet({braceletId}: {braceletId: string}): Promise<B
       braceletId
     },
     include: {
-      owner: true,
+      user: true,
       rescuer: true,
     }
   })
@@ -41,13 +41,13 @@ export async function createBracelet({bracelet}: {bracelet: Bracelets}) {
   })
 }
 
-export async function setBraceletOwnerId({braceletId, ownerId}: {braceletId: string, ownerId: number}) {
+export async function setBraceletUserId({braceletId, userId}: {braceletId: string, userId: number}) {
   return await client.bracelets.update({
     where: {
       braceletId,
     },
     data: {
-      ownerId,
+      ownerId: userId,
     }
   })
 }
@@ -88,9 +88,9 @@ export async function updateBraceletLocation({braceletId, latitude, longitude}: 
   const bracelet = await getBracelet({braceletId})  
   if (bracelet === null) return
   if (bracelet.ownerId && !bracelet.rescuerId) {
-    await client.owners.update({
+    await client.users.update({
       where: {
-        ownerId: bracelet.ownerId,
+        userId: bracelet.ownerId,
       },
       data: {
         latitude,

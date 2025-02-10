@@ -6,7 +6,7 @@ export default function AssignPage({ searchParams }: { searchParams: { [key: str
 	const previousLink: string = searchParams.previousLink ?? "";
 	const braceletId: string = searchParams.braceletId ?? "";
 	const braceletName: string = searchParams.braceletName ?? "";
-	const ownerId: number = searchParams.ownerId ? Number.parseInt(searchParams.ownerId as string) : 0;
+	const userId: number = searchParams.userId ? Number.parseInt(searchParams.userId as string) : 0;
 	const ownerName: string = searchParams.ownerName ?? "";
 	const rescuerId: number = searchParams.rescuerId ? Number.parseInt(searchParams.rescuerId as string) : 0;
 	const rescuerName: string = searchParams.rescuerName ?? "";
@@ -18,8 +18,8 @@ export default function AssignPage({ searchParams }: { searchParams: { [key: str
 					rescuerId={rescuerId}
 					rescuerName={rescuerName}
 					braceletId={braceletId}
-					ownerId={ownerId}
-					ownerName={ownerName}
+					userId={userId}
+					userName={ownerName}
 					braceletName={braceletName}
 				/>
 			</ContainerWithTitleAndBackButton>

@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMapContext } from "@/hooks/use-map";
 import { GraphHopperAPIResult } from "@/types";
+import { Users } from "@prisma/client";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useMemo, useState } from "react";
 
-type listType = "RESCUERS" | "OWNERS" | "EVACUATION_CENTERS" | "OBSTACLES";
+type listType = "RESCUERS" | "USERS" | "EVACUATION_CENTERS" | "OBSTACLES";
 export type generalType = { name: string; type: listType; latitude: number | null; longitude: number | null };
 
 export default function RoutingControls() {
@@ -16,7 +17,7 @@ export default function RoutingControls() {
 	const [from, setFrom] = useState<generalType | null>(null);
 	const [to, setTo] = useState<generalType | null>(null);
 	const [list, setList] = useState<generalType[]>([]);
-	const { owners, rescuers, evacuationCenters, obstacles, createRoute, clearRoute } = useMapContext();
+	const { users, rescuers, evacuationCenters, obstacles, createRoute, clearRoute } = useMapContext();
 	const distance: null | number = useMemo(() => {
 		if (!data) return null;
 		const path = data?.paths[0];
@@ -29,11 +30,11 @@ export default function RoutingControls() {
 	}, [data]);
 
 	useEffect(() => {
-		const mappedOwners: generalType[] = owners.map((owner) => ({
-			name: owner.name,
-			latitude: owner.latitude,
-			longitude: owner.longitude,
-			type: "OWNERS",
+		const mappedUsers: generalType[] = users.map((user: Users) => ({
+			name: user.name,
+			latitude: user.latitude,
+			longitude: user.longitude,
+			type: "USERS",
 		}));
 		const mappedRescuers: generalType[] = rescuers.map((rescuer) => ({
 			name: rescuer.name,
@@ -54,8 +55,8 @@ export default function RoutingControls() {
 			type: "OBSTACLES",
 		}));
 
-		setList([...mappedOwners, ...mappedRescuers, ...mappedEvacuationCenters, ...mappedObstacles]);
-	}, [owners, rescuers, evacuationCenters, obstacles]);
+		setList([...mappedUsers, ...mappedRescuers, ...mappedEvacuationCenters, ...mappedObstacles]);
+	}, [users, rescuers, evacuationCenters, obstacles]);
 
 	useEffect(() => {
 		async function fetchGraphHopperAPI() {

@@ -34,12 +34,12 @@ import {
 	GraphHopperAPIResult,
 	LocationDataFromLoRa,
 	ObstacleWithStatusIdentifier,
-	OwnerWithBracelet,
-	OwnerWithStatusIdentifier,
+	UserWithBracelet,
+	UserWithStatusIdentifier,
 	RescuerWithBracelet,
 	RescuerWithStatusIdentifier,
 } from "@/types";
-import { OWNER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
+import { USER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
 import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/tags";
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR } from "@/map-styles";
@@ -70,14 +70,14 @@ const MapContext = createContext<{
 	rescuersLoading: boolean;
 
 	// OWNERS
-	owners: OwnerWithStatusIdentifier[];
-	showOwnerLocations: boolean;
-	addOwnerPoint: ({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation?: boolean) => void;
-	addOwnerArea: ({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation?: boolean) => void;
-	setShowOwnerLocations: Dispatch<SetStateAction<boolean>>;
-	clearOwnerShowStatuses: () => void;
-	refreshOwners: () => void;
-	ownersLoading: boolean;
+	users: UserWithStatusIdentifier[];
+	showUserLocations: boolean;
+	addUserPoint: ({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation?: boolean) => void;
+	addUserArea: ({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation?: boolean) => void;
+	setShowUserLocations: Dispatch<SetStateAction<boolean>>;
+	clearUserShowStatuses: () => void;
+	refreshUsers: () => void;
+	usersLoading: boolean;
 
 	// EVACUATION CENTERS
 	evacuationCenters: EvacuationCenterWithStatusIdentifier[];
@@ -133,9 +133,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- RESCUERS VARIABLES --- */
 
 	/* --- OWNERS VARIABLES --- */
-	const [owners, setOwners] = useState<OwnerWithStatusIdentifier[]>([]);
-	const [ownersLoading, setOwnersLoading] = useState(false);
-	const [showOwnerLocations, setShowOwnerLocations] = useState(false);
+	const [users, setUsers] = useState<UserWithStatusIdentifier[]>([]);
+	const [usersLoading, setUsersLoading] = useState(false);
+	const [showUserLocations, setShowUserLocations] = useState(false);
 	/* --- OWNERS VARIABLES --- */
 
 	/* --- EVACUATION CENTERS VARIABLES --- */
@@ -274,8 +274,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		setEvacuationInstructions([]);
 		const familyDistances = await fetchFamilyDistanceFromEvacuationCenter();
 
-		owners.forEach((owner) => {
-			const distances = familyDistances.filter((familyDistance) => familyDistance.ownerId === owner.ownerId);
+		users.forEach((user) => {
+			const distances = familyDistances.filter((familyDistance) => familyDistance.ownerId === user.userId);
 			const minimumDistanceForFamily = distances.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 			setEvacuationInstructions((prev) => [...prev, minimumDistanceForFamily]);
 		});
@@ -294,17 +294,17 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	async function fetchFamilyDistanceFromEvacuationCenter(): Promise<EvacuationInstruction[]> {
 		const requests: Promise<EvacuationInstruction>[] = [];
 
-		for (const owner of owners) {
+		for (const user of users) {
 			for (const evacuationCenter of evacuationCenters) {
 				const request: Promise<EvacuationInstruction> = (async () => {
 					const result = await fetch(
-						`http://localhost:8989/route?point=${owner.latitude},${owner.longitude}&point=${evacuationCenter.latitude},${evacuationCenter.longitude}&profile=car&points_encoded=false`
+						`http://localhost:8989/route?point=${user.latitude},${user.longitude}&point=${evacuationCenter.latitude},${evacuationCenter.longitude}&profile=car&points_encoded=false`
 					);
 					const json: GraphHopperAPIResult = await result.json();
 					const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 					return {
-						ownerId: owner.ownerId,
-						ownerName: owner.name,
+						ownerId: user.userId,
+						ownerName: user.name,
 						evacuationCenterId: evacuationCenter.evacuationId,
 						evacuationCenterName: evacuationCenter.name,
 						time: minimumTime.time,
@@ -323,10 +323,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- EVAUCATION CENTERS FUNCTIONS --- */
 
 	/* --- OWNER FUNCTIONS --- */
-	const addOwnerArea = useCallback(({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation: boolean = false) => {
+	const addUserArea = useCallback(({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation: boolean = false) => {
 		if (latitude === null && longitude === null) return;
 		if (!mapRef.current) return;
-		const { sourceId, data } = createOwnerPointAreaGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
+		const { sourceId, data } = createOwnerPointAreaGeoJSON({ userId, latitude: latitude!, longitude: longitude! });
 
 		if (mapRef.current.getSource(sourceId) && showLocation) return;
 		if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
@@ -335,68 +335,68 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		mapRef.current.addLayer(createOwnerPointAreaLayerGeoJSON({ sourceId }) as LayerSpecification);
 	}, []);
 
-	const addOwnerPoint = useCallback(
-		({ latitude, longitude, ownerId }: OwnerWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
+	const addUserPoint = useCallback(
+		({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
 			if (latitude === null && longitude === null) return;
 			if (!mapRef.current) return;
-			const { sourceId, data } = createOwnerPointGeoJSON({ ownerId, latitude: latitude!, longitude: longitude! });
+			const { sourceId, data } = createOwnerPointGeoJSON({ userId, latitude: latitude!, longitude: longitude! });
 			const mapRefSource = mapRef.current.getSource(sourceId);
 
 			if (mapRefSource && showLocation) return;
-			if (mapRefSource && !showLocation && !monitorLocation) return removeOwnerPoint(sourceId, ownerId);
-			if (mapRefSource && monitorLocation) removeOwnerPoint(sourceId, ownerId);
+			if (mapRefSource && !showLocation && !monitorLocation) return removeUserPoint(sourceId, userId);
+			if (mapRefSource && monitorLocation) removeUserPoint(sourceId, userId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
 			mapRef.current.addLayer(createOwnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
-			toggleOwnerShowStatus(ownerId);
+			toggleUserShowStatus(userId);
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
 
-	function removeOwnerPoint(sourceId: string, ownerId: number) {
+	function removeUserPoint(sourceId: string, userId: number) {
 		removeSourceAndLayer(sourceId);
-		toggleOwnerShowStatus(ownerId);
+		toggleUserShowStatus(userId);
 	}
 
-	function toggleOwnerShowStatus(ownerId: number) {
-		setOwners((prev) => (prev = prev.map((owner) => (owner.ownerId === ownerId ? { ...owner, showing: !owner.showing } : owner))));
+	function toggleUserShowStatus(userId: number) {
+		setUsers((prev) => (prev = prev.map((user) => (user.userId === userId ? { ...user, showing: !user.showing } : user))));
 	}
 
-	function clearOwnerShowStatuses() {
-		setOwners((prev) => (prev = prev.map((owner) => ({ ...owner, showing: false }))));
+	function clearUserShowStatuses() {
+		setUsers((prev) => (prev = prev.map((user) => ({ ...user, showing: false }))));
 	}
 
-	async function fetchOwnersAPI() {
-		setOwnersLoading(true);
-		const { owners }: { owners: OwnerWithBracelet[] } = await (await fetch("/api/owners")).json();
-		const mappedOwners = owners.map((owner) => ({ ...owner, showing: false }));
-		setOwners(mappedOwners);
-		setOwnersLoading(false);
+	async function fetchUsersAPI() {
+		setUsersLoading(true);
+		const { users }: { users: UserWithBracelet[] } = await (await fetch("/api/users")).json();
+		const mappedUsers = users.map((user) => ({ ...user, showing: false }));
+		setUsers(mappedUsers);
+		setUsersLoading(false);
 	}
 
-	function refreshOwners() {
-		fetchOwnersAPI();
+	function refreshUsers() {
+		fetchUsersAPI();
 	}
 
 	// API FETCHING OF OWNERS
 	useEffect(() => {
-		fetchOwnersAPI();
+		fetchUsersAPI();
 
 		return () => {
-			setOwners([]);
+			setUsers([]);
 		};
 	}, []);
 
 	useEffect(() => {
-		if (!showOwnerLocations) {
-			clearSourcesAndLayers(OWNER_SOURCE_BASE);
-			clearOwnerShowStatuses();
+		if (!showUserLocations) {
+			clearSourcesAndLayers(USER_SOURCE_BASE);
+			clearUserShowStatuses();
 			return;
 		}
-		owners.forEach((owner) => addOwnerPoint(owner, true));
+		users.forEach((user) => addUserPoint(user, true));
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [addOwnerPoint, showOwnerLocations]);
+	}, [addUserPoint, showUserLocations]);
 	/* --- OWNER FUNCTIONS --- */
 
 	/* --- RESCUER FUNCTIONS --- */
@@ -528,7 +528,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			);
 		} else {
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-			setOwners((prev) => (prev = owners.map((owner) => (owner.bracelet?.braceletId === braceletId ? { ...owner, latitude, longitude } : owner))));
+			setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
 		}
 	}
 
@@ -541,12 +541,12 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			const { rescuer, braceletId, latitude, longitude } = data;
 			const correctOwner = rescuer
 				? rescuers.filter((rescuer) => rescuer.bracelet?.braceletId === braceletId)
-				: owners.filter((owner) => owner.bracelet?.braceletId === braceletId);
+				: users.filter((user) => user.bracelet?.braceletId === braceletId);
 			if (correctOwner.length === 0) return;
 			if (rescuer) {
 				addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier), latitude, longitude }, false, true);
 			} else {
-				addOwnerPoint({ ...(correctOwner[0] as OwnerWithStatusIdentifier), latitude, longitude }, false, true);
+				addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
 			}
 			await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer });
 		});
@@ -718,14 +718,14 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 				toggleMonitorLocations,
 				sendTransmitLocationSignalToBracelets,
 
-				owners,
-				addOwnerPoint,
-				addOwnerArea,
-				showOwnerLocations,
-				setShowOwnerLocations,
-				clearOwnerShowStatuses,
-				refreshOwners,
-				ownersLoading,
+				users,
+				addUserPoint,
+				addUserArea,
+				showUserLocations,
+				setShowUserLocations,
+				clearUserShowStatuses,
+				refreshUsers,
+				usersLoading,
 
 				rescuers,
 				addRescuerPoint,

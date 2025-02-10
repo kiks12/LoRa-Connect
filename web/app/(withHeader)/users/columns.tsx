@@ -4,13 +4,13 @@ import { DateCell } from "@/app/components/DateCell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { OwnerWithBracelet } from "@/types";
+import { UserWithBracelet } from "@/types";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 
-export const columns: ColumnDef<OwnerWithBracelet>[] = [
+export const columns: ColumnDef<UserWithBracelet>[] = [
 	{
 		accessorKey: "ownerId",
 		header: ({ column }) => {
@@ -95,18 +95,18 @@ export const columns: ColumnDef<OwnerWithBracelet>[] = [
 							{bracelet ? (
 								<DropdownMenuItem disabled={true}>Assign Bracelet</DropdownMenuItem>
 							) : (
-								<Link href={`/assign?previousLink=owners&ownerId=${ownerId}&ownerName=${name}`}>
+								<Link href={`/assign?previousLink=owners&userId=${ownerId}&ownerName=${name}`}>
 									<DropdownMenuItem>Assign Bracelet</DropdownMenuItem>
 								</Link>
 							)}
 							<Link
-								href={`/users/update?ownerId=${ownerId}&name=${name}&members=${numberOfMembersInFamily}&braceletId=${
+								href={`/users/update?userId=${ownerId}&name=${name}&members=${numberOfMembersInFamily}&braceletId=${
 									bracelet?.braceletId ?? ""
 								}&address=${address}`}
 							>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
-							<Link href={`/users/delete?ownerId=${ownerId}&name=${name}`}>
+							<Link href={`/users/delete?userId=${ownerId}&name=${name}`}>
 								<DropdownMenuItem>Delete</DropdownMenuItem>
 							</Link>
 						</Card>

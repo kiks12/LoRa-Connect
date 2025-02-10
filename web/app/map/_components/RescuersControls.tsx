@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
-import BraceletWithOwnerListItem from "./BraceletWithOwnerListItem";
+import BraceletWithUserListItem from "./BraceletWithUserListItem";
 
 export default function RescuersControls() {
 	const {
@@ -76,7 +76,7 @@ export default function RescuersControls() {
 											rescuers.map((rescuer, index) => {
 												if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
 													return (
-														<BraceletWithOwnerListItem
+														<BraceletWithUserListItem
 															key={index}
 															name={rescuer.name}
 															showing={rescuer.showing}
@@ -98,7 +98,7 @@ export default function RescuersControls() {
 												.map((rescuer, index) => {
 													if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
 														return (
-															<BraceletWithOwnerListItem
+															<BraceletWithUserListItem
 																key={index}
 																name={rescuer.name}
 																showing={rescuer.showing}
@@ -120,7 +120,7 @@ export default function RescuersControls() {
 												.map((rescuer, index) => {
 													if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
 														return (
-															<BraceletWithOwnerListItem
+															<BraceletWithUserListItem
 																key={index}
 																name={rescuer.name}
 																showing={rescuer.showing}

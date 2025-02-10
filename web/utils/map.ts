@@ -1,12 +1,12 @@
 
 import * as turf from "@turf/turf"
-import { createGeoJsonSourceId, OWNER_AREA_SOURCE, OWNER_POINT_SOURCE, RESCUER_AREA_SOURCE, RESCUER_POINT_SOURCE } from "./tags";
+import { createGeoJsonSourceId, USER_AREA_SOURCE, USER_POINT_SOURCE, RESCUER_AREA_SOURCE, RESCUER_POINT_SOURCE } from "./tags";
 import { GeoJSONSourceSpecification, LayerSpecification } from "maplibre-gl";
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR, OWNER_MARKER_COLOR, RESCUER_MARKER_COLOR, ROUTE_COLOR } from "@/map-styles";
 
-export function createOwnerPointGeoJSON({ ownerId, latitude, longitude }: { latitude: number; longitude: number; ownerId: number }) {
+export function createOwnerPointGeoJSON({ userId, latitude, longitude }: { latitude: number; longitude: number; userId: number }) {
   return {
-    sourceId: createGeoJsonSourceId([OWNER_POINT_SOURCE], ownerId),
+    sourceId: createGeoJsonSourceId([USER_POINT_SOURCE], userId),
     data: {
       type: "geojson",
       data: {
@@ -32,14 +32,14 @@ export function createOwnerPointLayerGeoJSON({ sourceId }: { sourceId: string })
   };
 }
 
-export function createOwnerPointAreaGeoJSON({ ownerId, latitude, longitude }: { latitude: number; longitude: number; ownerId: number }) {
+export function createOwnerPointAreaGeoJSON({ userId, latitude, longitude }: { latitude: number; longitude: number; userId: number }) {
   const circle = turf.circle([longitude, latitude], 10, {
     steps: 64, 
     units: "kilometers"
   })
 
   return {
-    sourceId: createGeoJsonSourceId([OWNER_AREA_SOURCE], ownerId),
+    sourceId: createGeoJsonSourceId([USER_AREA_SOURCE], userId),
     data: {
       type: "geojson",
       data: circle
@@ -146,7 +146,7 @@ export function createRouteLayerGeoJSON(): LayerSpecification {
 
 export const COLOR_MAP = {
   "RESCUERS": RESCUER_MARKER_COLOR,
-  "OWNERS": OWNER_MARKER_COLOR,
+  "USERS": OWNER_MARKER_COLOR,
   "EVACUATION_CENTERS": EVACUATION_CENTER_MARKER_COLOR,
   "OBSTACLES": OBSTACLE_MARKER_COLOR
 }

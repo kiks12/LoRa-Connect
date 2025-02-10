@@ -7,7 +7,7 @@ export async function getLatestOperations() {
   return await client.operations.findMany({
     include: {
       evacuationCenter: true,
-      owner: true,
+      user: true,
       rescuer: true,
       VictimStatusReport: true,
       _count: true
@@ -52,7 +52,7 @@ export async function getOperationsFromLastDays(days: number) : Promise<{date: s
     current.setDate(current.getDate() + 1)
   ) {
     completeDateRange.push(new Date(current).toISOString().split("T")[0]); // Extract only the date part
-  }``
+  }
 
   // Merge the results with the complete date range, filling missing dates with count: 0
   const filledResults = completeDateRange.map((date) => ({
@@ -67,7 +67,7 @@ export const getOperationsCached = unstable_cache(async () => {
   return await client.operations.findMany({
     include: {
       evacuationCenter: true,
-      owner: true,
+      user: true,
       rescuer: true,
       VictimStatusReport: true,
       _count: true
@@ -79,7 +79,7 @@ export async function createOperation({operation}: {operation: Operations}) {
   return await client.operations.create({
     data: {
       rescuersRescuerId: operation.rescuersRescuerId,
-      ownersOwnerId: operation.ownersOwnerId,
+      usersUserId: operation.usersUserId,
       evacuationCentersEvacuationId: operation.evacuationCentersEvacuationId,
       numberOfRescuee: operation.numberOfRescuee,
       status: operation.status,
@@ -99,7 +99,7 @@ export async function updateOperation({operation}: {operation: Operations}) {
       dateTime: operation.dateTime,
       evacuationCentersEvacuationId: operation.evacuationCentersEvacuationId,
       numberOfRescuee: operation.numberOfRescuee,
-      ownersOwnerId: operation.ownersOwnerId,
+      usersUserId: operation.usersUserId,
       status: operation.status,
       urgency: operation.urgency,
       rescuersRescuerId: operation.rescuersRescuerId,

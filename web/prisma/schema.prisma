@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,52 +7,94 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum BraceletType {
-  VICTIM
-  RESCUER
-}
-
 model Bracelets {
   braceletId String       @id
   createdAt  DateTime     @default(now())
   name       String
+  ownerId    Int?         @unique
+  rescuerId  Int?         @unique
   type       BraceletType @default(VICTIM)
   rescuer    Rescuers?    @relation(fields: [rescuerId], references: [rescuerId])
-  rescuerId  Int?         @unique
-  owner      Owners?      @relation(fields: [ownerId], references: [ownerId])
-  ownerId    Int?         @unique
+  user       Users?       @relation(fields: [ownerId], references: [userId])
 }
 
 model Rescuers {
   rescuerId  Int          @id @default(autoincrement())
   createdAt  DateTime     @default(now())
   name       String
-  bracelet   Bracelets?
   latitude   Float?
   longitude  Float?
+  bracelet   Bracelets?
   Operations Operations[]
-}
-
-model Owners {
-  ownerId                 Int          @id @default(autoincrement())
-  createdAt               DateTime     @default(now())
-  name                    String
-  address                 String?
-  numberOfMembersInFamily Int
-  bracelet                Bracelets?
-  latitude                Float?
-  longitude               Float?
-  Operations              Operations[]
 }
 
 model EvacuationCenters {
   evacuationId Int          @id @default(autoincrement())
-  createdAt    DateTime     @default(now())
   name         String
   latitude     Float
   longitude    Float
   capacity     Int
+  createdAt    DateTime     @default(now())
   Operations   Operations[]
+}
+
+model Operations {
+  missionId                     Int                  @id @default(autoincrement())
+  createAt                      DateTime             @default(now())
+  dateTime                      DateTime             @default(now())
+  rescuersRescuerId             Int
+  usersUserId                   Int
+  status                        OperationStatus
+  urgency                       RescueUrgency
+  numberOfRescuee               Int
+  evacuationCentersEvacuationId Int
+  evacuationCenter              EvacuationCenters    @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
+  rescuer                       Rescuers             @relation(fields: [rescuersRescuerId], references: [rescuerId])
+  user                          Users                @relation(fields: [usersUserId], references: [userId])
+  VictimStatusReport            VictimStatusReport[]
+
+  @@index([evacuationCentersEvacuationId], map: "Operations_evacuationCentersEvacuationId_fkey")
+  @@index([usersUserId], map: "Operations_ownersOwnerId_fkey")
+  @@index([rescuersRescuerId], map: "Operations_rescuersRescuerId_fkey")
+}
+
+model VictimStatusReport {
+  victimStatusReportId Int          @id @default(autoincrement())
+  name                 String
+  age                  Int
+  status               VictimStatus
+  notes                String
+  operationsMissionId  Int
+  operation            Operations   @relation(fields: [operationsMissionId], references: [missionId], onDelete: Cascade)
+
+  @@index([operationsMissionId], map: "VictimStatusReport_operationsMissionId_fkey")
+}
+
+model Obstacle {
+  obstacleId Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  dateTime   DateTime @default(now())
+  type       String
+  name       String
+  longitude  Float
+  latitude   Float
+}
+
+model Users {
+  userId                  Int          @id @default(autoincrement())
+  createdAt               DateTime     @default(now())
+  name                    String
+  numberOfMembersInFamily Int
+  latitude                Float?
+  longitude               Float?
+  address                 String?
+  bracelet                Bracelets?
+  Operations              Operations[]
+}
+
+enum BraceletType {
+  VICTIM
+  RESCUER
 }
 
 enum OperationStatus {
@@ -75,46 +111,10 @@ enum RescueUrgency {
   SEVERE
 }
 
-model Operations {
-  missionId                     Int                  @id @default(autoincrement())
-  createAt                      DateTime             @default(now())
-  dateTime                      DateTime             @default(now())
-  rescuer                       Rescuers             @relation(fields: [rescuersRescuerId], references: [rescuerId])
-  owner                         Owners               @relation(fields: [ownersOwnerId], references: [ownerId])
-  rescuersRescuerId             Int
-  ownersOwnerId                 Int
-  status                        OperationStatus
-  urgency                       RescueUrgency
-  numberOfRescuee               Int
-  evacuationCenter              EvacuationCenters    @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
-  evacuationCentersEvacuationId Int
-  VictimStatusReport            VictimStatusReport[]
-}
-
 enum VictimStatus {
   OKAY
   MINOR_INJURY
   MODERATE_INJURY
   SEVERE_INJURY
   DECEASED
-}
-
-model VictimStatusReport {
-  victimStatusReportId Int          @id @default(autoincrement())
-  name                 String
-  age                  Int
-  status               VictimStatus
-  notes                String
-  operation            Operations   @relation(fields: [operationsMissionId], references: [missionId], onDelete: Cascade)
-  operationsMissionId  Int
-}
-
-model Obstacle {
-  obstacleId Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  dateTime   DateTime @default(now())
-  type       String
-  name       String
-  longitude  Float
-  latitude   Float
 }

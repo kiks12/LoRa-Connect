@@ -5,31 +5,31 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMapContext } from "@/hooks/use-map";
-import { OwnerWithStatusIdentifier } from "@/types";
-import { OWNER_SOURCE_BASE } from "@/utils/tags";
+import { UserWithStatusIdentifier } from "@/types";
+import { USER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
-import BraceletWithOwnerListItem from "./BraceletWithOwnerListItem";
+import BraceletWithUserListItem from "./BraceletWithUserListItem";
 
-export default function OwnersControls() {
+export default function UsersControls() {
 	const {
-		addOwnerPoint,
-		owners,
-		showOwnerLocations,
-		setShowOwnerLocations,
+		addUserPoint,
+		users,
+		showUserLocations,
+		setShowUserLocations,
 		clearSourcesAndLayers,
-		addOwnerArea,
-		clearOwnerShowStatuses,
-		refreshOwners,
-		ownersLoading,
+		addUserArea,
+		clearUserShowStatuses,
+		refreshUsers,
+		usersLoading,
 	} = useMapContext();
 	const [search, setSearch] = useState("");
 
 	function onClearClick() {
-		clearSourcesAndLayers(OWNER_SOURCE_BASE);
-		clearOwnerShowStatuses();
+		clearSourcesAndLayers(USER_SOURCE_BASE);
+		clearUserShowStatuses();
 	}
 
 	function onChange(e: React.FormEvent<HTMLInputElement>) {
@@ -39,8 +39,8 @@ export default function OwnersControls() {
 	return (
 		<div className="pt-6 pb-2 h-full flex flex-col justify-content">
 			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-medium">Owners List</h2>
-				<Button size="icon" variant="secondary" onClick={refreshOwners}>
+				<h2 className="text-lg font-medium">Users List</h2>
+				<Button size="icon" variant="secondary" onClick={refreshUsers}>
 					<RefreshCcw />
 				</Button>
 			</div>
@@ -50,10 +50,10 @@ export default function OwnersControls() {
 						<Label className="ml-3" htmlFor="showLocations">
 							Show Locations
 						</Label>
-						<Switch id="showLocations" checked={showOwnerLocations} onCheckedChange={() => setShowOwnerLocations(!showOwnerLocations)} />
+						<Switch id="showLocations" checked={showUserLocations} onCheckedChange={() => setShowUserLocations(!showUserLocations)} />
 					</div>
 					<div className="my-2">
-						<Label>Search Owner</Label>
+						<Label>Search User</Label>
 						<Input placeholder="Francis Tolentino..." onChange={onChange} value={search} />
 					</div>
 					<Tabs defaultValue="ALL">
@@ -67,7 +67,7 @@ export default function OwnersControls() {
 								Clear
 							</Button>
 						</div>
-						{ownersLoading ? (
+						{usersLoading ? (
 							<div className="mt-10 flex items-center justify-center">
 								<Spinner />
 							</div>
@@ -75,65 +75,65 @@ export default function OwnersControls() {
 							<>
 								<TabsContent value="ALL">
 									<ul className="h-[550px] overflow-y-auto">
-										{owners.length > 0 ? (
-											owners.map((owner, index) => {
-												if (owner.name.toLowerCase().includes(search.toLowerCase()))
+										{users.length > 0 ? (
+											users.map((user, index) => {
+												if (user.name.toLowerCase().includes(search.toLowerCase()))
 													return (
-														<BraceletWithOwnerListItem
+														<BraceletWithUserListItem
 															key={index}
-															name={owner.name}
-															showing={owner.showing}
-															onShowArea={() => addOwnerArea(owner)}
-															onShowLocation={() => addOwnerPoint(owner)}
+															name={user.name}
+															showing={user.showing}
+															onShowArea={() => addUserArea(user)}
+															onShowLocation={() => addUserPoint(user)}
 														/>
 													);
 											})
 										) : (
-											<p className="mt-20 text-center">No Owners to show</p>
+											<p className="mt-20 text-center">No Users to show</p>
 										)}
 									</ul>
 								</TabsContent>
 								<TabsContent value="WITH-BRACELET">
 									<ul className="h-[550px] overflow-y-auto">
-										{owners.length > 0 ? (
-											owners
-												.filter((owner) => owner.bracelet)
-												.map((owner, index) => {
-													if (owner.name.toLowerCase().includes(search.toLowerCase()))
+										{users.length > 0 ? (
+											users
+												.filter((user) => user.bracelet)
+												.map((user, index) => {
+													if (user.name.toLowerCase().includes(search.toLowerCase()))
 														return (
-															<BraceletWithOwnerListItem
+															<BraceletWithUserListItem
 																key={index}
-																name={owner.name}
-																showing={owner.showing}
-																onShowArea={() => addOwnerArea(owner)}
-																onShowLocation={() => addOwnerPoint(owner)}
+																name={user.name}
+																showing={user.showing}
+																onShowArea={() => addUserArea(user)}
+																onShowLocation={() => addUserPoint(user)}
 															/>
 														);
 												})
 										) : (
-											<p className="mt-20 text-center">No Owners to show</p>
+											<p className="mt-20 text-center">No Users to show</p>
 										)}
 									</ul>
 								</TabsContent>
 								<TabsContent value="WITHOUT-BRACELET">
 									<ul className="h-[550px] overflow-y-auto">
-										{owners.length > 0 ? (
-											owners
-												.filter((owner: OwnerWithStatusIdentifier) => !owner.bracelet)
-												.map((owner, index) => {
-													if (owner.name.toLowerCase().includes(search.toLowerCase()))
+										{users.length > 0 ? (
+											users
+												.filter((user: UserWithStatusIdentifier) => !user.bracelet)
+												.map((user, index) => {
+													if (user.name.toLowerCase().includes(search.toLowerCase()))
 														return (
-															<BraceletWithOwnerListItem
+															<BraceletWithUserListItem
 																key={index}
-																name={owner.name}
-																showing={owner.showing}
-																onShowArea={() => addOwnerArea(owner)}
-																onShowLocation={() => addOwnerPoint(owner)}
+																name={user.name}
+																showing={user.showing}
+																onShowArea={() => addUserArea(user)}
+																onShowLocation={() => addUserPoint(user)}
 															/>
 														);
 												})
 										) : (
-											<p className="mt-20 text-center">No Owners to show</p>
+											<p className="mt-20 text-center">No Users to show</p>
 										)}
 									</ul>
 								</TabsContent>

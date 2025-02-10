@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { ownerSchema } from "@/schema/owners";
-import { registerOwner, updateOwner } from "@/server/actions/owners";
+import { registerUser, updateUser } from "@/server/actions/users";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,14 +15,14 @@ import AvailableBraceletsDialog from "../../_components/AvailableBracelets";
 export type OwnerFormType = "CREATE" | "UPDATE";
 
 export const UserForm = ({
-	ownerId,
+	userId,
 	name,
 	address,
 	braceletId,
 	numberOfMembersInFamily,
 	type = "CREATE",
 }: {
-	ownerId?: number;
+	userId?: number;
 	name?: string;
 	address?: string;
 	braceletId?: string;
@@ -41,12 +41,12 @@ export const UserForm = ({
 	});
 
 	async function onUpdateSubmit(values: z.infer<typeof ownerSchema>) {
-		const result = await updateOwner({
-			owner: {
+		const result = await updateUser({
+			user: {
 				name: values.name,
 				address: values.address,
 				numberOfMembersInFamily: values.numberOfMembersInFamily,
-				ownerId: ownerId ?? 0,
+				userId: userId ?? 0,
 				createdAt: new Date(),
 				latitude: 0,
 				longitude: 0,
@@ -56,13 +56,13 @@ export const UserForm = ({
 	}
 
 	async function onCreateSubmit(values: z.infer<typeof ownerSchema>) {
-		const result = await registerOwner({
-			owner: {
+		const result = await registerUser({
+			user: {
 				createdAt: new Date(),
 				name: values.name,
 				address: values.address,
 				numberOfMembersInFamily: values.numberOfMembersInFamily,
-				ownerId: 0,
+				userId: 0,
 				longitude: 0,
 				latitude: 0,
 			},

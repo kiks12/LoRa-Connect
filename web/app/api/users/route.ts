@@ -1,14 +1,13 @@
-import { getOwnersWithoutBracelet } from "@/server/db/owners";
+import { getUsersLatest } from "@/server/db/users";
 import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue } from "@/utils/api";
 import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const owners = await getOwnersWithoutBracelet()
-
+    const users = await getUsersLatest()
     return NextResponse.json({
-      owners
+      users
     })
   } catch (error) {
     if (error instanceof PrismaClientInitializationError)

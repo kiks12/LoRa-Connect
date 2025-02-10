@@ -1,4 +1,4 @@
-import { OwnerWithBracelet } from "@/types";
+import { UserWithBracelet } from "@/types";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -12,15 +12,15 @@ export default function UsersData({
 	data,
 	doughnutData,
 }: {
-	data: { owners: OwnerWithBracelet[]; loading: boolean };
+	data: { users: UserWithBracelet[]; loading: boolean };
 	doughnutData: { data: number[]; labels: string[] };
 }) {
 	const withBracelets = useMemo(() => {
-		const count = data.owners.filter((o) => o.bracelet).length;
-		const percentage = (count / data.owners.length) * 100;
+		const count = data.users.filter((o) => o.bracelet).length;
+		const percentage = (count / data.users.length) * 100;
 
 		return { count, percentage };
-	}, [data.owners]);
+	}, [data.users]);
 
 	const finalData = {
 		labels: doughnutData.labels,
@@ -68,7 +68,7 @@ export default function UsersData({
 												</div>
 											</div>
 											<div>
-												<CardTitle className="text-3xl font-bold">{data.owners.length}</CardTitle>
+												<CardTitle className="text-3xl font-bold">{data.users.length}</CardTitle>
 												<CardDescription>TOTAL USERS</CardDescription>
 											</div>
 										</div>
@@ -81,7 +81,7 @@ export default function UsersData({
 											</div>
 											<div className="flex flex-col mt-4">
 												<Label className="text-lg font-semibold">{isNaN(withBracelets.percentage) ? 0 : 100 - withBracelets.percentage}%</Label>
-												<Label className="text-neutral-500 font-normal">Without Device({data.owners.length - withBracelets.count})</Label>
+												<Label className="text-neutral-500 font-normal">Without Device({data.users.length - withBracelets.count})</Label>
 											</div>
 										</div>
 										<div className="mt-10">

@@ -1,6 +1,6 @@
 "use client";
 
-import { OperationsWithPayload, OwnerWithBracelet, RescuerWithBracelet } from "@/types";
+import { OperationsWithPayload, UserWithBracelet, RescuerWithBracelet } from "@/types";
 import { Bracelets, EvacuationCenters, Obstacle } from "@prisma/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -15,18 +15,18 @@ export default function useDashboard() {
 		bracelets: [],
 		loading: true,
 	});
-	const [owners, setOwners] = useState<{ owners: OwnerWithBracelet[]; loading: boolean }>({
-		owners: [],
+	const [users, setUsers] = useState<{ users: UserWithBracelet[]; loading: boolean }>({
+		users: [],
 		loading: true,
 	});
-	const ownersDoughnut = useMemo(() => {
-		const withBracelets = owners.owners.filter((o) => o.bracelet).length;
-		const withoutBracelets = owners.owners.length - withBracelets;
+	const usersDoughnut = useMemo(() => {
+		const withBracelets = users.users.filter((o) => o.bracelet).length;
+		const withoutBracelets = users.users.length - withBracelets;
 		return {
 			labels: ["With Device", "Without Device"],
 			data: [withBracelets, withoutBracelets],
 		};
-	}, [owners.owners]);
+	}, [users.users]);
 	const [rescuers, setRescuers] = useState<{ rescuers: RescuerWithBracelet[]; loading: boolean }>({
 		rescuers: [],
 		loading: true,
@@ -81,16 +81,18 @@ export default function useDashboard() {
 			severe: [],
 		};
 
-		operations.operations.forEach((operation) => {
-			if (operation.status === "ASSIGNED") breakdown.assigned.push(operation);
-			if (operation.status === "PENDING") breakdown.pending.push(operation);
-			if (operation.status === "CANCELED") breakdown.canceled.push(operation);
-			if (operation.status === "COMPLETE") breakdown.complete.push(operation);
-			if (operation.status === "FAILED") breakdown.failed.push(operation);
-			if (operation.urgency === "LOW") breakdown.low.push(operation);
-			if (operation.urgency === "MODERATE") breakdown.moderate.push(operation);
-			if (operation.urgency === "SEVERE") breakdown.severe.push(operation);
-		});
+		if (operations.operations) {
+			operations.operations.forEach((operation) => {
+				if (operation.status === "ASSIGNED") breakdown.assigned.push(operation);
+				if (operation.status === "PENDING") breakdown.pending.push(operation);
+				if (operation.status === "CANCELED") breakdown.canceled.push(operation);
+				if (operation.status === "COMPLETE") breakdown.complete.push(operation);
+				if (operation.status === "FAILED") breakdown.failed.push(operation);
+				if (operation.urgency === "LOW") breakdown.low.push(operation);
+				if (operation.urgency === "MODERATE") breakdown.moderate.push(operation);
+				if (operation.urgency === "SEVERE") breakdown.severe.push(operation);
+			});
+		}
 
 		return breakdown;
 	}, [operations.operations]);
@@ -108,18 +110,18 @@ export default function useDashboard() {
 		return () => setBracelets({ bracelets: [], loading: true });
 	}, [fetchBracelets]);
 
-	const fetchOwners = useCallback(async () => {
-		setOwners((prev) => ({ ...prev, loading: true }));
-		const result = await fetch("/api/owners");
-		const { owners } = await result.json();
-		setOwners(() => ({ owners, loading: false }));
+	const fetchUsers = useCallback(async () => {
+		setUsers((prev) => ({ ...prev, loading: true }));
+		const result = await fetch("/api/users");
+		const { users } = await result.json();
+		setUsers(() => ({ users, loading: false }));
 	}, []);
 
 	// FETCH OWNERS API
 	useEffect(() => {
-		fetchOwners();
-		return () => setOwners({ owners: [], loading: true });
-	}, [fetchOwners]);
+		fetchUsers();
+		return () => setUsers({ users: [], loading: true });
+	}, [fetchUsers]);
 
 	const fetchRescuers = useCallback(async () => {
 		setRescuers((prev) => ({ ...prev, loading: true }));
@@ -187,7 +189,7 @@ export default function useDashboard() {
 
 	function refreshDashboard() {
 		fetchBracelets();
-		fetchOwners();
+		fetchUsers();
 		fetchRescuers();
 		fetchEvacuationCenters();
 		fetchObstacles();
@@ -197,8 +199,8 @@ export default function useDashboard() {
 
 	return {
 		bracelets,
-		owners,
-		ownersDoughnut,
+		users,
+		usersDoughnut,
 		rescuers,
 		rescuersDoughnut,
 		evacuationCenters,

@@ -4,7 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { assignSchema } from "@/schema/assign";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bracelets, Owners, Rescuers } from "@prisma/client";
+import { Bracelets, Users, Rescuers } from "@prisma/client";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { isOwner } from "@/utils/typeGuards";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { setOwnerBracelet } from "@/server/actions/owners";
+import { setUserBracelet } from "@/server/actions/users";
 import { useToast } from "@/hooks/use-toast";
 import { setRescuerBracelet } from "@/server/actions/rescuers";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,15 +25,15 @@ export type OwnerType = "CIVILIAN" | "RESCUER";
 export function AssignForm({
 	braceletId,
 	braceletName,
-	ownerId,
-	ownerName,
+	userId,
+	userName,
 	rescuerId,
 	rescuerName,
 }: {
 	braceletId?: string;
 	braceletName?: string;
-	ownerName?: string;
-	ownerId?: number;
+	userName?: string;
+	userId?: number;
 	rescuerId?: number;
 	rescuerName?: string;
 }) {
@@ -41,8 +41,8 @@ export function AssignForm({
 	const [ownerType, setOwnerType] = useState<OwnerType>("CIVILIAN");
 	const [rescuers, setRescuers] = useState<Rescuers[]>([]);
 	const [backupRescuers, setBackupRescuers] = useState<Rescuers[]>([]);
-	const [owners, setOwners] = useState<Owners[]>([]);
-	const [backupOwners, setBackupOwners] = useState<Owners[]>([]);
+	const [owners, setOwners] = useState<Users[]>([]);
+	const [backupOwners, setBackupOwners] = useState<Users[]>([]);
 	const [bracelets, setBracelets] = useState<Bracelets[]>([]);
 	const [backupBracelets, setBackupBracelets] = useState<Bracelets[]>([]);
 	const form = useForm<z.infer<typeof assignSchema>>({
@@ -50,9 +50,9 @@ export function AssignForm({
 		defaultValues: {
 			braceletName: braceletName ?? "",
 			braceletId: braceletId ?? "",
-			ownerId: ownerId ?? rescuerId ?? 0,
+			userId: userId ?? rescuerId ?? 0,
 			isRescuer: false,
-			ownerName: ownerName ?? rescuerName ?? "",
+			userName: userName ?? rescuerName ?? "",
 		},
 	});
 
@@ -88,14 +88,14 @@ export function AssignForm({
 		form.setValue("braceletName", bracelet.name);
 	}
 
-	function onOwnerClick(owner: Rescuers | Owners) {
+	function onOwnerClick(owner: Rescuers | Users) {
 		if (isOwner(owner)) {
-			form.setValue("ownerId", (owner as Owners).ownerId);
-			form.setValue("ownerName", (owner as Owners).name);
+			form.setValue("userId", (owner as Users).userId);
+			form.setValue("userName", (owner as Users).name);
 			return;
 		}
-		form.setValue("ownerId", (owner as Rescuers).rescuerId);
-		form.setValue("ownerName", (owner as Rescuers).name);
+		form.setValue("userId", (owner as Rescuers).rescuerId);
+		form.setValue("userName", (owner as Rescuers).name);
 	}
 
 	function onCheckboxChange(value: boolean) {
@@ -103,13 +103,13 @@ export function AssignForm({
 		setOwnerType(value ? "RESCUER" : "CIVILIAN");
 	}
 
-	async function onCivilianSubmit({ braceletId, ownerId }: z.infer<typeof assignSchema>) {
-		const result = await setOwnerBracelet({ ownerId, braceletId });
+	async function onCivilianSubmit({ braceletId, userId }: z.infer<typeof assignSchema>) {
+		const result = await setUserBracelet({ userId, braceletId });
 		showToast(result);
 	}
 
-	async function onRescuerSubmit({ braceletId, ownerId }: z.infer<typeof assignSchema>) {
-		const result = await setRescuerBracelet({ rescuerId: ownerId, braceletId });
+	async function onRescuerSubmit({ braceletId, userId }: z.infer<typeof assignSchema>) {
+		const result = await setRescuerBracelet({ rescuerId: userId, braceletId });
 		showToast(result);
 	}
 
@@ -226,10 +226,10 @@ export function AssignForm({
 						<div className="mt-4">
 							<FormField
 								control={form.control}
-								name="ownerId"
+								name="userId"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Owner ID</FormLabel>
+										<FormLabel>User/Rescuer ID</FormLabel>
 										<FormControl>
 											<Input placeholder="Enter owner ID..." {...field} />
 										</FormControl>
@@ -241,10 +241,10 @@ export function AssignForm({
 						<div className="mt-4">
 							<FormField
 								control={form.control}
-								name="ownerName"
+								name="userName"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Owner Name</FormLabel>
+										<FormLabel>User/Rescuer Name</FormLabel>
 										<FormControl>
 											<Input placeholder="Enter owner name..." {...field} />
 										</FormControl>

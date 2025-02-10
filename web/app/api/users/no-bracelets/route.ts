@@ -1,11 +1,12 @@
-import { getOwnersLatest } from "@/server/db/owners";
+import { getUsersWithoutDevice } from "@/server/db/users";
 import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue } from "@/utils/api";
 import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const owners = await getOwnersLatest()
+    const owners = await getUsersWithoutDevice()
+
     return NextResponse.json({
       owners
     })

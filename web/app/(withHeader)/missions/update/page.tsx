@@ -25,8 +25,8 @@ export default function MissionsUpdatePage({ searchParams }: { searchParams: { [
 						evacuationCenterName={evacuationCenterName}
 						rescuerId={rescuerId}
 						rescuerName={rescuerName}
-						ownerId={ownerId}
-						ownerName={ownerName}
+						userId={ownerId}
+						userName={ownerName}
 						numberOfRescuee={numberOfRescuee}
 						status={status as OperationStatus}
 						urgency={urgency as RescueUrgency}

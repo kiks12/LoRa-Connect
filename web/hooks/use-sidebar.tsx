@@ -1,7 +1,7 @@
 "use client";
 
 import AdminControls from "@/app/map/_components/AdminControls";
-import OwnersControls from "@/app/map/_components/OwnersControls";
+import UsersControls from "@/app/map/_components/UsersControls";
 import RescuersControls from "@/app/map/_components/RescuersControls";
 import TasksControls from "@/app/map/_components/TasksControls";
 import React, { createContext, ReactNode, useContext, useState } from "react";
@@ -12,7 +12,7 @@ export type activeTab = "ADMIN" | "TASKS" | "OWNERS" | "RESCUERS" | "ROUTING";
 export const SIDEBAR_TABS: { [key: string]: ReactNode } = {
 	ADMIN: <AdminControls />,
 	TASKS: <TasksControls />,
-	OWNERS: <OwnersControls />,
+	OWNERS: <UsersControls />,
 	RESCUERS: <RescuersControls />,
 	ROUTING: <RoutingControls />,
 };

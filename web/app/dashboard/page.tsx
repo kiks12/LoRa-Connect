@@ -17,8 +17,8 @@ ChartJs.register(CategoryScale, LinearScale, PointElement, LineElement, Title, A
 export default function DashboardPage() {
 	const {
 		bracelets,
-		owners,
-		ownersDoughnut,
+		users,
+		usersDoughnut,
 		rescuers,
 		rescuersDoughnut,
 		evacuationCenters,
@@ -59,7 +59,7 @@ export default function DashboardPage() {
 				</div>
 				<div className="flex flex-col lg:flex-row mt-4">
 					<div className="flex-1 mr-2">
-						<UsersData data={owners} doughnutData={ownersDoughnut} />
+						<UsersData data={users} doughnutData={usersDoughnut} />
 					</div>
 					<div className="flex-1 ml-2">
 						<RescuersData data={rescuers} doughnutData={rescuersDoughnut} />

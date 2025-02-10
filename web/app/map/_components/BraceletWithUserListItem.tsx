@@ -3,7 +3,7 @@ import ShowStatusIndicator from "./ShowStatusIndicator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
-export default function BraceletWithOwnerListItem({
+export default function BraceletWithUserListItem({
 	name,
 	showing,
 	onShowArea,

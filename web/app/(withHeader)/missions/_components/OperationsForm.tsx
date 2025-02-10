@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { operationsSchema } from "@/schema/operations";
 import { updateOperation } from "@/server/actions/operations";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EvacuationCenters, OperationStatus, Owners, Rescuers, RescueUrgency, VictimStatusReport } from "@prisma/client";
+import { EvacuationCenters, OperationStatus, Users, Rescuers, RescueUrgency, VictimStatusReport } from "@prisma/client";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -28,8 +28,8 @@ const STATUS_VALUES = [OperationStatus.ASSIGNED, OperationStatus.CANCELED, Opera
 
 export default function OperationsForm({
 	operationId,
-	ownerName,
-	ownerId,
+	userName,
+	userId,
 	rescuerId,
 	rescuerName,
 	numberOfRescuee,
@@ -41,8 +41,8 @@ export default function OperationsForm({
 }: {
 	operationId?: number;
 	type?: FormType;
-	ownerName?: string;
-	ownerId?: number;
+	userName?: string;
+	userId?: number;
 	rescuerName?: string;
 	rescuerId?: number;
 	evacuationCenterName?: string;
@@ -58,17 +58,17 @@ export default function OperationsForm({
 			evacuationCenterId: evacuationCenterId ?? 0,
 			evacuationCenterName: evacuationCenterName ?? "",
 			numberOfRescuee: numberOfRescuee ?? 0,
-			ownerId: ownerId ?? 0,
-			ownerName: ownerName ?? "",
+			userId: userId ?? 0,
+			userName: userName ?? "",
 			rescuerId: rescuerId ?? 0,
 			rescuerName: rescuerName ?? "",
 			status: status ?? "",
 			urgency: urgency ?? "",
 		},
 	});
-	const [owners, setOwners] = useState<Owners[]>([]);
+	const [users, setOwners] = useState<Users[]>([]);
 	const [openOwners, setOpenOwners] = useState(false);
-	const [ownersSearchValue, setOwnersSearchValue] = useState("");
+	const [usersSearchValue, setOwnersSearchValue] = useState("");
 	const [rescuers, setRescuers] = useState<Rescuers[]>([]);
 	const [openRescuers, setOpenRescuers] = useState(false);
 	const [rescuersSearchValue, setRescuersSearchValue] = useState("");
@@ -135,7 +135,7 @@ export default function OperationsForm({
 			evacuationCentersEvacuationId: values.evacuationCenterId,
 			missionId: operationId,
 			numberOfRescuee: values.numberOfRescuee,
-			ownersOwnerId: values.ownerId,
+			usersUserId: values.userId,
 			rescuersRescuerId: values.rescuerId,
 			status: values.status as OperationStatus,
 			urgency: values.urgency as RescueUrgency,
@@ -152,9 +152,9 @@ export default function OperationsForm({
 	};
 
 	useEffect(() => {
-		fetch("/api/owners")
+		fetch("/api/users")
 			.then((res) => res.json())
-			.then(({ owners }) => setOwners(owners));
+			.then(({ users }) => setOwners(users));
 	}, []);
 
 	useEffect(() => {
@@ -178,7 +178,7 @@ export default function OperationsForm({
 							<div className="flex-1">
 								<FormField
 									control={form.control}
-									name="ownerId"
+									name="userId"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Victim ID</FormLabel>
@@ -193,7 +193,7 @@ export default function OperationsForm({
 							<div className="md:my-0 md:mx-4 xs:my-4 flex-1">
 								<FormField
 									control={form.control}
-									name="ownerName"
+									name="userName"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Victim Name</FormLabel>
@@ -208,20 +208,20 @@ export default function OperationsForm({
 															<CommandList>
 																<CommandEmpty>No Owner found.</CommandEmpty>
 																<CommandGroup>
-																	{owners.map((owner, index) => (
+																	{users.map((user, index) => (
 																		<CommandItem
 																			key={index}
-																			value={owner.name}
+																			value={user.name}
 																			onSelect={(currentValue) => {
-																				setOwnersSearchValue(currentValue === ownersSearchValue ? "" : currentValue);
+																				setOwnersSearchValue(currentValue === usersSearchValue ? "" : currentValue);
 																				setOpenOwners(false);
-																				form.setValue("ownerId", owner.ownerId);
-																				form.setValue("ownerName", owner.name);
-																				form.setValue("numberOfRescuee", owner.numberOfMembersInFamily);
+																				form.setValue("userId", user.userId);
+																				form.setValue("userName", user.name);
+																				form.setValue("numberOfRescuee", user.numberOfMembersInFamily);
 																			}}
 																		>
-																			{owner.name}
-																			<Check className={cn("ml-auto", ownersSearchValue === owner.name ? "opacity-100" : "opacity-0")} />
+																			{user.name}
+																			<Check className={cn("ml-auto", usersSearchValue === user.name ? "opacity-100" : "opacity-0")} />
 																		</CommandItem>
 																	))}
 																</CommandGroup>

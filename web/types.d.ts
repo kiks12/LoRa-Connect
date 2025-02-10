@@ -1,6 +1,6 @@
 import { EvacuationCenters, Prisma } from "@prisma/client";
 
-export type OwnerWithBracelet = Prisma.OwnersGetPayload<{
+export type UserWithBracelet = Prisma.UsersGetPayload<{
   include: {
     bracelet: true
   }
@@ -8,7 +8,7 @@ export type OwnerWithBracelet = Prisma.OwnersGetPayload<{
 
 export type BraceletWithOwnerRescuer = Prisma.BraceletsGetPayload<{
   include: {
-    owner: true,
+    user: true,
     rescuer: true
   }
 }>
@@ -22,7 +22,7 @@ export type RescuerWithBracelet = Prisma.RescuersGetPayload<{
 export type OperationsWithPayload = Prisma.OperationsGetPayload<{
   include: {
     evacuationCenter: true,
-    owner: true,
+    user: true,
     rescuer: true,
     VictimStatusReport: true,
     _count: true
@@ -55,7 +55,7 @@ export type EvacuationInstruction = {
   message: string,
 }
 
-export type OwnerWithStatusIdentifier = OwnerWithBracelet & StatusIdentifier
+export type UserWithStatusIdentifier = UserWithBracelet & StatusIdentifier
 
 export type RescuerWithStatusIdentifier = RescuerWithBracelet & StatusIdentifier
 

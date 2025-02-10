@@ -1,4 +1,4 @@
-import { getOwners } from "@/server/db/owners";
+import { getUsers } from "@/server/db/users";
 import { DataTable } from "../../components/DataTable";
 import { columns } from "./columns";
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default async function OwnersPage() {
-	const owners = await getOwners();
+	const owners = await getUsers();
 	return (
 		<main>
 			<ContainerWithTitle title="Users">

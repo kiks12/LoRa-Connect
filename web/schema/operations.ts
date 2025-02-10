@@ -2,15 +2,15 @@ import { z } from "zod";
 
 
 export const operationsSchema = z.object({
-  ownerName: z.string().nonempty({
-    message: "Owner name should not be empty"
+  userName: z.string().nonempty({
+    message: "User name should not be empty"
   }),
-  ownerId: z.coerce.number({
-    message: "Owner ID should be a number"
+  userId: z.coerce.number({
+    message: "User ID should be a number"
   }).nonnegative({
-    message: "Owner ID should not be negative"
+    message: "User ID should not be negative"
   }).min(1, {
-    message: "Owner ID should be greater than 0"
+    message: "User ID should be greater than 0"
   }),
   rescuerName: z.string().nonempty({
     message: "Owner name should not be empty"
