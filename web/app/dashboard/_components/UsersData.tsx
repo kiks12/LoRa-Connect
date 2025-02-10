@@ -8,7 +8,7 @@ import { Doughnut } from "react-chartjs-2";
 import Spinner from "@/app/components/Spinner";
 import { Button } from "@/components/ui/button";
 
-export default function OwnersData({
+export default function UsersData({
 	data,
 	doughnutData,
 }: {
@@ -69,7 +69,7 @@ export default function OwnersData({
 											</div>
 											<div>
 												<CardTitle className="text-3xl font-bold">{data.owners.length}</CardTitle>
-												<CardDescription>TOTAL OWNERS</CardDescription>
+												<CardDescription>TOTAL USERS</CardDescription>
 											</div>
 										</div>
 									</CardHeader>
@@ -77,16 +77,16 @@ export default function OwnersData({
 										<div className="">
 											<div className="flex flex-col">
 												<Label className="text-lg font-semibold">{isNaN(withBracelets.percentage) ? 0 : withBracelets.percentage}%</Label>
-												<Label className="text-neutral-500 font-normal">With Bracelets ({withBracelets.count})</Label>
+												<Label className="text-neutral-500 font-normal">With Device({withBracelets.count})</Label>
 											</div>
 											<div className="flex flex-col mt-4">
 												<Label className="text-lg font-semibold">{isNaN(withBracelets.percentage) ? 0 : 100 - withBracelets.percentage}%</Label>
-												<Label className="text-neutral-500 font-normal">Without Bracelets ({data.owners.length - withBracelets.count})</Label>
+												<Label className="text-neutral-500 font-normal">Without Device({data.owners.length - withBracelets.count})</Label>
 											</div>
 										</div>
 										<div className="mt-10">
-											<Link href="/owners">
-												<Button variant="outline">Manage Owners</Button>
+											<Link href="/users">
+												<Button variant="outline">Manage Users</Button>
 											</Link>
 										</div>
 									</CardContent>
