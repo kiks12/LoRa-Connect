@@ -8,7 +8,7 @@ export const LINKS = [
 	{ title: "Dashboard", link: "/dashboard" },
 	{ title: "Missions", link: "/missions" },
 	{ title: "Bracelets", link: "/bracelets" },
-	{ title: "Owners", link: "/owners" },
+	{ title: "Users", link: "/users" },
 	{ title: "Rescuers", link: "/rescuers" },
 	{ title: "Evacuation Centers", link: "/evacuationCenters" },
 ];
