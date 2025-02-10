@@ -10,7 +10,7 @@ export default async function UpdateBraceletPage({ searchParams }: { searchParam
 
 	return (
 		<main>
-			<ContainerWithTitleAndBackButton title="Update Bracelet" previousLink="/bracelets">
+			<ContainerWithTitleAndBackButton title="Update Device" previousLink="/bracelets">
 				<div className="mt-4 p-16">
 					<BraceletForm formType="UPDATE" braceletId={braceletId} name={name} type={type} />
 				</div>

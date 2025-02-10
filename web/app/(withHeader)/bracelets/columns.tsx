@@ -16,7 +16,7 @@ export const columns: ColumnDef<Bracelets>[] = [
 		header: ({ column }) => {
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-					Bracelet ID
+					Device ID
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
 			);

@@ -7,7 +7,7 @@ export const LINKS = [
 	{ title: "Map", link: "/map" },
 	{ title: "Dashboard", link: "/dashboard" },
 	{ title: "Missions", link: "/missions" },
-	{ title: "Bracelets", link: "/bracelets" },
+	{ title: "Devices", link: "/bracelets" },
 	{ title: "Users", link: "/users" },
 	{ title: "Rescuers", link: "/rescuers" },
 	{ title: "Evacuation Centers", link: "/evacuationCenters" },

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { braceletSchema } from "@/schema/bracelets";
@@ -85,10 +86,13 @@ export function BraceletForm({
 							name="braceletId"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Bracelet ID</FormLabel>
+									<FormLabel>Device ID</FormLabel>
 									<FormControl>
 										<Input placeholder="Enter bracelet id..." {...field} />
 									</FormControl>
+									<Label className="italic font-normal text-xs text-neutral-500">
+										*Scan Device using NFC Reader to automatically input device ID
+									</Label>
 									<FormMessage />
 								</FormItem>
 							)}

@@ -11,7 +11,7 @@ export default async function BraceletsPages() {
 
 	return (
 		<main>
-			<ContainerWithTitle title="Bracelets">
+			<ContainerWithTitle title="Devices">
 				<DataTable filter="name" columns={columns} data={bracelets}>
 					<Link href="/bracelets/new">
 						<Button>

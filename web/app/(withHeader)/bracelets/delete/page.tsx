@@ -25,7 +25,7 @@ export default function DeleteBraceletPage() {
 
 	return (
 		<main>
-			<ContainerWithTitleAndBackButton title="Delete Bracelet" previousLink="/bracelets">
+			<ContainerWithTitleAndBackButton title="Delete Device" previousLink="/bracelets">
 				<div className="mt-4 p-16">
 					<Card>
 						<CardHeader>
