@@ -9,10 +9,10 @@ export default async function OwnersPage() {
 	const owners = await getOwners();
 	return (
 		<main>
-			<ContainerWithTitle title="Owners">
+			<ContainerWithTitle title="Users">
 				<DataTable filter="name" columns={columns} data={owners}>
-					<Link href="/owners/new">
-						<Button>Register Owner</Button>
+					<Link href="/users/new">
+						<Button>Register User</Button>
 					</Link>
 				</DataTable>
 			</ContainerWithTitle>

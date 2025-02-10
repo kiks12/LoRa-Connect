@@ -25,7 +25,7 @@ export default function DeleteOwnerPage() {
 
 	return (
 		<main>
-			<ContainerWithTitleAndBackButton title="Delete Owner" previousLink="/owners">
+			<ContainerWithTitleAndBackButton title="Delete User" previousLink="/users">
 				<div className="mt-4 p-16">
 					<Card>
 						<CardHeader>

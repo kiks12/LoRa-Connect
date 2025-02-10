@@ -14,7 +14,7 @@ import AvailableBraceletsDialog from "../../_components/AvailableBracelets";
 
 export type OwnerFormType = "CREATE" | "UPDATE";
 
-export const OwnerForm = ({
+export const UserForm = ({
 	ownerId,
 	name,
 	address,
@@ -116,7 +116,7 @@ export const OwnerForm = ({
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Owner Name</FormLabel>
+									<FormLabel>User Full Name</FormLabel>
 									<FormControl>
 										<Input placeholder="Enter fullname..." {...field} />
 									</FormControl>
