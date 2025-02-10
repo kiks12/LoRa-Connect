@@ -23,7 +23,7 @@ export default function useDashboard() {
 		const withBracelets = owners.owners.filter((o) => o.bracelet).length;
 		const withoutBracelets = owners.owners.length - withBracelets;
 		return {
-			labels: ["With Bracelets", "Without Bracelets"],
+			labels: ["With Device", "Without Device"],
 			data: [withBracelets, withoutBracelets],
 		};
 	}, [owners.owners]);
@@ -35,7 +35,7 @@ export default function useDashboard() {
 		const withBracelets = rescuers.rescuers.filter((o) => o.bracelet).length;
 		const withoutBracelets = rescuers.rescuers.length - withBracelets;
 		return {
-			labels: ["With Bracelets", "Without Bracelets"],
+			labels: ["With Device", "Without Device"],
 			data: [withBracelets, withoutBracelets],
 		};
 	}, [rescuers.rescuers]);
@@ -178,6 +178,7 @@ export default function useDashboard() {
 
 	useEffect(() => {
 		fetchOperationsLineChartData();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [operationsLineChartData.option]);
 
 	function onOperationsLineChartOptionChange(option: "Last 7 Days" | "Last 30 Days" | "Last 60 Days") {

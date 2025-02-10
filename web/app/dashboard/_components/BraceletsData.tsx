@@ -7,26 +7,26 @@ import { Watch } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 
-export default function BraceletsData({ data }: { data: { bracelets: Bracelets[]; loading: boolean } }) {
+export default function DevicesData({ data }: { data: { bracelets: Bracelets[]; loading: boolean } }) {
 	const calculatedData = useMemo(() => {
-		const withOwners = data.bracelets.filter((b) => b.ownerId || b.rescuerId).length;
-		const withOwnersPercentage = (withOwners / data.bracelets.length) * 100;
-		const withoutOwners = data.bracelets.length - withOwners;
-		const withoutOwnersPercentage = (withoutOwners / data.bracelets.length) * 100;
-		const forRescuers = data.bracelets.filter((b) => b.type === "RESCUER").length;
-		const forRescuersPercentage = (forRescuers / data.bracelets.length) * 100;
-		const forVictims = data.bracelets.length - forRescuers;
-		const forVictimsPercentage = (forVictims / data.bracelets.length) * 100;
+		const deployed = data.bracelets.filter((b) => b.ownerId || b.rescuerId);
+		const stock = data.bracelets.filter((b) => b.ownerId === null && b.rescuerId === null);
+		const rescuerDevicesCount = data.bracelets.filter((b) => b.type === "RESCUER").length;
+		const userDevicesCount = data.bracelets.length - rescuerDevicesCount;
+		const stockRescuerDevicesCount = stock.filter((b) => b.type === "RESCUER").length;
+		const stockUserDevicesCount = stock.length - rescuerDevicesCount;
+		const deployedRescuerDevicesCount = deployed.filter((b) => b.type === "RESCUER").length;
+		const deployedUserDevicesCount = deployed.length - deployedRescuerDevicesCount;
 
 		return {
-			withOwners,
-			withOwnersPercentage,
-			withoutOwners,
-			withoutOwnersPercentage,
-			forRescuers,
-			forRescuersPercentage,
-			forVictims,
-			forVictimsPercentage,
+			deployed,
+			stock,
+			rescuerDevicesCount,
+			userDevicesCount,
+			stockRescuerDevicesCount,
+			stockUserDevicesCount,
+			deployedRescuerDevicesCount,
+			deployedUserDevicesCount,
 		};
 	}, [data.bracelets]);
 
@@ -40,51 +40,81 @@ export default function BraceletsData({ data }: { data: { bracelets: Bracelets[]
 				) : (
 					<>
 						<CardHeader>
-							<div className="flex">
-								<div className="flex flex-1 items-center">
-									<div>
-										<div className="p-4 rounded-full bg-neutral-100 border border-neutral-500 mr-4">
-											<Watch className="text-neutral-700" />
+							<div className="flex flex-col">
+								<div className="flex justify-between items-center">
+									<div className="flex-1">
+										<div className="flex flex-1 flex-col">
+											<div className="flex items-center">
+												<div>
+													<div className="p-4 rounded-full bg-neutral-100 border border-neutral-500 mr-4">
+														<Watch className="text-neutral-700" />
+													</div>
+												</div>
+												<div>
+													<CardTitle className="text-3xl font-bold">{data.bracelets.length}</CardTitle>
+													<CardDescription>TOTAL DEVICES</CardDescription>
+												</div>
+											</div>
+										</div>
+										<div>
+											<div className="mt-4 flex flex-1 items-center">
+												<div className="flex flex-col">
+													<Label className="text-xl font-semibold">{calculatedData.userDevicesCount}</Label>
+													<Label className="text-neutral-500 font-normal">User Devices</Label>
+												</div>
+												<div className="flex flex-col ml-8">
+													<Label className="text-xl font-semibold">{calculatedData.rescuerDevicesCount}</Label>
+													<Label className="text-neutral-500 font-normal">Rescuer Devices</Label>
+												</div>
+											</div>
 										</div>
 									</div>
-									<div>
-										<CardTitle className="text-3xl font-bold">{data.bracelets.length}</CardTitle>
-										<CardDescription>TOTAL BRACELETS</CardDescription>
-									</div>
-									<div className="flex ml-8">
-										<div className="flex flex-col">
-											<Label className="text-lg font-semibold">
-												{isNaN(calculatedData.withOwnersPercentage) ? 0 : calculatedData.withOwnersPercentage.toFixed(2)}%
-											</Label>
-											<Label className="text-neutral-500 font-normal">With holders ({calculatedData.withOwners})</Label>
+
+									<div className="flex-1">
+										<div className="flex-1">
+											<div>
+												<CardTitle className="text-3xl font-bold">{calculatedData.deployed.length}</CardTitle>
+												<CardDescription>TOTAL DEPLOYED</CardDescription>
+											</div>
 										</div>
-										<div className="flex flex-col ml-4">
-											<Label className="text-lg font-semibold">
-												{isNaN(calculatedData.withoutOwnersPercentage) ? 0 : calculatedData.withoutOwnersPercentage.toFixed(2)}%
-											</Label>
-											<Label className="text-neutral-500 font-normal">Without holders ({calculatedData.withoutOwners})</Label>
-										</div>
-									</div>
-								</div>
-								<div className="flex flex-1 justify-between items-center">
-									<div className="flex ml-8">
-										<div className="flex flex-col">
-											<Label className="text-lg font-semibold">
-												{isNaN(calculatedData.forVictimsPercentage) ? 0 : calculatedData.forVictimsPercentage.toFixed(2)}%
-											</Label>
-											<Label className="text-neutral-500 font-normal">For Victims/Owners({calculatedData.forVictims})</Label>
-										</div>
-										<div className="flex flex-col ml-4">
-											<Label className="text-lg font-semibold">
-												{isNaN(calculatedData.forRescuersPercentage) ? 0 : calculatedData.forRescuersPercentage.toFixed(2)}%
-											</Label>
-											<Label className="text-neutral-500 font-normal">For Rescuers({calculatedData.forRescuers})</Label>
+										<div>
+											<div className="mt-4 flex flex-1 items-center">
+												<div className="flex flex-col">
+													<Label className="text-xl font-semibold">{calculatedData.deployedUserDevicesCount}</Label>
+													<Label className="text-neutral-500 font-normal">User Devices</Label>
+												</div>
+												<div className="flex flex-col ml-8">
+													<Label className="text-xl font-semibold">{calculatedData.deployedRescuerDevicesCount}</Label>
+													<Label className="text-neutral-500 font-normal">Rescuer Devices</Label>
+												</div>
+											</div>
 										</div>
 									</div>
-									<div>
-										<Link href="/bracelets">
-											<Button variant="outline">Manage Bracelets</Button>
-										</Link>
+
+									<div className="flex-1">
+										<div className="flex-1">
+											<div className="flex justify-between">
+												<div>
+													<CardTitle className="text-3xl font-bold">{calculatedData.stock.length}</CardTitle>
+													<CardDescription>TOTAL STOCK</CardDescription>
+												</div>
+												<Link href="/bracelets">
+													<Button variant="outline">Manage Devices</Button>
+												</Link>
+											</div>
+										</div>
+										<div>
+											<div className="mt-4 flex flex-1 items-center">
+												<div className="flex flex-col">
+													<Label className="text-xl font-semibold">{calculatedData.stockUserDevicesCount}</Label>
+													<Label className="text-neutral-500 font-normal">User Devices</Label>
+												</div>
+												<div className="flex flex-col ml-8">
+													<Label className="text-xl font-semibold">{calculatedData.stockRescuerDevicesCount}</Label>
+													<Label className="text-neutral-500 font-normal">Rescuer Devices</Label>
+												</div>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>

@@ -7,9 +7,9 @@ import Link from "next/link";
 import DataSection from "./_components/DataSection";
 import useDashboard from "@/hooks/use-dashboard";
 import { Chart as ChartJs, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from "chart.js";
-import OwnersData from "./_components/OwnersData";
+import UsersData from "./_components/UsersData";
 import RescuersData from "./_components/RescuersData";
-import BraceletsData from "./_components/BraceletsData";
+import DevicesData from "./_components/BraceletsData";
 import MissionsData from "./_components/MissionsData";
 
 ChartJs.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ArcElement, Tooltip, Legend);
@@ -48,19 +48,18 @@ export default function DashboardPage() {
 						</div>
 					</div>
 					<div className="flex">
-						<Button variant="outline" className="mr-2" onClick={refreshDashboard}>
+						<Button variant="outline" onClick={refreshDashboard}>
 							<RefreshCcw />
 							Refresh
 						</Button>
-						<Button>Generate Report</Button>
 					</div>
 				</div>
 				<div className="mt-4">
-					<BraceletsData data={bracelets} />
+					<DevicesData data={bracelets} />
 				</div>
 				<div className="flex flex-col lg:flex-row mt-4">
 					<div className="flex-1 mr-2">
-						<OwnersData data={owners} doughnutData={ownersDoughnut} />
+						<UsersData data={owners} doughnutData={ownersDoughnut} />
 					</div>
 					<div className="flex-1 ml-2">
 						<RescuersData data={rescuers} doughnutData={rescuersDoughnut} />
