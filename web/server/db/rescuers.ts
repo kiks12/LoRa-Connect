@@ -11,6 +11,14 @@ export async function getRescuersLatest() {
   })
 }
 
+export async function getRescuersWithoutTeam() {
+  return await client.rescuers.findMany({
+    where: {
+      teamsTeamId: null
+    }
+  })
+}
+
 export const getRescuers = unstable_cache(async () => {
   return await client.rescuers.findMany({
     include: {
