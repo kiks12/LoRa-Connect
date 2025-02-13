@@ -19,13 +19,21 @@ model Bracelets {
 }
 
 model Rescuers {
-  rescuerId  Int          @id @default(autoincrement())
-  createdAt  DateTime     @default(now())
-  name       String
-  latitude   Float?
-  longitude  Float?
-  bracelet   Bracelets?
-  Operations Operations[]
+  rescuerId   Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  name        String
+  latitude    Float?
+  longitude   Float?
+  bracelet    Bracelets?
+  Operations  Operations[]
+  Teams       Teams?       @relation(fields: [teamsTeamId], references: [teamId])
+  teamsTeamId Int?
+}
+
+model Teams {
+  teamId    Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  rescuers  Rescuers[]
 }
 
 model EvacuationCenters {
