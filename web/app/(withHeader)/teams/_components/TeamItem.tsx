@@ -1,0 +1,96 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TeamWithRescuer } from "@/types";
+import { ChevronDown, ChevronUp, Edit, Trash } from "lucide-react";
+import { useState } from "react";
+import TeamRescuerSubItem from "./TeamRescuerSubItem";
+import Link from "next/link";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+
+export default function TeamItem({ team }: { team: TeamWithRescuer }) {
+	const { toast } = useToast();
+	const [open, setOpen] = useState(false);
+
+	function toggleOpen() {
+		setOpen(!open);
+	}
+
+	async function deleteTeam() {
+		const res = await fetch("/api/teams/delete", {
+			method: "DELETE",
+			body: JSON.stringify({ teamId: team.teamId }),
+		});
+		const { message } = await res.json();
+		toast({
+			variant: res.status === 200 ? "default" : "destructive",
+			title: res.status === 200 ? "Successful Delete" : "Error in deleting record",
+			description: message,
+		});
+	}
+
+	return (
+		<Card className="p-4 border-neutral-200 shadow-sm">
+			<div className="flex justify-between items-center">
+				<div className="flex flex-1">
+					<div className="flex-1">
+						<CardDescription>Team ID</CardDescription>
+						<CardTitle className="font-medium">{team.teamId}</CardTitle>
+					</div>
+					<div className="flex-1">
+						<CardDescription>Team ID</CardDescription>
+						<CardTitle className="font-medium">{new Date(team.createdAt).toDateString()}</CardTitle>
+					</div>
+					<div className="flex-1">
+						<CardDescription>Members</CardDescription>
+						<CardTitle className="font-medium">Count ({team.rescuers.length})</CardTitle>
+					</div>
+				</div>
+				<div className="flex">
+					<Link href={`/teams/update?teamId=${team.teamId}`}>
+						<Button variant="ghost" size="icon" className="text-blue-500">
+							<Edit />
+						</Button>
+					</Link>
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant="ghost" size="icon" className="text-red-500" onClick={toggleOpen}>
+								<Trash />
+							</Button>
+						</DialogTrigger>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>Delete Confirmation</DialogTitle>
+							</DialogHeader>
+							<div>
+								<p>Are you sure you want to delete this team?</p>
+								<div className="mt-8 flex justify-end">
+									<DialogTrigger asChild>
+										<Button className="mr-2">Cancel</Button>
+									</DialogTrigger>
+									<DialogTrigger asChild>
+										<Button className="" onClick={deleteTeam} variant="outline">
+											Confirm
+										</Button>
+									</DialogTrigger>
+								</div>
+							</div>
+						</DialogContent>
+					</Dialog>
+					<Button variant="ghost" size="icon" onClick={toggleOpen}>
+						{open ? <ChevronUp /> : <ChevronDown />}
+					</Button>
+				</div>
+			</div>
+			{open && (
+				<div className="mt-4">
+					{team.rescuers.map((rescuer, index) => {
+						return <TeamRescuerSubItem rescuer={rescuer} key={index} />;
+					})}
+				</div>
+			)}
+		</Card>
+	);
+}

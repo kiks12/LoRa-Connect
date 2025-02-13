@@ -19,13 +19,24 @@ export async function getTeams() {
   })
 }
 
+export async function getTeam({teamId}: {teamId: number}): Promise<TeamWithRescuer | null> {
+  return await client.teams.findFirst({
+    where: {
+      teamId: teamId
+    },
+    include: {
+      rescuers:true
+    }
+  })
+}
+
 export async function createTeam({data}: {data: TeamWithRescuer}) {
   const newTeam = await client.teams.create({
     data: {}
   })
 
   const rescuersData = data.rescuers.map(async (rescuer) => {
-    client.rescuers.update({
+    await client.rescuers.update({
       where: {
         rescuerId: rescuer.rescuerId
       },
@@ -38,12 +49,12 @@ export async function createTeam({data}: {data: TeamWithRescuer}) {
   return await Promise.all(rescuersData)
 }
 
-export async function updateTeam({data, originalTeam}: {data: TeamWithRescuer, originalTeam: TeamWithRescuer}) {
-  const toRemove = originalTeam.rescuers.filter((existing) => {
-    return !data.rescuers.some((newData) => newData.rescuerId === existing.rescuerId)
+export async function updateTeam({newTeam , existingTeam}: {newTeam: TeamWithRescuer, existingTeam: TeamWithRescuer}) {
+  const toRemove = existingTeam.rescuers.filter((existing) => {
+    return !newTeam.rescuers.some((newData) => newData.rescuerId === existing.rescuerId)
   })
 
-  const toAdd = data.rescuers.filter((rescuer) => {
+  const toAdd = newTeam.rescuers.filter((rescuer) => {
     return rescuer.teamsTeamId === null
   })
 
@@ -64,7 +75,7 @@ export async function updateTeam({data, originalTeam}: {data: TeamWithRescuer, o
           rescuerId: rescuer.rescuerId,
         },
         data: {
-          teamsTeamId: data.teamId
+          teamsTeamId: newTeam.teamId
         }
       })
     })
