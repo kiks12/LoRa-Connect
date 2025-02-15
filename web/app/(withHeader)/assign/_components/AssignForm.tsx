@@ -161,15 +161,15 @@ export function AssignForm({
 				</div>
 				<div className="mt-4">
 					<h2 className="text-lg">Available Owners</h2>
-					<Tabs className="mt-2" defaultValue="CIVILIAN">
+					<Tabs className="mt-2" defaultValue="users">
 						<TabsList>
-							<TabsTrigger value="CIVILIAN">Civilian</TabsTrigger>
-							<TabsTrigger value="RESCUER">Rescuer</TabsTrigger>
+							<TabsTrigger value="users">Users</TabsTrigger>
+							<TabsTrigger value="rescuers">Rescuers</TabsTrigger>
 						</TabsList>
 						<div className="mt-3">
-							<Input placeholder="Search Bracelet ID or Name..." onChange={(e) => filterOwners(e.target.value)} />
+							<Input placeholder="Search Name..." onChange={(e) => filterOwners(e.target.value)} />
 						</div>
-						<TabsContent value="CIVILIAN">
+						<TabsContent value="users">
 							<div className="mt-2 h-64 overflow-y-auto">
 								<ul className="flex flex-col">
 									{owners.map((owner, index) => {
@@ -178,7 +178,7 @@ export function AssignForm({
 								</ul>
 							</div>
 						</TabsContent>
-						<TabsContent value="RESCUER">
+						<TabsContent value="rescuers">
 							<div className="mt-2 h-64 overflow-y-auto">
 								<ul className="flex max-h-56 overflow-y-auto flex-col">
 									{rescuers.map((rescuer, index) => {
