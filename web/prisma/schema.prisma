@@ -16,6 +16,7 @@ model Bracelets {
   type       BraceletType @default(VICTIM)
   rescuer    Rescuers?    @relation(fields: [rescuerId], references: [rescuerId])
   user       Users?       @relation(fields: [ownerId], references: [userId])
+  Teams      Teams[]
 }
 
 model Rescuers {
@@ -31,9 +32,11 @@ model Rescuers {
 }
 
 model Teams {
-  teamId    Int        @id @default(autoincrement())
-  createdAt DateTime   @default(now())
-  rescuers  Rescuers[]
+  teamId              Int        @id @default(autoincrement())
+  createdAt           DateTime   @default(now())
+  bracelet            Bracelets? @relation(fields: [braceletsBraceletId], references: [braceletId])
+  rescuers            Rescuers[]
+  braceletsBraceletId String?
 }
 
 model EvacuationCenters {
