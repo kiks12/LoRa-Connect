@@ -76,11 +76,13 @@ export default function UsersData({
 									<CardContent>
 										<div className="">
 											<div className="flex flex-col">
-												<Label className="text-lg font-semibold">{isNaN(withBracelets.percentage) ? 0 : withBracelets.percentage}%</Label>
+												<Label className="text-lg font-semibold">{isNaN(withBracelets.percentage) ? 0 : withBracelets.percentage.toFixed(2)}%</Label>
 												<Label className="text-neutral-500 font-normal">With Device({withBracelets.count})</Label>
 											</div>
 											<div className="flex flex-col mt-4">
-												<Label className="text-lg font-semibold">{isNaN(withBracelets.percentage) ? 0 : 100 - withBracelets.percentage}%</Label>
+												<Label className="text-lg font-semibold">
+													{isNaN(withBracelets.percentage) ? 0 : (100 - withBracelets.percentage).toFixed(2)}%
+												</Label>
 												<Label className="text-neutral-500 font-normal">Without Device({data.users.length - withBracelets.count})</Label>
 											</div>
 										</div>
