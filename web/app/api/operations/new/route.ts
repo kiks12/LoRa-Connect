@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         createAt: new Date(),
         dateTime: new Date(),
         rescuersRescuerId: rescuerId,
-        ownersOwnerId: ownerId,
+        usersUserId: ownerId,
         evacuationCentersEvacuationId: evacuationCenterId,
         numberOfRescuee: numberOfRescuee,
         status: status,
