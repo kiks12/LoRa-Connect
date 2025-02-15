@@ -15,6 +15,9 @@ export async function getRescuersWithoutTeam() {
   return await client.rescuers.findMany({
     where: {
       teamsTeamId: null
+    },
+    include: {
+      bracelet: true
     }
   })
 }

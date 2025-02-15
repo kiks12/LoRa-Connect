@@ -6,7 +6,11 @@ import { unstable_cache } from "next/cache"
 export const getCachedTeams = unstable_cache(async () => {
   return await client.teams.findMany({
     include: {
-      rescuers: true
+      rescuers: {
+        include: {
+          bracelet: true
+        }
+      } 
     }
   })
 }, [TEAMS_TAG], {tags: [TEAMS_TAG]})
@@ -25,7 +29,11 @@ export async function getTeam({teamId}: {teamId: number}): Promise<TeamWithRescu
       teamId: teamId
     },
     include: {
-      rescuers:true
+      rescuers: {
+        include: {
+          bracelet: true
+        }
+      }
     }
   })
 }
