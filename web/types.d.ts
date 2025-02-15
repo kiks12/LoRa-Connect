@@ -99,6 +99,10 @@ export type GraphHopperAPIResult = {
 
 export type TeamWithRescuer = Prisma.TeamsGetPayload<{
   include: {
-    rescuers: true
+    rescuers: {
+      include: {
+        bracelet: true
+      }
+    },
   }
 }>
