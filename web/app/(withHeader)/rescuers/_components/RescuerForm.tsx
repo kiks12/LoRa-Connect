@@ -42,6 +42,7 @@ export const RescuerForm = ({
 				createdAt: new Date(),
 				latitude: 0,
 				longitude: 0,
+				teamsTeamId: 0,
 			},
 		});
 		showToast(result);
@@ -55,6 +56,7 @@ export const RescuerForm = ({
 				rescuerId: 0,
 				longitude: 0,
 				latitude: 0,
+				teamsTeamId: 0,
 			},
 			braceletId: values.braceletId,
 		});
