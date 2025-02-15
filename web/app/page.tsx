@@ -1,6 +1,6 @@
 import { Container } from "./components/Container";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Ambulance, HomeIcon, Hospital, LayoutDashboard, Map, Target, Users, Watch } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Ambulance, HomeIcon, Hospital, LayoutDashboard, Map, Target, User, Users, Watch } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -10,8 +10,9 @@ export const LINKS = [
 	{ title: "Dashboard", link: "/dashboard", icon: <LayoutDashboard size={32} />, subtitle: "Analyze performance and trends" },
 	{ title: "Missions", link: "/missions", icon: <Target size={32} />, subtitle: "Track active and completed missions" },
 	{ title: "Devices", link: "/bracelets", icon: <Watch size={36} />, subtitle: "Manage and assign tracking units" },
-	{ title: "Users", link: "/users", icon: <Users size={34} />, subtitle: "View registered individuals" },
+	{ title: "Users", link: "/users", icon: <User size={34} />, subtitle: "View registered individuals" },
 	{ title: "Rescuers", link: "/rescuers", icon: <Ambulance size={34} />, subtitle: "View registered rescuers" },
+	{ title: "Teams", link: "/teams", icon: <Users size={34} />, subtitle: "View rescuer teams" },
 	{ title: "Evacuation Centers", link: "/evacuationCenters", icon: <Hospital size={32} />, subtitle: "Manage emergency accommodations" },
 ];
 

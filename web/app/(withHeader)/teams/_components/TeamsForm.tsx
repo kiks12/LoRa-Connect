@@ -1,23 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RescuerItem from "./RescuerItem";
-import { TeamWithRescuer } from "@/types";
-import { Rescuers } from "@prisma/client";
+import { RescuerWithBracelet, TeamWithRescuer } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 
 export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingTeam?: TeamWithRescuer | null; type?: "CREATE" | "UPDATE" }) {
 	const { toast } = useToast();
-	const [rescuers, setRescuers] = useState<Rescuers[]>([]);
+	const [rescuers, setRescuers] = useState<RescuerWithBracelet[]>([]);
 	const [team, setTeams] = useState<TeamWithRescuer>(
 		existingTeam ?? {
 			teamId: 0,
 			createdAt: new Date(),
 			rescuers: [],
+			braceletsBraceletId: null,
 		}
 	);
+	const loraBraceletEquipped = useMemo(() => {
+		const withBracelet = team.rescuers.filter((rescuer) => rescuer.bracelet);
+		return withBracelet.length > 0 ? withBracelet[0] : null;
+	}, [team.rescuers]);
 
 	useEffect(() => {
 		async function fetchRescuers() {
@@ -29,7 +35,26 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 		fetchRescuers().then(({ rescuers }) => setRescuers(rescuers));
 	}, []);
 
-	function addRescuerToTeam(rescuer: Rescuers) {
+	function addRescuerToTeam(rescuer: RescuerWithBracelet) {
+		const memberWithBracelet = team.rescuers.filter((d) => d.bracelet);
+		if (memberWithBracelet.length > 0 && rescuer.bracelet) {
+			const confirmResult = confirm("You already have a member with bracelet, do you wish to replace?");
+			if (confirmResult) {
+				setTeams((prev) => {
+					return {
+						...prev,
+						rescuers: [...prev.rescuers.filter((d) => !d.bracelet), rescuer],
+					};
+				});
+				setRescuers((prev) =>
+					[...prev.filter((prevRescuer) => rescuer.rescuerId !== prevRescuer.rescuerId), memberWithBracelet[0]].sort(
+						(a, b) => a.rescuerId - b.rescuerId
+					)
+				);
+			}
+			return;
+		}
+
 		setTeams((prev) => {
 			return {
 				...prev,
@@ -39,7 +64,7 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 		setRescuers((prev) => prev.filter((prevRescuer) => rescuer.rescuerId !== prevRescuer.rescuerId));
 	}
 
-	function deleteRescuerFromTeam(rescuer: Rescuers) {
+	function deleteRescuerFromTeam(rescuer: RescuerWithBracelet) {
 		setTeams((prev) => {
 			return {
 				...prev,
@@ -94,27 +119,87 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 			<div>
 				<div className="flex">
 					<div className="flex-1 mr-2">
-						<h2>Rescuers Pool</h2>
+						<div>
+							<h2 className="text-xl font-medium">Rescuers Pool</h2>
+							<p>Select from the available rescuers</p>
+						</div>
 						<div className="h-[500px] overflow-auto">
-							{rescuers.length !== 0 ? (
-								rescuers.map((rescuer, index) => {
-									return <RescuerItem rescuer={rescuer} key={index} onAdd={addRescuerToTeam} />;
-								})
-							) : (
-								<></>
-							)}
+							<Tabs defaultValue="all">
+								<TabsList className="w-full flex mt-4">
+									<TabsTrigger className="flex-1" value="all">
+										All
+									</TabsTrigger>
+									<TabsTrigger className="flex-1" value="withBracelet">
+										W/ Bracelet
+									</TabsTrigger>
+									<TabsTrigger className="flex-1" value="withoutBracelet">
+										W/O Bracelet
+									</TabsTrigger>
+								</TabsList>
+								<TabsContent value="all">
+									{rescuers.length !== 0 ? (
+										rescuers.map((rescuer, index) => {
+											return <RescuerItem rescuer={rescuer} key={index} onAdd={addRescuerToTeam} />;
+										})
+									) : (
+										<></>
+									)}
+								</TabsContent>
+								<TabsContent value="withBracelet">
+									{rescuers.length !== 0 ? (
+										rescuers
+											.filter((rescuer) => rescuer.bracelet)
+											.map((rescuer, index) => {
+												return <RescuerItem rescuer={rescuer} key={index} onAdd={addRescuerToTeam} />;
+											})
+									) : (
+										<></>
+									)}
+								</TabsContent>
+								<TabsContent value="withoutBracelet">
+									{rescuers.length !== 0 ? (
+										rescuers
+											.filter((rescuer) => !rescuer.bracelet)
+											.map((rescuer, index) => {
+												return <RescuerItem rescuer={rescuer} key={index} onAdd={addRescuerToTeam} />;
+											})
+									) : (
+										<></>
+									)}
+								</TabsContent>
+							</Tabs>
 						</div>
 					</div>
 					<div className="flex-1 ml-2">
-						<h2>Current Roster</h2>
+						<div>
+							<h2 className="text-xl font-medium">Current Roster</h2>
+							<p>This is the team members</p>
+						</div>
 						<div className="h-[500px] overflow-auto">
-							{team && team.rescuers.length > 0 ? (
-								team.rescuers.map((rescuer, index) => {
-									return <RescuerItem key={index} rescuer={rescuer} withDelete={true} onDelete={deleteRescuerFromTeam} />;
-								})
-							) : (
-								<></>
-							)}
+							<div className="mt-4">
+								<p>LoRa Bracelet Equipped</p>
+								{loraBraceletEquipped ? (
+									<RescuerItem rescuer={loraBraceletEquipped} />
+								) : (
+									<Card className="shadow-sm mt-2">
+										<CardHeader>
+											<CardDescription>No member equipped with LoRa Bracelet</CardDescription>
+										</CardHeader>
+									</Card>
+								)}
+							</div>
+							<div className="mt-4">
+								<p>Team Members</p>
+								{team && team.rescuers.length > 0 ? (
+									team.rescuers
+										.filter((rescuer) => !rescuer.bracelet)
+										.map((rescuer, index) => {
+											return <RescuerItem key={index} rescuer={rescuer} withDelete={true} onDelete={deleteRescuerFromTeam} />;
+										})
+								) : (
+									<></>
+								)}
+							</div>
 						</div>
 					</div>
 				</div>

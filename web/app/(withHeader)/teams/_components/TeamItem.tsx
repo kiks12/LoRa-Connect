@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { TeamWithRescuer } from "@/types";
 import { ChevronDown, ChevronUp, Edit, Trash } from "lucide-react";
 import { useState } from "react";
@@ -86,9 +86,16 @@ export default function TeamItem({ team }: { team: TeamWithRescuer }) {
 			</div>
 			{open && (
 				<div className="mt-4">
-					{team.rescuers.map((rescuer, index) => {
-						return <TeamRescuerSubItem rescuer={rescuer} key={index} />;
-					})}
+					{team.rescuers
+						.filter((rescuer) => rescuer.bracelet)
+						.map((rescuer, index) => {
+							return <TeamRescuerSubItem rescuer={rescuer} key={index} />;
+						})}
+					{team.rescuers
+						.filter((rescuer) => !rescuer.bracelet)
+						.map((rescuer, index) => {
+							return <TeamRescuerSubItem rescuer={rescuer} key={index} />;
+						})}
 				</div>
 			)}
 		</Card>
