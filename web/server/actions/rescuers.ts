@@ -10,7 +10,7 @@ export async function setRescuerBracelet({rescuerId, braceletId}: {rescuerId: nu
   const result = await setBraceletRescuerId({braceletId, rescuerId})
   revalidateTag(BRACELETS_TAG)
   revalidateTag(RESCUERS_TAG)
-  if (result) return { error: false, message: "Successfully set owner of bracelet" }
+  if (result) return { error: false, message: "Successfully set rescuer owner of bracelet" }
   return { error: true, message: "There seems to be a problem setting the owner of bracelet. Please try again later" }
 }
 
