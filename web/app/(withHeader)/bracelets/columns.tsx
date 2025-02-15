@@ -57,6 +57,20 @@ export const columns: ColumnDef<Bracelets>[] = [
 		},
 	},
 	{
+		accessorKey: "status",
+		header: ({ column }) => {
+			return (
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+					Status
+					<ArrowUpDown className="ml-2 h-4 w-4" />
+				</Button>
+			);
+		},
+		cell: ({ row }) => {
+			return <>{row.original.ownerId || row.original.rescuerId ? "DEPLOYED" : "STOCK"}</>;
+		},
+	},
+	{
 		id: "actions",
 		cell: ({ row }) => {
 			const { ownerId, rescuerId, braceletId, name, type } = row.original;
