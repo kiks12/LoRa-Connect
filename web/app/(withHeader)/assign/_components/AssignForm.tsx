@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { setRescuerBracelet } from "@/server/actions/rescuers";
 import { Toaster } from "@/components/ui/toaster";
 
-export type OwnerType = "CIVILIAN" | "RESCUER";
+export type OwnerType = "USER" | "RESCUER";
 
 export function AssignForm({
 	braceletId,
@@ -38,13 +38,12 @@ export function AssignForm({
 	rescuerName?: string;
 }) {
 	const { toast } = useToast();
-	const [ownerType, setOwnerType] = useState<OwnerType>("CIVILIAN");
+	const [ownerType, setOwnerType] = useState<OwnerType>("USER");
 	const [rescuers, setRescuers] = useState<Rescuers[]>([]);
-	const [backupRescuers, setBackupRescuers] = useState<Rescuers[]>([]);
-	const [owners, setOwners] = useState<Users[]>([]);
-	const [backupOwners, setBackupOwners] = useState<Users[]>([]);
+	const [users, setUsers] = useState<Users[]>([]);
+	const [searchOwners, setSearchOwners] = useState("");
 	const [bracelets, setBracelets] = useState<Bracelets[]>([]);
-	const [backupBracelets, setBackupBracelets] = useState<Bracelets[]>([]);
+	const [searchBracelet, setSearchBracelet] = useState("");
 	const form = useForm<z.infer<typeof assignSchema>>({
 		resolver: zodResolver(assignSchema),
 		defaultValues: {
@@ -71,24 +70,31 @@ export function AssignForm({
 
 		fetchBracelets().then(({ bracelets }) => {
 			setBracelets(bracelets);
-			setBackupBracelets(bracelets);
 		});
 		fetchRescuers().then(({ rescuers }) => {
 			setRescuers(rescuers);
-			setBackupRescuers(rescuers);
 		});
 		fetchOwners().then(({ owners }) => {
-			setOwners(owners);
-			setBackupOwners(owners);
+			setUsers(owners);
 		});
 	}, []);
 
 	function onBraceletClick(bracelet: Bracelets) {
 		form.setValue("braceletId", bracelet.braceletId);
 		form.setValue("braceletName", bracelet.name);
+		if (bracelet.type === "RESCUER") onCheckboxChange(true);
+		else onCheckboxChange(false);
 	}
 
 	function onOwnerClick(owner: Rescuers | Users) {
+		if (ownerType === "RESCUER" && (owner as Users).userId) {
+			alert("Invalid, bracelet is rescuer type");
+			return;
+		}
+		if (ownerType === "USER" && (owner as Rescuers).rescuerId) {
+			alert("Invalid, bracelet is user type");
+			return;
+		}
 		if (isOwner(owner)) {
 			form.setValue("userId", (owner as Users).userId);
 			form.setValue("userName", (owner as Users).name);
@@ -100,10 +106,10 @@ export function AssignForm({
 
 	function onCheckboxChange(value: boolean) {
 		form.setValue("isRescuer", value);
-		setOwnerType(value ? "RESCUER" : "CIVILIAN");
+		setOwnerType(value ? "RESCUER" : "USER");
 	}
 
-	async function onCivilianSubmit({ braceletId, userId }: z.infer<typeof assignSchema>) {
+	async function onUserSubmit({ braceletId, userId }: z.infer<typeof assignSchema>) {
 		const result = await setUserBracelet({ userId, braceletId });
 		showToast(result);
 	}
@@ -114,7 +120,7 @@ export function AssignForm({
 	}
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof assignSchema>) => {
-		if (ownerType === "CIVILIAN") onCivilianSubmit(values);
+		if (ownerType === "USER") onUserSubmit(values);
 		if (ownerType === "RESCUER") onRescuerSubmit(values);
 	});
 
@@ -126,64 +132,80 @@ export function AssignForm({
 		});
 	}
 
-	function filterBracelets(newVal: string) {
-		setBracelets(
-			backupBracelets.filter(
-				(bracelet) => bracelet.name.toLowerCase().includes(newVal.toLowerCase()) || bracelet.braceletId.toLowerCase().includes(newVal.toLowerCase())
-			)
-		);
-	}
-
-	function filterOwners(newVal: string) {
-		setOwners(() => {
-			return backupOwners.filter((owner) => owner.name.toLowerCase().includes(newVal.toLowerCase()));
-		});
-		setRescuers(() => {
-			return backupRescuers.filter((owner) => owner.name.toLowerCase().includes(newVal.toLowerCase()));
-		});
-	}
-
 	return (
 		<div className="flex flex-col md:flex-row">
 			<div className="mt-4 md:mr-2 p-8 w-full">
 				<div>
 					<h2 className="text-lg">Available Bracelets</h2>
-					<div className="mt-3">
-						<Input placeholder="Search Bracelet ID or Name..." onChange={(e) => filterBracelets(e.target.value)} />
-					</div>
-					<div className="h-64 overflow-y-auto">
-						<ul>
-							{bracelets.map((bracelet, index) => {
-								return <BraceletListItem bracelet={bracelet} key={index} onClick={onBraceletClick} />;
-							})}
-						</ul>
-					</div>
+					<Tabs defaultValue="all" className="mt-2">
+						<TabsList>
+							<TabsTrigger value="all">All</TabsTrigger>
+							<TabsTrigger value="users">Users</TabsTrigger>
+							<TabsTrigger value="rescuers">Rescuers</TabsTrigger>
+						</TabsList>
+						<div className="mt-3">
+							<Input placeholder="Search Bracelet ID or Name..." onChange={(e) => setSearchBracelet(e.target.value)} />
+						</div>
+						<div className="h-64 overflow-y-auto">
+							<TabsContent value="all">
+								<ul>
+									{bracelets
+										.filter((b) => b.braceletId.includes(searchBracelet) || b.name.includes(searchBracelet))
+										.map((bracelet, index) => {
+											return <BraceletListItem bracelet={bracelet} key={index} onClick={onBraceletClick} />;
+										})}
+								</ul>
+							</TabsContent>
+							<TabsContent value="users">
+								<ul>
+									{bracelets
+										.filter((b) => (b.braceletId.includes(searchBracelet) || b.name.includes(searchBracelet)) && b.type === "VICTIM")
+										.map((bracelet, index) => {
+											return <BraceletListItem bracelet={bracelet} key={index} onClick={onBraceletClick} />;
+										})}
+								</ul>
+							</TabsContent>
+							<TabsContent value="rescuers">
+								<ul>
+									{bracelets
+										.filter((b) => (b.braceletId.includes(searchBracelet) || b.name.includes(searchBracelet)) && b.type === "RESCUER")
+										.map((bracelet, index) => {
+											return <BraceletListItem bracelet={bracelet} key={index} onClick={onBraceletClick} />;
+										})}
+								</ul>
+							</TabsContent>
+						</div>
+					</Tabs>
 				</div>
 				<div className="mt-4">
-					<h2 className="text-lg">Available Owners</h2>
+					<h2 className="text-lg">Select owner of device</h2>
 					<Tabs className="mt-2" defaultValue="users">
 						<TabsList>
 							<TabsTrigger value="users">Users</TabsTrigger>
 							<TabsTrigger value="rescuers">Rescuers</TabsTrigger>
 						</TabsList>
 						<div className="mt-3">
-							<Input placeholder="Search Name..." onChange={(e) => filterOwners(e.target.value)} />
+							<Input placeholder="Search Name..." onChange={(e) => setSearchOwners(e.target.value)} />
 						</div>
 						<TabsContent value="users">
 							<div className="mt-2 h-64 overflow-y-auto">
 								<ul className="flex flex-col">
-									{owners.map((owner, index) => {
-										return <OwnerListItem owner={owner} key={index} onClick={onOwnerClick} />;
-									})}
+									{users
+										.filter((u) => u.name.toLowerCase().includes(searchOwners))
+										.map((owner, index) => {
+											return <OwnerListItem owner={owner} key={index} onClick={onOwnerClick} />;
+										})}
 								</ul>
 							</div>
 						</TabsContent>
 						<TabsContent value="rescuers">
 							<div className="mt-2 h-64 overflow-y-auto">
 								<ul className="flex max-h-56 overflow-y-auto flex-col">
-									{rescuers.map((rescuer, index) => {
-										return <OwnerListItem owner={rescuer} key={index} onClick={onOwnerClick} />;
-									})}
+									{rescuers
+										.filter((r) => r.name.toLowerCase().includes(searchOwners))
+										.map((rescuer, index) => {
+											return <OwnerListItem owner={rescuer} key={index} onClick={onOwnerClick} />;
+										})}
 								</ul>
 							</div>
 						</TabsContent>
