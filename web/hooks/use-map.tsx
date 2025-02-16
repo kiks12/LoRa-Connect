@@ -41,7 +41,7 @@ import {
 } from "@/types";
 import { USER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
-import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/tags";
+import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/lora-tags";
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR } from "@/map-styles";
 import { generalType } from "@/app/map/_components/RoutingControls";
 
