@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { activeTab, SIDEBAR_TABS, useSidebarContext } from "@/hooks/use-sidebar";
-import { ArrowLeft, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ArrowLeft, ChevronLeft, X } from "lucide-react";
 import Link from "next/link";
 
 export function SideBar() {
@@ -23,15 +23,10 @@ export function SideBar() {
 								</Link>
 								<h1 className="ml-2 text-xl font-semibold tracking-tight">Control Panel</h1>
 							</div>
-							<div>
-								<Button size="icon" variant="ghost" onClick={toggleSidebar}>
-									<ChevronRight />
-								</Button>
-							</div>
 						</div>
 						<div className="flex-1">{active.controls}</div>
 					</Card>
-					<Card className="h-screen py-6 w-24 lg:w-36 shadow-none rounded-none">
+					<Card className="h-screen py-6 w-36 shadow-none rounded-none">
 						<ul>
 							{Object.keys(SIDEBAR_TABS).map((tab, index) => {
 								return (
@@ -56,7 +51,7 @@ export function SideBar() {
 							{component !== null ? <X /> : <ChevronLeft />}
 						</Button>
 					</div>
-					{component}
+					<div className="flex items-center justify-center w-full">{component}</div>
 				</Card>
 			)}
 		</>

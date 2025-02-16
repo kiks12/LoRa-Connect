@@ -276,6 +276,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 		users.forEach((user) => {
 			const distances = familyDistances.filter((familyDistance) => familyDistance.ownerId === user.userId);
+			if (distances.length <= 0) return;
 			const minimumDistanceForFamily = distances.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 			setEvacuationInstructions((prev) => [...prev, minimumDistanceForFamily]);
 		});

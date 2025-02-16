@@ -8,11 +8,11 @@ import React, { createContext, ReactNode, useContext, useState } from "react";
 import { useMapContext } from "./use-map";
 import RoutingControls from "@/app/map/_components/RoutingControls";
 
-export type activeTab = "ADMIN" | "TASKS" | "OWNERS" | "RESCUERS" | "ROUTING";
+export type activeTab = "ADMIN" | "TASKS" | "USERS" | "RESCUERS" | "ROUTING";
 export const SIDEBAR_TABS: { [key: string]: ReactNode } = {
 	ADMIN: <AdminControls />,
 	TASKS: <TasksControls />,
-	OWNERS: <UsersControls />,
+	USERS: <UsersControls />,
 	RESCUERS: <RescuersControls />,
 	ROUTING: <RoutingControls />,
 };
@@ -78,6 +78,6 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
 export const useSidebarContext = () => {
 	const context = useContext(SidebarContext);
-	if (context === null) throw new Error("Use Map Context is null, must be used within MapProvider");
+	if (context === null) throw new Error("Use Sidebar Context is null, must be used within SidebarProvider");
 	return context;
 };
