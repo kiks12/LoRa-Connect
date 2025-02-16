@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { socket } from "@/socket/socket";
-import { SEND_EVACUATION_INSTRUCTION_TO_BRACELETS } from "@/tags";
+import { SEND_EVACUATION_INSTRUCTION_TO_BRACELETS } from "@/lora-tags";
 import { EvacuationInstruction } from "@/types";
 import { useMemo } from "react";
 
