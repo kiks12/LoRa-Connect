@@ -8,8 +8,8 @@ export default function MissionsUpdatePage({ searchParams }: { searchParams: { [
 	const evacuationCenterName = searchParams.evacuationCenterName ?? "";
 	const rescuerId = searchParams.rescuerId ? Number.parseInt(searchParams.rescuerId) : 0;
 	const rescuerName = searchParams.rescuerName ?? "";
-	const ownerId = searchParams.ownerId ? Number.parseInt(searchParams.ownerId) : 0;
-	const ownerName = searchParams.ownerName ?? "";
+	const userId = searchParams.userId ? Number.parseInt(searchParams.userId) : 0;
+	const userName = searchParams.userName ?? "";
 	const numberOfRescuee = searchParams.numberOfRescuee ? Number.parseInt(searchParams.numberOfRescuee) : 0;
 	const status = searchParams.operationStatus ?? "";
 	const urgency = searchParams.urgency ?? "";
@@ -25,8 +25,8 @@ export default function MissionsUpdatePage({ searchParams }: { searchParams: { [
 						evacuationCenterName={evacuationCenterName}
 						rescuerId={rescuerId}
 						rescuerName={rescuerName}
-						userId={ownerId}
-						userName={ownerName}
+						userId={userId}
+						userName={userName}
 						numberOfRescuee={numberOfRescuee}
 						status={status as OperationStatus}
 						urgency={urgency as RescueUrgency}

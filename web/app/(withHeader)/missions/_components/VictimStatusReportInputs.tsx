@@ -42,19 +42,19 @@ export default function VictimStatusReportInputs({
 		});
 	}
 
-	function onStatusChange(e: ChangeEvent<HTMLInputElement>) {
-		e.preventDefault();
-		setVictimStatusReports((prev) => {
-			return prev.map((v, idx) => {
-				if (index === idx)
-					return {
-						...v,
-						notes: e.target.value,
-					};
-				return v;
-			});
-		});
-	}
+	// function onStatusChange(e: ChangeEvent<HTMLInputElement>) {
+	// 	e.preventDefault();
+	// 	setVictimStatusReports((prev) => {
+	// 		return prev.map((v, idx) => {
+	// 			if (index === idx)
+	// 				return {
+	// 					...v,
+	// 					notes: e.target.value,
+	// 				};
+	// 			return v;
+	// 		});
+	// 	});
+	// }
 
 	function onNotesChange(e: ChangeEvent<HTMLInputElement>) {
 		e.preventDefault();

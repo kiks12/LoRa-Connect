@@ -59,9 +59,9 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 		header: "No. of victims",
 	},
 	{
-		header: "Owner",
+		header: "User",
 		cell: ({ row }) => {
-			return <p>{row.original.owner.name}</p>;
+			return <p>{row.original.user.name}</p>;
 		},
 	},
 	{
@@ -81,8 +81,8 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 		cell: ({ row }) => {
 			const {
 				missionId,
-				owner,
-				ownersOwnerId,
+				user,
+				usersUserId,
 				evacuationCenter,
 				evacuationCentersEvacuationId,
 				numberOfRescuee,
@@ -105,7 +105,7 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<Link
-								href={`/missions/update?operationId=${missionId}&ownerId=${ownersOwnerId}&ownerName=${owner.name}&rescuerId=${rescuersRescuerId}&rescuerName=${rescuer.name}&evacuationCenterId=${evacuationCentersEvacuationId}&evacuationCenterName=${evacuationCenter.name}&numberOfRescuee=${numberOfRescuee}&operationStatus=${status}&urgency=${urgency}`}
+								href={`/missions/update?operationId=${missionId}&userId=${usersUserId}&userName=${user.name}&rescuerId=${rescuersRescuerId}&rescuerName=${rescuer.name}&evacuationCenterId=${evacuationCentersEvacuationId}&evacuationCenterName=${evacuationCenter.name}&numberOfRescuee=${numberOfRescuee}&operationStatus=${status}&urgency=${urgency}`}
 							>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
