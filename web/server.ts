@@ -1,8 +1,9 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
-import { SEND_EVACUATION_INSTRUCTION_TO_BRACELETS, SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TASK_TO_RESCUER, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "./tags";
-import { sendEvacuationInstructionToBracelets, sendTaskToRescuer, sendTransmitLocationSignalToBracelets } from "./socket/actions/to-bracelets";
+import { SEND_EVACUATION_INSTRUCTION_TO_BRACELETS, SEND_TASK_TO_RESCUER, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "./lora-tags";
+import { sendEvacuationInstructionToBracelets, sendTaskToRescuer, sendTransmitLocationSignalToBracelets } from "./socket/lora/to-bracelets";
+import { setupLoRa } from "./lora/lora-setup";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -12,7 +13,8 @@ const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 // let flag = false;
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
+  await setupLoRa()
   const httpServer = createServer(handler);
 
   const io = new Server(httpServer);
