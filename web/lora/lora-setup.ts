@@ -80,32 +80,33 @@ export async function sendMessage(message: string) {
   await writeRegister(0x01, TRANSMITTING_MODE); // Switch to TX mode
 }
 
-// export async function listenForMessages() {
-//   console.log("Listening for incoming LoRa messages...");
+export async function listenForMessages() {
+  console.log("Listening for incoming LoRa messages...");
 
-//   rpio.poll(DIO0_PIN, async () => {
-//       const irqFlags = await readRegister(0x12); // Read RegIrqFlags
+  rpio.poll(DIO0_PIN, async () => {
+    const irqFlags = await readRegister(0x12); // Read RegIrqFlags
 
-//       if (irqFlags & 0x40) { // RX_DONE bit is set
-//         console.log("Received a LoRa packet!");
+    if (irqFlags & 0x40) { // RX_DONE bit is set
+      console.log("Received a LoRa packet!");
 
-//         await writeRegister(0x12, 0xFF); // Clear IRQ Flags
+      await writeRegister(0x12, 0xFF); // Clear IRQ Flags
 
-//         const packetSize = await readRegister(0x13); // Get packet size
-//         console.log(`📏 Packet Size: ${packetSize} bytes`);
+      const packetSize = await readRegister(0x13); // Get packet size
+      console.log(`📏 Packet Size: ${packetSize} bytes`);
 
-//         const buffer = Buffer.alloc(packetSize + 1);
-//         buffer[0] = 0x00 | 0x7F; // Read from FIFO
-//         loRaSPI.transfer([buffer], (err, data) => {
-//             if (err) throw err;
-//             console.log(`📨 LoRa Data: ${data}`);
+      const buffer = Buffer.alloc(packetSize + 1);
+      buffer[0] = 0x00 | 0x7F; // Read from FIFO
 
-//             // Emit an event when a message is received
-//             loraEvents.emit("messageReceived", data);
-//         });
-//       }
-//   }, rpio.POLL_HIGH);
-// }
+      rpio.spiTransfer(buffer, buffer, buffer.length); // SPI transfer (Read FIFO)
+    
+      const receivedData = buffer.slice(1); // Extract only the received payload
+      console.log(`📨 LoRa Data: ${receivedData.toString("hex")}`);
+
+      // Emit event with the received data
+      loraEvents.emit("messageReceived", receivedData);
+    }
+  }, rpio.POLL_HIGH);
+}
 
 loraEvents.on(START_LOCATION_TRANSMISSION_TO_TRU, (data) => {
   sendMessage("START SENDING")

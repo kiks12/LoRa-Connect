@@ -3,7 +3,7 @@ import next from "next";
 import { Server } from "socket.io";
 import { INSTRUCTION_TO_USER, SEND_EVACUATION_INSTRUCTION_TO_BRACELETS, SEND_TASK_TO_RESCUER, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "./lora-tags";
 import { sendEvacuationInstructionToBracelets, sendTaskToRescuer, sendTransmitLocationSignalToBracelets } from "./socket/lora/to-bracelets";
-import { setupLoRa } from "./lora/lora-setup";
+import { listenForMessages, setupLoRa } from "./lora/lora-setup";
 import { instructionToUser, startLocationTransmissionToTRU, taskToRescuer } from "./lora/central-node";
 
 const dev = process.env.NODE_ENV !== "production";
@@ -17,6 +17,7 @@ const handler = app.getRequestHandler();
 app.prepare().then(async () => {
   try {
     await setupLoRa()
+    await listenForMessages()
   } catch (error) {
     console.error(error)
     process.exit(1)
