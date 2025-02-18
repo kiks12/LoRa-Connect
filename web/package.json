@@ -41,7 +41,6 @@
     "rpio": "^2.4.2",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "spi-device": "^3.1.2",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^1.1.1",

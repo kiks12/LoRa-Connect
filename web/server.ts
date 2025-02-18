@@ -15,11 +15,10 @@ const handler = app.getRequestHandler();
 // let flag = false;
 
 app.prepare().then(async () => {
-  await setupLoRa()
+  // await setupLoRa()
   const httpServer = createServer(handler);
 
   const io = new Server(httpServer);
-  await setupLoRa();
 
   io.on("connection", (socket) => {
     socket.on(SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS, sendTransmitLocationSignalToBracelets)
