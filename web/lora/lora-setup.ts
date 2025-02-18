@@ -12,8 +12,8 @@ const SLEEP_MODE = 0x80
 const STANDBY_MODE = 0x81
 const TRANSMITTING_MODE = 0x83 // TX Mode
 const RECEIVING_CONTINOUS_MODE = 0x85
-const RECEIVING_SINGLE_MODE = 0x86
-const CAD_MODE = 0x87
+// const RECEIVING_SINGLE_MODE = 0x86
+// const CAD_MODE = 0x87
 
 rpio.spiBegin()
 rpio.spiChipSelect(0)
@@ -37,32 +37,37 @@ export async function setupLoRa() {
   rpio.msleep(10);
 
   await writeRegister(0x01, SLEEP_MODE); 
+  await setFrequency(923.0);
+  await writeRegister(0x01, STANDBY_MODE);
+}
+
+async function setFrequency(frequency: number) {
+  const FREQ_STEP = 61.03515625; // SX1278 Frequency step (61.035 Hz per step)
+  const freqValue = Math.round(frequency * 1000000 / FREQ_STEP);
+
+  await writeRegister(0x06, (freqValue >> 16) & 0xFF); // MSB
+  await writeRegister(0x07, (freqValue >> 8) & 0xFF);  // Mid Byte
+  await writeRegister(0x08, freqValue & 0xFF);         // LSB
+
+  console.log(`✅ LoRa Frequency set to: ${frequency} MHz`);
 }
 
 // Function to Write to SX1278 Registers
 function writeRegister(register: number, value: number) : Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
       const message = Buffer.from([register | 0x80, value]);
       rpio.spiTransfer(message, message, message.length)
       console.log("WROTE TO REGISTER")
       resolve()
-      // loRaSPI.transfer([message], (err) => {
-      //     if (err) reject(err);
-      //     resolve();
-      // });
   });
 }
 
 // Function to Read from SX1278 Registers
 function readRegister(register: number) : Promise<number>{
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
       const message = Buffer.from([register & 0x7F, 0x00]);
       rpio.spiTransfer(message, message, message.length)
       resolve(message[1])
-      // loRaSPI.transfer([message], (err, data: SpiMessage) => {
-      //     if (err) reject(err);
-      //     resolve(data.length);
-      // });
   });
 }
 
@@ -82,13 +87,12 @@ export async function sendMessage(message: string) {
 
 export async function listenForMessages() {
   console.log("Listening for incoming LoRa messages...");
-
+  writeRegister(0x01, RECEIVING_CONTINOUS_MODE);
   rpio.poll(DIO0_PIN, async () => {
     const irqFlags = await readRegister(0x12); // Read RegIrqFlags
 
     if (irqFlags & 0x40) { // RX_DONE bit is set
       console.log("Received a LoRa packet!");
-
       await writeRegister(0x12, 0xFF); // Clear IRQ Flags
 
       const packetSize = await readRegister(0x13); // Get packet size
@@ -109,14 +113,17 @@ export async function listenForMessages() {
 }
 
 loraEvents.on(START_LOCATION_TRANSMISSION_TO_TRU, (data) => {
+  console.log(data)
   sendMessage("START SENDING")
 })
 
 loraEvents.on(INSTRUCTION_TO_USER, (data) => {
+  console.log(data)
   sendMessage("INSTRUCTIONSSS")
 })
 
 loraEvents.on(TASK_TO_RESCUER, (data) => {
+  console.log(data)
   sendMessage("TASKKKK TO RESCUER")
 })
 
