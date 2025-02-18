@@ -44,6 +44,8 @@ function writeRegister(register: number, value: number) : Promise<void> {
   return new Promise((resolve, reject) => {
       const message = Buffer.from([register | 0x80, value]);
       rpio.spiTransfer(message, message, message.length)
+      console.log("WROTE TO REGISTER")
+      resolve()
       // loRaSPI.transfer([message], (err) => {
       //     if (err) reject(err);
       //     resolve();

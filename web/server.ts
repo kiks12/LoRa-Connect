@@ -15,7 +15,12 @@ const handler = app.getRequestHandler();
 // let flag = false;
 
 app.prepare().then(async () => {
-  // await setupLoRa()
+  try {
+    await setupLoRa()
+  } catch (error) {
+    console.error(error)
+    process.exit(1)
+  }
   const httpServer = createServer(handler);
 
   const io = new Server(httpServer);
