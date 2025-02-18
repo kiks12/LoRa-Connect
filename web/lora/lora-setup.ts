@@ -2,7 +2,7 @@
 import EventEmitter from "events"
 import spi, { SpiMessage } from "spi-device"
 import rpio from "rpio"
-import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora-tags"
+import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "../lora-tags"
 
 const NSS_PIN = 8 // Chip Select pin of LoRa
 const RESET_PIN = 22 // Reset pin of LoRa
