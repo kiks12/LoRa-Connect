@@ -4,9 +4,9 @@ import spi, { SpiMessage } from "spi-device"
 import rpio from "rpio"
 import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "../lora-tags"
 
-const NSS_PIN = 8 // Chip Select pin of LoRa
-const RESET_PIN = 22 // Reset pin of LoRa
-const DIO0_PIN = 17 // interrupt pin of LoRa
+const NSS_PIN = 24 // Chip Select pin of LoRa
+const RESET_PIN = 15 // Reset pin of LoRa
+const DIO0_PIN = 11 // interrupt pin of LoRa
 export const loraEvents = new EventEmitter()
 
 const SLEEP_MODE = 0x80
