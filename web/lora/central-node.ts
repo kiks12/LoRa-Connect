@@ -1,7 +1,7 @@
 
 // RECEIVING 
 
-import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora-tags";
+import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "../lora-tags";
 import { loraEvents } from "./lora-setup";
 
 export function locationFromUser() {
