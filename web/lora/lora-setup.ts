@@ -2,6 +2,7 @@
 import EventEmitter from "events"
 import spi, { SpiMessage } from "spi-device"
 import rpio from "rpio"
+import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora-tags"
 
 const NSS_PIN = 8 // Chip Select pin of LoRa
 const RESET_PIN = 22 // Reset pin of LoRa
@@ -78,22 +79,38 @@ export async function listenForMessages() {
       const irqFlags = await readRegister(0x12); // Read RegIrqFlags
 
       if (irqFlags & 0x40) { // RX_DONE bit is set
-          console.log("Received a LoRa packet!");
+        console.log("Received a LoRa packet!");
 
-          await writeRegister(0x12, 0xFF); // Clear IRQ Flags
+        await writeRegister(0x12, 0xFF); // Clear IRQ Flags
 
-          const packetSize = await readRegister(0x13); // Get packet size
-          console.log(`📏 Packet Size: ${packetSize} bytes`);
+        const packetSize = await readRegister(0x13); // Get packet size
+        console.log(`📏 Packet Size: ${packetSize} bytes`);
 
-          const buffer = Buffer.alloc(packetSize + 1);
-          buffer[0] = 0x00 | 0x7F; // Read from FIFO
-          loRaSPI.transfer([buffer], (err, data) => {
-              if (err) throw err;
-              console.log(`📨 LoRa Data: ${data}`);
+        const buffer = Buffer.alloc(packetSize + 1);
+        buffer[0] = 0x00 | 0x7F; // Read from FIFO
+        loRaSPI.transfer([buffer], (err, data) => {
+            if (err) throw err;
+            console.log(`📨 LoRa Data: ${data}`);
 
-              // Emit an event when a message is received
-              loraEvents.emit("messageReceived", data);
-          });
+            // Emit an event when a message is received
+            loraEvents.emit("messageReceived", data);
+        });
       }
   }, rpio.POLL_HIGH);
 }
+
+loraEvents.on(START_LOCATION_TRANSMISSION_TO_TRU, (data) => {
+  sendMessage("START SENDING")
+})
+
+loraEvents.on(INSTRUCTION_TO_USER, (data) => {
+  sendMessage("INSTRUCTIONSSS")
+})
+
+loraEvents.on(TASK_TO_RESCUER, (data) => {
+  sendMessage("TASKKKK TO RESCUER")
+})
+
+loraEvents.on("messageReceived", (data) => {
+  console.log("Received Message: ", data);
+})
