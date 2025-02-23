@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.os.Looper
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lora_connect.application.map.MapActivity
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 @SuppressLint("MissingPermission")
 class AuthenticationViewModel(
@@ -79,15 +77,17 @@ class AuthenticationViewModel(
     fun connectDevice(bluetoothDevice: BluetoothDevice) {
         viewModelScope.launch {
             bluetoothAdapter.cancelDiscovery()
-            val socket = bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
-            socket.use { bluetoothSocket ->
-                try {
-                    bluetoothSocket.connect()
-                    activityStarterHelper.startActivity(MapActivity::class.java)
-                } catch (e: Error) {
-                    Log.w("AUTHENTICATION VIEW MODEL", e.toString())
-                }
-            }
+            activityStarterHelper.startMapActivity(bluetoothDevice.address)
+//            val socket = bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
+//            socket.use { bluetoothSocket ->
+//                try {
+//                    bluetoothSocket.connect()
+//                    activityStarterHelper.startActivity(MapActivity::class.java)
+//                    BluetoothSocketSingleton.instance = socket
+//                } catch (e: Error) {
+//                    Log.w("AUTHENTICATION VIEW MODEL", e.toString())
+//                }
+//            }
         }
     }
 }

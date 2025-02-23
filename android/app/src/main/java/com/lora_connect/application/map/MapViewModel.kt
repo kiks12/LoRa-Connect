@@ -9,7 +9,9 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.graphhopper.ResponsePath
 import com.lora_connect.application.room.entities.Task
+import com.lora_connect.application.tasks.completion.TaskCompletionActivity
 import com.lora_connect.application.tasks.current_task.CurrentTask
+import com.lora_connect.application.utils.ActivityStarterHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +27,8 @@ class MapViewModel(
     private val areLocationPermissionGranted: () -> Boolean,
     val buildLocationComponentOptions: () -> LocationComponentOptions,
     val buildLocationComponentActivationOptions: (style: Style, locationComponentOptions: LocationComponentOptions) -> LocationComponentActivationOptions,
-    private val getRoute: (startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double) -> ResponsePath?
+    private val getRoute: (startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double) -> ResponsePath?,
+    private val activityStarterHelper: ActivityStarterHelper,
 ): ViewModel() {
     private val currentTaskClass = CurrentTask.instance
     private val _state = MutableStateFlow(MapState())
@@ -83,5 +86,9 @@ class MapViewModel(
         _state.value = _state.value.copy(
             path = best
         )
+    }
+    
+    fun finishTask() {
+        activityStarterHelper.startActivity(TaskCompletionActivity::class.java)
     }
 }

@@ -116,10 +116,6 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
 
                     }
                     map.cameraPosition = org.maplibre.android.camera.CameraPosition.Builder().target(location = LatLng(state.latitude, state.longitude)).zoom(10.0).build()
-//                    map.addOnMapClickListener {
-//                        mapViewModel.setMarkerLatLng(LatLng(it.latitude, it.longitude))
-//                        true
-//                    }
                 }
 
                 mapView
@@ -128,7 +124,9 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         )
         if (currentTask != null) {
             Box(modifier = Modifier.padding(8.dp)) {
-                CurrentTaskCard(task = currentTask!!)
+                CurrentTaskCard(task = currentTask!!) {
+                    mapViewModel.finishTask()
+                }
             }
         }
     }

@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationServices
 import com.lora_connect.application.services.BluetoothDataService
 import com.lora_connect.application.tasks.list.TaskListActivity
 import com.lora_connect.application.ui.theme.ApplicationTheme
+import com.lora_connect.application.utils.ActivityStarterHelper
 import com.lora_connect.application.utils.copyAssetsToFilesDir
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,6 +49,7 @@ class MapActivity : ComponentActivity() {
         MapLibre.getInstance(this)
         mapView = MapView(this)
         mapView.onCreate(savedInstanceState)
+        val activityStarterHelper = ActivityStarterHelper(this)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         val offlineRouting = OfflineRouting(this)
@@ -58,6 +60,7 @@ class MapActivity : ComponentActivity() {
             ::buildLocationComponentOptions,
             ::buildLocationComponentActivationOptions,
             offlineRouting::getRoute,
+            activityStarterHelper
         )
 
         setContent {
@@ -66,7 +69,7 @@ class MapActivity : ComponentActivity() {
                     topBar = {
                         TopAppBar(
                             title = {  },
-                            navigationIcon = { 
+                            navigationIcon = {
                                 IconButton(onClick = { /*TODO*/ }) {
                                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go Back")
                                 }
@@ -87,11 +90,13 @@ class MapActivity : ComponentActivity() {
         }
 
         // ONLY UNCOMMENT IF AUTHENTICATION IS RUNNING
-        // startBluetoothDataService()
+         startBluetoothDataService()
     }
 
     private fun startBluetoothDataService() {
-        val intent = Intent(this, BluetoothDataService::class.java)
+        val intent = Intent(this, BluetoothDataService::class.java).apply {
+            putExtra("DEVICE_ADDRESS", intent.getStringExtra("DEVICE_ADDRESS"))
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
         } else {
