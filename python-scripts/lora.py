@@ -18,7 +18,7 @@ class LoRaModule(LoRa):
         super(LoRaModule, self).__init__(verbose)
 
         self.ws_url = ws_url
-        self.sio = socketio.Client()
+        self.sio = socketio.AsyncClient(logger=True, engineio_logger=True)
 
         # self.set_mode(MODE.SLEEP)
         self.set_mode(MODE.STDBY)
@@ -58,15 +58,15 @@ class LoRaModule(LoRa):
         print("Coding Rate: ", ((self.get_register(0x1D) & 0x0E) >> 1) + 4)
         print()
 
-    def connect_to_socketio(self):
+    async def connect_to_socketio(self):
         """ Connect to the Socket.IO server and keep listening """
-        self.sio.connect(self.ws_url)
+        await self.sio.connect(self.ws_url, transports=['websocket'], namespaces=['/'])
         print(f"✅ Connected to Socket.IO server at {self.ws_url}")
-        self.sio.wait()  # Keeps the connection alive
+        await self.sio.wait()  # Keeps the connection alive
 
-    def start_socketio_listener(self):
+    async def start_socketio_listener(self):
         """ Runs the Socket.IO listener in a background thread """
-        thread = threading.Thread(target=self.connect_to_socketio, daemon=True)
+        thread = await threading.Thread(target=self.connect_to_socketio, daemon=True)
         thread.start()
 
     def send_to_websocket(self, code, data):
