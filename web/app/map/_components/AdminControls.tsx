@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 
 export default function AdminControls() {
 	const {
-		owners,
+		users,
 
 		monitorLocations,
 		toggleMonitorLocations,
@@ -57,7 +57,7 @@ export default function AdminControls() {
 	useEffect(() => {
 		if (runEvacuationInstructionAlgorithm && evacuationInstructions.length === 0) createEvacuationInstructions();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [owners, evacuationCenters, runEvacuationInstructionAlgorithm]);
+	}, [users, evacuationCenters, runEvacuationInstructionAlgorithm]);
 
 	return (
 		<div className="pt-6 pb-2 h-full flex flex-col justify-between">
@@ -135,7 +135,7 @@ export default function AdminControls() {
 						</div>
 					) : (
 						<div className="max-h-56 min-h-56 overflow-y-auto">
-							{evacuationCenters.length > 0 ? (
+							{evacuationCenters && evacuationCenters.length > 0 ? (
 								evacuationCenters.map((evacuationCenter, index) => {
 									return <EvacuationCenterListItem evacuationCenter={evacuationCenter} key={index} />;
 								})

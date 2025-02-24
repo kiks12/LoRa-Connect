@@ -4,8 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { INSTRUCTION_TO_USER } from "@/lora/lora-tags";
 import { socket } from "@/socket/socket";
-import { SEND_EVACUATION_INSTRUCTION_TO_BRACELETS } from "@/lora-tags";
 import { EvacuationInstruction } from "@/types";
 import { useMemo } from "react";
 
@@ -24,7 +24,7 @@ export default function EvacuationInstructionButton({
 	setMessage: (index: number, message: string) => void;
 }) {
 	function sendViaLoRa() {
-		socket.emit(SEND_EVACUATION_INSTRUCTION_TO_BRACELETS, { evacuationCenterInstructions });
+		socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions });
 	}
 
 	return (

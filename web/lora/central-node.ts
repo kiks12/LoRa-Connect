@@ -1,8 +1,7 @@
 
 // RECEIVING 
 
-import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "../lora-tags";
-import { loraEvents } from "./lora-setup";
+import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "./lora-tags";
 
 export function locationFromUser() {
   //
@@ -38,15 +37,12 @@ export function locationFromRescuer() {
 // TRANSMITTING
 
 export function startLocationTransmissionToTRU(data: object) {
-  loraEvents.emit(START_LOCATION_TRANSMISSION_TO_TRU, data)
 }
 
 export function instructionToUser(data: object) {
-  loraEvents.emit(INSTRUCTION_TO_USER, data)
 }
 
 export function taskToRescuer(data: object) {
-  loraEvents.emit(TASK_TO_RESCUER, data)
 }
 
 // TRANSMITTING

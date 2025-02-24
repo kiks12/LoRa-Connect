@@ -41,9 +41,9 @@ import {
 } from "@/types";
 import { USER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
-import { SEND_RECEIVED_LOCATION_TO_CLIENT, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS } from "@/lora-tags";
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR } from "@/map-styles";
 import { generalType } from "@/app/map/_components/RoutingControls";
+import { LOCATION_FROM_USER, START_LOCATION_TRANSMISSION_TO_TRU } from "@/lora/lora-tags";
 
 const MapContext = createContext<{
 	// MAP
@@ -371,7 +371,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	async function fetchUsersAPI() {
 		setUsersLoading(true);
 		const { users }: { users: UserWithBracelet[] } = await (await fetch("/api/users")).json();
-		const mappedUsers = users.map((user) => ({ ...user, showing: false }));
+		const mappedUsers = users ? users.map((user) => ({ ...user, showing: false })) : [];
 		setUsers(mappedUsers);
 		setUsersLoading(false);
 	}
@@ -447,7 +447,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	async function fetchRescuersAPI() {
 		setRescuersLoading(true);
 		const { rescuers }: { rescuers: RescuerWithBracelet[] } = await (await fetch("/api/rescuers")).json();
-		const mappedRescuers = rescuers.map((rescuer) => ({ ...rescuer, showing: false }));
+		const mappedRescuers = rescuers ? rescuers.map((rescuer) => ({ ...rescuer, showing: false })) : [];
 		setRescuers(mappedRescuers);
 		setRescuersLoading(false);
 	}
@@ -535,10 +535,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	function sendTransmitLocationSignalToBracelets() {
 		// Send the signal to monitor locations
-		socket.emit(SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS);
+		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU);
 
 		// Receive the signal from bracelets
-		socket.on(SEND_RECEIVED_LOCATION_TO_CLIENT, async (data: LocationDataFromLoRa) => {
+		socket.on(LOCATION_FROM_USER, async (data: LocationDataFromLoRa) => {
 			const { rescuer, braceletId, latitude, longitude } = data;
 			const correctOwner = rescuer
 				? rescuers.filter((rescuer) => rescuer.bracelet?.braceletId === braceletId)
@@ -555,16 +555,16 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 	// Location Monitoring Code block - as long as monitorLocation is true this triggers
 	useEffect(() => {
-		if (!monitorLocations) {
-			socket.off(SEND_RECEIVED_LOCATION_TO_CLIENT);
+		if (!showUserLocations) {
+			socket.off(LOCATION_FROM_USER);
 			return;
 		}
 		sendTransmitLocationSignalToBracelets();
 		return () => {
-			socket.off(SEND_RECEIVED_LOCATION_TO_CLIENT);
+			socket.off(LOCATION_FROM_USER);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [monitorLocations]);
+	}, [showUserLocations]);
 
 	function toggleMonitorLocations() {
 		setMonitorLocations(!monitorLocations);
@@ -597,7 +597,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	async function fetchObstaclesAPI() {
 		setObstaclesLoading(true);
 		const { obstacles }: { obstacles: Obstacle[] } = await (await fetch("/api/obstacles")).json();
-		const mappedObstacles = obstacles.map((obstacle) => ({ ...obstacle, showing: false }));
+		const mappedObstacles = obstacles ? obstacles.map((obstacle) => ({ ...obstacle, showing: false })) : [];
 		setObstacles(mappedObstacles);
 		setObstaclesLoading(false);
 	}

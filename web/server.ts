@@ -1,10 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
-import { INSTRUCTION_TO_USER, SEND_EVACUATION_INSTRUCTION_TO_BRACELETS, SEND_TASK_TO_RESCUER, SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "./lora-tags";
-import { sendEvacuationInstructionToBracelets, sendTaskToRescuer, sendTransmitLocationSignalToBracelets } from "./socket/lora/to-bracelets";
-import { listenForMessages, setupLoRa } from "./lora/lora-setup";
-import { instructionToUser, startLocationTransmissionToTRU, taskToRescuer } from "./lora/central-node";
+import { INSTRUCTION_TO_USER, INSTRUCTION_TO_USER_FOR_PY, START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY, TASK_TO_RESCUER, TASK_TO_RESCUER_FOR_PY } from "./lora/lora-tags";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -15,25 +12,28 @@ const handler = app.getRequestHandler();
 // let flag = false;
 
 app.prepare().then(async () => {
-  try {
-    await setupLoRa()
-    await listenForMessages()
-  } catch (error) {
-    console.error(error)
-    process.exit(1)
-  }
   const httpServer = createServer(handler);
 
   const io = new Server(httpServer);
 
   io.on("connection", (socket) => {
-    socket.on(SEND_TRANSMIT_LOCATION_SIGNAL_TO_BRACELETS, sendTransmitLocationSignalToBracelets)
-    socket.on(SEND_EVACUATION_INSTRUCTION_TO_BRACELETS, sendEvacuationInstructionToBracelets)
-    socket.on(SEND_TASK_TO_RESCUER, sendTaskToRescuer)
+    // FROM FRONTEND TO PY
+    socket.on(START_LOCATION_TRANSMISSION_TO_TRU, () => {
+      console.log("START LOCATION TRANSMISSION TO TRU")
+      io.emit(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY)
+    })
+    socket.on(INSTRUCTION_TO_USER, (data) => {
+      console.log(data)
+      io.emit(INSTRUCTION_TO_USER_FOR_PY, data)
+    })
+    socket.on(TASK_TO_RESCUER, (data) => {
+      console.log(data)
+      io.emit(TASK_TO_RESCUER_FOR_PY, data)
+    })
 
-    socket.on(START_LOCATION_TRANSMISSION_TO_TRU, startLocationTransmissionToTRU)
-    socket.on(INSTRUCTION_TO_USER, instructionToUser)
-    socket.on(TASK_TO_RESCUER, taskToRescuer)
+    // socket.on(START_LOCATION_TRANSMISSION_TO_TRU, startLocationTransmissionToTRU)
+    // socket.on(INSTRUCTION_TO_USER, instructionToUser)
+    // socket.on(TASK_TO_RESCUER, taskToRescuer)
   });
 
   /* 
