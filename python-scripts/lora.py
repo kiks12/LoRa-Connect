@@ -1,6 +1,7 @@
 
 import threading
 import asyncio
+import socketio
 import websockets
 import json
 from time import sleep
@@ -13,13 +14,13 @@ BOARD.setup()
 
 class LoRaModule(LoRa):
 
-    def __init__(self, ws_url="ws://localhost:3000", verbose=False):
+    def __init__(self, ws_url="http://localhost:3000", verbose=False):
         super(LoRaModule, self).__init__(verbose)
 
         self.ws_url = ws_url
+        self.sio = socketio.Client()
 
         # self.set_mode(MODE.SLEEP)
-        # [0,0,0,0,0,0] in RX, [1,0,0,0,0,0] in TX
         self.set_mode(MODE.STDBY)
         self.set_freq(433.0)
         self.set_bw(BW.BW250)
@@ -27,9 +28,17 @@ class LoRaModule(LoRa):
         self.set_pa_config(pa_select=1, max_power=0x04)
         self.set_spreading_factor(7)
         self.set_rx_crc(True)
+       # [0,0,0,0,0,0] in RX, [1,0,0,0,0,0] in TX 
         self.set_dio_mapping([1, 0, 0, 0, 0, 0])
 
         self.print_information()
+
+        self.sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY, self.start_location_transmission_to_tru_for_py)
+    
+    def start_location_transmission_to_tru_for_py(self, data):
+        """ Handles messages received via Socket.IO """
+        print(f"📩 Received from Socket.IO: {data}")
+        self.send_message(data.get("message", ""))
 
     def print_information(self):
         print("LoRa initialized.")
@@ -49,12 +58,22 @@ class LoRaModule(LoRa):
         print("Coding Rate: ", ((self.get_register(0x1D) & 0x0E) >> 1) + 4)
         print()
 
-    async def send_to_websocket(self, code, data):
-        """ Sends a message to the WebSocket server """
-        async with websockets.connect(self.ws_url) as websocket:
-            message = {"code": code, "data": data}
-            await websocket.send(json.dumps(message))
-            print(f"📤 Sent to WebSocket: {message}")
+    def connect_to_socketio(self):
+        """ Connect to the Socket.IO server and keep listening """
+        self.sio.connect(self.ws_url)
+        print(f"✅ Connected to Socket.IO server at {self.ws_url}")
+        self.sio.wait()  # Keeps the connection alive
+
+    def start_socketio_listener(self):
+        """ Runs the Socket.IO listener in a background thread """
+        thread = threading.Thread(target=self.connect_to_socketio, daemon=True)
+        thread.start()
+
+    def send_to_websocket(self, code, data):
+        """ Sends a message to the Socket.IO server """
+        message = {"code": code, "data": data}
+        self.sio.emit("SEND_TO_FRONTEND", message)
+        print(f"📤 Sent via Socket.IO: {message}")
 
     def on_rx_done(self):
         self.clear_irq_flags(RxDone=1)
@@ -121,24 +140,24 @@ class LoRaModule(LoRa):
         print("TX DONE IRQ FLAGS: ", hex(self.get_register(0x12)))
         self.set_register(0x12, 0x08)  # clear IRQ flags
 
-    def start_websocket_listener(self):
-        """ Runs WebSocket listener in a background thread """
-        def websocket_thread():
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            try:
-                loop.run_until_complete(self.receive_from_websocket())
-            except asyncio.CancelledError:
-                print("🔴 WebSocket listener stopped.")
-            finally:
-                loop.close()
+    # def start_websocket_listener(self):
+    #     """ Runs WebSocket listener in a background thread """
+    #     def websocket_thread():
+    #         loop = asyncio.new_event_loop()
+    #         asyncio.set_event_loop(loop)
+    #         try:
+    #             loop.run_until_complete(self.receive_from_websocket())
+    #         except asyncio.CancelledError:
+    #             print("🔴 WebSocket listener stopped.")
+    #         finally:
+    #             loop.close()
 
-        thread = threading.Thread(target=websocket_thread, daemon=True)
-        thread.start()
+    #     thread = threading.Thread(target=websocket_thread, daemon=True)
+    #     thread.start()
 
     def start(self):
         """ Starts both LoRa reception & WebSocket listener """
-        self.start_websocket_listener()
+        self.start_socketio_listener()
 
         print("🚀 LoRa & WebSocket Running...")
         self.set_mode(MODE.RXCONT)  # Start LoRa in receive mode
