@@ -9,7 +9,7 @@ from SX127x.board_config import BOARD
 from tags import *
 
 BOARD.setup()
-sio = socketio.AsyncClient(logger=True, engineio_logger=True)
+sio = socketio.Client()
 
 
 class LoRaModule(LoRa):
@@ -55,17 +55,19 @@ class LoRaModule(LoRa):
         print("Coding Rate: ", ((self.get_register(0x1D) & 0x0E) >> 1) + 4)
         print()
 
-    async def connect_to_socketio(self):
+    def connect_to_socketio(self):
         """ Connect to the Socket.IO server and keep listening """
-        await sio.connect(self.ws_url)
+        sio.connect(self.ws_url)
         print(f"✅ Connected to Socket.IO server at {self.ws_url}")
         sys.stdout.flush()
         while True:
-            await sio.wait()  # Keeps the connection alive
+            sio.wait()  # Keeps the connection alive
 
-    async def start_socketio_listener(self):
+    def start_socketio_listener(self):
         """ Runs the Socket.IO listener in a background thread """
         asyncio.create_task(self.connect_to_socketio())
+        thread = threading.Thread(target=self.connect_to_socketio, daemon=True)
+        thread.start()
 
     def send_to_websocket(self, code, data):
         """ Sends a message to the Socket.IO server """
@@ -115,9 +117,9 @@ class LoRaModule(LoRa):
         sleep(0.5)
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
 
-    async def start(self):
+    def start(self):
         """ Starts both LoRa reception & WebSocket listener """
-        await self.start_socketio_listener()
+        self.start_socketio_listener()
 
         print("🚀 LoRa & WebSocket Running...")
         self.set_mode(MODE.RXCONT)  # Start LoRa in receive mode
@@ -137,17 +139,17 @@ class LoRaModule(LoRa):
             BOARD.teardown()
 
     @sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY)
-    async def start_location_transmission(self):
+    def start_location_transmission(self):
         print("START_LOCATION_TRANSMISSINO_TO_TRU_FOR_PY")
         sys.stdout.flush()
         self.send_message(start_location_transmission_to_tru())
 
     @sio.on(INSTRUCTION_TO_USER_FOR_PY)
-    async def instruction_to_user(self):
+    def instruction_to_user(self):
         print("INSTRUCTION_TO_USER")
 
     @sio.on(TASK_TO_RESCUER_FOR_PY)
-    async def task_to_rescuer(self):
+    def task_to_rescuer(self):
         print("INSTRUCTION_TO_USER")
 
 # lora = LoRaModule(verbose=True)
