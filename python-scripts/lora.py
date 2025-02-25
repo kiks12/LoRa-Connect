@@ -2,14 +2,13 @@
 import threading
 import asyncio
 import socketio
-import websockets
-import json
 from time import sleep
 from SX127x.LoRa import *
 from SX127x.board_config import BOARD
 from tags import *
 
 BOARD.setup()
+sio = socketio.AsyncClient(logger=True, engineio_logger=True)
 
 
 class LoRaModule(LoRa):
@@ -18,7 +17,7 @@ class LoRaModule(LoRa):
         super(LoRaModule, self).__init__(verbose)
 
         self.ws_url = ws_url
-        self.sio = socketio.AsyncClient(logger=True, engineio_logger=True)
+        sio.connect(self.ws_url)
 
         # self.set_mode(MODE.SLEEP)
         self.set_mode(MODE.STDBY)
@@ -28,13 +27,11 @@ class LoRaModule(LoRa):
         self.set_pa_config(pa_select=1, max_power=0x04)
         self.set_spreading_factor(7)
         self.set_rx_crc(True)
-       # [0,0,0,0,0,0] in RX, [1,0,0,0,0,0] in TX 
-        self.set_dio_mapping([1, 0, 0, 0, 0, 0])
+       # [0,0,0,0,0,0] in RX, [1,0,0,0,0,0] in TX
+        self.set_dio_mapping([0, 0, 0, 0, 0, 0])
 
         self.print_information()
 
-        self.sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY, self.start_location_transmission_to_tru_for_py)
-    
     def start_location_transmission_to_tru_for_py(self, data):
         """ Handles messages received via Socket.IO """
         print(f"📩 Received from Socket.IO: {data}")
@@ -92,34 +89,9 @@ class LoRaModule(LoRa):
         self.reset_ptr_rx()
         self.set_mode(MODE.RXCONT)
 
-    async def receive_from_websocket(self):
-        """ Listens for WebSocket messages and transmits them via LoRa """
-        while True:  # Infinite retry loop
-            try:
-                async with websockets.connect(self.ws_url) as websocket:
-                    print("✅ Connected to WebSocket!")
-                    while True:
-                        message = await websocket.recv()
-                        try:
-                            parsed = json.loads(message)
-                            print(f"📩 Received from WebSocket: {parsed}")
-
-                            if parsed.get("code") == START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY:
-                                print(parsed.get("data"))
-
-                        except json.JSONDecodeError:
-                            print("❌ Invalid JSON received!")
-
-            except Exception as e:
-                print(f"🔄 WebSocket disconnected! Reconnecting in 5s... ({e})")
-                await asyncio.sleep(5)  # Wait & retry
-
-    # def on_tx_done(self):
-        # print("TX DONE IRQ FLAGS: ", hex(self.get_register(0x12)))
-        # self.set_mode(MODE.STDBY)
-        # print()
-
     def send_message(self, message):
+        self.set_dio_mapping([1, 0, 0, 0, 0, 0])
+        sleep(0.5)
         self.set_register(0x0E, 0x00)
         self.set_register(0x0D, 0x00)
 
@@ -139,21 +111,6 @@ class LoRaModule(LoRa):
         print("Packet Sent...")
         print("TX DONE IRQ FLAGS: ", hex(self.get_register(0x12)))
         self.set_register(0x12, 0x08)  # clear IRQ flags
-
-    # def start_websocket_listener(self):
-    #     """ Runs WebSocket listener in a background thread """
-    #     def websocket_thread():
-    #         loop = asyncio.new_event_loop()
-    #         asyncio.set_event_loop(loop)
-    #         try:
-    #             loop.run_until_complete(self.receive_from_websocket())
-    #         except asyncio.CancelledError:
-    #             print("🔴 WebSocket listener stopped.")
-    #         finally:
-    #             loop.close()
-
-    #     thread = threading.Thread(target=websocket_thread, daemon=True)
-    #     thread.start()
 
     def start(self):
         """ Starts both LoRa reception & WebSocket listener """
@@ -175,6 +132,18 @@ class LoRaModule(LoRa):
             sys.stdout.flush()
             self.set_mode(MODE.SLEEP)
             BOARD.teardown()
+
+    @sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY)
+    def start_location_transmission(self):
+        print("START_LOCATION_TRANSMISSINO_TO_TRU_FOR_PY")
+
+    @sio.on(INSTRUCTION_TO_USER_FOR_PY)
+    def instruction_to_user(self):
+        print("INSTRUCTION_TO_USER")
+
+    @sio.on(TASK_TO_RESCUER_FOR_PY)
+    def task_to_rescuer(self):
+        print("INSTRUCTION_TO_USER")
 
 # lora = LoRaModule(verbose=True)
 # lora.set_mode(MODE.STDBY)
