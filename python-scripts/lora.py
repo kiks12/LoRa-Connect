@@ -64,8 +64,7 @@ class LoRaModule(LoRa):
 
     async def start_socketio_listener(self):
         """ Runs the Socket.IO listener in a background thread """
-        thread = await threading.Thread(target=self.connect_to_socketio, daemon=True)
-        thread.start()
+        asyncio.create_task(self.connect_to_socketio())
 
     def send_to_websocket(self, code, data):
         """ Sends a message to the Socket.IO server """
@@ -115,9 +114,9 @@ class LoRaModule(LoRa):
         sleep(0.5)
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
 
-    def start(self):
+    async def start(self):
         """ Starts both LoRa reception & WebSocket listener """
-        asyncio.run(self.start_socketio_listener())
+        await self.start_socketio_listener()
 
         print("🚀 LoRa & WebSocket Running...")
         self.set_mode(MODE.RXCONT)  # Start LoRa in receive mode
