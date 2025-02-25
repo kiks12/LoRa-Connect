@@ -7,6 +7,7 @@ from payload import *
 from SX127x.LoRa import *
 from SX127x.board_config import BOARD
 from tags import *
+import functools
 
 BOARD.setup()
 sio = socketio.Client()
@@ -32,10 +33,12 @@ class LoRaModule(LoRa):
 
         self.print_information()
 
-    def start_location_transmission_to_tru_for_py(self, data):
-        """ Handles messages received via Socket.IO """
-        print(f"📩 Received from Socket.IO: {data}")
-        self.send_message(data.get("message", ""))
+        sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY,
+               functools.partial(self.start_location_transmission))
+        sio.on(INSTRUCTION_TO_USER_FOR_PY,
+               functools.partial(self.instruction_to_user))
+        sio.on(TASK_TO_RESCUER_FOR_PY,
+               functools.partial(self.task_to_rescuer))
 
     def print_information(self):
         print("LoRa initialized.")
@@ -138,17 +141,14 @@ class LoRaModule(LoRa):
             self.set_mode(MODE.SLEEP)
             BOARD.teardown()
 
-    @sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY)
     def start_location_transmission(self):
         print("START_LOCATION_TRANSMISSINO_TO_TRU_FOR_PY")
         sys.stdout.flush()
         self.send_message(start_location_transmission_to_tru())
 
-    @sio.on(INSTRUCTION_TO_USER_FOR_PY)
     def instruction_to_user(self):
         print("INSTRUCTION_TO_USER")
 
-    @sio.on(TASK_TO_RESCUER_FOR_PY)
     def task_to_rescuer(self):
         print("INSTRUCTION_TO_USER")
 
