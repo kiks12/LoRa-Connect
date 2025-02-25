@@ -18,7 +18,6 @@ class LoRaModule(LoRa):
         super(LoRaModule, self).__init__(verbose)
 
         self.ws_url = ws_url
-        sio.connect(self.ws_url)
 
         # self.set_mode(MODE.SLEEP)
         self.set_mode(MODE.STDBY)
