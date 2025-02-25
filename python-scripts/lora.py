@@ -138,6 +138,7 @@ class LoRaModule(LoRa):
     @sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY)
     def start_location_transmission(self):
         print("START_LOCATION_TRANSMISSINO_TO_TRU_FOR_PY")
+        sys.stdout.flush()
         self.send_message(start_location_transmission_to_tru())
 
     @sio.on(INSTRUCTION_TO_USER_FOR_PY)
