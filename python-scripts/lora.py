@@ -59,7 +59,9 @@ class LoRaModule(LoRa):
         """ Connect to the Socket.IO server and keep listening """
         await sio.connect(self.ws_url)
         print(f"✅ Connected to Socket.IO server at {self.ws_url}")
-        await sio.wait()  # Keeps the connection alive
+        sys.stdout.flush()
+        while True:
+            await sio.wait()  # Keeps the connection alive
 
     async def start_socketio_listener(self):
         """ Runs the Socket.IO listener in a background thread """
