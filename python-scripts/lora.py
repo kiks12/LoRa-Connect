@@ -70,7 +70,7 @@ class LoRaModule(LoRa):
     def send_to_websocket(self, code, data):
         """ Sends a message to the Socket.IO server """
         message = {"code": code, "data": data}
-        self.sio.emit("SEND_TO_FRONTEND", message)
+        sio.emit("SEND_TO_FRONTEND", message)
         print(f"📤 Sent via Socket.IO: {message}")
 
     def on_rx_done(self):
@@ -137,17 +137,17 @@ class LoRaModule(LoRa):
             BOARD.teardown()
 
     @sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY)
-    def start_location_transmission(self):
+    async def start_location_transmission(self):
         print("START_LOCATION_TRANSMISSINO_TO_TRU_FOR_PY")
         sys.stdout.flush()
         self.send_message(start_location_transmission_to_tru())
 
     @sio.on(INSTRUCTION_TO_USER_FOR_PY)
-    def instruction_to_user(self):
+    async def instruction_to_user(self):
         print("INSTRUCTION_TO_USER")
 
     @sio.on(TASK_TO_RESCUER_FOR_PY)
-    def task_to_rescuer(self):
+    async def task_to_rescuer(self):
         print("INSTRUCTION_TO_USER")
 
 # lora = LoRaModule(verbose=True)
