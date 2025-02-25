@@ -3,6 +3,7 @@ import threading
 import asyncio
 import socketio
 from time import sleep
+from payload import *
 from SX127x.LoRa import *
 from SX127x.board_config import BOARD
 from tags import *
@@ -111,6 +112,8 @@ class LoRaModule(LoRa):
         print("Packet Sent...")
         print("TX DONE IRQ FLAGS: ", hex(self.get_register(0x12)))
         self.set_register(0x12, 0x08)  # clear IRQ flags
+        sleep(0.5)
+        self.set_dio_mapping([0, 0, 0, 0, 0, 0])
 
     def start(self):
         """ Starts both LoRa reception & WebSocket listener """
@@ -136,6 +139,7 @@ class LoRaModule(LoRa):
     @sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY)
     def start_location_transmission(self):
         print("START_LOCATION_TRANSMISSINO_TO_TRU_FOR_PY")
+        self.send_message(start_location_transmission_to_tru())
 
     @sio.on(INSTRUCTION_TO_USER_FOR_PY)
     def instruction_to_user(self):
