@@ -117,7 +117,7 @@ class LoRaModule(LoRa):
 
     def start(self):
         """ Starts both LoRa reception & WebSocket listener """
-        self.start_socketio_listener()
+        asyncio.run(self.start_socketio_listener())
 
         print("🚀 LoRa & WebSocket Running...")
         self.set_mode(MODE.RXCONT)  # Start LoRa in receive mode
