@@ -29,6 +29,12 @@ export type OperationsWithPayload = Prisma.OperationsGetPayload<{
   }
 }>
 
+export type LocationDataFromPy = {
+  latitude: number,
+  longitude: number,
+  braceletId: string,
+}
+
 export type LocationDataFromLoRa = {
   latitude: number, 
   longitude: number,

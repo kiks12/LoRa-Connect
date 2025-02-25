@@ -32,18 +32,18 @@ import {
 	EvacuationCenterWithStatusIdentifier,
 	EvacuationInstruction,
 	GraphHopperAPIResult,
-	LocationDataFromLoRa,
 	ObstacleWithStatusIdentifier,
 	UserWithBracelet,
 	UserWithStatusIdentifier,
 	RescuerWithBracelet,
 	RescuerWithStatusIdentifier,
+	LocationDataFromPy,
 } from "@/types";
 import { USER_SOURCE_BASE, RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { socket } from "@/socket/socket";
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR } from "@/map-styles";
 import { generalType } from "@/app/map/_components/RoutingControls";
-import { LOCATION_FROM_USER, START_LOCATION_TRANSMISSION_TO_TRU } from "@/lora/lora-tags";
+import { LOCATION_FROM_RESCUER, LOCATION_FROM_USER, START_LOCATION_TRANSMISSION_TO_TRU } from "@/lora/lora-tags";
 
 const MapContext = createContext<{
 	// MAP
@@ -537,34 +537,39 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		// Send the signal to monitor locations
 		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU);
 
-		// Receive the signal from bracelets
-		socket.on(LOCATION_FROM_USER, async (data: LocationDataFromLoRa) => {
-			const { rescuer, braceletId, latitude, longitude } = data;
-			const correctOwner = rescuer
-				? rescuers.filter((rescuer) => rescuer.bracelet?.braceletId === braceletId)
-				: users.filter((user) => user.bracelet?.braceletId === braceletId);
+		// Receive user location signal from py
+		socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
+			const { braceletId, latitude, longitude } = data;
+			const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
 			if (correctOwner.length === 0) return;
-			if (rescuer) {
-				addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier), latitude, longitude }, false, true);
-			} else {
-				addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
-			}
-			await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer });
+			addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
+			await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
+		});
+
+		// Receive rescuer location signal from py
+		socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
+			const { braceletId, latitude, longitude } = data;
+			const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
+			if (correctOwner.length === 0) return;
+			addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier), latitude, longitude }, false, true);
+			await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
 		});
 	}
 
 	// Location Monitoring Code block - as long as monitorLocation is true this triggers
 	useEffect(() => {
-		if (!showUserLocations) {
+		if (!monitorLocations) {
 			socket.off(LOCATION_FROM_USER);
+			socket.off(LOCATION_FROM_RESCUER);
 			return;
 		}
 		sendTransmitLocationSignalToBracelets();
 		return () => {
 			socket.off(LOCATION_FROM_USER);
+			socket.off(LOCATION_FROM_RESCUER);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [showUserLocations]);
+	}, [monitorLocations]);
 
 	function toggleMonitorLocations() {
 		setMonitorLocations(!monitorLocations);

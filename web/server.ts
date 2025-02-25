@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
-import { INSTRUCTION_TO_USER, INSTRUCTION_TO_USER_FOR_PY, START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY, TASK_TO_RESCUER, TASK_TO_RESCUER_FOR_PY } from "./lora/lora-tags";
+import { INSTRUCTION_TO_USER, INSTRUCTION_TO_USER_FOR_PY, LOCATION_FROM_RESCUER, LOCATION_FROM_RESCUER_FROM_PY, LOCATION_FROM_USER, LOCATION_FROM_USER_FROM_PY, START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY, TASK_TO_RESCUER, TASK_TO_RESCUER_FOR_PY } from "./lora/lora-tags";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -17,6 +17,8 @@ app.prepare().then(async () => {
   const io = new Server(httpServer);
 
   io.on("connection", (socket) => {
+    console.log("Client Connected")
+
     // FROM FRONTEND TO PY
     socket.on(START_LOCATION_TRANSMISSION_TO_TRU, () => {
       console.log("START LOCATION TRANSMISSION TO TRU")
@@ -31,9 +33,15 @@ app.prepare().then(async () => {
       io.emit(TASK_TO_RESCUER_FOR_PY, data)
     })
 
-    // socket.on(START_LOCATION_TRANSMISSION_TO_TRU, startLocationTransmissionToTRU)
-    // socket.on(INSTRUCTION_TO_USER, instructionToUser)
-    // socket.on(TASK_TO_RESCUER, taskToRescuer)
+    // FROM PY TO FRONTEND 
+    socket.on(LOCATION_FROM_RESCUER_FROM_PY, (data) => {
+      console.log(data)
+      io.emit(LOCATION_FROM_RESCUER, data)
+    })
+    socket.on(LOCATION_FROM_USER_FROM_PY, (data) => {
+      console.log(data)
+      io.emit(LOCATION_FROM_USER, data)
+    })
   });
 
   /* 
