@@ -1,10 +1,13 @@
+import { lazy } from "react";
+
 import { Button } from "@/components/ui/button";
 import { MenuIcon } from "lucide-react";
-import Map from "./_components/Map";
 import { SideBar } from "./_components/Sidebar";
 import { MapProvider } from "@/hooks/use-map";
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarProvider } from "@/hooks/use-sidebar";
+
+const MapView = lazy(() => import("./_components/Map"));
 
 export default function MapPage() {
 	return (
@@ -19,7 +22,7 @@ export default function MapPage() {
 							</Button>
 						</div>
 						<div className="flex items-center justify-center h-screen z-10 transition-transform transform">
-							<Map />
+							<MapView />
 						</div>
 					</div>
 					<div className={`hidden md:block min-w-[512px] max-w-lg h-screen shadow-lg z-40`}>

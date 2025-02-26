@@ -1,8 +1,8 @@
 import { ReactNode } from "react";
 import { Container } from "../components/Container";
-import { LINKS } from "../page";
 import Link from "next/link";
 import { MenuDrawer } from "./_components/MenuDrawer";
+import HOME_LINKS from "../links";
 
 export default function Layout({ children }: { children: ReactNode }) {
 	return (
@@ -26,7 +26,7 @@ const Header = () => {
 					</nav>
 					<nav className="hidden md:block">
 						<ul className="flex">
-							{LINKS.map((link, index) => {
+							{HOME_LINKS.map((link, index) => {
 								return (
 									<Link className="px-2" key={index} href={link.link}>
 										<li>{link.title}</li>

@@ -1,5 +1,5 @@
 import { Container } from "@/app/components/Container";
-import { LINKS } from "@/app/page";
+import HOME_LINKS from "@/app/links";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { Menu } from "lucide-react";
@@ -21,7 +21,7 @@ export const MenuDrawer = () => {
 					</DrawerHeader>
 					<div className="w-full">
 						<ul>
-							{LINKS.map((value, index) => {
+							{HOME_LINKS.map((value, index) => {
 								return (
 									<Link href={value.link} className="p-2" key={index}>
 										<li className="text-center">{value.title}</li>

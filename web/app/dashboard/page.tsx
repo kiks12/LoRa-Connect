@@ -4,13 +4,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Ban, ChevronLeft, Hospital, RefreshCcw } from "lucide-react";
 import Link from "next/link";
-import DataSection from "./_components/DataSection";
 import useDashboard from "@/hooks/use-dashboard";
 import { Chart as ChartJs, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from "chart.js";
-import UsersData from "./_components/UsersData";
-import RescuersData from "./_components/RescuersData";
-import DevicesData from "./_components/BraceletsData";
-import MissionsData from "./_components/MissionsData";
+import { lazy } from "react";
+
+const DataSection = lazy(() => import("./_components/DataSection"));
+const UsersData = lazy(() => import("./_components/UsersData"));
+const RescuersData = lazy(() => import("./_components/RescuersData"));
+const DevicesData = lazy(() => import("./_components/BraceletsData"));
+const MissionsData = lazy(() => import("./_components/MissionsData"));
 
 ChartJs.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ArcElement, Tooltip, Legend);
 
