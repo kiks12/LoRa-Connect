@@ -1,3 +1,5 @@
+"use client";
+
 import { lazy } from "react";
 import { Container } from "./components/Container";
 import HOME_LINKS from "./links";

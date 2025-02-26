@@ -1,3 +1,5 @@
+"use client";
+
 import { ReactNode } from "react";
 
 export const Container = ({ children, className }: { children: ReactNode; className?: string }) => {
