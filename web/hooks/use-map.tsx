@@ -685,6 +685,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- ROUTING FUNCTIONS --- */
 	function createRoute(from: generalType, to: generalType, data: GraphHopperAPIResult) {
 		if (!mapRef.current) return;
+		if (!data || typeof data === "undefined" || typeof data.paths === "undefined") return;
 		if (fromMarker.current) fromMarker.current.remove();
 		if (toMarker.current) toMarker.current.remove();
 		clearSourcesAndLayers("ROUTE");

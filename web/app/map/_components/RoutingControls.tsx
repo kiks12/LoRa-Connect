@@ -4,7 +4,8 @@ import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMapContext } from "@/hooks/use-map";
-import { GraphHopperAPIResult } from "@/types";
+import { GraphHopperAPIResult, ObstacleWithStatusIdentifier } from "@/types";
+import { createAvoidPolygons, LatLng } from "@/utils/routing";
 import { Users } from "@prisma/client";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useMemo, useState } from "react";
@@ -19,12 +20,12 @@ export default function RoutingControls() {
 	const [list, setList] = useState<generalType[]>([]);
 	const { users, rescuers, evacuationCenters, obstacles, createRoute, clearRoute } = useMapContext();
 	const distance: null | number = useMemo(() => {
-		if (!data) return null;
+		if (!data || !data.paths) return null;
 		const path = data?.paths[0];
 		return path?.distance / 1000;
 	}, [data]);
 	const time: null | number = useMemo(() => {
-		if (!data) return null;
+		if (!data || !data.paths) return null;
 		const path = data?.paths[0];
 		return path.time / 1000 / 60;
 	}, [data]);
@@ -61,16 +62,38 @@ export default function RoutingControls() {
 	useEffect(() => {
 		async function fetchGraphHopperAPI() {
 			if (!from || !to) return;
-			const res = await fetch(
-				`http://localhost:8989/route?point=${from.latitude},${from.longitude}&point=${to.latitude},${to.longitude}&profile=car&points_encoded=false`
-			);
-			const json: GraphHopperAPIResult = await res.json();
-			setData(json);
-			createRoute(from, to, json);
+			try {
+				const points = [
+					[from.longitude, from.latitude],
+					[to.longitude, to.latitude],
+				];
+				const obstaclesCoordinates = obstacles.map((d: ObstacleWithStatusIdentifier) => [d.latitude, d.longitude] as LatLng);
+				const avoidPolygons = createAvoidPolygons(obstaclesCoordinates);
+				const res = await fetch(`http://localhost:8989/route`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						points: points,
+						points_encoded: false,
+						profile: "car",
+						avoid: {
+							polygons: avoidPolygons,
+						},
+					}),
+				});
+				const json: GraphHopperAPIResult = await res.json();
+				setData(json);
+				createRoute(from, to, json);
+			} catch (error) {
+				if (error instanceof TypeError) console.error(error);
+				alert("Routing not available");
+			}
 		}
 
 		fetchGraphHopperAPI();
-	}, [createRoute, from, to]);
+	}, [createRoute, from, obstacles, to]);
 
 	function onFromListItemClick(obj: generalType) {
 		setFrom(obj);
@@ -157,6 +180,8 @@ export default function RoutingControls() {
 				</div>
 				<div className="flex flex-col max-h-[530px] overflow-auto ">
 					{data &&
+						data.paths &&
+						data?.paths.length > 0 &&
 						data.paths[0].instructions.map((instruction, index) => {
 							return (
 								<Card className="mt-3 shadow-none" key={index}>

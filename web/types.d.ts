@@ -1,4 +1,4 @@
-import { EvacuationCenters, Prisma } from "@prisma/client";
+import { EvacuationCenters, Prisma, Obstacle } from "@prisma/client";
 
 export type UserWithBracelet = Prisma.UsersGetPayload<{
   include: {

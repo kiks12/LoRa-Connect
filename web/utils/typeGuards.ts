@@ -1,5 +1,5 @@
-import { Owners, Rescuers } from "@prisma/client";
+import { Users, Rescuers } from "@prisma/client";
 
-export function isOwner(owner: Rescuers | Owners) {
-  return (owner as Owners).ownerId !== undefined;
+export function isOwner(owner: Rescuers | Users) {
+  return (owner as Users).userId !== undefined;
 }
