@@ -12,11 +12,11 @@ import Link from "next/link";
 
 export const columns: ColumnDef<UserWithBracelet>[] = [
 	{
-		accessorKey: "ownerId",
+		accessorKey: "userId",
 		header: ({ column }) => {
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-					Owner ID
+					User ID
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
 			);
@@ -68,17 +68,9 @@ export const columns: ColumnDef<UserWithBracelet>[] = [
 		},
 	},
 	{
-		accessorKey: "latitude",
-		header: "Latitude",
-	},
-	{
-		accessorKey: "longitude",
-		header: "Longitude",
-	},
-	{
 		id: "actions",
 		cell: ({ row }) => {
-			const { bracelet, ownerId, name, numberOfMembersInFamily, address } = row.original;
+			const { bracelet, userId, name, numberOfMembersInFamily, address } = row.original;
 
 			return (
 				<DropdownMenu>
@@ -95,18 +87,18 @@ export const columns: ColumnDef<UserWithBracelet>[] = [
 							{bracelet ? (
 								<DropdownMenuItem disabled={true}>Assign Bracelet</DropdownMenuItem>
 							) : (
-								<Link href={`/assign?previousLink=owners&userId=${ownerId}&ownerName=${name}`}>
+								<Link href={`/assign?previousLink=users&userId=${userId}&ownerName=${name}`}>
 									<DropdownMenuItem>Assign Bracelet</DropdownMenuItem>
 								</Link>
 							)}
 							<Link
-								href={`/users/update?userId=${ownerId}&name=${name}&members=${numberOfMembersInFamily}&braceletId=${
+								href={`/users/update?userId=${userId}&name=${name}&members=${numberOfMembersInFamily}&braceletId=${
 									bracelet?.braceletId ?? ""
 								}&address=${address}`}
 							>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
-							<Link href={`/users/delete?userId=${ownerId}&name=${name}`}>
+							<Link href={`/users/delete?userId=${userId}&name=${name}`}>
 								<DropdownMenuItem>Delete</DropdownMenuItem>
 							</Link>
 						</Card>

@@ -1,8 +1,5 @@
 
 // RECEIVING 
-
-import { INSTRUCTION_TO_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "./lora-tags";
-
 export function locationFromUser() {
   //
 }

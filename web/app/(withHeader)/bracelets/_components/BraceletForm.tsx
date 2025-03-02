@@ -33,7 +33,7 @@ export function BraceletForm({
 		defaultValues: {
 			name: name ?? "",
 			braceletId: braceletId ?? "",
-			type: type ?? "VICTIM",
+			type: type ?? "USER",
 		},
 	});
 
@@ -45,6 +45,9 @@ export function BraceletForm({
 			ownerId: null,
 			rescuerId: null,
 			type: values.type as BraceletType,
+			latitude: null,
+			longitude: null,
+			sos: false,
 		});
 
 		showToast(result);
@@ -59,6 +62,9 @@ export function BraceletForm({
 			ownerId: null,
 			rescuerId: null,
 			type: values.type as BraceletType,
+			latitude: null,
+			longitude: null,
+			sos: false,
 		});
 		showToast(result);
 	};
@@ -126,7 +132,7 @@ export function BraceletForm({
 												<Input value={field.value} readOnly className="cursor-pointer" />
 											</DropdownMenuTrigger>
 											<DropdownMenuContent>
-												<DropdownMenuItem onClick={() => field.onChange("VICTIM")}>VICTIM</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => field.onChange("USER")}>USER</DropdownMenuItem>
 												<DropdownMenuItem onClick={() => field.onChange("RESCUER")}>RESCUER</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>

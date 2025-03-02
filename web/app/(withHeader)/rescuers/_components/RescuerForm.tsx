@@ -8,7 +8,6 @@ import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import AvailableBraceletsDialog from "../../_components/AvailableBracelets";
 import { rescuerSchema } from "@/schema/rescuer";
 import { registerRescuer, updateRescuer } from "@/server/actions/rescuers";
 
@@ -40,8 +39,6 @@ export const RescuerForm = ({
 				name: values.name,
 				rescuerId: rescuerId ?? 0,
 				createdAt: new Date(),
-				latitude: 0,
-				longitude: 0,
 				teamsTeamId: 0,
 			},
 		});
@@ -54,11 +51,8 @@ export const RescuerForm = ({
 				createdAt: new Date(),
 				name: values.name,
 				rescuerId: 0,
-				longitude: 0,
-				latitude: 0,
 				teamsTeamId: 0,
 			},
-			braceletId: values.braceletId,
 		});
 		showToast(result);
 	}
@@ -80,28 +74,6 @@ export const RescuerForm = ({
 		<>
 			<Form {...form}>
 				<form className="mx-auto w-full md:w-[480px]" onSubmit={onSubmit}>
-					<div className="mt-2">
-						<FormField
-							control={form.control}
-							name="braceletId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Bracelet ID</FormLabel>
-									<FormControl>
-										<div className="flex">
-											<Input className="mr-2" placeholder="Enter bracelet id..." {...field} />
-											<AvailableBraceletsDialog
-												onSelect={(newVal: string) => {
-													form.setValue(field.name, newVal);
-												}}
-											/>
-										</div>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</div>
 					<div className="mt-8">
 						<FormField
 							control={form.control}

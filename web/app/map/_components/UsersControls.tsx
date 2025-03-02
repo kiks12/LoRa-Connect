@@ -14,17 +14,8 @@ import Spinner from "@/app/components/Spinner";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
 
 export default function UsersControls() {
-	const {
-		addUserPoint,
-		users,
-		showUserLocations,
-		setShowUserLocations,
-		clearSourcesAndLayers,
-		addUserArea,
-		clearUserShowStatuses,
-		refreshUsers,
-		usersLoading,
-	} = useMapContext();
+	const { addUserPoint, users, showUserLocations, setShowUserLocations, clearSourcesAndLayers, clearUserShowStatuses, refreshUsers, usersLoading } =
+		useMapContext();
 	const [search, setSearch] = useState("");
 
 	function onClearClick() {
@@ -79,13 +70,7 @@ export default function UsersControls() {
 											users.map((user, index) => {
 												if (user.name.toLowerCase().includes(search.toLowerCase()))
 													return (
-														<BraceletWithUserListItem
-															key={index}
-															name={user.name}
-															showing={user.showing}
-															onShowArea={() => addUserArea(user)}
-															onShowLocation={() => addUserPoint(user)}
-														/>
+														<BraceletWithUserListItem key={index} name={user.name} showing={user.showing} onShowLocation={() => addUserPoint(user)} />
 													);
 											})
 										) : (
@@ -105,7 +90,6 @@ export default function UsersControls() {
 																key={index}
 																name={user.name}
 																showing={user.showing}
-																onShowArea={() => addUserArea(user)}
 																onShowLocation={() => addUserPoint(user)}
 															/>
 														);
@@ -127,7 +111,6 @@ export default function UsersControls() {
 																key={index}
 																name={user.name}
 																showing={user.showing}
-																onShowArea={() => addUserArea(user)}
 																onShowLocation={() => addUserPoint(user)}
 															/>
 														);

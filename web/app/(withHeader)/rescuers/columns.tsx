@@ -46,14 +46,6 @@ export const columns: ColumnDef<RescuerWithBracelet>[] = [
 		},
 	},
 	{
-		accessorKey: "latitude",
-		header: "Latitude",
-	},
-	{
-		accessorKey: "longitude",
-		header: "Longitude",
-	},
-	{
 		id: "actions",
 		cell: ({ row }) => {
 			const { bracelet, rescuerId, name } = row.original;
@@ -73,7 +65,7 @@ export const columns: ColumnDef<RescuerWithBracelet>[] = [
 							{bracelet ? (
 								<DropdownMenuItem disabled={true}>Assign Bracelet</DropdownMenuItem>
 							) : (
-								<Link href={`/assign?previousLink=owners&ownerId=${rescuerId}&ownerName=${name}`}>
+								<Link href={`/assign?previousLink=rescuers&ownerId=${rescuerId}&ownerName=${name}`}>
 									<DropdownMenuItem>Assign Bracelet</DropdownMenuItem>
 								</Link>
 							)}

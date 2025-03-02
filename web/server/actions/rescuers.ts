@@ -14,13 +14,11 @@ export async function setRescuerBracelet({rescuerId, braceletId}: {rescuerId: nu
   return { error: true, message: "There seems to be a problem setting the owner of bracelet. Please try again later" }
 }
 
-export async function registerRescuer({rescuer, braceletId}: {rescuer: Rescuers, braceletId: string}) {
+export async function registerRescuer({rescuer}: {rescuer: Rescuers}) {
   const result = await createRescuer(rescuer)
-  if (!result) return {error: true, message: "There seems to be a problem registering rescuer. Please try again later."}
-  const resultTwo = braceletId !== "" ? (await setBraceletRescuerId({braceletId, rescuerId: result.rescuerId})) : true
   revalidateTag(RESCUERS_TAG)
   revalidateTag(BRACELETS_TAG)
-  if (resultTwo) return { error: false, message: "Successfully registered new rescuer" }
+  if (result) return { error: false, message: "Successfully registered new rescuer" }
   return {error: true, message: "There seems to be a problem registering rescuer. Please try again later"}
 }
 

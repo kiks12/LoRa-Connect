@@ -6,13 +6,11 @@ import { setBraceletUserId } from "../db/bracelets";
 import { revalidateTag } from "next/cache";
 import { BRACELETS_TAG, USERS_TAG } from "@/utils/tags";
 
-export async function registerUser({user, braceletId} : {user: Users, braceletId: string}) {
+export async function registerUser({user} : {user: Users}) {
   const result = await createUser(user)
-  if (!result) return {error: true, message: "There seems to be a problem registering user. Please try again later."}
-  const resultTwo = braceletId !== "" ? (await setBraceletUserId({braceletId, userId: result.userId})) : true
   revalidateTag(USERS_TAG)
   revalidateTag(BRACELETS_TAG)
-  if (resultTwo) return { error: false, message: "Successfully registered new user to bracelet" }
+  if (result) return { error: false, message: "Successfully registered new user to bracelet" }
   return {error: true, message: "There seems to be a problem registering user. Please try again later."}
 }
 

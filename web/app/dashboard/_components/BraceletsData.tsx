@@ -12,9 +12,9 @@ export default function DevicesData({ data }: { data: { bracelets: Bracelets[]; 
 		const deployed = data.bracelets.filter((b) => b.ownerId || b.rescuerId);
 		const stock = data.bracelets.filter((b) => b.ownerId === null && b.rescuerId === null);
 		const rescuerDevicesCount = data.bracelets.filter((b) => b.type === "RESCUER").length;
-		const userDevicesCount = data.bracelets.filter((b) => b.type === "VICTIM").length;
+		const userDevicesCount = data.bracelets.filter((b) => b.type === "USER").length;
 		const stockRescuerDevicesCount = stock.filter((b) => b.type === "RESCUER").length;
-		const stockUserDevicesCount = stock.length - userDevicesCount;
+		const stockUserDevicesCount = stock.length - stockRescuerDevicesCount;
 		const deployedRescuerDevicesCount = deployed.filter((b) => b.type === "RESCUER").length;
 		const deployedUserDevicesCount = deployed.length - deployedRescuerDevicesCount;
 

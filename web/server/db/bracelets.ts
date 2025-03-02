@@ -85,29 +85,15 @@ export async function deleteBracelet({braceletId}: {braceletId: string}) {
 }
 
 export async function updateBraceletLocation({braceletId, latitude, longitude}: {braceletId: string, latitude: number, longitude: number}) {
-  const bracelet = await getBracelet({braceletId})  
+  const bracelet = await getBracelet({ braceletId })  
   if (bracelet === null) return
-  if (bracelet.ownerId && !bracelet.rescuerId) {
-    await client.users.update({
-      where: {
-        userId: bracelet.ownerId,
-      },
-      data: {
-        latitude,
-        longitude
-      }
-    })
-  }
-
-  if (!bracelet.ownerId && bracelet.rescuerId) {
-    await client.rescuers.update({
-      where: {
-        rescuerId: bracelet.rescuerId,
-      },
-      data: {
-        latitude,
-        longitude
-      }
-    })
-  }
+  return await client.bracelets.update({
+    where: {
+      braceletId: bracelet.braceletId,
+    },
+    data: {
+      latitude,
+      longitude
+    }
+  })
 }

@@ -16,8 +16,8 @@ export function OwnerListItem({ owner, onClick }: { owner: Users | Rescuers; onC
 				</>
 			) : (
 				<>
-					<div className="flex justify-between items-center">
-						<p className="text-xs">{(owner as Rescuers).rescuerId}</p>
+					<div className="">
+						<p className="text-xs">Rescuer ID: {(owner as Rescuers).rescuerId}</p>
 						<p className="font-medium">{(owner as Rescuers).name}</p>
 					</div>
 				</>

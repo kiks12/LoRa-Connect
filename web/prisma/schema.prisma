@@ -13,9 +13,12 @@ model Bracelets {
   name       String
   ownerId    Int?         @unique
   rescuerId  Int?         @unique
-  type       BraceletType @default(VICTIM)
+  type       BraceletType @default(USER)
   rescuer    Rescuers?    @relation(fields: [rescuerId], references: [rescuerId])
   user       Users?       @relation(fields: [ownerId], references: [userId])
+  latitude   Float?
+  longitude  Float?
+  sos        Boolean      @default(false)
   Teams      Teams[]
 }
 
@@ -23,8 +26,6 @@ model Rescuers {
   rescuerId   Int          @id @default(autoincrement())
   createdAt   DateTime     @default(now())
   name        String
-  latitude    Float?
-  longitude   Float?
   bracelet    Bracelets?
   Operations  Operations[]
   Teams       Teams?       @relation(fields: [teamsTeamId], references: [teamId])
@@ -96,15 +97,13 @@ model Users {
   createdAt               DateTime     @default(now())
   name                    String
   numberOfMembersInFamily Int
-  latitude                Float?
-  longitude               Float?
   address                 String?
   bracelet                Bracelets?
   Operations              Operations[]
 }
 
 enum BraceletType {
-  VICTIM
+  USER
   RESCUER
 }
 

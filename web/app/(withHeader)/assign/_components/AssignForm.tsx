@@ -61,7 +61,7 @@ export function AssignForm({
 		};
 
 		const fetchOwners = async () => {
-			return (await fetch("/api/owners/no-bracelets")).json();
+			return (await fetch("/api/users/no-bracelets")).json();
 		};
 
 		const fetchRescuers = async () => {
@@ -135,31 +135,25 @@ export function AssignForm({
 	return (
 		<div className="flex flex-col md:flex-row">
 			<div className="mt-4 md:mr-2 p-8 w-full">
-				<div>
-					<h2 className="text-lg">Available Bracelets</h2>
-					<Tabs defaultValue="all" className="mt-2">
-						<TabsList>
-							<TabsTrigger value="all">All</TabsTrigger>
-							<TabsTrigger value="users">Users</TabsTrigger>
-							<TabsTrigger value="rescuers">Rescuers</TabsTrigger>
-						</TabsList>
+				<Tabs defaultValue="users">
+					<TabsList className="w-full">
+						<TabsTrigger value="users" className="flex-1">
+							Users
+						</TabsTrigger>
+						<TabsTrigger value="rescuers" className="flex-1">
+							Rescuers
+						</TabsTrigger>
+					</TabsList>
+					<div className="mt-2">
+						<h2 className="text-lg">Available Bracelets</h2>
 						<div className="mt-3">
 							<Input placeholder="Search Bracelet ID or Name..." onChange={(e) => setSearchBracelet(e.target.value)} />
 						</div>
 						<div className="h-64 overflow-y-auto">
-							<TabsContent value="all">
-								<ul>
-									{bracelets
-										.filter((b) => b.braceletId.includes(searchBracelet) || b.name.includes(searchBracelet))
-										.map((bracelet, index) => {
-											return <BraceletListItem bracelet={bracelet} key={index} onClick={onBraceletClick} />;
-										})}
-								</ul>
-							</TabsContent>
 							<TabsContent value="users">
 								<ul>
 									{bracelets
-										.filter((b) => (b.braceletId.includes(searchBracelet) || b.name.includes(searchBracelet)) && b.type === "VICTIM")
+										.filter((b) => (b.braceletId.includes(searchBracelet) || b.name.includes(searchBracelet)) && b.type === "USER")
 										.map((bracelet, index) => {
 											return <BraceletListItem bracelet={bracelet} key={index} onClick={onBraceletClick} />;
 										})}
@@ -175,15 +169,10 @@ export function AssignForm({
 								</ul>
 							</TabsContent>
 						</div>
-					</Tabs>
-				</div>
-				<div className="mt-4">
-					<h2 className="text-lg">Select owner of device</h2>
-					<Tabs className="mt-2" defaultValue="users">
-						<TabsList>
-							<TabsTrigger value="users">Users</TabsTrigger>
-							<TabsTrigger value="rescuers">Rescuers</TabsTrigger>
-						</TabsList>
+					</div>
+					<div className="mt-4">
+						<h2 className="text-lg">Select owner of device</h2>
+
 						<div className="mt-3">
 							<Input placeholder="Search Name..." onChange={(e) => setSearchOwners(e.target.value)} />
 						</div>
@@ -209,8 +198,8 @@ export function AssignForm({
 								</ul>
 							</div>
 						</TabsContent>
-					</Tabs>
-				</div>
+					</div>
+				</Tabs>
 			</div>
 			<div className="mt-4 md:ml-2 p-8 w-full">
 				<Form {...form}>
@@ -283,7 +272,7 @@ export function AssignForm({
 									<FormItem className="flex items-center">
 										<FormControl>
 											<div>
-												<Checkbox className="mt-2" id="isRescuer" checked={field.value} onCheckedChange={() => onCheckboxChange(!field.value)} />
+												<Checkbox className="mt-2" id="isRescuer" checked={field.value} onCheckedChange={() => {}} />
 												<FormLabel htmlFor="isRescuer" className="ml-3">
 													For Rescuer use
 												</FormLabel>

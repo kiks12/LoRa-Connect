@@ -17,7 +17,6 @@ export default function RescuersControls() {
 		setShowRescuersLocations,
 		clearSourcesAndLayers,
 		addRescuerPoint,
-		addRescuerArea,
 		clearRescuerShowStatuses,
 		refreshRescuers,
 		rescuersLoading,
@@ -80,7 +79,6 @@ export default function RescuersControls() {
 															key={index}
 															name={rescuer.name}
 															showing={rescuer.showing}
-															onShowArea={() => addRescuerArea(rescuer)}
 															onShowLocation={() => addRescuerPoint(rescuer)}
 														/>
 													);
@@ -102,7 +100,6 @@ export default function RescuersControls() {
 																key={index}
 																name={rescuer.name}
 																showing={rescuer.showing}
-																onShowArea={() => addRescuerArea(rescuer)}
 																onShowLocation={() => addRescuerPoint(rescuer)}
 															/>
 														);
@@ -124,7 +121,6 @@ export default function RescuersControls() {
 																key={index}
 																name={rescuer.name}
 																showing={rescuer.showing}
-																onShowArea={() => addRescuerArea(rescuer)}
 																onShowLocation={() => addRescuerPoint(rescuer)}
 															/>
 														);

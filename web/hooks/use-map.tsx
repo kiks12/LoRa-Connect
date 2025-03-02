@@ -17,12 +17,8 @@ import maplibregl, { LayerSpecification, SourceSpecification } from "maplibre-gl
 import { Obstacle } from "@prisma/client";
 import {
 	COLOR_MAP,
-	createOwnerPointAreaGeoJSON,
-	createOwnerPointAreaLayerGeoJSON,
 	createOwnerPointGeoJSON,
 	createOwnerPointLayerGeoJSON,
-	createRescuerPointAreaGeoJSON,
-	createRescuerPointAreaLayerGeoJSON,
 	createRescuerPointGeoJSON,
 	createRescuerPointLayerGeoJSON,
 	createRouteLayerGeoJSON,
@@ -63,7 +59,6 @@ const MapContext = createContext<{
 	rescuers: RescuerWithStatusIdentifier[];
 	showRescuersLocations: boolean;
 	addRescuerPoint: ({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation?: boolean) => void;
-	addRescuerArea: ({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation?: boolean) => void;
 	setShowRescuersLocations: Dispatch<SetStateAction<boolean>>;
 	clearRescuerShowStatuses: () => void;
 	refreshRescuers: () => void;
@@ -73,7 +68,6 @@ const MapContext = createContext<{
 	users: UserWithStatusIdentifier[];
 	showUserLocations: boolean;
 	addUserPoint: ({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation?: boolean) => void;
-	addUserArea: ({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation?: boolean) => void;
 	setShowUserLocations: Dispatch<SetStateAction<boolean>>;
 	clearUserShowStatuses: () => void;
 	refreshUsers: () => void;
@@ -324,17 +318,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- EVAUCATION CENTERS FUNCTIONS --- */
 
 	/* --- OWNER FUNCTIONS --- */
-	const addUserArea = useCallback(({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation: boolean = false) => {
-		if (latitude === null && longitude === null) return;
-		if (!mapRef.current) return;
-		const { sourceId, data } = createOwnerPointAreaGeoJSON({ userId, latitude: latitude!, longitude: longitude! });
-
-		if (mapRef.current.getSource(sourceId) && showLocation) return;
-		if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
-
-		mapRef.current.addSource(sourceId, data as SourceSpecification);
-		mapRef.current.addLayer(createOwnerPointAreaLayerGeoJSON({ sourceId }) as LayerSpecification);
-	}, []);
 
 	const addUserPoint = useCallback(
 		({ latitude, longitude, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
@@ -401,18 +384,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	/* --- OWNER FUNCTIONS --- */
 
 	/* --- RESCUER FUNCTIONS --- */
-	const addRescuerArea = useCallback(({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation: boolean = false) => {
-		if (latitude === null && longitude === null) return;
-		if (!mapRef.current) return;
-		const { sourceId, data } = createRescuerPointAreaGeoJSON({ rescuerId, latitude: latitude!, longitude: longitude! });
-
-		if (mapRef.current.getSource(sourceId) && showLocation) return;
-		if (mapRef.current.getSource(sourceId) && !showLocation) return removeSourceAndLayer(sourceId);
-
-		mapRef.current.addSource(sourceId, data as SourceSpecification);
-		mapRef.current.addLayer(createRescuerPointAreaLayerGeoJSON({ sourceId }) as LayerSpecification);
-	}, []);
-
 	const addRescuerPoint = useCallback(
 		({ latitude, longitude, rescuerId }: RescuerWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
 			if (latitude === null && longitude === null) return;
@@ -727,7 +698,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 				users,
 				addUserPoint,
-				addUserArea,
 				showUserLocations,
 				setShowUserLocations,
 				clearUserShowStatuses,
@@ -736,7 +706,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
 				rescuers,
 				addRescuerPoint,
-				addRescuerArea,
 				showRescuersLocations,
 				setShowRescuersLocations,
 				clearRescuerShowStatuses,

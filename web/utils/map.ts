@@ -1,6 +1,5 @@
 
-import * as turf from "@turf/turf"
-import { createGeoJsonSourceId, USER_AREA_SOURCE, USER_POINT_SOURCE, RESCUER_AREA_SOURCE, RESCUER_POINT_SOURCE } from "./tags";
+import { createGeoJsonSourceId, USER_POINT_SOURCE, RESCUER_POINT_SOURCE } from "./tags";
 import { GeoJSONSourceSpecification, LayerSpecification } from "maplibre-gl";
 import { EVACUATION_CENTER_MARKER_COLOR, OBSTACLE_MARKER_COLOR, OWNER_MARKER_COLOR, RESCUER_MARKER_COLOR, ROUTE_COLOR } from "@/map-styles";
 
@@ -32,33 +31,6 @@ export function createOwnerPointLayerGeoJSON({ sourceId }: { sourceId: string })
   };
 }
 
-export function createOwnerPointAreaGeoJSON({ userId, latitude, longitude }: { latitude: number; longitude: number; userId: number }) {
-  const circle = turf.circle([longitude, latitude], 10, {
-    steps: 64, 
-    units: "kilometers"
-  })
-
-  return {
-    sourceId: createGeoJsonSourceId([USER_AREA_SOURCE], userId),
-    data: {
-      type: "geojson",
-      data: circle
-    },
-  };
-}
-
-export function createOwnerPointAreaLayerGeoJSON({ sourceId }: { sourceId: string }) {
-  return {
-    id: sourceId,
-    source: sourceId,
-    type: "fill",
-    paint: {
-      "fill-color": OWNER_MARKER_COLOR,
-      "fill-opacity": 0.2,
-    },
-  };
-}
-
 export function createRescuerPointGeoJSON({ rescuerId, latitude, longitude }: { latitude: number; longitude: number; rescuerId: number }) {
   return {
     sourceId: createGeoJsonSourceId([RESCUER_POINT_SOURCE], rescuerId),
@@ -83,33 +55,6 @@ export function createRescuerPointLayerGeoJSON({ sourceId }: { sourceId: string 
       "circle-opacity": 0.5,
       "circle-stroke-width": 2,
       "circle-stroke-color": "#bf8900",
-    },
-  };
-}
-
-export function createRescuerPointAreaGeoJSON({ rescuerId, latitude, longitude }: { latitude: number; longitude: number; rescuerId: number }) {
-  const circle = turf.circle([longitude, latitude], 10, {
-    steps: 64, 
-    units: "kilometers"
-  })
-
-  return {
-    sourceId: createGeoJsonSourceId([RESCUER_AREA_SOURCE], rescuerId),
-    data: {
-      type: "geojson",
-      data: circle
-    },
-  };
-}
-
-export function createRescuerPointAreaLayerGeoJSON({ sourceId }: { sourceId: string }) {
-  return {
-    id: sourceId,
-    source: sourceId,
-    type: "fill",
-    paint: {
-      "fill-color": RESCUER_MARKER_COLOR,
-      "fill-opacity": 0.2,
     },
   };
 }

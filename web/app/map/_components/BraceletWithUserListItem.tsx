@@ -3,17 +3,7 @@ import ShowStatusIndicator from "./ShowStatusIndicator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
-export default function BraceletWithUserListItem({
-	name,
-	showing,
-	onShowArea,
-	onShowLocation,
-}: {
-	name: string;
-	showing: boolean;
-	onShowLocation: () => void;
-	onShowArea: () => void;
-}) {
+export default function BraceletWithUserListItem({ name, showing, onShowLocation }: { name: string; showing: boolean; onShowLocation: () => void }) {
 	return (
 		<Card className="my-1 shadow-none cursor-pointer hover:border-primary">
 			<CardHeader className="flex justify-between items-start">
@@ -30,11 +20,8 @@ export default function BraceletWithUserListItem({
 						<Switch onCheckedChange={onShowLocation} />
 						<Label className="ml-2">Show Location</Label>
 					</div>
-					<div className="flex items-center ml-4">
-						<Switch onCheckedChange={onShowArea} />
-						<Label className="ml-2">Show Area</Label>
-					</div>
 				</div>
+				<div>SOS</div>
 			</CardHeader>
 		</Card>
 	);
