@@ -1,0 +1,8 @@
+{
+  "speed": [
+    {
+      "if": "surface == GRAVEL",
+      "limit_to": "100"
+    }
+  ]
+}
