@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useMapContext } from "@/hooks/use-map";
 import { GraphHopperAPIResult, ObstacleWithStatusIdentifier } from "@/types";
-import { createAvoidPolygons, LatLng } from "@/utils/routing";
+import { createCustomModelObject, LatLng } from "@/utils/routing";
 import { Users } from "@prisma/client";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useMemo, useState } from "react";
@@ -68,7 +68,9 @@ export default function RoutingControls() {
 					[to.longitude, to.latitude],
 				];
 				const obstaclesCoordinates = obstacles.map((d: ObstacleWithStatusIdentifier) => [d.latitude, d.longitude] as LatLng);
-				const avoidPolygons = createAvoidPolygons(obstaclesCoordinates);
+				const customModelObject = createCustomModelObject(obstaclesCoordinates);
+				console.log(points);
+				console.log(JSON.stringify(customModelObject));
 				const res = await fetch(`http://localhost:8989/route`, {
 					method: "POST",
 					headers: {
@@ -78,12 +80,12 @@ export default function RoutingControls() {
 						points: points,
 						points_encoded: false,
 						profile: "car",
-						avoid: {
-							polygons: avoidPolygons,
-						},
+						"ch.disable": true,
+						custom_model: customModelObject,
 					}),
 				});
 				const json: GraphHopperAPIResult = await res.json();
+
 				setData(json);
 				createRoute(from, to, json);
 			} catch (error) {

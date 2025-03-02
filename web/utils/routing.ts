@@ -2,6 +2,40 @@
 export type LatLng = [number, number]
 export type Polygon = LatLng[]
 
+export function createCustomModelObject(obstacles: LatLng[]) {
+  const features = createBlockAreaFeatures(obstacles)
+  const speeds = createBlockAreaSpeeds(obstacles)
+
+  return {
+    "speed": speeds,
+    "areas": {
+      "type": "FeatureCollection",
+      "features": features,
+    },
+  }
+}
+
+export function createBlockAreaSpeeds(obstacles: LatLng[]) {
+  const polygons = createAvoidPolygons(obstacles)
+  return polygons.map((polygon, idx) => ({
+    "if": `in_custom${idx}`,
+    "multiply_by": "0"
+  }))
+}
+
+export function createBlockAreaFeatures(obstacles: LatLng[]) {
+  const polygons = createAvoidPolygons(obstacles)
+  return polygons.map((polygon, idx) => ({
+    "type": "Feature",
+    "id": `custom${idx}`,
+    "properties": {},
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [polygon],
+    }
+  }))
+}
+
 /**
  * Creates avoid polygons for GraphHopper API from an array of obstacle coordinates.
  * @param obstacles Array of obstacle coordinates ([lat, lng]).
@@ -24,11 +58,11 @@ export function createAvoidPolygons(obstacles: LatLng[], buffer: number = 0.0001
 
     // Define the square polygon (clockwise or counterclockwise)
     return [
-      [minLat, minLng], // Bottom-left corner
-      [minLat, maxLng], // Bottom-right corner
-      [maxLat, maxLng], // Top-right corner
-      [maxLat, minLng], // Top-left corner
-      [minLat, minLng], // Close the polygon
+      [minLng, minLat], // Bottom-left corner
+      [maxLng, minLat], // Bottom-right corner
+      [maxLng, maxLat], // Top-right corner
+      [minLng, maxLat], // Top-left corner
+      [minLng, minLat,], // Close the polygon
     ];
   });
 }
