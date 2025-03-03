@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMapContext } from "@/hooks/use-map";
 import { UserWithStatusIdentifier } from "@/types";
 import { USER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
@@ -12,10 +11,12 @@ import { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
+import { useUsers } from "@/hooks/map/use-users";
+import { useMap } from "@/hooks/map/use-map";
 
 export default function UsersControls() {
-	const { addUserPoint, users, showUserLocations, setShowUserLocations, clearSourcesAndLayers, clearUserShowStatuses, refreshUsers, usersLoading } =
-		useMapContext();
+	const { clearSourcesAndLayers } = useMap();
+	const { addUserPoint, users, showUserLocations, setShowUserLocations, clearUserShowStatuses, refreshUsers, usersLoading } = useUsers();
 	const [search, setSearch] = useState("");
 
 	function onClearClick() {

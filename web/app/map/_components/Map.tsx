@@ -1,11 +1,11 @@
 "use client";
 
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useMapContext } from "@/hooks/use-map";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/contexts/AppContext";
 
 const Map = () => {
-	const { mapContainerRef, mapLoading } = useMapContext();
+	const { mapContainerRef, mapLoading } = useAppContext();
 
 	return (
 		<>

@@ -4,12 +4,11 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <HardwareSerial.h>
+#include "BluetoothSerial.h"
 
-// #include "BluetoothSerial.h"
-
-// #if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-// #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-// #endif
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
 
 #define LORA_SCK 18
 #define LORA_MISO 19
@@ -29,6 +28,13 @@
 
 // TinyGPSPlus gps;
 HardwareSerial neoGps(1);
+
+volatile bool packetReceived = false;
+String receivedData = "";
+
+void IRAM_ATTR onPacketReceived() {
+  packetReceived = true;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -55,6 +61,10 @@ void setup() {
   LoRa.setCodingRate4(5);  // 4/5 (Range: 5-8)
   LoRa.setSPIFrequency(1E6); 
 
+  // SETUP DIO interrupt
+  pinMode(LORA_DIO0, INPUT);
+  attachInterrupt(digitalPinToInterrupt(LORA_DIO0), onPacketReceived, RISING);
+
   // GPS INITIALIZATION
   neoGps.begin(GPS_BAUD, SERIAL_8N1, GPS_RX, GPS_TX);
   Serial.println("GPS Initialized");
@@ -65,11 +75,18 @@ void loop() {
     char c = neoGps.read();
     Serial.write(c);  // Debug: Print raw GPS data
   }
+
+  if (packetReceived) {
+    packetReceived = false;
+    handleLoRaPacket();
+  }
+
   // LoRa.beginPacket();
   // LoRa.print("Hello from ESP32");
   // LoRa.endPacket();
   // Serial.println("Packet Sent");
   // delay(2000);
+
   // try to parse packet
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
@@ -85,7 +102,27 @@ void loop() {
     Serial.print("' with RSSI ");
     Serial.println(LoRa.packetRssi());
   }
+
 }
+
+void handleLoRaPacket() {
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) {
+    receivedData = "";  // Clear previous data
+    Serial.print("Received packet: '");
+    
+    while (LoRa.available()) {
+      char c = (char)LoRa.read();
+      receivedData += c;  // Store received data
+      Serial.print(c);
+    }
+
+    Serial.print("' with RSSI ");
+    Serial.println(LoRa.packetRssi());
+  }
+}
+
+// [uid][code]
 
 // void displayInfo() {
 //   Serial.print(F("Location: ")); 

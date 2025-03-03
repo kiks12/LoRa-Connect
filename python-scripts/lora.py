@@ -33,11 +33,11 @@ class LoRaModule(LoRa):
 
         self.print_information()
 
-        sio.on(START_LOCATION_TRANSMISSION_TO_TRU_FOR_PY,
+        sio.on(START_LOCATION_TRANSMISSION_TO_TRU_PY,
                functools.partial(self.start_location_transmission))
-        sio.on(INSTRUCTION_TO_USER_FOR_PY,
+        sio.on(INSTRUCTION_TO_USER_PY,
                functools.partial(self.instruction_to_user))
-        sio.on(TASK_TO_RESCUER_FOR_PY,
+        sio.on(TASK_TO_RESCUER_PY,
                functools.partial(self.task_to_rescuer))
 
     def print_information(self):
@@ -141,58 +141,25 @@ class LoRaModule(LoRa):
             self.set_mode(MODE.SLEEP)
             BOARD.teardown()
 
+    """ LORA TRANSMISSION METHODS """
+
     def start_location_transmission(self):
-        print("START_LOCATION_TRANSMISSINO_TO_TRU_FOR_PY")
-        sys.stdout.flush()
+        print(START_LOCATION_TRANSMISSION_TO_TRU_PY)
         self.send_message(start_location_transmission_to_tru())
 
-    def instruction_to_user(self):
-        print("INSTRUCTION_TO_USER")
+    def instruction_to_user(self, instructions):
+        print(INSTRUCTION_TO_USER_PY)
+        for instruction in instructions:
+            print(instruction)
+            self.send_message(instruction_to_user(instruction=instruction))
+            sleep(0.5)
 
-    def task_to_rescuer(self):
-        print("INSTRUCTION_TO_USER")
+    def task_to_rescuer(self, task):
+        print(TASK_TO_RESCUER_PY)
+        self.send_message(task_to_rescuer(task))
 
-# lora = LoRaModule(verbose=True)
-# lora.set_mode(MODE.STDBY)
-# lora.set_freq(433.0)
-# lora.set_bw(BW.BW250)
-# lora.set_coding_rate(CODING_RATE.CR4_5)
-# lora.set_pa_config(pa_select=1, max_power=0x04)
-# lora.set_spreading_factor(7)
-# lora.set_rx_crc(True)
+    """ LORA TRANSMISSION METHODS """
 
-# print("LoRa initialized.")
-# print("SX1278 Version: ", hex(lora.get_register(0x42)))  # Should be 0x12
-# # Should be 0x81 in standby mode
-# print("Modem Config: ", hex(lora.get_register(0x01)))
-# # Should be 0x80, 0x00 means it is in FSK mode
-# print("Long Range Config: ", hex(lora.get_register(0x01) & 0x80))
-# print("Power Config: ", hex(lora.get_register(0x09)))  # Should be 0x8F or 0xCF
-# print("Frequency: ", lora.get_freq())
-# print("FrfMsb: ", hex(lora.get_register(0x06)))
-# print("FrfMid: ", hex(lora.get_register(0x07)))
-# print("FrfLsb: ", hex(lora.get_register(0x08)))
-# print("Spreading Factor: ", lora.get_register(0x1E) >> 4)
-# print("Bandwidth: ", lora.get_register(0x1D) >> 4)
-# print("Coding Rate: ", ((lora.get_register(0x1D) & 0x0E) >> 1) + 4)
-# print()
+    """ LORA RECEIVING METHODS """
 
-# try:
-#     # RECEIVER
-#     # print("Listening to messages...")
-#     # lora.start()
-
-#     # TRANSMITTER
-#     while True:
-#         print("BEFORE TX, OpMode: ", hex(lora.get_register(0x01)))
-#         lora.send_message("Hello from Raspi")
-#         print("AFTER TX, OpMode: ", hex(lora.get_register(0x01)))
-
-# except KeyboardInterrupt:
-#     sys.stdout.flush()
-#     print()
-#     sys.stderr.write("KeyboardInterrupt\n")
-# finally:
-#     sys.stdout.flush()
-#     lora.set_mode(MODE.SLEEP)
-#     BOARD.teardown()
+    """ LORA RECEIVING METHODS """

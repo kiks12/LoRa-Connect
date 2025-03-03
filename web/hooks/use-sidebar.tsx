@@ -5,8 +5,8 @@ import UsersControls from "@/app/map/_components/UsersControls";
 import RescuersControls from "@/app/map/_components/RescuersControls";
 import TasksControls from "@/app/map/_components/TasksControls";
 import React, { createContext, ReactNode, useContext, useState } from "react";
-import { useMapContext } from "./use-map";
 import RoutingControls from "@/app/map/_components/RoutingControls";
+import { useObstacles } from "./map/use-obstacles";
 
 export type activeTab = "ADMIN" | "TASKS" | "USERS" | "RESCUERS" | "ROUTING";
 export const SIDEBAR_TABS: { [key: string]: ReactNode } = {
@@ -36,7 +36,7 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 	});
 	const [component, setComponent] = useState<ReactNode>(null);
 	const [closeCallback, setCloseCallback] = useState<CLOSE_COMPONENT_CALLBACK[]>([]);
-	const { toggleAddingObstacle } = useMapContext();
+	const { toggleAddingObstacle } = useObstacles();
 
 	function onListClick(newActive: activeTab) {
 		setActive({ key: newActive, controls: SIDEBAR_TABS[newActive] });

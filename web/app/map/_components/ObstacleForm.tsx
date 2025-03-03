@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMapContext } from "@/hooks/use-map";
+import { useObstacles } from "@/hooks/map/use-obstacles";
 import { useSidebarContext } from "@/hooks/use-sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { obstacleSchema } from "@/schema/obstacle";
@@ -29,7 +29,7 @@ export default function ObstacleForm({
 	editing?: boolean;
 }) {
 	const { toast } = useToast();
-	const { currentObstacleMarkerLngLat, toggleAddingObstacle, addObstacle, updateObstacle } = useMapContext();
+	const { currentObstacleMarkerLngLat, toggleAddingObstacle, addObstacle, updateObstacle } = useObstacles();
 	const { toggleSidebar } = useSidebarContext();
 	const form = useForm<z.infer<typeof obstacleSchema>>({
 		resolver: zodResolver(obstacleSchema),

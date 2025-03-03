@@ -2,25 +2,19 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMapContext } from "@/hooks/use-map";
+import { useMap } from "@/hooks/map/use-map";
 import { RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
+import { useRescuers } from "@/hooks/map/use-rescuers";
 
 export default function RescuersControls() {
-	const {
-		rescuers,
-		showRescuersLocations,
-		setShowRescuersLocations,
-		clearSourcesAndLayers,
-		addRescuerPoint,
-		clearRescuerShowStatuses,
-		refreshRescuers,
-		rescuersLoading,
-	} = useMapContext();
+	const { clearSourcesAndLayers } = useMap();
+	const { rescuers, showRescuersLocations, setShowRescuersLocations, addRescuerPoint, clearRescuerShowStatuses, refreshRescuers, rescuersLoading } =
+		useRescuers();
 	const [search, setSearch] = useState("");
 
 	function onClearClick() {

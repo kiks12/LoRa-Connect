@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useMapContext } from "@/hooks/use-map";
 import EvacuationCenterListItem from "./EvacuationCenterListItem";
 import ObstacleListItem from "./ObstacleListItem";
 import { useSidebarContext } from "@/hooks/use-sidebar";
@@ -10,13 +9,13 @@ import Spinner from "@/app/components/Spinner";
 import { RefreshCcw } from "lucide-react";
 import EvacuationInstructionButton from "./EvacuationInstructionButton";
 import { useEffect, useState } from "react";
+import { useUsers } from "@/hooks/map/use-users";
+import { useEvacuations } from "@/hooks/map/use-evacuations";
+import { useMap } from "@/hooks/map/use-map";
 
 export default function AdminControls() {
+	const { users } = useUsers();
 	const {
-		users,
-
-		monitorLocations,
-		toggleMonitorLocations,
 		evacuationCenters,
 		showEvacuationCenters,
 		toggleShowEvacuationCenters,
@@ -26,7 +25,11 @@ export default function AdminControls() {
 		createEvacuationInstructions,
 		calculatingEvacuationInstructions,
 		setEvacuationInstructionMessage,
-
+	} = useEvacuations();
+	// const {} = useObstacles();
+	const {
+		monitorLocations,
+		toggleMonitorLocations,
 		obstacles,
 		showObstacles,
 		removeObstacle,
@@ -36,7 +39,7 @@ export default function AdminControls() {
 		removeObstacleMarkerFromMap,
 		refreshObstacles,
 		obstaclesLoading,
-	} = useMapContext();
+	} = useMap();
 	const { toggleSidebar, setComponent, setCloseCallback } = useSidebarContext();
 	const [runEvacuationInstructionAlgorithm, setRunEvacuationInstructionAlgorithm] = useState(false);
 	const [rerunEvacuationInstructionAlgorithm, setRerunEvacuationInstructionAlgorithm] = useState(false);

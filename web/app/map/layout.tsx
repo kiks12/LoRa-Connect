@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import { MapProvider } from "@/hooks/use-map";
+import { AppProvider } from "@/contexts/AppContext";
 import { SidebarProvider } from "@/hooks/use-sidebar";
 
 export const metadata = {
@@ -9,12 +9,11 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
-		<MapProvider>
+		<AppProvider>
 			<SidebarProvider>
 				{children}
-
 				<Toaster />
 			</SidebarProvider>
-		</MapProvider>
+		</AppProvider>
 	);
 }

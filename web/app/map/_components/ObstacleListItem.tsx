@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useMapContext } from "@/hooks/use-map";
+import { useMap } from "@/hooks/map/use-map";
 import { useSidebarContext } from "@/hooks/use-sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { Obstacle } from "@prisma/client";
@@ -32,7 +32,7 @@ export default function ObstacleListItem({
 	onDelete: (obstacle: number) => void;
 }) {
 	const { toast } = useToast();
-	const { toggleAddingObstacle } = useMapContext();
+	const { toggleAddingObstacle } = useMap();
 	const { toggleSidebar, setComponent, setCloseCallback } = useSidebarContext();
 
 	function onEditClick() {

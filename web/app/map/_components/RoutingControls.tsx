@@ -3,22 +3,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useMapContext } from "@/hooks/use-map";
-import { GraphHopperAPIResult, ObstacleWithStatusIdentifier } from "@/types";
+import { useEvacuations } from "@/hooks/map/use-evacuations";
+import { useRescuers } from "@/hooks/map/use-rescuers";
+import { useUsers } from "@/hooks/map/use-users";
+import { useMap } from "@/hooks/map/use-map";
+import { GraphHopperAPIResult, ObstacleWithStatusIdentifier, RescuerWithStatusIdentifier, UserWithStatusIdentifier } from "@/types";
 import { createCustomModelObject, LatLng } from "@/utils/routing";
-import { Users } from "@prisma/client";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useMemo, useState } from "react";
 
 type listType = "RESCUERS" | "USERS" | "EVACUATION_CENTERS" | "OBSTACLES";
-export type generalType = { name: string; type: listType; latitude: number | null; longitude: number | null };
+export type generalType = { name: string; type: listType; latitude: number | null | undefined; longitude: number | null | undefined };
 
 export default function RoutingControls() {
 	const [data, setData] = useState<GraphHopperAPIResult | null>(null);
 	const [from, setFrom] = useState<generalType | null>(null);
 	const [to, setTo] = useState<generalType | null>(null);
 	const [list, setList] = useState<generalType[]>([]);
-	const { users, rescuers, evacuationCenters, obstacles, createRoute, clearRoute } = useMapContext();
+	const { users } = useUsers();
+	const { evacuationCenters } = useEvacuations();
+	const { rescuers } = useRescuers();
+	const { obstacles, createRoute, clearRoute } = useMap();
 	const distance: null | number = useMemo(() => {
 		if (!data || !data.paths) return null;
 		const path = data?.paths[0];
@@ -31,30 +36,34 @@ export default function RoutingControls() {
 	}, [data]);
 
 	useEffect(() => {
-		const mappedUsers: generalType[] = users.map((user: Users) => ({
-			name: user.name,
-			latitude: user.latitude,
-			longitude: user.longitude,
-			type: "USERS",
-		}));
-		const mappedRescuers: generalType[] = rescuers.map((rescuer) => ({
-			name: rescuer.name,
-			latitude: rescuer.latitude,
-			longitude: rescuer.longitude,
-			type: "RESCUERS",
-		}));
-		const mappedEvacuationCenters: generalType[] = evacuationCenters.map((evacuationCenter) => ({
-			name: evacuationCenter.name,
-			latitude: evacuationCenter.latitude,
-			longitude: evacuationCenter.longitude,
-			type: "EVACUATION_CENTERS",
-		}));
-		const mappedObstacles: generalType[] = obstacles.map((obstacle) => ({
-			name: obstacle.name,
-			latitude: obstacle.latitude,
-			longitude: obstacle.longitude,
-			type: "OBSTACLES",
-		}));
+		const mappedUsers: generalType[] =
+			users.map((user: UserWithStatusIdentifier) => ({
+				name: user.name,
+				latitude: user.bracelet?.latitude,
+				longitude: user.bracelet?.longitude,
+				type: "USERS",
+			})) ?? [];
+		const mappedRescuers: generalType[] =
+			rescuers.map((rescuer: RescuerWithStatusIdentifier) => ({
+				name: rescuer.name,
+				latitude: rescuer.bracelet?.latitude,
+				longitude: rescuer.bracelet?.longitude,
+				type: "RESCUERS",
+			})) ?? [];
+		const mappedEvacuationCenters: generalType[] =
+			evacuationCenters.map((evacuationCenter) => ({
+				name: evacuationCenter.name,
+				latitude: evacuationCenter.latitude,
+				longitude: evacuationCenter.longitude,
+				type: "EVACUATION_CENTERS",
+			})) ?? [];
+		const mappedObstacles: generalType[] =
+			obstacles.map((obstacle) => ({
+				name: obstacle.name,
+				latitude: obstacle.latitude,
+				longitude: obstacle.longitude,
+				type: "OBSTACLES",
+			})) ?? [];
 
 		setList([...mappedUsers, ...mappedRescuers, ...mappedEvacuationCenters, ...mappedObstacles]);
 	}, [users, rescuers, evacuationCenters, obstacles]);
