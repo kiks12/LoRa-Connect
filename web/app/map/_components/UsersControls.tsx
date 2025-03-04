@@ -12,10 +12,10 @@ import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
 import { useUsers } from "@/hooks/map/use-users";
-import { useMap } from "@/hooks/map/use-map";
+import { useAdmin } from "@/hooks/map/use-admin";
 
 export default function UsersControls() {
-	const { clearSourcesAndLayers } = useMap();
+	const { clearSourcesAndLayers } = useAdmin();
 	const { addUserPoint, users, showUserLocations, setShowUserLocations, clearUserShowStatuses, refreshUsers, usersLoading } = useUsers();
 	const [search, setSearch] = useState("");
 

@@ -18,7 +18,11 @@ export const getCachedTeams = unstable_cache(async () => {
 export async function getTeams() {
   return await client.teams.findMany({
     include: {
-      rescuers: true
+      rescuers: {
+        include: {
+          bracelet: true
+        }
+      } 
     }
   })
 }
@@ -40,7 +44,9 @@ export async function getTeam({teamId}: {teamId: number}): Promise<TeamWithRescu
 
 export async function createTeam({data}: {data: TeamWithRescuer}) {
   const newTeam = await client.teams.create({
-    data: {}
+    data: {
+      name: data.name
+    }
   })
 
   const rescuersData = data.rescuers.map(async (rescuer) => {
@@ -67,6 +73,14 @@ export async function updateTeam({newTeam , existingTeam}: {newTeam: TeamWithRes
   })
 
   const result = await client.$transaction([
+    client.teams.update({
+      where: {
+        teamId: newTeam.teamId
+      }, 
+      data: {
+        name: newTeam.name
+      }
+    }),
     ...toRemove.map((rescuer) => {
       return client.rescuers.update({
         where: {

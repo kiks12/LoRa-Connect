@@ -8,16 +8,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingTeam?: TeamWithRescuer | null; type?: "CREATE" | "UPDATE" }) {
 	const { toast } = useToast();
 	const [rescuers, setRescuers] = useState<RescuerWithBracelet[]>([]);
 	const [team, setTeams] = useState<TeamWithRescuer>(
 		existingTeam ?? {
+			name: "",
 			teamId: 0,
 			createdAt: new Date(),
 			rescuers: [],
-			braceletsBraceletId: null,
 		}
 	);
 	const loraBraceletEquipped = useMemo(() => {
@@ -34,6 +36,13 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 
 		fetchRescuers().then(({ rescuers }) => setRescuers(rescuers));
 	}, []);
+
+	function onSetTeamName(newVal: string) {
+		setTeams((prev) => ({
+			...prev,
+			name: newVal,
+		}));
+	}
 
 	function addRescuerToTeam(rescuer: RescuerWithBracelet) {
 		const memberWithBracelet = team.rescuers.filter((d) => d.bracelet);
@@ -84,6 +93,24 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 			return;
 		}
 
+		if (team.rescuers.filter((rescuer) => rescuer.bracelet).length === 0) {
+			toast({
+				variant: "destructive",
+				title: "Team without bracelet",
+				description: "Please select a rescuer with equipped with bracelet",
+			});
+			return;
+		}
+
+		if (team.name === "") {
+			toast({
+				variant: "destructive",
+				title: "Invalid Name",
+				description: "Please enter a team name",
+			});
+			return;
+		}
+
 		if (type === "CREATE") await onCreateSubmit();
 		else onUpdateSubmit();
 	}
@@ -117,12 +144,19 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 	return (
 		<>
 			<div>
-				<div className="flex">
+				<div>
+					<div>
+						<Label>Team Name</Label>
+						<Input placeholder="Enter your team name" value={team.name!} onChange={(e) => onSetTeamName(e.target.value)} />
+					</div>
+				</div>
+				<div className="flex mt-8">
 					<div className="flex-1 mr-2">
 						<div>
 							<h2 className="text-xl font-medium">Rescuers Pool</h2>
 							<p>Select from the available rescuers</p>
 						</div>
+
 						<div className="h-[500px] overflow-auto">
 							<Tabs defaultValue="all">
 								<TabsList className="w-full flex mt-4">

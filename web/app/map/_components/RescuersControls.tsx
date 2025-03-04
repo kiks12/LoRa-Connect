@@ -1,25 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useMap } from "@/hooks/map/use-map";
+import { useAdmin } from "@/hooks/map/use-admin";
 import { RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
-import BraceletWithUserListItem from "./BraceletWithUserListItem";
 import { useRescuers } from "@/hooks/map/use-rescuers";
+import TeamItem from "@/app/(withHeader)/teams/_components/TeamItem";
 
 export default function RescuersControls() {
-	const { clearSourcesAndLayers } = useMap();
-	const { rescuers, showRescuersLocations, setShowRescuersLocations, addRescuerPoint, clearRescuerShowStatuses, refreshRescuers, rescuersLoading } =
-		useRescuers();
+	const { clearSourcesAndLayers } = useAdmin();
+	const {
+		teams,
+		showRescuersLocations,
+		setShowRescuersLocations,
+		clearRescuerShowStatuses,
+		clearTeamShowStatuses,
+		refreshRescuers,
+		rescuersLoading,
+		addTeamPoint,
+	} = useRescuers();
 	const [search, setSearch] = useState("");
 
 	function onClearClick() {
 		clearSourcesAndLayers(RESCUER_SOURCE_BASE);
 		clearRescuerShowStatuses();
+		clearTeamShowStatuses();
 	}
 
 	function onChange(e: React.FormEvent<HTMLInputElement>) {
@@ -44,28 +52,22 @@ export default function RescuersControls() {
 					</div>
 					<div className="my-2">
 						<Label>Search Rescuer</Label>
-						<Input placeholder="Rescuer Name..." onChange={onChange} value={search} />
-					</div>
-					<Tabs defaultValue="ALL">
-						<div className="flex justify-between">
-							<TabsList>
-								<TabsTrigger value="ALL">All</TabsTrigger>
-								<TabsTrigger value="WITH-BRACELET">W/ Bracelet</TabsTrigger>
-								<TabsTrigger value="WITHOUT-BRACELET">W/O Bracelet</TabsTrigger>
-							</TabsList>
-							<Button variant="outline" onClick={onClearClick}>
+						<div className="flex">
+							<Input className="flex-1" placeholder="Rescuer Name..." onChange={onChange} value={search} />
+							<Button className="ml-2" variant="outline" onClick={onClearClick}>
 								Clear
 							</Button>
 						</div>
-						{rescuersLoading ? (
-							<div className="mt-10 flex items-center justify-center">
-								<Spinner />
-							</div>
-						) : (
-							<>
-								<TabsContent value="ALL">
-									<ul className="h-[550px] overflow-y-auto">
-										{rescuers.length > 0 ? (
+					</div>
+
+					{rescuersLoading ? (
+						<div className="mt-10 flex items-center justify-center">
+							<Spinner />
+						</div>
+					) : (
+						<>
+							<ul className="h-[550px] overflow-y-auto">
+								{/* {rescuers.length > 0 ? (
 											rescuers.map((rescuer, index) => {
 												if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
 													return (
@@ -79,54 +81,23 @@ export default function RescuersControls() {
 											})
 										) : (
 											<p className="text-center mt-20">No Rescuers to show</p>
-										)}
-									</ul>
-								</TabsContent>
-								<TabsContent value="WITH-BRACELET">
-									<ul className="h-[550px] overflow-y-auto">
-										{rescuers.length > 0 ? (
-											rescuers
-												.filter((rescuer) => rescuer.bracelet)
-												.map((rescuer, index) => {
-													if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
-														return (
-															<BraceletWithUserListItem
-																key={index}
-																name={rescuer.name}
-																showing={rescuer.showing}
-																onShowLocation={() => addRescuerPoint(rescuer)}
-															/>
-														);
-												})
-										) : (
-											<p className="text-center mt-20">No Rescuers to show</p>
-										)}
-									</ul>
-								</TabsContent>
-								<TabsContent value="WITHOUT-BRACELET">
-									<ul className="h-[550px] overflow-y-auto">
-										{rescuers.length > 0 ? (
-											rescuers
-												.filter((rescuer) => !rescuer.bracelet)
-												.map((rescuer, index) => {
-													if (rescuer.name.toLowerCase().includes(search.toLowerCase()))
-														return (
-															<BraceletWithUserListItem
-																key={index}
-																name={rescuer.name}
-																showing={rescuer.showing}
-																onShowLocation={() => addRescuerPoint(rescuer)}
-															/>
-														);
-												})
-										) : (
-											<p className="text-center mt-20">No Rescuers to show</p>
-										)}
-									</ul>
-								</TabsContent>
-							</>
-						)}
-					</Tabs>
+										)} */}
+								{teams.length > 0 ? (
+									teams
+										.filter((team) => team.name?.includes(search.toLowerCase()))
+										.map((team, index) => {
+											return (
+												<div className="mb-2" key={index}>
+													<TeamItem team={team} forMap={true} onShowLocationOnMap={() => addTeamPoint(team)} />
+												</div>
+											);
+										})
+								) : (
+									<p className="text-center mt-20">No Teams to show</p>
+								)}
+							</ul>
+						</>
+					)}
 				</div>
 			</div>
 		</div>

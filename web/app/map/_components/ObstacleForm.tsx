@@ -5,7 +5,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useObstacles } from "@/hooks/map/use-obstacles";
-import { useSidebarContext } from "@/hooks/use-sidebar";
 import { useToast } from "@/hooks/use-toast";
 import { obstacleSchema } from "@/schema/obstacle";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,8 +28,7 @@ export default function ObstacleForm({
 	editing?: boolean;
 }) {
 	const { toast } = useToast();
-	const { currentObstacleMarkerLngLat, toggleAddingObstacle, addObstacle, updateObstacle } = useObstacles();
-	const { toggleSidebar } = useSidebarContext();
+	const { currentObstacleMarkerLatLng, toggleAddingObstacle, addObstacle, updateObstacle } = useObstacles();
 	const form = useForm<z.infer<typeof obstacleSchema>>({
 		resolver: zodResolver(obstacleSchema),
 		defaultValues: {
@@ -55,7 +53,6 @@ export default function ObstacleForm({
 		const { updatedObstacle } = await res.json();
 		if (updatedObstacle) {
 			toggleAddingObstacle();
-			toggleSidebar();
 			toast({
 				title: "Successful",
 				description: "Successfully updated obstacle information",
@@ -73,7 +70,6 @@ export default function ObstacleForm({
 		const { createdObstacle } = await res.json();
 		if (createdObstacle) {
 			toggleAddingObstacle();
-			toggleSidebar();
 			toast({
 				title: "Successful",
 				description: "Created new obstacle successfully",
@@ -83,18 +79,19 @@ export default function ObstacleForm({
 	}
 
 	useEffect(() => {
-		if (currentObstacleMarkerLngLat) {
-			form.setValue("latitude", parseFloat(currentObstacleMarkerLngLat.lat.toFixed(6)));
-			form.setValue("longitude", parseFloat(currentObstacleMarkerLngLat.lng.toFixed(6)));
+		if (currentObstacleMarkerLatLng) {
+			console.log("OBSTACLE FORM", currentObstacleMarkerLatLng);
+			form.setValue("latitude", parseFloat(currentObstacleMarkerLatLng.lat.toFixed(6)));
+			form.setValue("longitude", parseFloat(currentObstacleMarkerLatLng.lng.toFixed(6)));
 		}
-	}, [currentObstacleMarkerLngLat, form]);
+	}, [currentObstacleMarkerLatLng]);
 
 	return (
 		<div className="max-w-lg">
 			<Form {...form}>
-				<form className="mx-auto w-96" onSubmit={onSubmit}>
+				<form className="mx-auto w-full" onSubmit={onSubmit}>
 					<div>
-						<h1 className="text-xl font-semibold">{editing ? "Update Obstacle" : "Add new Obstacle"}</h1>
+						<h1 className="text-xl font-semibold mt-8">{editing ? "Update Obstacle" : "Add new Obstacle"}</h1>
 						<Label>Complete the form to continue</Label>
 					</div>
 					<div className="mt-8">

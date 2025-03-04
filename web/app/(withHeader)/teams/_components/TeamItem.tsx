@@ -2,15 +2,26 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { TeamWithRescuer } from "@/types";
+import { TeamWithRescuer, TeamWithStatusIdentifier } from "@/types";
 import { ChevronDown, ChevronUp, Edit, Trash } from "lucide-react";
 import { useState } from "react";
 import TeamRescuerSubItem from "./TeamRescuerSubItem";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import ShowStatusIndicator from "@/app/map/_components/ShowStatusIndicator";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
-export default function TeamItem({ team }: { team: TeamWithRescuer }) {
+export default function TeamItem({
+	team,
+	forMap = false,
+	onShowLocationOnMap = () => {},
+}: {
+	team: TeamWithRescuer | TeamWithStatusIdentifier;
+	forMap?: boolean;
+	onShowLocationOnMap?: () => void;
+}) {
 	const { toast } = useToast();
 	const [open, setOpen] = useState(false);
 
@@ -31,58 +42,87 @@ export default function TeamItem({ team }: { team: TeamWithRescuer }) {
 		});
 	}
 
+	function isTeamWithStatusIndicator(team: TeamWithRescuer | TeamWithStatusIdentifier): team is TeamWithStatusIdentifier {
+		return "showing" in team;
+	}
+
 	return (
 		<Card className="p-4 border-neutral-200 shadow-sm">
-			<div className="flex justify-between items-center">
-				<div className="flex flex-1">
-					<div className="flex-1">
-						<CardDescription>Team ID</CardDescription>
-						<CardTitle className="font-medium">{team.teamId}</CardTitle>
+			<div>
+				<div className="flex justify-between items-center">
+					<div className="flex flex-1">
+						<div className="flex-1">
+							<div className="flex items-center">
+								{isTeamWithStatusIndicator(team) && (
+									<div className="mx-2">
+										<ShowStatusIndicator show={team.showing} />
+									</div>
+								)}
+								<CardDescription className="text-xs">Team ID: {team.teamId}</CardDescription>
+							</div>
+							<CardTitle className="font-medium mt-2">{team.name}</CardTitle>
+						</div>
+						{!forMap && (
+							<>
+								<div className="flex-1">
+									<CardDescription className="text-xs">Created At</CardDescription>
+									<CardTitle className="font-medium mt-2">{new Date(team.createdAt).toDateString()}</CardTitle>
+								</div>
+							</>
+						)}
+						<div className="flex-1">
+							<CardDescription className="text-xs">Members</CardDescription>
+							<CardTitle className="font-medium mt-2">Count ({team.rescuers.length})</CardTitle>
+						</div>
 					</div>
-					<div className="flex-1">
-						<CardDescription>Team ID</CardDescription>
-						<CardTitle className="font-medium">{new Date(team.createdAt).toDateString()}</CardTitle>
-					</div>
-					<div className="flex-1">
-						<CardDescription>Members</CardDescription>
-						<CardTitle className="font-medium">Count ({team.rescuers.length})</CardTitle>
-					</div>
-				</div>
-				<div className="flex">
-					<Link href={`/teams/update?teamId=${team.teamId}`}>
-						<Button variant="ghost" size="icon" className="text-blue-500">
-							<Edit />
-						</Button>
-					</Link>
-					<Dialog>
-						<DialogTrigger asChild>
-							<Button variant="ghost" size="icon" className="text-red-500" onClick={toggleOpen}>
-								<Trash />
-							</Button>
-						</DialogTrigger>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Delete Confirmation</DialogTitle>
-							</DialogHeader>
-							<div>
-								<p>Are you sure you want to delete this team?</p>
-								<div className="mt-8 flex justify-end">
+					<div className="flex">
+						{!forMap && (
+							<>
+								<Link href={`/teams/update?teamId=${team.teamId}`}>
+									<Button variant="ghost" size="icon" className="text-blue-500">
+										<Edit />
+									</Button>
+								</Link>
+								<Dialog>
 									<DialogTrigger asChild>
-										<Button className="mr-2">Cancel</Button>
-									</DialogTrigger>
-									<DialogTrigger asChild>
-										<Button className="" onClick={deleteTeam} variant="outline">
-											Confirm
+										<Button variant="ghost" size="icon" className="text-red-500" onClick={toggleOpen}>
+											<Trash />
 										</Button>
 									</DialogTrigger>
-								</div>
-							</div>
-						</DialogContent>
-					</Dialog>
-					<Button variant="ghost" size="icon" onClick={toggleOpen}>
-						{open ? <ChevronUp /> : <ChevronDown />}
-					</Button>
+									<DialogContent>
+										<DialogHeader>
+											<DialogTitle>Delete Confirmation</DialogTitle>
+										</DialogHeader>
+										<div>
+											<p>Are you sure you want to delete this team?</p>
+											<div className="mt-8 flex justify-end">
+												<DialogTrigger asChild>
+													<Button className="mr-2">Cancel</Button>
+												</DialogTrigger>
+												<DialogTrigger asChild>
+													<Button className="" onClick={deleteTeam} variant="outline">
+														Confirm
+													</Button>
+												</DialogTrigger>
+											</div>
+										</div>
+									</DialogContent>
+								</Dialog>
+							</>
+						)}
+						<Button variant="ghost" size="icon" onClick={toggleOpen}>
+							{open ? <ChevronUp /> : <ChevronDown />}
+						</Button>
+					</div>
 				</div>
+				{isTeamWithStatusIndicator(team) && (
+					<div className="mt-4">
+						<div className="flex items-center">
+							<Switch onCheckedChange={onShowLocationOnMap} />
+							<Label className="ml-2">Show Location</Label>
+						</div>
+					</div>
+				)}
 			</div>
 			{open && (
 				<div className="mt-4">

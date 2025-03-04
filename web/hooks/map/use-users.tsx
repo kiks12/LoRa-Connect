@@ -2,23 +2,19 @@ import { UserWithBracelet, UserWithStatusIdentifier } from "@/types";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useState } from "react";
-import { useMap } from "./use-map";
 import { USER_SOURCE_BASE } from "@/utils/tags";
 import { useAppContext } from "@/contexts/AppContext";
+import { useMapContext } from "@/contexts/MapContext";
 
 export const useUsers = () => {
-	const { clearSourcesAndLayers, removeSourceAndLayer } = useMap();
-	const { mapRef, users, setUsers } = useAppContext();
+	const { mapRef, clearSourcesAndLayers, removeSourceAndLayer } = useMapContext();
+	const { users, setUsers } = useAppContext();
 	const [usersLoading, setUsersLoading] = useState(false);
 	const [showUserLocations, setShowUserLocations] = useState(false);
 
 	// API FETCHING OF OWNERS
 	useEffect(() => {
 		fetchUsersAPI();
-
-		return () => {
-			setUsers([]);
-		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
