@@ -2,10 +2,12 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Label } from "@/components/ui/label";
-import { useAppContext } from "@/contexts/AppContext";
+import React, { memo } from "react";
+import { useMapContext } from "@/contexts/MapContext";
 
-const Map = () => {
-	const { mapContainerRef, mapLoading } = useAppContext();
+// eslint-disable-next-line react/display-name
+const Map = memo(function () {
+	const { mapContainerRef, mapLoading } = useMapContext();
 
 	return (
 		<>
@@ -20,6 +22,6 @@ const Map = () => {
 			</div>
 		</>
 	);
-};
+});
 
 export default Map;

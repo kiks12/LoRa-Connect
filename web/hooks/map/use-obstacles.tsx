@@ -3,9 +3,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import { Obstacle } from "@prisma/client";
 import { useAppContext } from "@/contexts/AppContext";
+import { useMapContext } from "@/contexts/MapContext";
 
 export const useObstacles = () => {
-	const { mapRef, obstacles, setObstacles } = useAppContext();
+	const { mapRef } = useMapContext();
+	const { obstacles, setObstacles } = useAppContext();
 	const [obstaclesLoading, setObstaclesLoading] = useState(true);
 	const [obstaclesMarkers, setObstaclesMarkers] = useState<
 		{
@@ -16,17 +18,38 @@ export const useObstacles = () => {
 	const [showObstacles, setShowObstacles] = useState(false);
 	const [addingObstacle, setAddingObstacle] = useState(false);
 	const currentObstacleMarker = useRef<maplibregl.Marker | null>(null);
-	const [currentObstacleMarkerLngLat, setCurrentObstacleMarkerLngLat] = useState<{ lng: number; lat: number } | null>(null);
+	const [form, setForm] = useState<{
+		name: string;
+		type: string;
+		latitude: number;
+		longitude: number;
+	}>({
+		name: "",
+		type: "",
+		latitude: 0,
+		longitude: 0,
+	});
+	const [currentObstacleMarkerLatLng, setCurrentObstacleMarkerLatLng] = useState<{ lat: number; lng: number } | null>(null);
+
+	function onNameChange(newVal: string) {
+		setForm((prev) => ({ ...prev, name: newVal }));
+	}
+	function onTypeChange(newVal: string) {
+		setForm((prev) => ({ ...prev, type: newVal }));
+	}
 
 	const onAddObtacleMapClick = useCallback(
 		({ lngLat }: maplibregl.MapMouseEvent) => {
 			const { lat, lng } = lngLat;
-			if (currentObstacleMarker.current) currentObstacleMarker.current.remove();
+			if (currentObstacleMarker.current) {
+				currentObstacleMarker.current.remove();
+				currentObstacleMarker.current = null;
+			}
 			currentObstacleMarker.current = new maplibregl.Marker({
 				color: OBSTACLE_MARKER_COLOR,
 			}).setLngLat([lng, lat]);
 			currentObstacleMarker.current.addTo(mapRef.current!);
-			setCurrentObstacleMarkerLngLat({ lat, lng });
+			setCurrentObstacleMarkerLatLng({ lat, lng });
 		},
 		[mapRef]
 	);
@@ -38,7 +61,6 @@ export const useObstacles = () => {
 			} else {
 				mapRef.current.off("click", onAddObtacleMapClick);
 				currentObstacleMarker.current?.remove();
-				setCurrentObstacleMarkerLngLat(null);
 			}
 		}
 	}, [addingObstacle, mapRef, onAddObtacleMapClick]);
@@ -58,8 +80,6 @@ export const useObstacles = () => {
 	// API FETCHING OF OBSTACLES
 	useEffect(() => {
 		fetchObstaclesAPI();
-
-		return () => setObstacles([]);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
@@ -134,12 +154,15 @@ export const useObstacles = () => {
 		removeObstacle,
 		addingObstacle,
 		toggleAddingObstacle,
-		currentObstacleMarkerLngLat,
+		currentObstacleMarkerLatLng,
 		showObstacleMarkerOnMap,
 		removeObstacleMarkerFromMap,
 		toggleObstacleOnMap,
 		updateObstacle,
 		obstaclesLoading,
 		refreshObstacles,
+		form,
+		onNameChange,
+		onTypeChange,
 	};
 };

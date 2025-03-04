@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Teams` ADD COLUMN `name` VARCHAR(191) NULL;

@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { useEvacuations } from "@/hooks/map/use-evacuations";
 import { useRescuers } from "@/hooks/map/use-rescuers";
 import { useUsers } from "@/hooks/map/use-users";
-import { useMap } from "@/hooks/map/use-map";
-import { GraphHopperAPIResult, ObstacleWithStatusIdentifier, RescuerWithStatusIdentifier, UserWithStatusIdentifier } from "@/types";
+import { GraphHopperAPIResult, ObstacleWithStatusIdentifier, TeamWithStatusIdentifier, UserWithStatusIdentifier } from "@/types";
 import { createCustomModelObject, LatLng } from "@/utils/routing";
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { useEffect, useMemo, useState } from "react";
+import { useObstacles } from "@/hooks/map/use-obstacles";
+import { useRouting } from "@/hooks/map/use-routing";
 
 type listType = "RESCUERS" | "USERS" | "EVACUATION_CENTERS" | "OBSTACLES";
 export type generalType = { name: string; type: listType; latitude: number | null | undefined; longitude: number | null | undefined };
@@ -22,8 +23,9 @@ export default function RoutingControls() {
 	const [list, setList] = useState<generalType[]>([]);
 	const { users } = useUsers();
 	const { evacuationCenters } = useEvacuations();
-	const { rescuers } = useRescuers();
-	const { obstacles, createRoute, clearRoute } = useMap();
+	const { teams } = useRescuers();
+	const { obstacles } = useObstacles();
+	const { createRoute, clearRoute } = useRouting();
 	const distance: null | number = useMemo(() => {
 		if (!data || !data.paths) return null;
 		const path = data?.paths[0];
@@ -44,10 +46,10 @@ export default function RoutingControls() {
 				type: "USERS",
 			})) ?? [];
 		const mappedRescuers: generalType[] =
-			rescuers.map((rescuer: RescuerWithStatusIdentifier) => ({
-				name: rescuer.name,
-				latitude: rescuer.bracelet?.latitude,
-				longitude: rescuer.bracelet?.longitude,
+			teams.map((team: TeamWithStatusIdentifier) => ({
+				name: team.name!,
+				latitude: team.rescuers.filter((rescuer) => rescuer.bracelet)[0].bracelet?.latitude,
+				longitude: team.rescuers.filter((rescuer) => rescuer.bracelet)[0].bracelet?.longitude,
 				type: "RESCUERS",
 			})) ?? [];
 		const mappedEvacuationCenters: generalType[] =
@@ -66,7 +68,7 @@ export default function RoutingControls() {
 			})) ?? [];
 
 		setList([...mappedUsers, ...mappedRescuers, ...mappedEvacuationCenters, ...mappedObstacles]);
-	}, [users, rescuers, evacuationCenters, obstacles]);
+	}, [users, teams, evacuationCenters, obstacles]);
 
 	useEffect(() => {
 		async function fetchGraphHopperAPI() {
@@ -78,8 +80,6 @@ export default function RoutingControls() {
 				];
 				const obstaclesCoordinates = obstacles.map((d: ObstacleWithStatusIdentifier) => [d.latitude, d.longitude] as LatLng);
 				const customModelObject = createCustomModelObject(obstaclesCoordinates);
-				console.log(points);
-				console.log(JSON.stringify(customModelObject));
 				const res = await fetch(`http://localhost:8989/route`, {
 					method: "POST",
 					headers: {
@@ -104,7 +104,7 @@ export default function RoutingControls() {
 		}
 
 		fetchGraphHopperAPI();
-	}, [createRoute, from, obstacles, to]);
+	}, [from, obstacles, to]);
 
 	function onFromListItemClick(obj: generalType) {
 		setFrom(obj);

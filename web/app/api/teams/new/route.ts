@@ -12,6 +12,7 @@ import { NextResponse } from "next/server"
 SAMPLE BODY
 {
   teamId: number, 
+  name: string,
   createdAt: datetime,
   rescuers: Rescuers[]
 }
@@ -19,10 +20,11 @@ SAMPLE BODY
 */
 export async function POST(req: Request) {
   try {
-    const { rescuers } = await req.json()
+    const { rescuers, name } = await req.json()
 
     const team = await createTeam({
       data: {
+        name: name,
         teamId: 0,
         rescuers: rescuers,
         createdAt: new Date()

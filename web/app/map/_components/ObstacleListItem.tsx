@@ -13,8 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useMap } from "@/hooks/map/use-map";
-import { useSidebarContext } from "@/hooks/use-sidebar";
+import { useAdmin } from "@/hooks/map/use-admin";
 import { useToast } from "@/hooks/use-toast";
 import { Obstacle } from "@prisma/client";
 import { MoreVerticalIcon } from "lucide-react";
@@ -32,15 +31,14 @@ export default function ObstacleListItem({
 	onDelete: (obstacle: number) => void;
 }) {
 	const { toast } = useToast();
-	const { toggleAddingObstacle } = useMap();
-	const { toggleSidebar, setComponent, setCloseCallback } = useSidebarContext();
+	const { toggleAddingObstacle } = useAdmin();
 
 	function onEditClick() {
 		toggleAddingObstacle();
-		toggleSidebar();
+		// toggleSidebar();
 
-		setComponent(<ObstacleForm {...obstacle} editing={true} />);
-		setCloseCallback(["TOGGLE_ADDING_OBSTACLE"]);
+		// setComponent(<ObstacleForm {...obstacle} editing={true} />);
+		// setCloseCallback(["TOGGLE_ADDING_OBSTACLE"]);
 	}
 
 	async function deleteObstacle() {

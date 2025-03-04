@@ -19,7 +19,6 @@ model Bracelets {
   latitude   Float?
   longitude  Float?
   sos        Boolean      @default(false)
-  Teams      Teams[]
 }
 
 model Rescuers {
@@ -33,11 +32,10 @@ model Rescuers {
 }
 
 model Teams {
-  teamId              Int        @id @default(autoincrement())
-  createdAt           DateTime   @default(now())
-  bracelet            Bracelets? @relation(fields: [braceletsBraceletId], references: [braceletId])
-  rescuers            Rescuers[]
-  braceletsBraceletId String?
+  teamId    Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  name      String?
+  rescuers  Rescuers[]
 }
 
 model EvacuationCenters {

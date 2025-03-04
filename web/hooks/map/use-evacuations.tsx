@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { EVACUATION_CENTER_MARKER_COLOR } from "@/map-styles";
 import maplibregl from "maplibre-gl";
 import { useAppContext } from "@/contexts/AppContext";
+import { useMapContext } from "@/contexts/MapContext";
 
 export const useEvacuations = () => {
-	const { mapRef, users } = useAppContext();
+	const { mapRef } = useMapContext();
+	const { users } = useAppContext();
 	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenterWithStatusIdentifier[]>([]);
 	const [evacuationCentersLoading, setEvacuationCentersLoading] = useState(true);
 	const [evacuationCentersMarkers, setEvacuationCentersMarkers] = useState<{ evacuationCenterId: number; marker: maplibregl.Marker }[]>([]);
@@ -27,8 +29,6 @@ export const useEvacuations = () => {
 	// API FETCHING OF EVACUATION CENTER
 	useEffect(() => {
 		fetchEvacuationCentersAPI();
-
-		return () => setEvacuationCenters([]);
 	}, []);
 
 	useEffect(() => {
@@ -98,6 +98,7 @@ export const useEvacuations = () => {
 		const requests: Promise<EvacuationInstruction>[] = [];
 
 		for (const user of users) {
+			if (user.bracelet === null) continue;
 			for (const evacuationCenter of evacuationCenters) {
 				const request: Promise<EvacuationInstruction> = (async () => {
 					const result = await fetch(
