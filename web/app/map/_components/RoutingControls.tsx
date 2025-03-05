@@ -104,6 +104,7 @@ export default function RoutingControls() {
 		}
 
 		fetchGraphHopperAPI();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [from, obstacles, to]);
 
 	function onFromListItemClick(obj: generalType) {

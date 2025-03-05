@@ -118,6 +118,17 @@ export type TeamWithStatusIdentifier = TeamWithRescuer & StatusIdentifier
 export type TeamAssignmentCost = {
   userId: number, 
   teamId: number, 
+  coordinates: number[][]
   distance: number, 
   time: number,
+}
+
+export type MissionWithCost = {
+  userId: number;
+  user: UserWithStatusIdentifier;
+  teamId: number;
+  team: TeamWithStatusIdentifier;
+  coordinates: number[][] | undefined;
+  distance: number | undefined;
+  time: number | undefined;
 }

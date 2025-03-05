@@ -14,6 +14,8 @@ export const USER_AREA_SOURCE = `${USER_SOURCE_BASE}_AREA`
 export const RESCUER_SOURCE_BASE = "RESCUER"
 export const RESCUER_POINT_SOURCE = `${RESCUER_SOURCE_BASE}_POINT`
 
+export const TASK_SOURCE_BASE = "TASK"
+
 export function createGeoJsonSourceId(tags: string[], id: number) {
   return `${tags.join("_")}-${id}`
 }

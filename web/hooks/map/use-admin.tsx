@@ -3,41 +3,38 @@
 import { useEffect, useState } from "react";
 import {
 	GraphHopperAPIResult,
-	LocationDataFromPy,
+	MissionWithCost,
 	ObstacleWithStatusIdentifier,
-	OperationsWithPayload,
 	TeamAssignmentCost,
 	TeamWithStatusIdentifier,
 	UserWithStatusIdentifier,
 } from "@/types";
-import { socket } from "@/socket/socket";
-import { LOCATION_FROM_RESCUER, LOCATION_FROM_USER, START_LOCATION_TRANSMISSION_TO_TRU } from "@/lora/lora-tags";
-import { useAppContext } from "@/contexts/AppContext";
 import { useMapContext } from "@/contexts/MapContext";
 import { minWeightAssign } from "munkres-algorithm";
 import { createCustomModelObject, LatLng } from "@/utils/routing";
 import { useUsers } from "./use-users";
 import { useRescuers } from "./use-rescuers";
 import { useObstacles } from "./use-obstacles";
+import { Bracelets } from "@prisma/client";
+import { COLOR_MAP, createRouteLayerGeoJSON, createRouteSource } from "@/utils/map";
+import maplibregl from "maplibre-gl";
 
 export const useAdmin = () => {
 	// const { users, setUsers, teams, rescuers, setRescuers, obstacles } = useAppContext();
+	const { mapRef, clearSourcesAndLayers } = useMapContext();
 	const { users } = useUsers();
 	const { teams } = useRescuers();
 	const { obstacles } = useObstacles();
 
 	const [monitorLocations, setMonitorLocations] = useState(false);
+	const [automaticTaskAllocation, setAutomaticTaskAllocation] = useState(false);
 	const [taskAllocationMessage, setTaskAllocationMessage] = useState("Run Task Allocation");
-	const [missions, setMissions] = useState<
-		{
-			userId: number;
-			user: UserWithStatusIdentifier;
-			teamId: number;
-			team: TeamWithStatusIdentifier;
-			distance: number;
-			time: number;
-		}[]
-	>([]);
+	const [missions, setMissions] = useState<MissionWithCost[]>([]);
+	const [markers, setMarkers] = useState<maplibregl.Marker[]>([]);
+
+	function toggleAutomaticTaskAllocation() {
+		setAutomaticTaskAllocation(!automaticTaskAllocation);
+	}
 
 	// async function saveNewLocationToDatabase({
 	// 	braceletId,
@@ -106,6 +103,55 @@ export const useAdmin = () => {
 	// function toggleMonitorLocations() {
 	// 	setMonitorLocations(!monitorLocations);
 	// }
+
+	useEffect(() => {
+		clearMarkers();
+		missions.forEach((mission, index) => showRoute(index, mission));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [missions]);
+
+	function clearMarkers() {
+		markers.forEach((marker) => marker.remove());
+		setMarkers([]);
+	}
+
+	function clearRoutes() {
+		clearMarkers();
+		clearSourcesAndLayers(`TASK-ROUTE`);
+	}
+
+	function showRoute(index: number, mission: MissionWithCost) {
+		const rescuerBracelet = mission.team.rescuers.find((rescuer) => rescuer.bracelet)?.bracelet;
+		const userBracelet = mission.user.bracelet;
+		if (!rescuerBracelet || !userBracelet) return;
+		if (!mission.coordinates) return;
+		clearSourcesAndLayers(`TASK-ROUTE`);
+		addRoute(index, mission.coordinates);
+		addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
+	}
+
+	function addRoute(index: number, coordinates: number[][]) {
+		if (!mapRef.current) return;
+		const tag = `TASK-ROUTE-${index}`;
+		mapRef.current.addSource(tag, createRouteSource(coordinates));
+		mapRef.current.addLayer(createRouteLayerGeoJSON(tag, tag));
+	}
+
+	function addMarkers({ rescuer, user }: { rescuer: Bracelets; user: Bracelets }) {
+		if (!mapRef.current) return;
+		if (!rescuer.latitude || !rescuer.longitude || !user.latitude || !user.longitude) return;
+		const rescuerMarker = new maplibregl.Marker({
+			color: COLOR_MAP["RESCUERS"],
+		})
+			.setLngLat([rescuer.longitude, rescuer.latitude])
+			.addTo(mapRef.current);
+		const userMarker = new maplibregl.Marker({
+			color: COLOR_MAP["USERS"],
+		})
+			.setLngLat([user.longitude, user.latitude])
+			.addTo(mapRef.current);
+		setMarkers((prev) => [...prev, rescuerMarker, userMarker]);
+	}
 
 	async function runTaskAllocation() {
 		setTaskAllocationMessage("Running Task Allocation Algorithm...");
@@ -183,6 +229,7 @@ export const useAdmin = () => {
 				return {
 					userId: user.userId,
 					teamId: team.teamId,
+					coordinates: minimumTime.points.coordinates,
 					distance: minimumTime.distance,
 					time: minimumTime.time,
 				} as TeamAssignmentCost;
@@ -226,8 +273,9 @@ export const useAdmin = () => {
 					user: user, // Ensure valid user
 					teamId: team.teamId,
 					team: team, // Ensure valid team
-					distance: costEntry?.distance!,
-					time: costEntry?.time!,
+					coordinates: costEntry?.coordinates,
+					distance: costEntry?.distance,
+					time: costEntry?.time,
 				};
 			})
 			.filter(({ userId, teamId }) => userId !== undefined && teamId !== undefined); // Remove any invalid assignments
@@ -235,12 +283,13 @@ export const useAdmin = () => {
 	}
 
 	return {
+		automaticTaskAllocation,
+		toggleAutomaticTaskAllocation,
 		runTaskAllocation,
 		taskAllocationMessage,
 		missions,
 
 		monitorLocations,
-		// toggleMonitorLocations,
-		// sendTransmitLocationSignalToBracelets,
+		clearRoutes,
 	};
 };

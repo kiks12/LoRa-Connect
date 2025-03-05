@@ -118,7 +118,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			clearSourcesAndLayers,
 			removeSourceAndLayer,
 		}),
-		[]
+		[location, mapLoading]
 	);
 
 	return <MapContext.Provider value={providerValue}>{children}</MapContext.Provider>;

@@ -12,7 +12,6 @@ export const useRouting = () => {
 	const fromMarker = useRef<maplibregl.Marker | null>(null);
 	const toMarker = useRef<maplibregl.Marker | null>(null);
 
-	/* --- ROUTING FUNCTIONS --- */
 	function createRoute(from: generalType, to: generalType, data: GraphHopperAPIResult) {
 		if (!mapRef.current) return;
 		if (!data || typeof data === "undefined" || typeof data.paths === "undefined") return;
@@ -21,7 +20,7 @@ export const useRouting = () => {
 		clearSourcesAndLayers("ROUTE");
 		const minimumTime = data.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 		mapRef.current.addSource("ROUTE", createRouteSource(minimumTime.points.coordinates));
-		mapRef.current.addLayer(createRouteLayerGeoJSON());
+		mapRef.current.addLayer(createRouteLayerGeoJSON("ROUTE", "ROUTE"));
 		fromMarker.current = new maplibregl.Marker({
 			color: COLOR_MAP[from.type],
 		})
@@ -41,7 +40,6 @@ export const useRouting = () => {
 		fromMarker.current = null;
 		toMarker.current = null;
 	}
-	/* --- ROUTING FUNCTIONS --- */
 
 	return {
 		fromMarker,

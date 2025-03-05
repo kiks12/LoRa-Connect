@@ -73,11 +73,11 @@ export function createRouteSource(coordinates: number[][]) : GeoJSONSourceSpecif
   }
 }
 
-export function createRouteLayerGeoJSON(): LayerSpecification {
+export function createRouteLayerGeoJSON(id: string, source: string): LayerSpecification {
   return {
-    id: 'ROUTE',
+    id: id,
     type: 'line',
-    source: 'ROUTE',
+    source: source,
     layout: {
       'line-join': 'bevel',
       'line-cap': 'round'
