@@ -4,6 +4,7 @@ import maplibregl from "maplibre-gl";
 import { Obstacle } from "@prisma/client";
 import { useAppContext } from "@/contexts/AppContext";
 import { useMapContext } from "@/contexts/MapContext";
+import { useObstaclesContext } from "@/contexts/ObstacleContext";
 
 export const useObstacles = () => {
 	const { mapRef } = useMapContext();
@@ -29,7 +30,7 @@ export const useObstacles = () => {
 		latitude: 0,
 		longitude: 0,
 	});
-	const [currentObstacleMarkerLatLng, setCurrentObstacleMarkerLatLng] = useState<{ lat: number; lng: number } | null>(null);
+	const { currentObstacleMarkerLatLng, setCurrentObstacleMarkerLatLng } = useObstaclesContext();
 
 	function onNameChange(newVal: string) {
 		setForm((prev) => ({ ...prev, name: newVal }));
@@ -51,6 +52,7 @@ export const useObstacles = () => {
 			currentObstacleMarker.current.addTo(mapRef.current!);
 			setCurrentObstacleMarkerLatLng({ lat, lng });
 		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[mapRef]
 	);
 

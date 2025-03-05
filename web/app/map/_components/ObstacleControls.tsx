@@ -80,7 +80,7 @@ export default function ObstacleControls() {
 				<>
 					<ObstacleForm />
 					<Button variant="ghost" onClick={toggleShowForm} className="w-full mt-2">
-						Cancel
+						Close
 					</Button>
 				</>
 			)}

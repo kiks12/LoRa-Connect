@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useObstaclesContext } from "@/contexts/ObstacleContext";
 import { useObstacles } from "@/hooks/map/use-obstacles";
 import { useToast } from "@/hooks/use-toast";
 import { obstacleSchema } from "@/schema/obstacle";
@@ -28,7 +29,8 @@ export default function ObstacleForm({
 	editing?: boolean;
 }) {
 	const { toast } = useToast();
-	const { currentObstacleMarkerLatLng, toggleAddingObstacle, addObstacle, updateObstacle } = useObstacles();
+	const { currentObstacleMarkerLatLng } = useObstaclesContext();
+	const { toggleAddingObstacle, addObstacle, updateObstacle } = useObstacles();
 	const form = useForm<z.infer<typeof obstacleSchema>>({
 		resolver: zodResolver(obstacleSchema),
 		defaultValues: {
@@ -84,6 +86,7 @@ export default function ObstacleForm({
 			form.setValue("latitude", parseFloat(currentObstacleMarkerLatLng.lat.toFixed(6)));
 			form.setValue("longitude", parseFloat(currentObstacleMarkerLatLng.lng.toFixed(6)));
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [currentObstacleMarkerLatLng]);
 
 	return (
