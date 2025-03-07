@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
-import { INSTRUCTION_TO_USER, INSTRUCTION_TO_USER_PY, LOCATION_FROM_RESCUER, LOCATION_FROM_RESCUER_PY, LOCATION_FROM_USER, LOCATION_FROM_USER_PY, START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU_PY, TASK_TO_RESCUER, TASK_TO_RESCUER_PY } from "./lora/lora-tags";
+import { INSTRUCTION_TO_USER, INSTRUCTION_TO_USER_PY, LOCATION_FROM_RESCUER, LOCATION_FROM_RESCUER_PY, LOCATION_FROM_USER, LOCATION_FROM_USER_PY, SOS_FROM_RESCUER, SOS_FROM_RESCUER_PY, SOS_FROM_USER, SOS_FROM_USER_PY, START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU_PY, TASK_ACKNOWLEDGEMENT_FROM_RESCUER_PY, TASK_STATUS_UPDATE_FROM_RESCUER, TASK_STATUS_UPDATE_FROM_RESCUER_PY, TASK_TO_RESCUER, TASK_TO_RESCUER_PY, URGENCY_UPDATE_FROM_USER, URGENCY_UPDATE_FROM_USER_PY } from "./lora/lora-tags";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -36,13 +36,33 @@ app.prepare().then(async () => {
     })
 
     // FROM PY TO FRONTEND 
+    socket.on(LOCATION_FROM_USER_PY, (data) => {
+      console.log(data)
+      io.emit(LOCATION_FROM_USER, data)
+    })
+    socket.on(SOS_FROM_USER_PY, (data) => {
+      console.log(data)
+      io.emit(SOS_FROM_USER, data)
+    })
     socket.on(LOCATION_FROM_RESCUER_PY, (data) => {
       console.log(data)
       io.emit(LOCATION_FROM_RESCUER, data)
     })
-    socket.on(LOCATION_FROM_USER_PY, (data) => {
+    socket.on(SOS_FROM_RESCUER_PY, (data) => {
       console.log(data)
-      io.emit(LOCATION_FROM_USER, data)
+      io.emit(SOS_FROM_RESCUER, data)
+    })
+    socket.on(TASK_ACKNOWLEDGEMENT_FROM_RESCUER_PY, (data) => {
+      console.log(data)
+      io.emit(SOS_FROM_RESCUER, data)
+    })
+    socket.on(TASK_STATUS_UPDATE_FROM_RESCUER_PY, (data) => {
+      console.log(data)
+      io.emit(TASK_STATUS_UPDATE_FROM_RESCUER, data)
+    })
+    socket.on(URGENCY_UPDATE_FROM_USER_PY, (data) => {
+      console.log(data)
+      io.emit(URGENCY_UPDATE_FROM_USER, data)
     })
   });
 
