@@ -80,6 +80,8 @@ export default function RoutingControls() {
 				];
 				const obstaclesCoordinates = obstacles.map((d: ObstacleWithStatusIdentifier) => [d.latitude, d.longitude] as LatLng);
 				const customModelObject = createCustomModelObject(obstaclesCoordinates);
+				console.log(JSON.stringify(points, null, 2));
+				console.log(JSON.stringify(customModelObject, null, 2));
 				const res = await fetch(`http://localhost:8989/route`, {
 					method: "POST",
 					headers: {
@@ -90,6 +92,7 @@ export default function RoutingControls() {
 						points_encoded: false,
 						profile: "car",
 						"ch.disable": true,
+						algorithm: "alternative_route",
 						custom_model: customModelObject,
 					}),
 				});

@@ -95,6 +95,9 @@ export type GraphHopperAPIResult = {
       text: string,
       street_name: string,
     }[],
+    details: {
+      average_speed: number[]
+    }
     legs: [],
     snapped_waypoints: {
       type: string,

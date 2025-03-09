@@ -19,7 +19,7 @@ export function createBlockAreaSpeeds(obstacles: LatLng[]) {
   const polygons = createAvoidPolygons(obstacles)
   return polygons.map((polygon, idx) => ({
     "if": `in_custom${idx}`,
-    "multiply_by": "0"
+    "multiply_by": "0.01"
   }))
 }
 
@@ -65,4 +65,35 @@ export function createAvoidPolygons(obstacles: LatLng[], buffer: number = 0.0001
       [minLng, minLat,], // Close the polygon
     ];
   });
+}
+
+export const customModels = {
+  FASTEST: {
+    speed: [
+      {
+        "if": "road_class == PRIMARY",
+        "multiply_by": 1.2
+      },
+      {
+        "if": "road_class == MOTORWAY",
+        "multiply_by": 1.5
+      },
+      {
+        "if": "road_class == RESIDENTIAL",
+        "multiply_by": 1
+      },
+      {
+        "if": "road_class == TERTIARY",
+        "multiply_by": 1
+      },
+    ]
+  },
+  SHORTEST: {
+    priority: [
+      {
+        "if": true,
+        "multiply_by": 0.5
+      }
+    ]
+  }
 }
