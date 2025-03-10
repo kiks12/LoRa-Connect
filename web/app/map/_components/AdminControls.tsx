@@ -11,6 +11,7 @@ export default function AdminControls() {
 		toggleAutomaticTaskAllocation,
 		runTaskAllocation,
 		missions,
+		sendTasksViaLoRa,
 		taskAllocationMessage,
 		clearRoutes,
 	} = useAdmin();
@@ -34,12 +35,12 @@ export default function AdminControls() {
 					<Button className="w-full" onClick={runTaskAllocation}>
 						{taskAllocationMessage}
 					</Button>
-					<Button className="w-full mt-2" variant="secondary" onClick={() => {}}>
+					<Button className="w-full mt-2" variant="secondary" onClick={sendTasksViaLoRa}>
 						Send Task via LoRa
 					</Button>
 				</div>
 			</div>
-			<div className="flex-1 flex flex-col mt-2">
+			<div className="flex-1 flex flex-col mt-2 max-h-[600px] overflow-y-auto">
 				<div className="flex w-full justify-between items-center">
 					<h2 className="font-medium text-lg mt-2">Missions</h2>
 					<Button className="ml-2" variant="outline" onClick={clearRoutes}>
@@ -57,7 +58,7 @@ export default function AdminControls() {
 						{missions.map((mission, index) => {
 							return (
 								<div key={index} className="mt-2">
-									<MissionItem mission={mission} />;
+									<MissionItem mission={mission} />
 								</div>
 							);
 						})}

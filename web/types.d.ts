@@ -135,3 +135,12 @@ export type MissionWithCost = {
   distance: number | undefined;
   time: number | undefined;
 }
+
+type AssignedMission = {
+  userId: number;
+  teamId: number;
+  coordinates: number[][];
+  distance: number;
+  time: number;
+  rescuerAvailableAt: number; // Tracks when the rescuer is available for the next task
+};

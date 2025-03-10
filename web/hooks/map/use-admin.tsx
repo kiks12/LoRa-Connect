@@ -18,6 +18,8 @@ import { useObstacles } from "./use-obstacles";
 import { Bracelets } from "@prisma/client";
 import { COLOR_MAP, createRouteLayerGeoJSON, createRouteSource } from "@/utils/map";
 import maplibregl from "maplibre-gl";
+import { socket } from "@/socket/socket";
+import { TASK_TO_RESCUER } from "@/lora/lora-tags";
 
 export const useAdmin = () => {
 	// const { users, setUsers, teams, rescuers, setRescuers, obstacles } = useAppContext();
@@ -104,6 +106,10 @@ export const useAdmin = () => {
 	// 	setMonitorLocations(!monitorLocations);
 	// }
 
+	function sendTasksViaLoRa() {
+		socket.emit(TASK_TO_RESCUER, missions);
+	}
+
 	useEffect(() => {
 		clearMarkers();
 		missions.forEach((mission, index) => showRoute(index, mission));
@@ -125,7 +131,7 @@ export const useAdmin = () => {
 		const userBracelet = mission.user.bracelet;
 		if (!rescuerBracelet || !userBracelet) return;
 		if (!mission.coordinates) return;
-		clearSourcesAndLayers(`TASK-ROUTE`);
+		clearSourcesAndLayers(`TASK-ROUTE-${index}`);
 		addRoute(index, mission.coordinates);
 		addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
 	}
@@ -154,72 +160,84 @@ export const useAdmin = () => {
 	}
 
 	async function runTaskAllocation() {
+		setMissions([]);
 		setTaskAllocationMessage("Running Task Allocation Algorithm...");
 		if (users.length === 0 || teams.length === 0) return;
-		setTaskAllocationMessage("Calculating Costs...");
-		const costs = await calculateTeamAssignmentCosts();
-		setTaskAllocationMessage("Assigning Teams...");
-		assignTeams(
-			users.filter((user) => user.bracelet),
-			teams,
-			costs
-		);
+
+		let rescuerLocations = new Map<number, { lat: number; lon: number }>();
+		let unassignedUsers = [...users]; // Copy users list to track unassigned ones
+		let assignedUserIds = new Set<number>(); // Track already assigned users
+
+		while (unassignedUsers.length > 0) {
+			setTaskAllocationMessage(`Calculating Costs... (${unassignedUsers.length} users left)`);
+
+			// 🔹 Step 1: Calculate Costs
+			let costs = await calculateTeamAssignmentCosts(rescuerLocations, unassignedUsers);
+			if (costs.length === 0) {
+				console.warn("No valid assignments found. Exiting loop.");
+				break; // Prevent infinite loop
+			}
+
+			// 🔹 Step 2: Assign Teams using Hungarian Algorithm
+			const newAssignments = runHungarianAlgorithm(unassignedUsers, teams, costs, assignedUserIds);
+
+			if (newAssignments.length === 0) {
+				console.warn("No new assignments made. Stopping loop.");
+				break;
+			}
+
+			setMissions((prevMissions) => [...prevMissions, ...newAssignments]);
+
+			// 🔹 Step 3: Update rescuer locations
+			rescuerLocations = updateRescuerLocations(newAssignments);
+
+			// 🔹 Step 4: Mark users as assigned
+			newAssignments.forEach((mission) => assignedUserIds.add(mission.userId));
+
+			// 🔹 Step 5: Remove assigned users
+			unassignedUsers = unassignedUsers.filter((user) => !assignedUserIds.has(user.userId));
+		}
+
 		setTaskAllocationMessage("Task Allocation Complete");
 		setTimeout(() => {
 			setTaskAllocationMessage("Run Task Allocation");
 		}, 3000);
 	}
 
-	async function calculateTeamAssignmentCosts(): Promise<TeamAssignmentCost[]> {
-		if (users.length === 0 || teams.length === 0) return [];
+	async function calculateTeamAssignmentCosts(
+		updatedRescuerLocations: Map<number, { lat: number; lon: number }>,
+		unassignedUsers: UserWithStatusIdentifier[]
+	): Promise<TeamAssignmentCost[]> {
+		if (unassignedUsers.length === 0 || teams.length === 0) return [];
+
 		const obstaclesCoordinates = obstacles.map((d: ObstacleWithStatusIdentifier) => [d.latitude, d.longitude] as LatLng);
 		const customModelObject = createCustomModelObject(obstaclesCoordinates);
 
-		// Map through the teams & flatten users within each team
 		const teamsCostsPromises = teams.flatMap((team) => {
-			if (!team.rescuers.some((rescuer) => rescuer.bracelet)) return;
-			// Get rescuer with bracelet
 			const rescuer = team.rescuers.find((rescuer) => rescuer.bracelet);
-			if (!rescuer || !rescuer.bracelet) return []; // No valid rescuer/bracelet
-			const rescuerBracelet = rescuer.bracelet;
+			if (!rescuer || !rescuer.bracelet) return [];
 
-			// Map through users and create API requests
-			return users.map(async (user) => {
-				if (
-					!user.bracelet ||
-					user.bracelet.latitude === null ||
-					user.bracelet.longitude === null ||
-					rescuerBracelet === null ||
-					rescuerBracelet.longitude === null ||
-					rescuerBracelet.latitude === null
-				)
-					return null; // skip users without bracelets
+			// Get rescuer's last known location, or their initial position if not updated yet
+			const rescuerStartLocation = updatedRescuerLocations.get(team.teamId) || {
+				lat: rescuer.bracelet.latitude,
+				lon: rescuer.bracelet.longitude,
+			};
 
-				const userBracelet = user.bracelet;
+			return unassignedUsers.map(async (user) => {
+				if (!user.bracelet || !user.bracelet.latitude || !user.bracelet.longitude) return null;
+
 				const points = [
-					[rescuerBracelet?.longitude, rescuerBracelet?.latitude],
-					[userBracelet?.longitude, userBracelet?.latitude],
+					[rescuerStartLocation.lon, rescuerStartLocation.lat], // Updated rescuer location
+					[user.bracelet.longitude, user.bracelet.latitude], // User location
 				];
 
 				const res = await fetch(`http://localhost:8989/route`, {
 					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(
 						obstaclesCoordinates.length === 0
-							? {
-									points: points,
-									points_encoded: false,
-									profile: "car",
-							  }
-							: {
-									points: points,
-									points_encoded: false,
-									profile: "car",
-									"ch.disable": true,
-									custom_model: customModelObject,
-							  }
+							? { points, points_encoded: false, profile: "car" }
+							: { points, points_encoded: false, profile: "car", "ch.disable": true, custom_model: customModelObject }
 					),
 				});
 
@@ -237,49 +255,71 @@ export const useAdmin = () => {
 		});
 
 		const resolvedCosts = await Promise.all(teamsCostsPromises);
-		return resolvedCosts.filter(Boolean) as TeamAssignmentCost[]; // Remove skipped users
+		return resolvedCosts.filter(Boolean) as TeamAssignmentCost[];
 	}
 
-	function assignTeams(users: UserWithStatusIdentifier[], teams: TeamWithStatusIdentifier[], costs: TeamAssignmentCost[], alpha: number = 0.5) {
-		const numUsers = users.length;
+	// 🔹 Step 1: Hungarian Algorithm (Initial Assignment)
+	function runHungarianAlgorithm(
+		users: UserWithStatusIdentifier[],
+		teams: TeamWithStatusIdentifier[],
+		costs: TeamAssignmentCost[],
+		assignedUsers: Set<number>,
+		alpha: number = 0.5
+	): MissionWithCost[] {
+		const unassignedUsers = users.filter((user) => !assignedUsers.has(user.userId));
+		const numUsers = unassignedUsers.length;
 		const numTeams = teams.length;
 
-		// Step 1: Build the Cost Matrix
+		if (numUsers === 0 || numTeams === 0) return [];
+
+		// Build cost matrix
 		const costMatrix: number[][] = Array.from({ length: numUsers }, () => new Array(numTeams).fill(Infinity));
 
 		costs.forEach(({ userId, teamId, distance, time }) => {
-			const userIndex = users.findIndex((u) => u.userId === userId);
+			const userIndex = unassignedUsers.findIndex((u) => u.userId === userId);
 			const teamIndex = teams.findIndex((t) => t.teamId === teamId);
 
 			if (userIndex !== -1 && teamIndex !== -1) {
-				// Compute weighted cost: Adjust alpha to control the importance of distance vs time
 				costMatrix[userIndex][teamIndex] = alpha * distance + (1 - alpha) * time;
 			}
 		});
 
-		// Step 2: Run Hungarian Algorithm
+		// 🔹 Solve Hungarian Algorithm
 		const assignments = minWeightAssign(costMatrix);
 
-		const final = assignments.assignments
+		return assignments.assignments
 			.map((teamIndex, userIndex) => {
-				const user = users[userIndex];
-				const team = teams[teamIndex!];
+				if (teamIndex === null) return null;
 
-				// Find the corresponding cost object
+				const user = unassignedUsers[userIndex];
+				const team = teams[teamIndex];
+
 				const costEntry = costs.find((c) => c.userId === user.userId && c.teamId === team.teamId);
 
 				return {
 					userId: user.userId,
-					user: user, // Ensure valid user
+					user,
 					teamId: team.teamId,
-					team: team, // Ensure valid team
+					team,
 					coordinates: costEntry?.coordinates,
 					distance: costEntry?.distance,
 					time: costEntry?.time,
 				};
 			})
-			.filter(({ userId, teamId }) => userId !== undefined && teamId !== undefined); // Remove any invalid assignments
-		setMissions(final);
+			.filter((assignment): assignment is MissionWithCost => assignment !== null);
+	}
+
+	function updateRescuerLocations(assignments: MissionWithCost[]) {
+		const rescuerLocations = new Map<number, { lat: number; lon: number }>();
+
+		assignments.forEach(({ teamId, coordinates }) => {
+			if (coordinates && coordinates.length > 0) {
+				const lastCoord = coordinates[coordinates.length - 1];
+				rescuerLocations.set(teamId, { lat: lastCoord[1], lon: lastCoord[0] });
+			}
+		});
+
+		return rescuerLocations;
 	}
 
 	return {
@@ -288,7 +328,7 @@ export const useAdmin = () => {
 		runTaskAllocation,
 		taskAllocationMessage,
 		missions,
-
+		sendTasksViaLoRa,
 		monitorLocations,
 		clearRoutes,
 	};
