@@ -31,11 +31,6 @@ graphhopper:
 
   profile.ch: []
 
-  routing:
-    alternative_route.max_paths: 3
-    alternative_route.max_weight_factor: 2
-    alternative_route.max_share_factor: 0.5
-
   profiles:
     - name: car
       custom_model_files: [car.json]
@@ -173,6 +168,10 @@ graphhopper:
   # You can define the maximum visited nodes when routing. This may result in not found connections if there is no
   # connection between two points within the given visited nodes. The default is Integer.MAX_VALUE. Useful for flexibility mode
   # routing.max_visited_nodes: 1000000
+  routing:
+    alternative_route.max_paths: 15
+    alternative_route.max_weight_factor: 3.0
+    alternative_route.max_share_factor: 0.8
 
   # default for snap_preventions
   routing.snap_preventions_default: tunnel, bridge, ferry
