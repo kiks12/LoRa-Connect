@@ -121,6 +121,7 @@ export type TeamWithStatusIdentifier = TeamWithRescuer & StatusIdentifier
 export type TeamAssignmentCost = {
   userId: number, 
   teamId: number, 
+  urgency: number,
   coordinates: number[][]
   distance: number, 
   time: number,

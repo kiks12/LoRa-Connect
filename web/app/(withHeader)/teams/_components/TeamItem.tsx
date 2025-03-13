@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { TeamWithRescuer, TeamWithStatusIdentifier } from "@/types";
-import { ChevronDown, ChevronUp, Edit, Trash } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, ChevronDown, ChevronUp, Edit, Trash } from "lucide-react";
+import { useMemo, useState } from "react";
 import TeamRescuerSubItem from "./TeamRescuerSubItem";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import ShowStatusIndicator from "@/app/map/_components/ShowStatusIndicator";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { URGENCY_MAP } from "@/app/map/_components/BraceletWithUserListItem";
 
 export default function TeamItem({
 	team,
@@ -24,6 +25,9 @@ export default function TeamItem({
 }) {
 	const { toast } = useToast();
 	const [open, setOpen] = useState(false);
+	const rescuerWithBracelet = useMemo(() => {
+		return team.rescuers.find((rescuer) => rescuer.bracelet);
+	}, [team]);
 
 	function toggleOpen() {
 		setOpen(!open);
@@ -124,6 +128,14 @@ export default function TeamItem({
 					</div>
 				)}
 			</div>
+			{forMap && isTeamWithStatusIndicator(team) && rescuerWithBracelet?.bracelet?.sos && (
+				<div className="flex items-center mt-3">
+					<AlertCircle className={`text-${URGENCY_MAP[rescuerWithBracelet.bracelet.urgency!].color}-500`} />
+					<p className={`text-${URGENCY_MAP[rescuerWithBracelet.bracelet.urgency!].color}-500 ml-3`}>
+						Urgency: {URGENCY_MAP[rescuerWithBracelet.bracelet.urgency!].text}
+					</p>
+				</div>
+			)}
 			{open && (
 				<div className="mt-4">
 					{team.rescuers

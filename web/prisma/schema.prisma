@@ -18,6 +18,7 @@ model Bracelets {
   user       Users?       @relation(fields: [ownerId], references: [userId])
   latitude   Float?
   longitude  Float?
+  urgency    Float?       @default(0.2)
   sos        Boolean      @default(false)
 }
 

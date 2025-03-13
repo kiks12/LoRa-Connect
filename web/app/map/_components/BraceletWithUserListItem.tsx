@@ -2,16 +2,42 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import ShowStatusIndicator from "./ShowStatusIndicator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { UserWithStatusIdentifier } from "@/types";
+import { AlertCircle } from "lucide-react";
 
-export default function BraceletWithUserListItem({ name, showing, onShowLocation }: { name: string; showing: boolean; onShowLocation: () => void }) {
+export const URGENCY_MAP: {
+	[key: number]: {
+		text: string;
+		color: string;
+	};
+} = {
+	0.2: {
+		text: "LOW",
+		color: "yellow",
+	},
+	0.5: {
+		text: "MODERATE",
+		color: "orange",
+	},
+	1: {
+		text: "SEVERE",
+		color: "red",
+	},
+};
+
+export default function BraceletWithUserListItem({ user, onShowLocation }: { user: UserWithStatusIdentifier; onShowLocation: () => void }) {
 	return (
-		<Card className="my-1 shadow-none cursor-pointer hover:border-primary">
+		<Card
+			className={`my-1 shadow-none cursor-pointer hover:border-primary ${
+				user.bracelet && user.bracelet.sos ? `bg-${URGENCY_MAP[user.bracelet.urgency!].color}-50` : ""
+			}`}
+		>
 			<CardHeader className="flex justify-between items-start">
 				<div>
 					<div className="flex items-center">
-						<CardTitle className="">{name}</CardTitle>
+						<CardTitle className="">{user.name}</CardTitle>
 						<div className="mx-2">
-							<ShowStatusIndicator show={showing} />
+							<ShowStatusIndicator show={user.showing} />
 						</div>
 					</div>
 				</div>
@@ -21,7 +47,12 @@ export default function BraceletWithUserListItem({ name, showing, onShowLocation
 						<Label className="ml-2">Show Location</Label>
 					</div>
 				</div>
-				<div>SOS</div>
+				{user.bracelet?.sos && (
+					<div className="flex items-center mt-3">
+						<AlertCircle className={`text-${URGENCY_MAP[user.bracelet.urgency!].color}-500`} />
+						<p className={`text-${URGENCY_MAP[user.bracelet.urgency!].color}-500 ml-3`}>Urgency: {URGENCY_MAP[user.bracelet.urgency!].text}</p>
+					</div>
+				)}
 			</CardHeader>
 		</Card>
 	);

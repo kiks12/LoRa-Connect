@@ -7,6 +7,7 @@ import MissionItem from "./MissionItem";
 export default function AdminControls() {
 	const {
 		monitorLocations,
+		toggleMonitorLocations,
 		automaticTaskAllocation,
 		toggleAutomaticTaskAllocation,
 		runTaskAllocation,
@@ -23,7 +24,7 @@ export default function AdminControls() {
 					<Label className="ml-3" htmlFor="monitorLocations">
 						Monitor Bracelet Locations
 					</Label>
-					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={() => {}} />
+					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={toggleMonitorLocations} />
 				</div>
 				<div className="flex justify-between items-center my-2 border rounded-md p-3">
 					<Label className="ml-3" htmlFor="automaticTaskAllocation">

@@ -12,10 +12,10 @@ import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
 import { useUsers } from "@/hooks/map/use-users";
-import { useAdmin } from "@/hooks/map/use-admin";
+import { useMapContext } from "@/contexts/MapContext";
 
 export default function UsersControls() {
-	const { clearSourcesAndLayers } = useAdmin();
+	const { clearSourcesAndLayers } = useMapContext();
 	const { addUserPoint, users, showUserLocations, setShowUserLocations, clearUserShowStatuses, refreshUsers, usersLoading } = useUsers();
 	const [search, setSearch] = useState("");
 
@@ -70,9 +70,7 @@ export default function UsersControls() {
 										{users.length > 0 ? (
 											users.map((user, index) => {
 												if (user.name.toLowerCase().includes(search.toLowerCase()))
-													return (
-														<BraceletWithUserListItem key={index} name={user.name} showing={user.showing} onShowLocation={() => addUserPoint(user)} />
-													);
+													return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
 											})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -86,14 +84,7 @@ export default function UsersControls() {
 												.filter((user) => user.bracelet)
 												.map((user, index) => {
 													if (user.name.toLowerCase().includes(search.toLowerCase()))
-														return (
-															<BraceletWithUserListItem
-																key={index}
-																name={user.name}
-																showing={user.showing}
-																onShowLocation={() => addUserPoint(user)}
-															/>
-														);
+														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -107,14 +98,7 @@ export default function UsersControls() {
 												.filter((user: UserWithStatusIdentifier) => !user.bracelet)
 												.map((user, index) => {
 													if (user.name.toLowerCase().includes(search.toLowerCase()))
-														return (
-															<BraceletWithUserListItem
-																key={index}
-																name={user.name}
-																showing={user.showing}
-																onShowLocation={() => addUserPoint(user)}
-															/>
-														);
+														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -126,9 +110,7 @@ export default function UsersControls() {
 					</Tabs>
 				</div>
 			</div>
-			<div>
-				<Button className="w-full">Send Evacuation Instructions</Button>
-			</div>
+			<div>{/* <EvacuationInstructionButton /> */}</div>
 		</div>
 	);
 }
