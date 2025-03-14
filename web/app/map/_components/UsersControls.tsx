@@ -7,17 +7,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserWithStatusIdentifier } from "@/types";
 import { USER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
 import { useUsers } from "@/hooks/map/use-users";
 import { useMapContext } from "@/contexts/MapContext";
+import { useEvacuations } from "@/hooks/map/use-evacuations";
+import EvacuationInstructionButton from "./EvacuationInstructionButton";
 
 export default function UsersControls() {
 	const { clearSourcesAndLayers } = useMapContext();
 	const { addUserPoint, users, showUserLocations, setShowUserLocations, clearUserShowStatuses, refreshUsers, usersLoading } = useUsers();
+	const {
+		createEvacuationInstructions,
+		evacuationCenters,
+		calculatingEvacuationInstructions,
+		evacuationInstructions,
+		setEvacuationInstructionMessage,
+	} = useEvacuations();
 	const [search, setSearch] = useState("");
+	const [runEvacuationInstructionAlgorithm, setRunEvacuationInstructionAlgorithm] = useState(false);
+	const [rerunEvacuationInstructionAlgorithm, setRerunEvacuationInstructionAlgorithm] = useState(false);
 
 	function onClearClick() {
 		clearSourcesAndLayers(USER_SOURCE_BASE);
@@ -27,6 +38,16 @@ export default function UsersControls() {
 	function onChange(e: React.FormEvent<HTMLInputElement>) {
 		setSearch(e.currentTarget.value);
 	}
+
+	useEffect(() => {
+		if (rerunEvacuationInstructionAlgorithm) createEvacuationInstructions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [rerunEvacuationInstructionAlgorithm]);
+
+	useEffect(() => {
+		if (runEvacuationInstructionAlgorithm && evacuationInstructions.length === 0) createEvacuationInstructions();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [users, evacuationCenters, runEvacuationInstructionAlgorithm]);
 
 	return (
 		<div className="pt-6 pb-2 h-full flex flex-col justify-content">
@@ -110,7 +131,16 @@ export default function UsersControls() {
 					</Tabs>
 				</div>
 			</div>
-			<div>{/* <EvacuationInstructionButton /> */}</div>
+			<div>
+				<EvacuationInstructionButton
+					onRerunClick={() => setRerunEvacuationInstructionAlgorithm(!rerunEvacuationInstructionAlgorithm)}
+					onOpenChange={() => setRunEvacuationInstructionAlgorithm(!runEvacuationInstructionAlgorithm)}
+					setMessage={setEvacuationInstructionMessage}
+					calculatingEvacuationInstructions={calculatingEvacuationInstructions}
+					evacuationCenterInstructions={evacuationInstructions}
+					createEvacuationInstructions={createEvacuationInstructions}
+				/>
+			</div>
 		</div>
 	);
 }

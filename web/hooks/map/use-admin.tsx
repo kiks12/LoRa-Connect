@@ -24,6 +24,7 @@ export const useAdmin = () => {
 	const [taskAllocationMessage, setTaskAllocationMessage] = useState("Run Task Allocation");
 	const [missions, setMissions] = useState<MissionWithCost[]>([]);
 	const [markers, setMarkers] = useState<maplibregl.Marker[]>([]);
+
 	function toggleAutomaticTaskAllocation() {
 		setAutomaticTaskAllocation(!automaticTaskAllocation);
 	}
@@ -109,6 +110,7 @@ export const useAdmin = () => {
 	useEffect(() => {
 		if (automaticTaskAllocation) {
 			runTaskAllocation();
+			sendTasksViaLoRa();
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [users, teams, automaticTaskAllocation, obstacles]);
