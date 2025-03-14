@@ -29,12 +29,3 @@ def task_to_rescuer(task):
 
 
 """ PAYLOAD CREATION """
-
-
-""" PAYLOAD PROCESSING """
-
-
-def location_from_user(payload):
-    braceletUid = payload[:8]
-    code = payload[9:13]
-    data = payload[14:]

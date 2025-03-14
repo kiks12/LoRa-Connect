@@ -170,9 +170,10 @@ class LoRaModule(LoRa):
             self.send_message(instruction_to_user(instruction=instruction))
             sleep(0.5)
 
-    def task_to_rescuer(self, task):
+    def task_to_rescuer(self, tasks):
         print(TASK_TO_RESCUER_PY)
-        self.send_message(task_to_rescuer(task))
+        for task in tasks:
+            self.send_message(task_to_rescuer(task))
 
     """ LORA TRANSMISSION METHODS """
 
