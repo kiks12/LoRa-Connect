@@ -74,7 +74,7 @@ class LoRaModule(LoRa):
 
     def send_to_websocket(self, code, data):
         """ Sends a message to the Socket.IO server """
-        message = {"code": code, "data": data}
+        message = {"data": data}
         sio.emit("SEND_TO_FRONTEND", message)
         print(f"📤 Sent via Socket.IO: {message}")
 
@@ -84,6 +84,22 @@ class LoRaModule(LoRa):
         data = bytes(payload).decode("utf-8", "ignore")
 
         print(f"Received Data: {data}")
+        uid, code = self.get_uid_code_from_payload(data)
+        match code:
+            case "1010":
+                self.location_from_user(data)
+            case "1020":
+                self.sos_from_user(data)
+            case "1070":
+                self.location_from_rescuer(data)
+            case "1030":
+                self.sos_from_rescuer(data)
+            case "1040":
+                self.task_acknowledgement_from_rescuer(data)
+            case "1050":
+                self.task_status_update_from_rescuer(data)
+            case _:
+                print("default")
         loop = asyncio.get_event_loop()
         if loop.is_running():
             asyncio.run_coroutine_threadsafe(
@@ -162,4 +178,31 @@ class LoRaModule(LoRa):
 
     """ LORA RECEIVING METHODS """
 
+    def location_from_user(self, data):
+        self.send_to_websocket(LOCATION_FROM_USER_PY, data)
+
+    def sos_from_user(self, data):
+        self.send_to_websocket(SOS_FROM_USER_PY, data)
+
+    def location_from_rescuer(self, data):
+        self.send_to_websocket(LOCATION_FROM_RESCUER_PY, data)
+
+    def sos_from_rescuer(self, data):
+        self.send_to_websocket(SOS_FROM_RESCUER_PY, data)
+
+    def task_acknowledgement_from_rescuer(self, data):
+        self.send_to_websocket(TASK_ACKNOWLEDGEMENT_FROM_RESCUER_PY, data)
+
+    def task_status_update_from_rescuer(self, data):
+        self.send_to_websocket(TASK_STATUS_UPDATE_FROM_RESCUER_PY, data)
+
     """ LORA RECEIVING METHODS """
+
+    """ UTILITY FUNCTIONS """
+
+    def get_uid_code_from_payload(self, payload):
+        uid = payload[0:8]
+        code = payload[8:12]
+
+        return [uid, code]
+    """ UTILITY FUNCTIONS """
