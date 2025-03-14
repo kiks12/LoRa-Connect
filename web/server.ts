@@ -66,33 +66,6 @@ app.prepare().then(async () => {
     })
   });
 
-  /* 
-  TRIAL FOR SENDING OWNER DATA TO CLIENT
-  Uncomment when testing sockets
-  */
-  // setInterval(async () => {
-  //   console.log("SEND OWNER LOCATION", flag)
-  //   if (flag) {
-  //     io.emit(SEND_RECEIVED_LOCATION_TO_CLIENT, {braceletId: "X1238MN12", latitude: 15.157256485336857, longitude: 120.59060402998092, rescuer: false}) // get data from lora
-  //   } else {
-  //     io.emit(SEND_RECEIVED_LOCATION_TO_CLIENT, {braceletId: "X1238MN12", latitude: 15.158802428794475, longitude: 120.59299334981209, rescuer: false}) // get data from lora
-  //   }
-  // }, 3000)
-
-  /*
-  TRIAL FOR SENDING RESCUER DATA TO CLIENT
-  Uncomment when testing sockets
-  */
-  // setInterval(async () => {
-  //   console.log("SEND RESCUER LOCATION", flag)
-  //   if (flag) {
-  //     io.emit(SEND_RECEIVED_LOCATION_TO_CLIENT, {braceletId: "12123ANEHMAS", latitude: 15.158802428794475, longitude: 120.59299334981209, rescuer: true}) // get data from lora
-  //   } else {
-  //     io.emit(SEND_RECEIVED_LOCATION_TO_CLIENT, {braceletId: "12123ANEHMAS", latitude: 15.157256485336857, longitude: 120.59060402998092, rescuer: true}) // get data from lora
-  //   }
-  //   flag = !flag
-  // }, 3000)
-
   httpServer
     .once("error", (err) => {
       console.error(err);

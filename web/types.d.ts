@@ -132,6 +132,7 @@ export type MissionWithCost = {
   user: UserWithStatusIdentifier;
   teamId: number;
   team: TeamWithStatusIdentifier;
+  urgency: number,
   coordinates: number[][] | undefined;
   distance: number | undefined;
   time: number | undefined;

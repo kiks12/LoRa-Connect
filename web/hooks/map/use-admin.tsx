@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MissionWithCost } from "@/types";
+import { LocationDataFromPy, MissionWithCost } from "@/types";
 import { useMapContext } from "@/contexts/MapContext";
 import { useUsers } from "./use-users";
 import { useRescuers } from "./use-rescuers";
@@ -10,14 +10,13 @@ import { Bracelets } from "@prisma/client";
 import { COLOR_MAP, createRouteLayerGeoJSON, createRouteSource } from "@/utils/map";
 import maplibregl from "maplibre-gl";
 import { socket } from "@/socket/socket";
-import { TASK_TO_RESCUER } from "@/lora/lora-tags";
+import { LOCATION_FROM_RESCUER, LOCATION_FROM_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora/lora-tags";
 import { calculateTeamAssignmentCosts, runHungarianAlgorithm } from "@/app/algorithm";
 
 export const useAdmin = () => {
-	// const { users, setUsers, teams, rescuers, setRescuers, obstacles } = useAppContext();
 	const { mapRef, clearSourcesAndLayers } = useMapContext();
 	const { users } = useUsers();
-	const { teams } = useRescuers();
+	const { teams, rescuers } = useRescuers();
 	const { obstacles } = useObstacles();
 
 	const [monitorLocations, setMonitorLocations] = useState(false);
@@ -25,7 +24,6 @@ export const useAdmin = () => {
 	const [taskAllocationMessage, setTaskAllocationMessage] = useState("Run Task Allocation");
 	const [missions, setMissions] = useState<MissionWithCost[]>([]);
 	const [markers, setMarkers] = useState<maplibregl.Marker[]>([]);
-
 	function toggleAutomaticTaskAllocation() {
 		setAutomaticTaskAllocation(!automaticTaskAllocation);
 	}
@@ -60,43 +58,45 @@ export const useAdmin = () => {
 	// 	}
 	// }
 
-	// function sendTransmitLocationSignalToBracelets() {
-	// 	// Send the signal to monitor locations
-	// 	socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU);
+	function sendTransmitLocationSignalToBracelets() {
+		// Send the signal to monitor locations
+		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU);
 
-	// 	// Receive user location signal from py
-	// 	socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
-	// 		const { braceletId, latitude, longitude } = data;
-	// 		const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
-	// 		if (correctOwner.length === 0) return;
-	// 		// addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
-	// 		await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
-	// 	});
+		// Receive user location signal from py
+		socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
+			const { braceletId } = data;
+			const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
+			console.log(correctOwner);
+			if (correctOwner.length === 0) return;
+			// addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
+			// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
+		});
 
-	// 	// Receive rescuer location signal from py
-	// 	socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
-	// 		const { braceletId, latitude, longitude } = data;
-	// 		const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
-	// 		if (correctOwner.length === 0) return;
-	// 		// addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier) }, false, true);
-	// 		await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
-	// 	});
-	// }
+		// Receive rescuer location signal from py
+		socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
+			const { braceletId } = data;
+			const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
+			console.log(correctOwner);
+			if (correctOwner.length === 0) return;
+			// addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier) }, false, true);
+			// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
+		});
+	}
 
-	// // Location Monitoring Code block - as long as monitorLocation is true this triggers
-	// useEffect(() => {
-	// 	if (!monitorLocations) {
-	// 		socket.off(LOCATION_FROM_USER);
-	// 		socket.off(LOCATION_FROM_RESCUER);
-	// 		return;
-	// 	}
-	// 	sendTransmitLocationSignalToBracelets();
-	// 	return () => {
-	// 		socket.off(LOCATION_FROM_USER);
-	// 		socket.off(LOCATION_FROM_RESCUER);
-	// 	};
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, [monitorLocations]);
+	// Location Monitoring Code block - as long as monitorLocation is true this triggers
+	useEffect(() => {
+		if (!monitorLocations) {
+			socket.off(LOCATION_FROM_USER);
+			socket.off(LOCATION_FROM_RESCUER);
+			return;
+		}
+		sendTransmitLocationSignalToBracelets();
+		return () => {
+			socket.off(LOCATION_FROM_USER);
+			socket.off(LOCATION_FROM_RESCUER);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [monitorLocations]);
 
 	// function toggleMonitorLocations() {
 	// 	setMonitorLocations(!monitorLocations);

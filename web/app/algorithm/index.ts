@@ -109,6 +109,7 @@ export function runHungarianAlgorithm(
 				user,
 				teamId: team.teamId,
 				team,
+				urgency: user.bracelet?.urgency,
 				coordinates: costEntry?.coordinates,
 				distance: costEntry?.distance,
 				time: costEntry?.time,

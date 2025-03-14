@@ -26,11 +26,16 @@ export default function AdminControls() {
 					</Label>
 					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={toggleMonitorLocations} />
 				</div>
-				<div className="flex justify-between items-center my-2 border rounded-md p-3">
-					<Label className="ml-3" htmlFor="automaticTaskAllocation">
-						Automatic Task Allocation
-					</Label>
-					<Switch checked={automaticTaskAllocation} id="automaticTaskAllocation" onCheckedChange={toggleAutomaticTaskAllocation} />
+				<div className="my-2 border rounded-md p-3">
+					<div className="flex justify-between items-center">
+						<Label className="ml-3" htmlFor="automaticTaskAllocation">
+							Automatic Task Allocation
+						</Label>
+						<Switch checked={automaticTaskAllocation} id="automaticTaskAllocation" onCheckedChange={toggleAutomaticTaskAllocation} />
+					</div>
+					<div>
+						<Label className="ml-3 text-xs font-light text-neutral-500 font-italic">This will run and send the task automatically</Label>
+					</div>
 				</div>
 				<div>
 					<Button className="w-full" onClick={runTaskAllocation}>
@@ -56,13 +61,33 @@ export default function AdminControls() {
 					</>
 				) : (
 					<>
-						{missions.map((mission, index) => {
-							return (
-								<div key={index} className="mt-2">
-									<MissionItem mission={mission} />
-								</div>
-							);
-						})}
+						{missions
+							.filter((mission) => mission.urgency === 1)
+							.map((mission, index) => {
+								return (
+									<div key={index} className="mt-2">
+										<MissionItem mission={mission} />
+									</div>
+								);
+							})}
+						{missions
+							.filter((mission) => mission.urgency === 0.5)
+							.map((mission, index) => {
+								return (
+									<div key={index} className="mt-2">
+										<MissionItem mission={mission} />
+									</div>
+								);
+							})}
+						{missions
+							.filter((mission) => mission.urgency === 0.2)
+							.map((mission, index) => {
+								return (
+									<div key={index} className="mt-2">
+										<MissionItem mission={mission} />
+									</div>
+								);
+							})}
 					</>
 				)}
 			</div>
