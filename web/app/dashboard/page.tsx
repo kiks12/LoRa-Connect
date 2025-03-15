@@ -2,7 +2,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Ban, ChevronLeft, Download, Hospital, RefreshCcw } from "lucide-react";
+import { Ban, ChevronLeft, Hospital, Printer, RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import useDashboard from "@/hooks/use-dashboard";
 import { Chart as ChartJs, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from "chart.js";
@@ -37,7 +37,7 @@ export default function DashboardPage() {
 			<div className="max-w-7xl mx-auto pt-10">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center">
-						<div className="mr-4">
+						<div className="mr-4 no-print">
 							<Link href="/">
 								<Button variant="outline" size="icon">
 									<ChevronLeft />
@@ -49,14 +49,14 @@ export default function DashboardPage() {
 							<Label>{new Date().toDateString()}</Label>
 						</div>
 					</div>
-					<div className="flex">
+					<div className="flex no-print">
 						<Button variant="outline" onClick={refreshDashboard}>
 							<RefreshCcw />
 							Refresh
 						</Button>
-						<Button variant="default" className="ml-2" onClick={() => {}}>
-							<Download />
-							Export to PDF
+						<Button variant="default" className="ml-2" onClick={() => window.print()}>
+							<Printer />
+							Print
 						</Button>
 					</div>
 				</div>

@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: ReactNode }) {
 
 const Header = () => {
 	return (
-		<header className="flex h-20 w-screen border-b">
+		<header className="flex h-20 w-screen border-b no-print">
 			<Container className="flex justify-between items-center">
 				<div>
 					<h1 className="text-lg font-semibold">LoRa Connect</h1>

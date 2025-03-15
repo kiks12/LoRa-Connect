@@ -12,7 +12,7 @@ import { operationsSchema } from "@/schema/operations";
 import { updateOperation } from "@/server/actions/operations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EvacuationCenters, OperationStatus, Users, Rescuers, RescueUrgency, VictimStatusReport } from "@prisma/client";
-import { Check } from "lucide-react";
+import { Check, Printer } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -250,7 +250,7 @@ export default function OperationsForm({
 					<div className="mt-8">
 						<div className="flex justify-between items-center">
 							<h2 className="text-xl font-medium">Victim Status Report</h2>
-							<Button variant="secondary" type="button" onClick={addVictimStatusReport}>
+							<Button variant="secondary" className="no-print" type="button" onClick={addVictimStatusReport}>
 								Add Victim Status
 							</Button>
 						</div>
@@ -261,7 +261,7 @@ export default function OperationsForm({
 									<Spinner />
 								</div>
 							)}
-							{victimStatusReports.length > 0 ? (
+							{victimStatusReports && victimStatusReports.length > 0 ? (
 								victimStatusReports.map((victimStatusReport: VictimStatusReport, index) => {
 									return (
 										<VictimStatusReportInputs
@@ -494,7 +494,11 @@ export default function OperationsForm({
 							)}
 						/>
 					</div>
-					<div className="flex justify-end mt-8">
+					<div className="flex justify-end mt-8 no-print">
+						<Button type="button" variant="secondary" className="mr-2" onClick={() => window.print()}>
+							<Printer />
+							Print
+						</Button>
 						<Button type="submit">Submit</Button>
 					</div>
 				</form>

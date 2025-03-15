@@ -8,7 +8,7 @@ export const ContainerWithTitleAndBackButton = ({ title, children, previousLink 
 	return (
 		<main className="flex flex-col">
 			<Container>
-				<div className="flex items-center">
+				<div className="flex items-center no-print">
 					<Link href={previousLink}>
 						<Button variant="outline" className="rounded-full">
 							<ArrowLeft />
