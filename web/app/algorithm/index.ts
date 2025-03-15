@@ -1,5 +1,6 @@
 import { GraphHopperAPIResult, MissionWithCost, ObstacleWithStatusIdentifier, TeamAssignmentCost, TeamWithStatusIdentifier, UserWithStatusIdentifier } from "@/types";
 import { createCustomModelObject, LatLng } from "@/utils/routing";
+import { OperationStatus } from "@prisma/client";
 import { minWeightAssign } from "munkres-algorithm";
 
 export async function calculateTeamAssignmentCosts(
@@ -99,17 +100,27 @@ export function runHungarianAlgorithm(
 		.map((teamIndex, userIndex) => {
 			if (teamIndex === null) return null;
 
+			const date = new Date()
 			const user = unassignedUsers[userIndex];
 			const team = teams[teamIndex];
 
 			const costEntry = costs.find((c) => c.userId === user.userId && c.teamId === team.teamId);
 
 			return {
+				missionId: `${user.userId}${team.teamId}${date.getMonth()}${date.getDate()}${date.getFullYear()}`,
+
+				userLat: user.bracelet?.latitude,
+				userLong: user.bracelet?.longitude,
 				userId: user.userId,
 				user,
+				userBraceletId: user.bracelet?.braceletId,
+				urgency: user.bracelet?.urgency,
+				status: OperationStatus.ASSIGNED.toString(),
+
 				teamId: team.teamId,
 				team,
-				urgency: user.bracelet?.urgency,
+				teamBraceletId: team.rescuers.find((rescuer) =>rescuer.bracelet)?.bracelet?.braceletId,
+
 				coordinates: costEntry?.coordinates,
 				distance: costEntry?.distance,
 				time: costEntry?.time,

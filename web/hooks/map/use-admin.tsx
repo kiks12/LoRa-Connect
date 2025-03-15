@@ -6,15 +6,18 @@ import { useMapContext } from "@/contexts/MapContext";
 import { useUsers } from "./use-users";
 import { useRescuers } from "./use-rescuers";
 import { useObstacles } from "./use-obstacles";
-import { Bracelets } from "@prisma/client";
+import { Bracelets, OperationStatus } from "@prisma/client";
 import { COLOR_MAP, createRouteLayerGeoJSON, createRouteSource } from "@/utils/map";
 import maplibregl from "maplibre-gl";
 import { socket } from "@/socket/socket";
 import { LOCATION_FROM_RESCUER, LOCATION_FROM_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora/lora-tags";
 import { calculateTeamAssignmentCosts, runHungarianAlgorithm } from "@/app/algorithm";
+import { NUMBER_TO_URGENCY } from "@/utils/urgency";
+import { useAppContext } from "@/contexts/AppContext";
 
 export const useAdmin = () => {
 	const { mapRef, clearSourcesAndLayers } = useMapContext();
+	const { missions, setMissions } = useAppContext();
 	const { users } = useUsers();
 	const { teams, rescuers } = useRescuers();
 	const { obstacles } = useObstacles();
@@ -22,7 +25,6 @@ export const useAdmin = () => {
 	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [automaticTaskAllocation, setAutomaticTaskAllocation] = useState(false);
 	const [taskAllocationMessage, setTaskAllocationMessage] = useState("Run Task Allocation");
-	const [missions, setMissions] = useState<MissionWithCost[]>([]);
 	const [markers, setMarkers] = useState<maplibregl.Marker[]>([]);
 
 	function toggleAutomaticTaskAllocation() {
@@ -102,6 +104,35 @@ export const useAdmin = () => {
 	// function toggleMonitorLocations() {
 	// 	setMonitorLocations(!monitorLocations);
 	// }
+
+	async function saveTasksAsMissionsToDatabase() {
+		const tasks = missions.map(async (mission) => {
+			const res = await fetch("/api/operations/new", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					missionId: mission.missionId,
+					distance: mission.distance,
+					eta: mission.time,
+
+					userId: mission.user.userId,
+					userBraceletId: mission.userBraceletId,
+					status: OperationStatus.ASSIGNED,
+					urgency: NUMBER_TO_URGENCY[mission.urgency],
+					numberOfRescuee: mission.user.numberOfMembersInFamily,
+
+					teamId: mission.teamId,
+					teamBraceletId: mission.teamBraceletId,
+				}),
+			});
+
+			return await res.json();
+		});
+
+		return await Promise.all(tasks);
+	}
 
 	function sendTasksViaLoRa() {
 		socket.emit(TASK_TO_RESCUER, missions);
@@ -229,6 +260,7 @@ export const useAdmin = () => {
 		taskAllocationMessage,
 		missions,
 		sendTasksViaLoRa,
+		saveTasksAsMissionsToDatabase,
 		monitorLocations,
 		toggleMonitorLocations,
 		clearRoutes,

@@ -15,7 +15,7 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 		header: ({ column }) => {
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-					Mission ID
+					ID
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
 			);
@@ -29,6 +29,14 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 					Date Time
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
+			);
+		},
+		cell: ({ row }) => {
+			const date = new Date(row.original.dateTime);
+			return (
+				<p>
+					{date.toDateString()} {date.toLocaleTimeString()}
+				</p>
 			);
 		},
 	},
@@ -59,38 +67,33 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 		header: "No. of victims",
 	},
 	{
+		header: "Distance",
+		cell: ({ row }) => {
+			return <p>{(row.original.distance / 1000).toFixed(2)} km</p>;
+		},
+	},
+	{
+		header: "ETA",
+		cell: ({ row }) => {
+			return <p>{(row.original.eta / 1000).toFixed(2)} s</p>;
+		},
+	},
+	{
 		header: "User",
 		cell: ({ row }) => {
 			return <p>{row.original.user.name}</p>;
 		},
 	},
 	{
-		header: "Rescuer",
+		header: "Team",
 		cell: ({ row }) => {
-			return <p>{row.original.rescuer.name}</p>;
-		},
-	},
-	{
-		header: "Evacuation ID",
-		cell: ({ row }) => {
-			return <p>{row.original.evacuationCenter.name}</p>;
+			return <p>{row.original.Teams?.name}</p>;
 		},
 	},
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			const {
-				missionId,
-				user,
-				usersUserId,
-				evacuationCenter,
-				evacuationCentersEvacuationId,
-				numberOfRescuee,
-				rescuer,
-				rescuersRescuerId,
-				status,
-				urgency,
-			} = row.original;
+			const { missionId, user, usersUserId, numberOfRescuee, status, urgency } = row.original;
 
 			return (
 				<DropdownMenu>
@@ -105,7 +108,7 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<Link
-								href={`/missions/update?operationId=${missionId}&userId=${usersUserId}&userName=${user.name}&rescuerId=${rescuersRescuerId}&rescuerName=${rescuer.name}&evacuationCenterId=${evacuationCentersEvacuationId}&evacuationCenterName=${evacuationCenter.name}&numberOfRescuee=${numberOfRescuee}&operationStatus=${status}&urgency=${urgency}`}
+								href={`/missions/update?operationId=${missionId}&userId=${usersUserId}&userName=${user.name}&numberOfRescuee=${numberOfRescuee}&operationStatus=${status}&urgency=${urgency}`}
 							>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>

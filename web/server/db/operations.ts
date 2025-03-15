@@ -1,18 +1,43 @@
 import { client } from "@/prisma/client"
 import { OPERATIONS_TAG } from "@/utils/tags"
-import { Operations } from "@prisma/client"
+import { Operations, OperationStatus } from "@prisma/client"
 import { unstable_cache } from "next/cache"
 
 export async function getLatestOperations() {
   return await client.operations.findMany({
     include: {
-      evacuationCenter: true,
       user: true,
-      rescuer: true,
+      Teams: true,
       VictimStatusReport: true,
       _count: true
     }
   }) 
+}
+
+export async function getPendingOperationsToday() {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return await client.operations.findMany({
+    where: {
+      AND: [
+        { dateTime: { gte: startOfDay, lte: endOfDay } },
+        { OR: [
+          { status: OperationStatus.ASSIGNED },
+          { status: OperationStatus.PENDING }
+        ]}
+      ]
+    },
+    include: {
+      user: true,
+      Teams: true,
+      _count: true,
+      VictimStatusReport: true,
+    }
+  })
 }
 
 export async function getOperationsFromLastDays(days: number) : Promise<{date: string, count: number}[]> {
@@ -71,9 +96,8 @@ export async function getOperationsFromLastDays(days: number) : Promise<{date: s
 export const getOperationsCached = unstable_cache(async () => {
   return await client.operations.findMany({
     include: {
-      evacuationCenter: true,
       user: true,
-      rescuer: true,
+      Teams: true,
       VictimStatusReport: true,
       _count: true
     }
@@ -83,14 +107,20 @@ export const getOperationsCached = unstable_cache(async () => {
 export async function createOperation({operation}: {operation: Operations}) {
   return await client.operations.create({
     data: {
-      rescuersRescuerId: operation.rescuersRescuerId,
+      missionId: operation.missionId,
+
+      dateTime: operation.dateTime,
+      distance: operation.distance,
+      eta: operation.eta,    
+
       usersUserId: operation.usersUserId,
-      evacuationCentersEvacuationId: operation.evacuationCentersEvacuationId,
+      userBraceletId: operation.userBraceletId,
       numberOfRescuee: operation.numberOfRescuee,
       status: operation.status,
       urgency: operation.urgency,
-      createAt: operation.createAt,
-      dateTime: operation.dateTime
+
+      teamsTeamId: operation.teamsTeamId,
+      teamBraceletId: operation.teamBraceletId,
     } 
   })
 }
@@ -102,17 +132,22 @@ export async function updateOperation({operation}: {operation: Operations}) {
     },
     data: {
       dateTime: operation.dateTime,
-      evacuationCentersEvacuationId: operation.evacuationCentersEvacuationId,
-      numberOfRescuee: operation.numberOfRescuee,
+      distance: operation.distance,
+      eta: operation.eta,    
+
       usersUserId: operation.usersUserId,
+      userBraceletId: operation.userBraceletId,
+      numberOfRescuee: operation.numberOfRescuee,
       status: operation.status,
       urgency: operation.urgency,
-      rescuersRescuerId: operation.rescuersRescuerId,
+
+      teamsTeamId: operation.teamsTeamId,
+      teamBraceletId: operation.teamBraceletId,
     } 
   })
 }
 
-export async function deleteOperation({operationId}: {operationId: number}) {
+export async function deleteOperation({operationId}: {operationId: string}) {
   return await client.operations.delete({
     where: {
       missionId: operationId

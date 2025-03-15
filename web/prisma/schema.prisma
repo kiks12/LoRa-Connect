@@ -23,50 +23,53 @@ model Bracelets {
 }
 
 model Rescuers {
-  rescuerId   Int          @id @default(autoincrement())
-  createdAt   DateTime     @default(now())
+  rescuerId   Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
   name        String
   bracelet    Bracelets?
-  Operations  Operations[]
-  Teams       Teams?       @relation(fields: [teamsTeamId], references: [teamId])
+  Teams       Teams?     @relation(fields: [teamsTeamId], references: [teamId])
   teamsTeamId Int?
 }
 
 model Teams {
-  teamId    Int        @id @default(autoincrement())
-  createdAt DateTime   @default(now())
+  teamId    Int          @id @default(autoincrement())
+  createdAt DateTime     @default(now())
   name      String?
   rescuers  Rescuers[]
+  operation Operations[]
 }
 
 model EvacuationCenters {
-  evacuationId Int          @id @default(autoincrement())
+  evacuationId Int      @id @default(autoincrement())
   name         String
   latitude     Float
   longitude    Float
   capacity     Int
-  createdAt    DateTime     @default(now())
-  Operations   Operations[]
+  createdAt    DateTime @default(now())
 }
 
 model Operations {
-  missionId                     Int                  @id @default(autoincrement())
-  dateTime                      DateTime             @default(now())
-  usersUserId                   Int
-  user                          Users                @relation(fields: [usersUserId], references: [userId])
-  userBraceletId                String
-  rescuersRescuerId             Int
-  rescuer                       Rescuers             @relation(fields: [rescuersRescuerId], references: [rescuerId])
-  rescuerBraceletId             String
-  status                        OperationStatus
-  urgency                       RescueUrgency
-  numberOfRescuee               Int
-  VictimStatusReport            VictimStatusReport[]
-  EvacuationCenters             EvacuationCenters?   @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
-  evacuationCentersEvacuationId Int?
+  missionId String   @unique()
+  createAt  DateTime @default(now())
+  dateTime  DateTime @default(now())
+  distance  Float
+  eta       Float
+  finalTime Float?
+
+  usersUserId     Int
+  user            Users           @relation(fields: [usersUserId], references: [userId])
+  userBraceletId  String
+  status          OperationStatus
+  urgency         RescueUrgency
+  numberOfRescuee Int
+
+  teamsTeamId    Int?
+  Teams          Teams? @relation(fields: [teamsTeamId], references: [teamId])
+  teamBraceletId String
+
+  VictimStatusReport VictimStatusReport[]
 
   @@index([usersUserId], map: "Operations_ownersOwnerId_fkey")
-  @@index([rescuersRescuerId], map: "Operations_rescuersRescuerId_fkey")
 }
 
 model VictimStatusReport {
@@ -75,7 +78,7 @@ model VictimStatusReport {
   age                  Int
   status               VictimStatus
   notes                String
-  operationsMissionId  Int
+  operationsMissionId  String
   operation            Operations   @relation(fields: [operationsMissionId], references: [missionId], onDelete: Cascade)
 
   @@index([operationsMissionId], map: "VictimStatusReport_operationsMissionId_fkey")

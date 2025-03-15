@@ -10,12 +10,19 @@ import { NextResponse } from "next/server"
 
 SAMPLE BODY
 {
-  rescuerId: number,
-  ownerId: number, 
+  missionId: string,
+  distance: number,
+  eta: number,
+
+  userId: number, 
+  userBraceletId: string,
   status: OperationStatus,
   urgency: RescueUrgency,
   numberOfRescuee: number, 
-  evacuationCenterId: number,
+
+  teamId: number,
+  teamBraceletId: string,
+
   victimStatusReport: VictimStatusReport[] [
     {
       name: string,
@@ -29,19 +36,38 @@ SAMPLE BODY
 */
 export async function POST(req: Request) {
   try {
-    const { rescuerId, ownerId, status, urgency, numberOfRescuee, evacuationCenterId, victimStatusReport } = await req.json()
+    const { 
+      missionId,
+      distance, 
+      eta, 
+
+      userId, 
+      userBraceletId,  
+      status, 
+      urgency, 
+      numberOfRescuee, 
+
+      teamId, 
+      teamBraceletId, 
+
+      victimStatusReport
+    } = await req.json()
 
     const createdOperation = await createOperation({
       operation: {
+        missionId: missionId,
         createAt: new Date(),
         dateTime: new Date(),
-        rescuersRescuerId: rescuerId,
-        usersUserId: ownerId,
-        evacuationCentersEvacuationId: evacuationCenterId,
+        distance: distance,
+        eta: eta,
+        finalTime: null,
+        teamsTeamId: teamId,
+        teamBraceletId: teamBraceletId,
+        usersUserId: userId,
+        userBraceletId: userBraceletId,
         numberOfRescuee: numberOfRescuee,
         status: status,
         urgency: urgency,
-        missionId: 0
       }
     })
 

@@ -9,7 +9,7 @@ export async function getVictimStatusReport({victimStatusReportId}: {victimStatu
   })
 }
 
-export async function getVictimStatusReports({operationId}: {operationId: number}) {
+export async function getVictimStatusReports({operationId}: {operationId: string}) {
   return await client.victimStatusReport.findMany({
     where: {
       operationsMissionId: operationId
@@ -18,7 +18,7 @@ export async function getVictimStatusReports({operationId}: {operationId: number
 }
 
 export async function createMultipleVictimStatusReports({victimStatusReports, operationId}: {
-  operationId: number,
+  operationId: string,
   victimStatusReports: VictimStatusReport[]
 }) {
   const mappedData = victimStatusReports.map((victimStatusReport) => ({...victimStatusReport, operationsMissionId: operationId}))

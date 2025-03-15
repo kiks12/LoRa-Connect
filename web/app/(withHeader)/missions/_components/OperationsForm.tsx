@@ -30,8 +30,6 @@ export default function OperationsForm({
 	operationId,
 	userName,
 	userId,
-	rescuerId,
-	rescuerName,
 	numberOfRescuee,
 	evacuationCenterName,
 	evacuationCenterId,
@@ -39,7 +37,7 @@ export default function OperationsForm({
 	urgency,
 	type = "UPDATE",
 }: {
-	operationId?: number;
+	operationId?: string;
 	type?: FormType;
 	userName?: string;
 	userId?: number;
@@ -60,8 +58,6 @@ export default function OperationsForm({
 			numberOfRescuee: numberOfRescuee ?? 0,
 			userId: userId ?? 0,
 			userName: userName ?? "",
-			rescuerId: rescuerId ?? 0,
-			rescuerName: rescuerName ?? "",
 			status: status ?? "",
 			urgency: urgency ?? "",
 		},
@@ -130,13 +126,11 @@ export default function OperationsForm({
 	async function onUpdateSubmit(values: z.infer<typeof operationsSchema>) {
 		if (typeof operationId === "undefined") return;
 		const result = await updateOperation({
-			createAt: new Date(),
 			dateTime: new Date(),
-			evacuationCentersEvacuationId: values.evacuationCenterId,
 			missionId: operationId,
 			numberOfRescuee: values.numberOfRescuee,
 			usersUserId: values.userId,
-			rescuersRescuerId: values.rescuerId,
+			teamsTeamId: values.rescuerId,
 			status: values.status as OperationStatus,
 			urgency: values.urgency as RescueUrgency,
 		});

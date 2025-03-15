@@ -1,6 +1,12 @@
 "use client";
 
-import { ObstacleWithStatusIdentifier, RescuerWithStatusIdentifier, TeamWithStatusIdentifier, UserWithStatusIdentifier } from "@/types";
+import {
+	MissionWithCost,
+	ObstacleWithStatusIdentifier,
+	RescuerWithStatusIdentifier,
+	TeamWithStatusIdentifier,
+	UserWithStatusIdentifier,
+} from "@/types";
 import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
 
 const AppContext = createContext<{
@@ -12,6 +18,8 @@ const AppContext = createContext<{
 	setTeams: Dispatch<SetStateAction<TeamWithStatusIdentifier[]>>;
 	obstacles: ObstacleWithStatusIdentifier[];
 	setObstacles: Dispatch<SetStateAction<ObstacleWithStatusIdentifier[]>>;
+	missions: MissionWithCost[];
+	setMissions: Dispatch<SetStateAction<MissionWithCost[]>>;
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
@@ -19,6 +27,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const [rescuers, setRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
 	const [teams, setTeams] = useState<TeamWithStatusIdentifier[]>([]);
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
+	const [missions, setMissions] = useState<MissionWithCost[]>([]);
 
 	return (
 		<AppContext.Provider
@@ -31,6 +40,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 				setTeams,
 				obstacles,
 				setObstacles,
+				missions,
+				setMissions,
 			}}
 		>
 			{children}

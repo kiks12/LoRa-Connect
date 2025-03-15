@@ -12,9 +12,10 @@ export default function AdminControls() {
 		toggleAutomaticTaskAllocation,
 		runTaskAllocation,
 		missions,
-		sendTasksViaLoRa,
 		taskAllocationMessage,
 		clearRoutes,
+		sendTasksViaLoRa,
+		saveTasksAsMissionsToDatabase,
 	} = useAdmin();
 
 	return (
@@ -43,6 +44,9 @@ export default function AdminControls() {
 					</Button>
 					<Button className="w-full mt-2" variant="secondary" onClick={sendTasksViaLoRa}>
 						Send Task via LoRa
+					</Button>
+					<Button className="w-full mt-2" variant="secondary" onClick={saveTasksAsMissionsToDatabase}>
+						Save to Database
 					</Button>
 				</div>
 			</div>
