@@ -85,27 +85,31 @@ class LoRaModule(LoRa):
 
         print(f"Received Data: {data}")
         uid, code = self.get_uid_code_from_payload(data)
-        match code:
-            case "1010":
-                self.location_from_user(data)
-            case "1020":
-                self.sos_from_user(data)
-            case "1070":
-                self.location_from_rescuer(data)
-            case "1030":
-                self.sos_from_rescuer(data)
-            case "1040":
-                self.task_acknowledgement_from_rescuer(data)
-            case "1050":
-                self.task_status_update_from_rescuer(data)
-            case _:
-                print("default")
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            asyncio.run_coroutine_threadsafe(
-                self.send_to_websocket("LORA_MESSAGE", {"data": data}), loop)
-        else:
-            asyncio.run(self.send_to_websocket("LORA_MESSAGE", {"data": data}))
+        if uid == TO_ALL or uid == TO_CENTRAL_NODE or uid == TO_RESCUERS_AND_CENTRAL_NODE:
+            match code:
+                case "1010":
+                    asyncio.run(self.location_from_user(data))
+                case "1020":
+                    asyncio.run(self.sos_from_user(data))
+                case "1070":
+                    asyncio.run(self.location_from_rescuer(data))
+                case "1030":
+                    asyncio.run(self.sos_from_rescuer(data))
+                case "1040":
+                    asyncio.run(self.task_acknowledgement_from_rescuer(data))
+                case "1050":
+                    asyncio.run(self.task_status_update_from_rescuer(data))
+                case _:
+                    print("default")
+                    """
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.run_coroutine_threadsafe(
+                    self.send_to_websocket("LORA_MESSAGE", {"data": data}), loop)
+            else:
+                asyncio.run(self.send_to_websocket(
+                    "LORA_MESSAGE", {"data": data}))
+                    """
 
         self.set_mode(MODE.SLEEP)
         self.reset_ptr_rx()
