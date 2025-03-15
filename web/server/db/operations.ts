@@ -16,51 +16,56 @@ export async function getLatestOperations() {
 }
 
 export async function getOperationsFromLastDays(days: number) : Promise<{date: string, count: number}[]> {
-  const lastDay = Date.now() - days * 24 * 60 * 60 * 1000; // Calculate the date range
-  const startDate = new Date(lastDay);
-  const endDate = new Date();
-  // Convert startDate to ISO format
-  const isoStartDate = startDate.toISOString();
+  try {
+    const lastDay = Date.now() - days * 24 * 60 * 60 * 1000; // Calculate the date range
+    const startDate = new Date(lastDay);
+    const endDate = new Date();
+    // Convert startDate to ISO format
+    const isoStartDate = startDate.toISOString();
 
-  // Fetch grouped operations from the database
-  const results = await client.$queryRaw<
-    { date: string; count: bigint }[]
-  >`
-    SELECT
-      DATE(createAt) AS date, -- Extract the date part only
-      COUNT(*) AS count
-    FROM
-      operations
-    WHERE
-      createAt >= ${isoStartDate} -- Filter records within the date range
-    GROUP BY
-      DATE(createAt) -- Group by the extracted date
-    ORDER BY
-      DATE(createAt) ASC; -- Sort by the extracted date
-  `;
+    // Fetch grouped operations from the database
+    const results = await client.$queryRaw<
+      { date: string; count: bigint }[]
+    >`
+      SELECT
+        DATE(createAt) AS date, -- Extract the date part only
+        COUNT(*) AS count
+      FROM
+        operations
+      WHERE
+        createAt >= ${isoStartDate} -- Filter records within the date range
+      GROUP BY
+        DATE(createAt) -- Group by the extracted date
+      ORDER BY
+        DATE(createAt) ASC; -- Sort by the extracted date
+    `;
 
-  // Convert database result to a Map for easy lookup
-  const resultMap = new Map(
-    results.map((result) => [new Date(result.date).toISOString().split("T")[0], Number(result.count)]) // Convert BigInt to Number
-  );
+    // Convert database result to a Map for easy lookup
+    const resultMap = new Map(
+      results.map((result) => [new Date(result.date).toISOString().split("T")[0], Number(result.count)]) // Convert BigInt to Number
+    );
 
-  // Generate a complete range of dates
-  const completeDateRange = [];
-  for (
-    let current = new Date(startDate);
-    current <= endDate;
-    current.setDate(current.getDate() + 1)
-  ) {
-    completeDateRange.push(new Date(current).toISOString().split("T")[0]); // Extract only the date part
+    // Generate a complete range of dates
+    const completeDateRange = [];
+    for (
+      let current = new Date(startDate);
+      current <= endDate;
+      current.setDate(current.getDate() + 1)
+    ) {
+      completeDateRange.push(new Date(current).toISOString().split("T")[0]); // Extract only the date part
+    }
+
+    // Merge the results with the complete date range, filling missing dates with count: 0
+    const filledResults = completeDateRange.map((date) => ({
+      date,
+      count: resultMap.get(date) || 0, // Use 0 if the date is missing in the results
+    }));
+
+    return filledResults;
+  } catch (error) {
+    console.error(error) 
+    return []
   }
-
-  // Merge the results with the complete date range, filling missing dates with count: 0
-  const filledResults = completeDateRange.map((date) => ({
-    date,
-    count: resultMap.get(date) || 0, // Use 0 if the date is missing in the results
-  }));
-
-  return filledResults;
 }
 
 export const getOperationsCached = unstable_cache(async () => {
