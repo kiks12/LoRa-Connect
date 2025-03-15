@@ -31,7 +31,7 @@ export async function getOperationsFromLastDays(days: number) : Promise<{date: s
         DATE(createAt) AS date, -- Extract the date part only
         COUNT(*) AS count
       FROM
-        operations
+        Operations
       WHERE
         createAt >= ${isoStartDate} -- Filter records within the date range
       GROUP BY
