@@ -2,7 +2,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Ban, ChevronLeft, Hospital, RefreshCcw } from "lucide-react";
+import { Ban, ChevronLeft, Download, Hospital, RefreshCcw } from "lucide-react";
 import Link from "next/link";
 import useDashboard from "@/hooks/use-dashboard";
 import { Chart as ChartJs, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, Title } from "chart.js";
@@ -53,6 +53,10 @@ export default function DashboardPage() {
 						<Button variant="outline" onClick={refreshDashboard}>
 							<RefreshCcw />
 							Refresh
+						</Button>
+						<Button variant="default" className="ml-2" onClick={() => {}}>
+							<Download />
+							Export to PDF
 						</Button>
 					</div>
 				</div>

@@ -51,20 +51,20 @@ model EvacuationCenters {
 
 model Operations {
   missionId                     Int                  @id @default(autoincrement())
-  createAt                      DateTime             @default(now())
   dateTime                      DateTime             @default(now())
-  rescuersRescuerId             Int
   usersUserId                   Int
+  user                          Users                @relation(fields: [usersUserId], references: [userId])
+  userBraceletId                String
+  rescuersRescuerId             Int
+  rescuer                       Rescuers             @relation(fields: [rescuersRescuerId], references: [rescuerId])
+  rescuerBraceletId             String
   status                        OperationStatus
   urgency                       RescueUrgency
   numberOfRescuee               Int
-  evacuationCentersEvacuationId Int
-  evacuationCenter              EvacuationCenters    @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
-  rescuer                       Rescuers             @relation(fields: [rescuersRescuerId], references: [rescuerId])
-  user                          Users                @relation(fields: [usersUserId], references: [userId])
   VictimStatusReport            VictimStatusReport[]
+  EvacuationCenters             EvacuationCenters?   @relation(fields: [evacuationCentersEvacuationId], references: [evacuationId])
+  evacuationCentersEvacuationId Int?
 
-  @@index([evacuationCentersEvacuationId], map: "Operations_evacuationCentersEvacuationId_fkey")
   @@index([usersUserId], map: "Operations_ownersOwnerId_fkey")
   @@index([rescuersRescuerId], map: "Operations_rescuersRescuerId_fkey")
 }
