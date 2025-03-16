@@ -1,19 +1,21 @@
 "use client";
 
-import { lazy, useMemo } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Container } from "./components/Container";
 import HOME_LINKS from "./links";
 
 const HomeCard = lazy(() => import("./_components/HomeCard"));
 
 export default function Home() {
-	const date = useMemo(() => {
-		return new Date();
+	const [date, setDate] = useState<Date | null>(null);
+
+	useEffect(() => {
+		setInterval(() => setDate(new Date()), 1000);
 	}, []);
 
 	return (
-		<main className="bg-gradient-to-br from-white to-slate-300 min-h-screen bg-[url(/bg.jpg)] bg-cover">
-			<div className="flex items-center justify-center min-h-screen min-w-screen bg-white/30 backdrop-blur-2xl">
+		<main className="min-h-screen bg-[url(/bg.jpg)] bg-cover">
+			<div className="flex items-center justify-center min-h-screen min-w-screen bg-white/50 backdrop-blur-xl">
 				<Container className="pt-10 min-h-screen">
 					<div className="flex justify-between items-end">
 						<div className="">
@@ -21,8 +23,14 @@ export default function Home() {
 							<h2 className="text-xl font-medium">Control Center</h2>
 						</div>
 						<div className="flex flex-col justify-end items-end">
-							<p>{date.toDateString()}</p>
-							<p>{date.toTimeString()}</p>
+							<Suspense>
+								<div>
+									<p>{date && date.toDateString()}</p>
+								</div>
+								<div>
+									<p>{date && date.toTimeString()}</p>
+								</div>
+							</Suspense>
 						</div>
 					</div>
 					<div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
