@@ -14,6 +14,20 @@ export async function getLatestOperations() {
   }) 
 }
 
+export async function getOperation({operationId}: {operationId: string}) {
+  return await client.operations.findFirst({
+    where: {
+      missionId: operationId
+    },
+    include: {
+      user: true,
+      Teams: true,
+      VictimStatusReport: true,
+      _count: true
+    }
+  })
+}
+
 export async function getPendingOperationsToday() {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
@@ -121,6 +135,8 @@ export async function createOperation({operation}: {operation: Operations}) {
 
       teamsTeamId: operation.teamsTeamId,
       teamBraceletId: operation.teamBraceletId,
+
+      evacuationCenter: operation.evacuationCenter
     } 
   })
 }
@@ -134,6 +150,8 @@ export async function updateOperation({operation}: {operation: Operations}) {
       dateTime: operation.dateTime,
       distance: operation.distance,
       eta: operation.eta,    
+      timeOfArrival: operation.timeOfArrival,
+      timeOfCompletion: operation.timeOfCompletion,
 
       usersUserId: operation.usersUserId,
       userBraceletId: operation.userBraceletId,
@@ -143,6 +161,8 @@ export async function updateOperation({operation}: {operation: Operations}) {
 
       teamsTeamId: operation.teamsTeamId,
       teamBraceletId: operation.teamBraceletId,
+
+      evacuationCenter: operation.evacuationCenter
     } 
   })
 }

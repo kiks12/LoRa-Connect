@@ -49,12 +49,13 @@ model EvacuationCenters {
 }
 
 model Operations {
-  missionId String   @unique()
-  createAt  DateTime @default(now())
-  dateTime  DateTime @default(now())
-  distance  Float
-  eta       Float
-  finalTime Float?
+  missionId        String    @unique()
+  createAt         DateTime  @default(now())
+  dateTime         DateTime  @default(now())
+  distance         Float
+  eta              Float
+  timeOfArrival    DateTime?
+  timeOfCompletion DateTime?
 
   usersUserId     Int
   user            Users           @relation(fields: [usersUserId], references: [userId])
@@ -67,6 +68,7 @@ model Operations {
   Teams          Teams? @relation(fields: [teamsTeamId], references: [teamId])
   teamBraceletId String
 
+  evacuationCenter   String?
   VictimStatusReport VictimStatusReport[]
 
   @@index([usersUserId], map: "Operations_ownersOwnerId_fkey")

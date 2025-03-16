@@ -1,17 +1,15 @@
-import { getVictimStatusReports } from "@/server/db/victimStatusReports";
+import { getOperation} from "@/server/db/operations";
 import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue } from "@/utils/api";
 import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request, { params }: {params: {operationId: string}}) {
   try {
-    const { operationId } = params
-
-    const victimStatusReports = await getVictimStatusReports({operationId: operationId})
+    const {operationId} = params
+    const mission = await getOperation({operationId});
 
     return NextResponse.json({
-      operationId,
-      victimStatusReports
+      mission
     })
   } catch (error) {
     if (error instanceof PrismaClientInitializationError)

@@ -12,7 +12,7 @@ export async function updateOperation(operation: Operations) {
   return {error: true, message: "There seems to be a problem updating operation information. Please try again later."}
 }
 
-export async function deleteOperation(operationId: number) {
+export async function deleteOperation(operationId: string) {
   const result = await deleteOperationDB({operationId})
   revalidateTag(OPERATIONS_TAG)
   if (result) return {error: false, message: "Successfully deleted operation"}

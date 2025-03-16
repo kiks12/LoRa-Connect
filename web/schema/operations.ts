@@ -2,6 +2,14 @@ import { z } from "zod";
 
 
 export const operationsSchema = z.object({
+  missionId: z.string().nonempty({
+    message: "Mission ID should not be empty"
+  }),
+  dateTime: z.date().nullable(),
+  distance: z.coerce.number(),
+  eta: z.coerce.number(),
+  timeOfArrival: z.date().nullable(),
+  timeOfCompletion: z.date().nullable(),
   userName: z.string().nonempty({
     message: "User name should not be empty"
   }),
@@ -12,26 +20,18 @@ export const operationsSchema = z.object({
   }).min(1, {
     message: "User ID should be greater than 0"
   }),
-  rescuerName: z.string().nonempty({
-    message: "Owner name should not be empty"
+  userBraceletId: z.string(),
+  teamName: z.string().nonempty({
+    message: "Team name should not be empty"
   }),
-  rescuerId: z.coerce.number({
-    message: "Rescuer ID should be a number"
+  teamId: z.coerce.number({
+    message: "Team ID should be a number"
   }).nonnegative({
-    message: "Rescuer ID should not be negative"
+    message: "Team ID should not be negative"
   }).min(1, {
-    message: "Rescuer ID should be greater than 0"
+    message: "Team ID should be greater than 0"
   }),
-  evacuationCenterName: z.string().nonempty({
-    message: "Owner name should not be empty"
-  }),
-  evacuationCenterId: z.coerce.number({
-    message: "Evacuation Center ID should be a number"
-  }).nonnegative({
-    message: "Evacuation Center ID should not be negative"
-  }).min(1, {
-    message: "Evacuation Center ID should be greater than 0"
-  }),
+  teamBraceletId: z.string(),
   urgency: z.string().nonempty({
     message: "Urgency should not be empty"
   }),
@@ -40,5 +40,6 @@ export const operationsSchema = z.object({
   }),
   numberOfRescuee: z.coerce.number().nonnegative({
     message: "Number of victims should not be negative"
-  })
+  }),
+  evacuationCenterName: z.string().nullable(),
 })

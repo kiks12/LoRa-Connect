@@ -93,7 +93,7 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			const { missionId, user, usersUserId, numberOfRescuee, status, urgency } = row.original;
+			const { missionId } = row.original;
 
 			return (
 				<DropdownMenu>
@@ -107,9 +107,7 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 						<Card>
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<Link
-								href={`/missions/update?operationId=${missionId}&userId=${usersUserId}&userName=${user.name}&numberOfRescuee=${numberOfRescuee}&operationStatus=${status}&urgency=${urgency}`}
-							>
+							<Link href={`/missions/update?missionId=${missionId}`}>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
 							<Link href={`/missions/delete?operationId=${missionId}`}>

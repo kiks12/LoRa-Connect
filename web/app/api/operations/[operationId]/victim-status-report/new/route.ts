@@ -23,7 +23,7 @@ export async function POST(req: Request, { params }: {params: {operationId: stri
     const { name, age, status, notes } = await req.json()
 
     const createdVictimStatusReport = await createVictimStatusReport({victimStatusReport: {
-      operationsMissionId: parseInt(operationId),
+      operationsMissionId: operationId,
       name,
       age,
       status,

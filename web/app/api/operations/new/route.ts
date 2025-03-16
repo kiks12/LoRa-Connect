@@ -10,20 +10,28 @@ import { NextResponse } from "next/server"
 
 SAMPLE BODY
 {
-  missionId: string,
-  distance: number,
-  eta: number,
 
-  userId: number, 
-  userBraceletId: string,
-  status: OperationStatus,
-  urgency: RescueUrgency,
-  numberOfRescuee: number, 
+ missionId        String    @unique()
+  createAt         DateTime  @default(now())
+  dateTime         DateTime  @default(now())
+  distance         Float
+  eta              Float
+  timeOfArrival    DateTime?
+  timeOfCompletion DateTime?
 
-  teamId: number,
-  teamBraceletId: string,
+  usersUserId     Int
+  user            Users           @relation(fields: [usersUserId], references: [userId])
+  userBraceletId  String
+  status          OperationStatus
+  urgency         RescueUrgency
+  numberOfRescuee Int
 
-  victimStatusReport: VictimStatusReport[] [
+  teamsTeamId    Int?
+  Teams          Teams? @relation(fields: [teamsTeamId], references: [teamId])
+  teamBraceletId String
+
+  evacuationCenter   String?
+  VictimStatusReport  VictimStatusReport[] [
     {
       name: string,
       age: int, 
@@ -60,12 +68,14 @@ export async function POST(req: Request) {
         dateTime: new Date(),
         distance: distance,
         eta: eta,
-        finalTime: null,
+        timeOfArrival: null,
+        timeOfCompletion: null,
         teamsTeamId: teamId,
         teamBraceletId: teamBraceletId,
         usersUserId: userId,
         userBraceletId: userBraceletId,
         numberOfRescuee: numberOfRescuee,
+        evacuationCenter: "",
         status: status,
         urgency: urgency,
       }
