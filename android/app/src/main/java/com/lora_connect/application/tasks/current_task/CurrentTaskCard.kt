@@ -64,7 +64,7 @@ fun CurrentTaskCard(task: Task, onFinishButtonClick: () -> Unit) {
 @Preview
 @Composable
 fun CurrentTaskCardPreview() {
-    val task = Task(1, Date(), 1, 1, 1, 112.12f, 12312.332f, 121.1f, 1, 12.12f,112.32f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
+    val task = Task(1, Date(), 1, 1, 1, 112.12f, 12312.332f, 121.1f, 1F, 1, 12.12f,112.32f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
 
     ApplicationTheme {
         Scaffold { innerPadding ->

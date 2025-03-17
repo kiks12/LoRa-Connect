@@ -5,9 +5,19 @@ package com.lora_connect.application.map
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.lora_connect.application.permissions.RequestLocationPermissionUsingRememberLauncherForActivityResult
+import com.lora_connect.application.tasks.InstructionItem
 import com.lora_connect.application.tasks.current_task.CurrentTaskCard
 import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.annotations.Polyline
@@ -34,6 +45,7 @@ import org.maplibre.android.maps.Style
 @Composable
 fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
     val currentTask by mapViewModel.currentTask.collectAsState()
+    val instructions by mapViewModel.instructions.collectAsState()
     val state by mapViewModel.state.collectAsState()
     var polyline by remember {
         mutableStateOf<Polyline?>(null)
@@ -102,30 +114,64 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         if (currentTask != null) mapViewModel.setNewTask(currentTask!!)
     }
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        AndroidView(
-            factory = {
-                mapView.getMapAsync { map ->
-                    map.setStyle(styleBuilder) { style ->
-                        val locationComponent = map.locationComponent
-                        val locationComponentOptions = mapViewModel.buildLocationComponentOptions()
-                        val locationComponentActivationOptions = mapViewModel.buildLocationComponentActivationOptions(style, locationComponentOptions)
-                        locationComponent.activateLocationComponent(locationComponentActivationOptions)
-                        locationComponent.isLocationComponentEnabled = true
-                        locationComponent.cameraMode = CameraMode.TRACKING
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(
+                factory = {
+                    mapView.getMapAsync { map ->
+                        map.setStyle(styleBuilder) { style ->
+                            val locationComponent = map.locationComponent
+                            val locationComponentOptions = mapViewModel.buildLocationComponentOptions()
+                            val locationComponentActivationOptions = mapViewModel.buildLocationComponentActivationOptions(style, locationComponentOptions)
+                            locationComponent.activateLocationComponent(locationComponentActivationOptions)
+                            locationComponent.isLocationComponentEnabled = true
+                            locationComponent.cameraMode = CameraMode.TRACKING
 
+                        }
+                        map.cameraPosition = org.maplibre.android.camera.CameraPosition.Builder().target(location = LatLng(state.latitude, state.longitude)).zoom(14.0).build()
                     }
-                    map.cameraPosition = org.maplibre.android.camera.CameraPosition.Builder().target(location = LatLng(state.latitude, state.longitude)).zoom(10.0).build()
-                }
 
-                mapView
-            },
-            modifier = Modifier.fillMaxSize()
-        )
+                    mapView
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                FilledTonalButton(onClick = mapViewModel::logout) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Log out")
+                    Text(text = "Log Out", modifier = Modifier.padding(start=10.dp))
+                }
+                FilledTonalButton(onClick = mapViewModel::startTasksList) {
+                    Text(text = "Tasks")
+                    Icon(Icons.Default.Menu, contentDescription = "Tasks", modifier = Modifier.padding(start = 10.dp))
+                }
+            }
+        }
         if (currentTask != null) {
-            Box(modifier = Modifier.padding(8.dp)) {
-                CurrentTaskCard(task = currentTask!!) {
-                    mapViewModel.finishTask()
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ){
+                    Box(modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()) {
+                        if (instructions != null) {
+                            InstructionItem(instruction = instructions!![0], onMenuClick = mapViewModel::startTasksList)
+                        }
+                    }
+                    Box(modifier = Modifier.padding(8.dp)) {
+                        CurrentTaskCard(task = currentTask!!) {
+                            mapViewModel.finishTask()
+                        }
+                    }
                 }
             }
         }

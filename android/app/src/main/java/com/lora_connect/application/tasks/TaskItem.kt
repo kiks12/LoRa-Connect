@@ -50,7 +50,7 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
         modifier = Modifier
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation = 2.dp
         ),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
@@ -92,6 +92,13 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
                 ){
                     Text(text = "Distance:")
                     Text(text = "${task.distance!!.roundTo(2)}km")
+                }
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Text(text = "ETA:")
+                    Text(text = if (task.time != null) "${task.time.roundTo(2)} seconds" else "")
                 }
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween ,
@@ -148,12 +155,13 @@ fun TaskItemPreview() {
             1.221f,
             1.21212f,
             1.2f,
+            2F,
             2,
             21.12312f,
             212.123f,
             TaskStatus.ASSIGNED,
             TaskUrgency.MODERATE,
-            ""
+            "",
         ),
     )
 

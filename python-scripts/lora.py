@@ -110,6 +110,8 @@ class LoRaModule(LoRa):
                 asyncio.run(self.send_to_websocket(
                     "LORA_MESSAGE", {"data": data}))
                     """
+        else:
+            self.send_message(data)
 
         self.set_mode(MODE.SLEEP)
         self.reset_ptr_rx()

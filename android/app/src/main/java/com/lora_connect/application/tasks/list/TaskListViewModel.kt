@@ -37,9 +37,9 @@ class TaskListViewModel(application: Application, val finish: () -> Unit) : View
 
     fun onStartButtonClick(task: Task) {
         val updatedTask = task.copy(status = TaskStatus.PENDING)
-        viewModelScope.launch(Dispatchers.IO) {
-            taskRepository.updateTask(updatedTask)
-        }
+//        viewModelScope.launch(Dispatchers.IO) {
+//            taskRepository.updateTask(updatedTask)
+//        }
         currentTask.setTask(updatedTask)
         finish()
     }

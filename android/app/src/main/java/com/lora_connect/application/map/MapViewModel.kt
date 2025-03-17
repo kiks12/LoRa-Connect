@@ -8,9 +8,11 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.graphhopper.ResponsePath
+import com.lora_connect.application.MainActivity
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.completion.TaskCompletionActivity
 import com.lora_connect.application.tasks.current_task.CurrentTask
+import com.lora_connect.application.tasks.list.TaskListActivity
 import com.lora_connect.application.utils.ActivityStarterHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -34,6 +36,7 @@ class MapViewModel(
     private val _state = MutableStateFlow(MapState())
     val state : StateFlow<MapState> = _state.asStateFlow()
     val currentTask = currentTaskClass.getTask().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = null)
+    val instructions = currentTaskClass.getInstructions().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = null)
 
     fun setLatLng(latitude: Double, longitude: Double) {
         _state.value = _state.value.copy(
@@ -67,6 +70,9 @@ class MapViewModel(
                 location?.let {
                     // If location is not null, invoke the success callback with latitude and longitude
                     onGetCurrentLocationSuccess(Pair(it.latitude, it.longitude))
+                    if (currentTask.value != null) {
+                        createRoute()
+                    }
                 }
             }.addOnFailureListener { exception ->
                 // If an error occurs, invoke the failure callback with the exception
@@ -83,11 +89,23 @@ class MapViewModel(
     private fun createRoute() {
         if (_state.value.markerLatLng == null) return
         val best = getRoute(_state.value.latitude, _state.value.longitude, _state.value.markerLatLng!!.latitude, _state.value.markerLatLng!!.longitude)
-        _state.value = _state.value.copy(
-            path = best
-        )
+        if (best != null) {
+            CurrentTask.instance.setInstructions(best.instructions)
+            _state.value = _state.value.copy(
+                path = best
+            )
+        }
     }
-    
+
+    fun logout() {
+        CurrentTask.instance.setTask(null)
+        activityStarterHelper.startActivity(MainActivity::class.java)
+    }
+
+    fun startTasksList() {
+        activityStarterHelper.startActivity(TaskListActivity::class.java)
+    }
+
     fun finishTask() {
         activityStarterHelper.startActivity(TaskCompletionActivity::class.java)
     }

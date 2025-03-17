@@ -62,8 +62,8 @@ class MainActivity : ComponentActivity() {
 //    override fun onStart() {
 //        super.onStart()
 
-        // UNCOMMENT ONLY WHEN SEEDING DB
-        // populateTasksDB()
+//         UNCOMMENT ONLY WHEN SEEDING DB
+//         populateTasksDB()
 
 //        val intent = Intent(this, MapActivity::class.java)
 //        startActivity(intent)
@@ -123,12 +123,12 @@ class MainActivity : ComponentActivity() {
     // UTILITY FUNCTION FOR TESTING
     // UNCOMMENT ONLY WHEN SEEDING ROOM DB
 //    private fun populateTasksDB() {
-//        lifecycle.coroutineScope.launch(Dispatchers.IO) {
-//            val newTask = Task(2, Date(), 1, 1, 2, 15.157092f, 120.59178f, 1.2f, 1,
+//        lifecycle.coroutineScope.launch (Dispatchers.IO) {
+//            val newTask = Task(8, Date(), 1, 1, 2, 15.157092f, 120.59178f, 1.2f, 1,
 //                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
-//            val newTask2 = Task(3, Date(), 1, 1, 2, 15.1547985f, 120.6055f, 1.2f, 1,
+//            val newTask2 = Task(9, Date(), 1, 1, 2, 15.1547985f, 120.6055f, 1.2f, 1,
 //                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.MODERATE, "")
-//            val newTask3 = Task(4, Date(), 1, 1, 2, 15.166502f, 120.60531f, 1.2f, 1,
+//            val newTask3 = Task(10, Date(), 1, 1, 2, 15.166502f, 120.60531f, 1.2f, 1,
 //                15.16985f, 120.579285f, TaskStatus.ASSIGNED, TaskUrgency.SEVERE, "")
 //            taskRepository.createTask(newTask)
 //            taskRepository.createTask(newTask2)

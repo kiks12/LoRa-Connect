@@ -143,7 +143,8 @@ class BluetoothDataService : Service() {
             urgency = TaskUrgency.valueOf(dataParts[10]),
             date = Date(),
             uid = null,
-            notes = ""
+            notes = "",
+            time = 0F
         )
 
         CoroutineScope(Dispatchers.IO).launch {

@@ -11,7 +11,7 @@ import com.lora_connect.application.room.converters.Converters
 import com.lora_connect.application.room.daos.TaskDao
 import com.lora_connect.application.room.entities.Task
 
-@Database(entities = [Task::class], version = 2)
+@Database(entities = [Task::class], version = 3)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao() : TaskDao
@@ -21,9 +21,9 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            val MIGRATION_1_2 = object : Migration(1, 2) {
+            val MIGRATION_2_3 = object : Migration(2, 3) {
                 override fun migrate(db: SupportSQLiteDatabase) {
-                    db.execSQL("ALTER TABLE task ADD COLUMN notes TEXT DEFAULT NULL")
+                    db.execSQL("ALTER TABLE task ADD COLUMN time FLOAT DEFAULT NULL")
                 }
             }
             return INSTANCE ?: synchronized(this) {
@@ -31,7 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "LoRa-Connect"
-                ).addMigrations(MIGRATION_1_2).build()
+                ).addMigrations(MIGRATION_2_3).build()
                 INSTANCE = instance
                 instance
             }

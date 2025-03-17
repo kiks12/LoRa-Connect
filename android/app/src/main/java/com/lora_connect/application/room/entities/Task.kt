@@ -18,6 +18,7 @@ data class Task(
     @ColumnInfo("latitude") val latitude: Float?,
     @ColumnInfo("longitude") val longitude: Float?,
     @ColumnInfo("distance") val distance: Float?,
+    @ColumnInfo("time") val time: Float?,
     @ColumnInfo("evacuationCenterId") val evacuationCenterId: Int?,
     @ColumnInfo("evacuationLatitude") val evacuationLatitude: Float?,
     @ColumnInfo("evacuationLongitude") val evacuationLongitude: Float?,

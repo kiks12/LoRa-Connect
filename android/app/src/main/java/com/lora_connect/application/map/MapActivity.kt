@@ -65,23 +65,7 @@ class MapActivity : ComponentActivity() {
 
         setContent {
             ApplicationTheme {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = {  },
-                            navigationIcon = {
-                                IconButton(onClick = { /*TODO*/ }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go Back")
-                                }
-                            },
-                            actions = {
-                                TextButton(onClick = ::startTasksList) {
-                                    Text(text = "Tasks")
-                                }
-                            }
-                        )
-                    }
-                ){ innerPadding ->
+                Scaffold { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
                         MapView(mapView, mapViewModel)
                     }
@@ -102,11 +86,6 @@ class MapActivity : ComponentActivity() {
         } else {
             startService(intent)
         }
-    }
-
-    private fun startTasksList() {
-        val intent = Intent(this, TaskListActivity::class.java)
-        startActivity(intent)
     }
 
     private fun areLocationPermissionsGranted() : Boolean {
