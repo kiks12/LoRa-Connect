@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { AppProvider } from "@/contexts/AppContext";
 import { MenuIcon } from "lucide-react";
-import { SideBar } from "./_components/Sidebar";
-import Map from "./_components/Map";
 import { MapProvider } from "@/contexts/MapContext";
 import { ObstaclesProvider } from "@/contexts/ObstacleContext";
+import { lazy } from "react";
+
+const Map = lazy(() => import("./_components/Map"));
+const SideBar = lazy(() => import("./_components/Sidebar"));
+const SosModals = lazy(() => import("./_components/SosModals"));
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
@@ -22,8 +25,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 									<MenuIcon />
 								</Button>
 							</div>
-							<div className="flex items-center justify-center h-screen z-10 transition-transform transform">
+							<div className="flex h-screen z-10 transition-transform transform">
 								<Map key={"main-map"} />
+								<div className="absolute w-72 p-2">
+									<SosModals />
+								</div>
 							</div>
 						</div>
 						<div className={`hidden md:block min-w-[512px] max-w-lg h-screen shadow-lg z-40`}>

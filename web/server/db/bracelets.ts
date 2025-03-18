@@ -84,7 +84,7 @@ export async function deleteBracelet({braceletId}: {braceletId: string}) {
   })
 }
 
-export async function updateBraceletLocation({braceletId, latitude, longitude}: {braceletId: string, latitude: number, longitude: number}) {
+export async function updateBraceletLocation({braceletId, latitude, longitude, urgency}: {braceletId: string, latitude: number, longitude: number, urgency: number}) {
   const bracelet = await getBracelet({ braceletId })  
   if (bracelet === null) return
   return await client.bracelets.update({
@@ -93,7 +93,8 @@ export async function updateBraceletLocation({braceletId, latitude, longitude}: 
     },
     data: {
       latitude,
-      longitude
+      longitude,
+      urgency,
     }
   })
 }

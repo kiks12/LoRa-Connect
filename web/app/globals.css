@@ -70,3 +70,24 @@
     display: none !important;
   }
 }
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 1);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  }
+}
+
+.sos-card {
+  animation: pulse 1.5s infinite;
+  transition: transform 0.2s ease-in-out;
+}
+
+.sos-card:hover {
+  transform: scale(1.05);
+}

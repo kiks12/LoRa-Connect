@@ -33,7 +33,7 @@ const SIDEBAR_TABS: { [key: string]: { route: string; icon: ReactNode } } = {
 	},
 };
 
-export function SideBar({ children }: { children: ReactNode }) {
+export default function SideBar({ children }: { children: ReactNode }) {
 	return (
 		<>
 			<div className="flex w-full justify-between">

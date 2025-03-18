@@ -5,3 +5,9 @@ export const NUMBER_TO_URGENCY : {[key: number]: RescueUrgency}= {
   0.5: RescueUrgency.MODERATE,
   1: RescueUrgency.SEVERE,
 }
+
+export const URGENCY_LORA_TO_DB : {[key: string]: number}= {
+  "1": 0.2, 
+  "2": 0.5,
+  "3": 1
+}
