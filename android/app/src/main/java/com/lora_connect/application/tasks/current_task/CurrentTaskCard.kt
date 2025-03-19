@@ -1,32 +1,40 @@
 package com.lora_connect.application.tasks.current_task
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lora_connect.application.room.entities.Task
 
 @Composable
-fun CurrentTaskCard(task: Task, onFinishButtonClick: () -> Unit, onCancelButtonClick: () -> Unit) {
+fun CurrentTaskCard(
+    task: Task,
+    onFinishButtonClick: () -> Unit,
+    onCancelButtonClick: () -> Unit,
+    onArrivedButtonClick: () -> Unit,
+) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
             containerColor = Color.White
         )
     ){
-        Column(modifier = Modifier.padding(12.dp)){
+        Column(modifier = Modifier.padding(20.dp)){
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -36,34 +44,68 @@ fun CurrentTaskCard(task: Task, onFinishButtonClick: () -> Unit, onCancelButtonC
                 Text(text = "Mission ID: ${task.missionId}", fontSize = 12.sp)
                 Text(text = task.dateTime.toString(), fontSize = 12.sp)
             }
-            Text(text = "Status: ${task.status}")
-            Text(text = "Urgency: ${task.urgency}")
-            Text(text = "Number of Victims: ${task.numberOfRescuee}")
-            Text("${task.distance}km")
-        }
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ){
-            Button(
-                onClick = onFinishButtonClick,
-                modifier = Modifier
-                    .padding(top = 12.dp, start = 12.dp, end = 12.dp, bottom = 2.dp)
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black
-                )
-            ) {
-                Text(text = "Finish")
+            Column {
+                Text(text = "Username", fontSize = 12.sp)
+                Text(text = task.userName ?: "No Username", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
             }
-            TextButton(
-                onClick = onCancelButtonClick,
-                modifier = Modifier
-                    .padding(start = 12.dp, end = 12.dp, bottom = 12.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(text = "Cancel", color = Color.Red)
+            Column (
+                modifier = Modifier.padding(top = 8.dp)
+            ){
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(text = "Status:")
+                    Text(text = "${task.status}")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(text = "Urgency: ")
+                    Text(text = "${task.urgency}")
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(text = "Number of Victims: ")
+                    Text(text = "${task.numberOfRescuee}")
+                }
+            }
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp)
+            ){
+                Row {
+                    OutlinedButton(
+                        onClick = onCancelButtonClick,
+                        modifier = Modifier.fillMaxWidth(0.5f).padding(end = 2.dp),
+                        border = BorderStroke(1.dp, Color.Red)
+                    ) {
+                        Text(text = "Cancel", color = Color.Red)
+                    }
+                    FilledTonalButton(
+                        onClick = onArrivedButtonClick,
+                        modifier = Modifier.fillMaxWidth().padding(start = 2.dp),
+                        enabled = task.timeOfArrival == null
+                    ) {
+                        Text(text = "Arrived")
+                    }
+                }
+                Button(
+                    onClick = onFinishButtonClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = task.timeOfArrival != null
+                ) {
+                    Text(text = "Complete")
+                }
+
             }
         }
+
     }
 }
 

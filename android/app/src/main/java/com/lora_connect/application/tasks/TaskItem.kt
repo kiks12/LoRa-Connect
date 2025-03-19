@@ -10,11 +10,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,13 +36,17 @@ fun Float.roundTo(numFractionDigits: Int): Double {
 }
 
 val URGENCY_COLOR_MAP = mapOf(
-    TaskUrgency.LOW to Color(75, 192, 116, 255),
-    TaskUrgency.MODERATE to Color(255, 206, 86, 255),
-    TaskUrgency.SEVERE to Color(255, 99, 132, 255),
+    TaskUrgency.LOW to Color(228, 190, 0, 255),
+    TaskUrgency.MODERATE to Color(228, 106, 0, 255),
+    TaskUrgency.SEVERE to Color(196, 0, 0, 255),
 )
 
 @Composable
 fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: Boolean = true) {
+    var showMore by remember {
+        mutableStateOf(false)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -49,7 +57,7 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
             containerColor = Color.White,
         )
     ){
-        Column(modifier = Modifier.padding(16.dp)){
+        Column(modifier = Modifier.padding(20.dp)){
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -72,26 +80,37 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
                             .background(
                                 URGENCY_COLOR_MAP[task.urgency]!!
                             ))
-                        Text(modifier = Modifier.padding(start = 10.dp),fontWeight = FontWeight.SemiBold, text = "${task.urgency}")
+                        Text(
+                            modifier = Modifier.padding(start = 10.dp),
+                            fontWeight = FontWeight.SemiBold,
+                            text = "${task.urgency}"
+                        )
                     }
                 }
             }
             Column(
                 modifier = Modifier.padding(top = 18.dp)
             ){
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween ,
+                    modifier = Modifier.fillMaxWidth()
+                ){
+                    Text(text = "User Name:")
+                    Text(text = "${task.userName}")
+                }
 //                Row(
 //                    horizontalArrangement = Arrangement.SpaceBetween,
 //                    modifier = Modifier.fillMaxWidth()
 //                ){
 //                    Text(text = "Distance:")
-//                    Text(text = if (task.distance != null) "${task.distance.roundTo(2)}km" else "")
+//                    Text(text = if (task.distance != null) "${task.distance.roundTo(2)}km" else "No Distance")
 //                }
 //                Row(
 //                    horizontalArrangement = Arrangement.SpaceBetween,
 //                    modifier = Modifier.fillMaxWidth()
 //                ){
 //                    Text(text = "ETA:")
-//                    Text(text = if (task.eta != null) "${task.eta.roundTo(2)} seconds" else "")
+//                    Text(text = if (task.eta != null) "${task.eta.roundTo(2)} seconds" else "No ETA")
 //                }
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween ,
@@ -100,40 +119,73 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
                     Text(text = "No. of Rescuee:")
                     Text(text = "${task.numberOfRescuee}")
                 }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween ,
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Text(text = "Latitude:")
-                    Text(text = "${task.latitude}")
-                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween ,
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Text(text = "Longitude:")
-                    Text(text = "${task.longitude}")
+                if (showMore) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween ,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Text(text = "Latitude:")
+                        Text(text = "${task.latitude}")
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween ,
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Text(text = "Longitude:")
+                        Text(text = "${task.longitude}")
+                    }
+                    if (task.timeOfArrival != null) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ){
+                            Text(text = "Time of Arrival:")
+                            Text(text = task.timeOfArrival.toLocaleString() ?: "")
+                        }
+                    }
+                    if (task.timeOfCompletion != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ){
+                            Text(text = "Time of Completion:")
+                            Text(text = task.timeOfCompletion.toLocaleString() ?: "")
+                        }
+                    }
+                    if (task.notes != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp)
+                        ){
+                            Text(text = "Notes:")
+                            Text(text = task.notes)
+                        }
+                    }
                 }
             }
-            if (withStartButton) {
-                Row (
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.Bottom,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                ){
-                    Button(onClick = onStartButtonClick, colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black
-                    )) {
-                        Text(text = "Start", modifier = Modifier.padding(horizontal = 20.dp))
+            Row (
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ){
+                TextButton(onClick = { showMore = !showMore }, modifier = Modifier.padding(end = 12.dp)) {
+                    Text(text = if (showMore) "Less Details" else "More Details")
+                }
+                if (withStartButton) {
+                    Button(onClick = onStartButtonClick) {
+                        Text(text = "Start Mission", modifier = Modifier.padding(horizontal = 20.dp))
                     }
                 }
             }
         }
     }
 }
-//
+
 //@Preview(name = "TaskItemPreview")
 //@Composable
 //fun TaskItemPreview() {

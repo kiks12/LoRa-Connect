@@ -8,6 +8,5 @@ data class MapState(
     val longitude: Double = 120.6200,
     val markerLatLng: LatLng? = null,
     val path: ResponsePath? = null,
-    val clearPath: Boolean = false,
     val showCancelConfirmationDialog: Boolean = false,
 )

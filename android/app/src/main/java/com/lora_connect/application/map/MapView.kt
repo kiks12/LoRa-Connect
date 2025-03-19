@@ -48,6 +48,7 @@ import org.maplibre.android.maps.Style
 fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
     val currentTask by mapViewModel.currentTask.collectAsState()
     val instructions by mapViewModel.instructions.collectAsState()
+    val clearPath by mapViewModel.clearPath.collectAsState()
     val state by mapViewModel.state.collectAsState()
     var polyline by remember {
         mutableStateOf<Polyline?>(null)
@@ -119,17 +120,19 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         if (currentTask != null) mapViewModel.setNewTask(currentTask!!)
     }
 
-    LaunchedEffect(state.clearPath) {
-        if (!state.clearPath) return@LaunchedEffect
-        mapView.getMapAsync { map ->
-            map.clear()
-            if (polyline != null) {
-                polyline.let {
-                    map.removeAnnotation(it!!.id)
+    LaunchedEffect(clearPath) {
+        if (clearPath == true) {
+            mapView.getMapAsync { map ->
+                map.clear()
+                if (polyline != null) {
+                    polyline.let {
+                        map.removeAnnotation(it!!.id)
+                    }
                 }
             }
+            mapViewModel.toggleClearPath()
+            mapViewModel.setMarkerLatLng(null)
         }
-        mapViewModel.toggleClearPath()
     }
 
 
@@ -200,7 +203,8 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
                         CurrentTaskCard(
                             task = currentTask!!,
                             onFinishButtonClick = { mapViewModel.finishTask() },
-                            onCancelButtonClick = { mapViewModel.toggleShowCancelConfirmationDialog() }
+                            onCancelButtonClick = { mapViewModel.toggleShowCancelConfirmationDialog() },
+                            onArrivedButtonClick = { mapViewModel.arrivedAtDestination() }
                         )
                     }
                 }

@@ -1,6 +1,7 @@
 package com.lora_connect.application.tasks.completion
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +34,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +57,7 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go Back")
                     }
                 },
-                title = { Text(text = "Update Task") }
+                title = { Text(text = "Complete Mission") }
             )
         },
         bottomBar = {
@@ -121,6 +123,8 @@ fun TaskCompletionScreen(viewModel: TaskCompletionViewModel) {
                             modifier = Modifier
                                 .height(100.dp)
                                 .background(Color.White)
+                                .clip(RoundedCornerShape(14.dp))
+                                .border(1.dp, Color.LightGray)
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
                         )

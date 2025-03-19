@@ -28,6 +28,7 @@ import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.location.LocationComponentActivationOptions
 import org.maplibre.android.location.LocationComponentOptions
 import org.maplibre.android.maps.Style
+import java.util.Date
 
 class MapViewModel(
     private val fusedLocationProviderClient: FusedLocationProviderClient,
@@ -43,6 +44,7 @@ class MapViewModel(
     val state : StateFlow<MapState> = _state.asStateFlow()
     val currentTask = currentTaskClass.getTask().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = null)
     val instructions = currentTaskClass.getInstructions().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = null)
+    val clearPath = currentTaskClass.clear.asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = false)
 
     fun setLatLng(latitude: Double, longitude: Double) {
         _state.value = _state.value.copy(
@@ -51,7 +53,7 @@ class MapViewModel(
         )
     }
 
-    private fun setMarkerLatLng(latLng: LatLng) {
+    fun setMarkerLatLng(latLng: LatLng?) {
         _state.value = _state.value.copy(
             markerLatLng = latLng
         )
@@ -118,6 +120,8 @@ class MapViewModel(
 
     fun cancelTask() {
         val updatedTask = currentTask.value?.copy(
+            timeOfArrival = null,
+            timeOfCompletion = null,
             status = TaskStatus.CANCELED
         )
         viewModelScope.launch(Dispatchers.IO) {
@@ -141,8 +145,21 @@ class MapViewModel(
     }
 
     fun toggleClearPath() {
-        _state.value = _state.value.copy(
-            clearPath = !_state.value.clearPath
+        currentTaskClass.clear.value = (!currentTaskClass.clear.value!!)
+    }
+
+    fun arrivedAtDestination() {
+        val updatedTask = currentTask.value?.copy(
+            timeOfArrival = Date()
         )
+        viewModelScope.launch(Dispatchers.IO) {
+            updatedTask?.let {
+                taskRepository.updateTask(it)
+            }
+
+            withContext(Dispatchers.Main) {
+                currentTaskClass.setTask(updatedTask)
+            }
+        }
     }
 }

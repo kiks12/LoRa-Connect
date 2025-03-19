@@ -9,6 +9,7 @@ import com.lora_connect.application.room.entities.Task
 class CurrentTask private constructor() {
     private var currentTask : MutableLiveData<Task?> = MutableLiveData(null)
     private var instructions : MutableLiveData<InstructionList?> = MutableLiveData(null)
+    var clear : MutableLiveData<Boolean> = MutableLiveData(false)
 
     companion object  {
         val instance = CurrentTask()

@@ -6,12 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskStatus
+import com.lora_connect.application.tasks.current_task.CurrentTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 class TaskCompletionViewModel(
     application: Application,
@@ -39,14 +41,19 @@ class TaskCompletionViewModel(
         _state.value = _state.value.copy(
             task = _state.value.task?.copy(
                 status = _state.value.newStatus,
-                notes = _state.value.notes
+                notes = _state.value.notes,
+                timeOfCompletion = Date()
             )
         )
+
         viewModelScope.launch(Dispatchers.IO) {
             if (_state.value.task != null) {
                 taskRepository.updateTask(_state.value.task!!)
             }
             withContext(Dispatchers.Main) {
+                CurrentTask.instance.setTask(null)
+                CurrentTask.instance.setInstructions(null)
+                CurrentTask.instance.clear.postValue(!CurrentTask.instance.clear.value!!)
                 finish()
             }
         }

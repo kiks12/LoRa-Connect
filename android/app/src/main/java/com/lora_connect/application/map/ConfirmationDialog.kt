@@ -3,6 +3,7 @@ package com.lora_connect.application.map
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,12 +33,12 @@ fun ConfirmationDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .padding(16.dp),
+                .height(220.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(24.dp).fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ){
                 Text(text = dialogTitle, fontSize = 24.sp, fontWeight = FontWeight.Medium)
                 Text(text = dialogText, modifier = Modifier
