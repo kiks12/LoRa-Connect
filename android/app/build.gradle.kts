@@ -109,4 +109,6 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
+
+    implementation("br.com.devsrsouza.compose.icons:feather:1.1.1")
 }
