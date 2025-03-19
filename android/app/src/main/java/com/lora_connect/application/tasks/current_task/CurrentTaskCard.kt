@@ -39,12 +39,12 @@ fun CurrentTaskCard(task: Task, onFinishButtonClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ){
-                Text(text = "UID: ${task.uid}", fontSize = 12.sp)
+                Text(text = "UID: ${task.missionId}", fontSize = 12.sp)
                 Text(text = "TIME_HERE", fontSize = 12.sp)
             }
             Text(text = "Status: ${task.status}")
             Text(text = "Urgency: ${task.urgency}")
-            Text(text = "Number of Victims: ${task.numberOfVictims}")
+            Text(text = "Number of Victims: ${task.numberOfRescuee}")
             Text("${task.distance}km")
         }
         Button(
@@ -61,24 +61,24 @@ fun CurrentTaskCard(task: Task, onFinishButtonClick: () -> Unit) {
     }
 }
 
-@Preview
-@Composable
-fun CurrentTaskCardPreview() {
-    val task = Task(1, Date(), 1, 1, 1, 112.12f, 12312.332f, 121.1f, 1F, 1, 12.12f,112.32f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
-
-    ApplicationTheme {
-        Scaffold { innerPadding ->
-            Box(modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-                contentAlignment = Alignment.BottomCenter) {
-                Box(modifier = Modifier.padding(12.dp)){
-                    CurrentTaskCard(task = task) {
-
-                    }
-                }
-            }
-        }
-    }
-}
+//@Preview
+//@Composable
+//fun CurrentTaskCardPreview() {
+//    val task = Task(1, Date(), 1, 1, 1, 112.12f, 12312.332f, 121.1f, 1F, 1, 12.12f,112.32f, TaskStatus.ASSIGNED, TaskUrgency.LOW, "")
+//
+//    ApplicationTheme {
+//        Scaffold { innerPadding ->
+//            Box(modifier = Modifier
+//                .padding(innerPadding)
+//                .fillMaxSize(),
+//                contentAlignment = Alignment.BottomCenter) {
+//                Box(modifier = Modifier.padding(12.dp)){
+//                    CurrentTaskCard(task = task) {
+//
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 

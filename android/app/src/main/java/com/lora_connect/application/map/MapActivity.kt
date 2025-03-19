@@ -1,28 +1,16 @@
 package com.lora_connect.application.map
 
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.lora_connect.application.services.BluetoothDataService
-import com.lora_connect.application.tasks.list.TaskListActivity
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.ActivityStarterHelper
 import com.lora_connect.application.utils.copyAssetsToFilesDir
@@ -42,7 +30,6 @@ class MapActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val ioScope = CoroutineScope(Dispatchers.IO)
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -74,19 +61,19 @@ class MapActivity : ComponentActivity() {
         }
 
         // ONLY UNCOMMENT IF AUTHENTICATION IS RUNNING
-         startBluetoothDataService()
+//         startBluetoothDataService()
     }
 
-    private fun startBluetoothDataService() {
-        val intent = Intent(this, BluetoothDataService::class.java).apply {
-            putExtra("DEVICE_ADDRESS", intent.getStringExtra("DEVICE_ADDRESS"))
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
-        }
-    }
+//    private fun startBluetoothDataService() {
+//        val intent = Intent(this, BluetoothDataService::class.java).apply {
+//            putExtra("DEVICE_ADDRESS", intent.getStringExtra("DEVICE_ADDRESS"))
+//        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(intent)
+//        } else {
+//            startService(intent)
+//        }
+//    }
 
     private fun areLocationPermissionsGranted() : Boolean {
         val fineLocationPermission =

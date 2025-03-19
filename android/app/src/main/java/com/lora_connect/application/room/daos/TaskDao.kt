@@ -17,12 +17,12 @@ interface TaskDao {
     @Query("SELECT * FROM task")
     fun getTasks() : LiveData<List<Task>>
 
-    @Query("SELECT * FROM task WHERE taskStatus=:status")
+    @Query("SELECT * FROM task WHERE status=:status")
     fun getTasksWhereStatus(status: String) : LiveData<List<Task>>
 
     @RequiresApi(Build.VERSION_CODES.O)
-    @Query("SELECT * FROM task WHERE date=:date")
-    fun getTasksToday(date: Date) : LiveData<List<Task>>
+    @Query("SELECT * FROM task WHERE dateTime BETWEEN :startOfDay AND :endOfDay")
+    fun getTasksToday(startOfDay: Long, endOfDay: Long): LiveData<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(vararg tasks: Task)

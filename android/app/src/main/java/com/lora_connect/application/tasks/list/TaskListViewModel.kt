@@ -25,22 +25,28 @@ class TaskListViewModel(application: Application, val finish: () -> Unit) : View
     private val taskRepository = TaskRepository(application)
     private val _state = MutableStateFlow(TaskListState())
     val state : StateFlow<TaskListState> = _state.asStateFlow()
-    val tasks = taskRepository.getAssignedTasks().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val tasks = taskRepository.getTasksToday().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun setTasksBreakdown(tasks: List<Task>) {
         _state.value = _state.value.copy(
-            lowTasks = tasks.filter { it.urgency === TaskUrgency.LOW },
-            moderateTasks = tasks.filter { it.urgency === TaskUrgency.MODERATE},
-            severeTasks = tasks.filter { it.urgency === TaskUrgency.SEVERE},
+            lowTasks = tasks.filter { it.urgency === TaskUrgency.LOW && ((_state.value.activeStatus !== "ALL" && it.status === TaskStatus.valueOf(_state.value.activeStatus)) || _state.value.activeStatus === "ALL")},
+            moderateTasks = tasks.filter { it.urgency === TaskUrgency.MODERATE && ((_state.value.activeStatus !== "ALL" && it.status === TaskStatus.valueOf(_state.value.activeStatus)) || _state.value.activeStatus === "ALL")},
+            severeTasks = tasks.filter { it.urgency === TaskUrgency.SEVERE && ((_state.value.activeStatus !== "ALL" && it.status === TaskStatus.valueOf(_state.value.activeStatus)) || _state.value.activeStatus === "ALL")},
         )
     }
 
     fun onStartButtonClick(task: Task) {
         val updatedTask = task.copy(status = TaskStatus.PENDING)
-//        viewModelScope.launch(Dispatchers.IO) {
-//            taskRepository.updateTask(updatedTask)
-//        }
+        viewModelScope.launch(Dispatchers.IO) {
+            taskRepository.updateTask(updatedTask)
+        }
         currentTask.setTask(updatedTask)
         finish()
+    }
+
+    fun changeActiveStatus(newStatus: String) {
+        _state.value = _state.value.copy(
+            activeStatus = newStatus
+        )
     }
 }

@@ -95,7 +95,7 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
                        }
                    }
                    item {
-                       if (state.namedDiscoveredDevices.isEmpty() && state.unnamedDiscoveredDevices.isEmpty()) {
+                       if (state.namedDiscoveredDevices.isEmpty()) {
                            Box(modifier = Modifier
                                .fillMaxWidth()
                                .padding(15.dp), contentAlignment = Alignment.Center) {
@@ -108,12 +108,6 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
                            modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
                            headlineContent = { Text(it.name ?: "Unknown Device") },
                            supportingContent = { Text(it.address) }
-                       )
-                   }
-                   items(state.unnamedDiscoveredDevices.toList()) {
-                       ListItem(
-                           modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
-                           headlineContent = { Text(it.address ?: "Unknown Device") },
                        )
                    }
                    item {

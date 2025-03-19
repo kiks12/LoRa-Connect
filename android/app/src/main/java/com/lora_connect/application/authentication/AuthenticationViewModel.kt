@@ -3,10 +3,12 @@ package com.lora_connect.application.authentication
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.le.BluetoothLeScanner
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult
 import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lora_connect.application.map.MapActivity
 import com.lora_connect.application.utils.ActivityStarterHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +18,9 @@ import kotlinx.coroutines.launch
 @SuppressLint("MissingPermission")
 class AuthenticationViewModel(
     val bluetoothAdapter: BluetoothAdapter,
+    private val bleScanner: BluetoothLeScanner,
     private val activityStarterHelper: ActivityStarterHelper,
+    private val connectToDevice: (address: String) -> Unit,
     val enableBluetooth: () -> Unit
 ): ViewModel(){
     private val _state = MutableStateFlow(AuthenticationState())
@@ -25,7 +29,6 @@ class AuthenticationViewModel(
 
     fun refresh() {
         _state.value = _state.value.copy(
-            bondedDevices = bluetoothAdapter.bondedDevices,
             permissionDenied = false
         )
     }
@@ -39,12 +42,6 @@ class AuthenticationViewModel(
     fun setEnabledBluetoothState(newState: Boolean) {
         _state.value = _state.value.copy(
             enabledBluetooth = newState
-        )
-    }
-
-    fun addUnnamedDiscoveredDevice(bluetoothDevice: BluetoothDevice) {
-        _state.value = _state.value.copy(
-            unnamedDiscoveredDevices = _state.value.unnamedDiscoveredDevices.plus(bluetoothDevice),
         )
     }
 
@@ -62,32 +59,28 @@ class AuthenticationViewModel(
 
     fun discoverDevices() {
         viewModelScope.launch {
-            bluetoothAdapter.startDiscovery()
-            toggleDiscoveringLoading()
-            val runnable = Runnable {
-                run {
-                    bluetoothAdapter.cancelDiscovery()
-                    toggleDiscoveringLoading()
+            val scanCallback = object : ScanCallback() {
+                override fun onScanResult(callbackType: Int, result: ScanResult?) {
+                    super.onScanResult(callbackType, result)
+                    result?.device.let {
+                        if (it != null && it.name != null) addNamedDiscoveredDevice(it)
+                    }
                 }
             }
-            handler.postDelayed(runnable, 12000)
+
+            toggleDiscoveringLoading()
+            bleScanner.startScan(scanCallback)
+            handler.postDelayed({
+                bleScanner.stopScan(scanCallback)
+                toggleDiscoveringLoading()
+            }, 10000)
         }
     }
 
     fun connectDevice(bluetoothDevice: BluetoothDevice) {
         viewModelScope.launch {
-            bluetoothAdapter.cancelDiscovery()
+            connectToDevice(bluetoothDevice.address)
             activityStarterHelper.startMapActivity(bluetoothDevice.address)
-//            val socket = bluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"))
-//            socket.use { bluetoothSocket ->
-//                try {
-//                    bluetoothSocket.connect()
-//                    activityStarterHelper.startActivity(MapActivity::class.java)
-//                    BluetoothSocketSingleton.instance = socket
-//                } catch (e: Error) {
-//                    Log.w("AUTHENTICATION VIEW MODEL", e.toString())
-//                }
-//            }
         }
     }
 }

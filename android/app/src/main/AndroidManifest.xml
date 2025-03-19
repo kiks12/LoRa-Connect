@@ -51,7 +51,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.BluetoothDataService" android:foregroundServiceType="connectedDevice" />
+        <service android:name=".services.BluetoothService" android:enabled="true" />
     </application>
 
 </manifest>

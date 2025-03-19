@@ -5,18 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,11 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.lora_connect.application.ui.theme.ApplicationTheme
-import java.util.Date
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import com.lora_connect.application.room.entities.Task
@@ -86,26 +79,26 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
             Column(
                 modifier = Modifier.padding(top = 18.dp)
             ){
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Text(text = "Distance:")
-                    Text(text = "${task.distance!!.roundTo(2)}km")
-                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Text(text = "ETA:")
-                    Text(text = if (task.time != null) "${task.time.roundTo(2)} seconds" else "")
-                }
+//                Row(
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    modifier = Modifier.fillMaxWidth()
+//                ){
+//                    Text(text = "Distance:")
+//                    Text(text = if (task.distance != null) "${task.distance.roundTo(2)}km" else "")
+//                }
+//                Row(
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    modifier = Modifier.fillMaxWidth()
+//                ){
+//                    Text(text = "ETA:")
+//                    Text(text = if (task.eta != null) "${task.eta.roundTo(2)} seconds" else "")
+//                }
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween ,
                     modifier = Modifier.fillMaxWidth()
                 ){
-                    Text(text = "No. of Victims:")
-                    Text(text = "${task.numberOfVictims}")
+                    Text(text = "No. of Rescuee:")
+                    Text(text = "${task.numberOfRescuee}")
                 }
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween ,
@@ -140,58 +133,58 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
         }
     }
 }
-
-@Preview(name = "TaskItemPreview")
-@Composable
-fun TaskItemPreview() {
-
-    val tasks = arrayOf(
-        Task(
-            1,
-            Date(),
-            2,
-            1,
-            1,
-            1.221f,
-            1.21212f,
-            1.2f,
-            2F,
-            2,
-            21.12312f,
-            212.123f,
-            TaskStatus.ASSIGNED,
-            TaskUrgency.MODERATE,
-            "",
-        ),
-    )
-
-    val severeTasks = tasks.filter { task -> task.urgency === TaskUrgency.SEVERE }
-    val moderateTasks = tasks.filter { task -> task.urgency === TaskUrgency.MODERATE}
-    val lowTasks = tasks.filter { task -> task.urgency === TaskUrgency.LOW}
-
-    ApplicationTheme {
-        Scaffold { innerPadding ->
-            LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-            ){
-                items(severeTasks) {
-                    Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-                        TaskItem(task = it)
-                    }
-                }
-                items(moderateTasks) {
-                    Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-                        TaskItem(task = it)
-                    }
-                }
-                items(lowTasks) {
-                    Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
-                        TaskItem(task = it)
-                    }
-                }
-            }
-        }
-    }
-}
+//
+//@Preview(name = "TaskItemPreview")
+//@Composable
+//fun TaskItemPreview() {
+//
+//    val tasks = arrayOf(
+//        Task(
+//            1,
+//            Date(),
+//            2,
+//            1,
+//            1,
+//            1.221f,
+//            1.21212f,
+//            1.2f,
+//            2F,
+//            2,
+//            21.12312f,
+//            212.123f,
+//            TaskStatus.ASSIGNED,
+//            TaskUrgency.MODERATE,
+//            "",
+//        ),
+//    )
+//
+//    val severeTasks = tasks.filter { task -> task.urgency === TaskUrgency.SEVERE }
+//    val moderateTasks = tasks.filter { task -> task.urgency === TaskUrgency.MODERATE}
+//    val lowTasks = tasks.filter { task -> task.urgency === TaskUrgency.LOW}
+//
+//    ApplicationTheme {
+//        Scaffold { innerPadding ->
+//            LazyColumn(
+//                modifier = Modifier
+//                    .padding(innerPadding)
+//                    .fillMaxSize()
+//            ){
+//                items(severeTasks) {
+//                    Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+//                        TaskItem(task = it)
+//                    }
+//                }
+//                items(moderateTasks) {
+//                    Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+//                        TaskItem(task = it)
+//                    }
+//                }
+//                items(lowTasks) {
+//                    Box(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+//                        TaskItem(task = it)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
