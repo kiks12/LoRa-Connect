@@ -9,16 +9,21 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.graphhopper.ResponsePath
 import com.lora_connect.application.MainActivity
+import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.room.entities.Task
+import com.lora_connect.application.tasks.TaskStatus
 import com.lora_connect.application.tasks.completion.TaskCompletionActivity
 import com.lora_connect.application.tasks.current_task.CurrentTask
 import com.lora_connect.application.tasks.list.TaskListActivity
 import com.lora_connect.application.utils.ActivityStarterHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.location.LocationComponentActivationOptions
 import org.maplibre.android.location.LocationComponentOptions
@@ -31,6 +36,7 @@ class MapViewModel(
     val buildLocationComponentActivationOptions: (style: Style, locationComponentOptions: LocationComponentOptions) -> LocationComponentActivationOptions,
     private val getRoute: (startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double) -> ResponsePath?,
     private val activityStarterHelper: ActivityStarterHelper,
+    private val taskRepository: TaskRepository,
 ): ViewModel() {
     private val currentTaskClass = CurrentTask.instance
     private val _state = MutableStateFlow(MapState())
@@ -108,5 +114,35 @@ class MapViewModel(
 
     fun finishTask() {
         activityStarterHelper.startActivity(TaskCompletionActivity::class.java)
+    }
+
+    fun cancelTask() {
+        val updatedTask = currentTask.value?.copy(
+            status = TaskStatus.CANCELED
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            updatedTask?.let {
+                taskRepository.updateTask(it)
+            }
+
+            withContext(Dispatchers.Main) {
+                currentTaskClass.setTask(null)
+                currentTaskClass.setInstructions(null)
+                toggleClearPath()
+                toggleShowCancelConfirmationDialog()
+            }
+        }
+    }
+
+    fun toggleShowCancelConfirmationDialog() {
+        _state.value = _state.value.copy(
+            showCancelConfirmationDialog = !_state.value.showCancelConfirmationDialog
+        )
+    }
+
+    fun toggleClearPath() {
+        _state.value = _state.value.copy(
+            clearPath = !_state.value.clearPath
+        )
     }
 }

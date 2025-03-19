@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.ActivityStarterHelper
 import com.lora_connect.application.utils.copyAssetsToFilesDir
@@ -26,9 +27,11 @@ import org.maplibre.android.maps.Style
 import java.io.File
 
 class MapActivity : ComponentActivity() {
+
     private lateinit var mapView: MapView
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val ioScope = CoroutineScope(Dispatchers.IO)
+    private val taskRepository = TaskRepository(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +50,8 @@ class MapActivity : ComponentActivity() {
             ::buildLocationComponentOptions,
             ::buildLocationComponentActivationOptions,
             offlineRouting::getRoute,
-            activityStarterHelper
+            activityStarterHelper,
+            taskRepository
         )
 
         setContent {

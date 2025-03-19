@@ -22,7 +22,7 @@ class CurrentTask private constructor() {
         return currentTask
     }
 
-    fun setInstructions(ins: InstructionList) {
+    fun setInstructions(ins: InstructionList?) {
         instructions.value = ins
     }
 

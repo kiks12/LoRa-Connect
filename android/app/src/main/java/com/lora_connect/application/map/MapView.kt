@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -102,7 +104,10 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
                 }
             }
 
-            val newPolyline = PolylineOptions().addAll(state.path!!.points.map { LatLng(it.lat, it.lon) }).width(5f)
+            val newPolyline = PolylineOptions()
+                .addAll(state.path!!.points.map { LatLng(it.lat, it.lon) })
+                .width(6f)
+                .color(android.graphics.Color.argb(255, 50, 122, 237))
             mapView.getMapAsync { map ->
                 map.addPolyline(newPolyline)
                 polyline = newPolyline.polyline
@@ -113,6 +118,20 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
     LaunchedEffect(currentTask) {
         if (currentTask != null) mapViewModel.setNewTask(currentTask!!)
     }
+
+    LaunchedEffect(state.clearPath) {
+        if (!state.clearPath) return@LaunchedEffect
+        mapView.getMapAsync { map ->
+            map.clear()
+            if (polyline != null) {
+                polyline.let {
+                    map.removeAnnotation(it!!.id)
+                }
+            }
+        }
+        mapViewModel.toggleClearPath()
+    }
+
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -144,11 +163,21 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ){
-                FilledTonalButton(onClick = mapViewModel::logout) {
+                FilledTonalButton(
+                    onClick = mapViewModel::logout,
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = Color.White
+                    )
+                ) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Log out")
                     Text(text = "Log Out", modifier = Modifier.padding(start=10.dp))
                 }
-                FilledTonalButton(onClick = mapViewModel::startTasksList) {
+                FilledTonalButton(
+                    onClick = mapViewModel::startTasksList,
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = Color.White
+                    )
+                ) {
                     Text(text = "Tasks")
                     Icon(Icons.Default.Menu, contentDescription = "Tasks", modifier = Modifier.padding(start = 10.dp))
                 }
@@ -168,12 +197,22 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
                         }
                     }
                     Box(modifier = Modifier.padding(8.dp)) {
-                        CurrentTaskCard(task = currentTask!!) {
-                            mapViewModel.finishTask()
-                        }
+                        CurrentTaskCard(
+                            task = currentTask!!,
+                            onFinishButtonClick = { mapViewModel.finishTask() },
+                            onCancelButtonClick = { mapViewModel.toggleShowCancelConfirmationDialog() }
+                        )
                     }
                 }
             }
+        }
+        if (state.showCancelConfirmationDialog) {
+            ConfirmationDialog(
+                onDismissRequest = mapViewModel::toggleShowCancelConfirmationDialog,
+                onConfirmation = mapViewModel::cancelTask,
+                dialogTitle = "Cancel Mission",
+                dialogText = "Are you sure you want to cancel this mission?"
+            )
         }
     }
 }
