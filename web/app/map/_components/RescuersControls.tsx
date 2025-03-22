@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useAdmin } from "@/hooks/map/use-admin";
 import { RESCUER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
@@ -9,19 +7,11 @@ import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import { useRescuers } from "@/hooks/map/use-rescuers";
 import TeamItem from "@/app/(withHeader)/teams/_components/TeamItem";
+import { useMapContext } from "@/contexts/MapContext";
 
 export default function RescuersControls() {
-	const { clearSourcesAndLayers } = useAdmin();
-	const {
-		teams,
-		showRescuersLocations,
-		setShowRescuersLocations,
-		clearRescuerShowStatuses,
-		clearTeamShowStatuses,
-		refreshRescuers,
-		rescuersLoading,
-		addTeamPoint,
-	} = useRescuers();
+	const { clearSourcesAndLayers } = useMapContext();
+	const { teams, clearRescuerShowStatuses, clearTeamShowStatuses, refreshRescuers, rescuersLoading, addTeamPoint } = useRescuers();
 	const [search, setSearch] = useState("");
 
 	function onClearClick() {
@@ -44,12 +34,12 @@ export default function RescuersControls() {
 			</div>
 			<div className="flex-1 overflow-y-auto">
 				<div>
-					<div className="flex justify-between items-center mt-2 border rounded-md p-3">
+					{/* <div className="flex justify-between items-center mt-2 border rounded-md p-3">
 						<Label className="ml-3" htmlFor="showLocations">
 							Show Locations
 						</Label>
 						<Switch id="showLocations" checked={showRescuersLocations} onCheckedChange={() => setShowRescuersLocations(!showRescuersLocations)} />
-					</div>
+					</div> */}
 					<div className="my-2">
 						<Label>Search Rescuer</Label>
 						<div className="flex">

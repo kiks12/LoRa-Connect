@@ -9,9 +9,6 @@ import TeamRescuerSubItem from "./TeamRescuerSubItem";
 import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import ShowStatusIndicator from "@/app/map/_components/ShowStatusIndicator";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { URGENCY_MAP } from "@/app/map/_components/BraceletWithUserListItem";
 
 export default function TeamItem({
@@ -51,17 +48,17 @@ export default function TeamItem({
 	}
 
 	return (
-		<Card className="p-4 border-neutral-200 shadow-sm">
+		<Card className="p-4 border-0 border-b rounded-none shadow-sm">
 			<div>
 				<div className="flex justify-between items-center">
 					<div className="flex flex-1">
 						<div className="flex-1">
 							<div className="flex items-center">
-								{isTeamWithStatusIndicator(team) && (
+								{/* {isTeamWithStatusIndicator(team) && (
 									<div className="mx-2">
 										<ShowStatusIndicator show={team.showing} />
 									</div>
-								)}
+								)} */}
 								<CardDescription className="text-xs">Team ID: {team.teamId}</CardDescription>
 							</div>
 							<CardTitle className="font-medium mt-2">{team.name}</CardTitle>
@@ -119,14 +116,14 @@ export default function TeamItem({
 						</Button>
 					</div>
 				</div>
-				{isTeamWithStatusIndicator(team) && (
+				{/* {isTeamWithStatusIndicator(team) && (
 					<div className="mt-4">
 						<div className="flex items-center">
 							<Switch onCheckedChange={onShowLocationOnMap} />
 							<Label className="ml-2">Show Location</Label>
 						</div>
 					</div>
-				)}
+				)} */}
 			</div>
 			{forMap && isTeamWithStatusIndicator(team) && rescuerWithBracelet?.bracelet?.sos && (
 				<div className="flex items-center mt-3">

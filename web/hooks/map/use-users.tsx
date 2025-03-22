@@ -1,4 +1,4 @@
-import { UserWithBracelet, UserWithStatusIdentifier } from "@/types";
+import { UserWithStatusIdentifier } from "@/types";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { useCallback, useEffect, useState } from "react";
@@ -8,21 +8,19 @@ import { useMapContext } from "@/contexts/MapContext";
 
 export const useUsers = () => {
 	const { mapRef, clearSourcesAndLayers, removeSourceAndLayer } = useMapContext();
-	const { users, setUsers } = useAppContext();
+	const { users, setUsers, fetchUsersAPI } = useAppContext();
 	const [usersLoading, setUsersLoading] = useState(false);
 	const [showUserLocations, setShowUserLocations] = useState(false);
 
 	// API FETCHING OF OWNERS
 	useEffect(() => {
-		fetchUsersAPI();
+		fetchUsers();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	async function fetchUsersAPI() {
+	async function fetchUsers() {
 		setUsersLoading(true);
-		const { users }: { users: UserWithBracelet[] } = await (await fetch("/api/users")).json();
-		const mappedUsers = users ? users.map((user) => ({ ...user, showing: false })) : [];
-		setUsers(mappedUsers);
+		fetchUsersAPI();
 		setUsersLoading(false);
 	}
 

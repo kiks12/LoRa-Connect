@@ -28,25 +28,25 @@ export const URGENCY_MAP: {
 export default function BraceletWithUserListItem({ user, onShowLocation }: { user: UserWithStatusIdentifier; onShowLocation: () => void }) {
 	return (
 		<Card
-			className={`my-1 shadow-none cursor-pointer hover:border-primary ${
+			className={`my-1 shadow-none cursor-pointer border-0 rounded-none border-b ${
 				user.bracelet && user.bracelet.sos ? `bg-${URGENCY_MAP[user.bracelet.urgency!].color}-50` : ""
 			}`}
 		>
 			<CardHeader className="flex justify-between items-start">
 				<div>
 					<div className="flex items-center">
-						<CardTitle className="">{user.name}</CardTitle>
-						<div className="mx-2">
+						<CardTitle className="font-normal">{user.name}</CardTitle>
+						{/* <div className="mx-2">
 							<ShowStatusIndicator show={user.showing} />
-						</div>
+						</div> */}
 					</div>
 				</div>
-				<div className="w-full flex mt-4">
+				{/* <div className="w-full flex mt-4">
 					<div className="flex items-center">
 						<Switch onCheckedChange={onShowLocation} />
-						<Label className="ml-2">Show Location</Label>
+						<Label className="ml-2">Hide Location</Label>
 					</div>
-				</div>
+				</div> */}
 				{user.bracelet?.sos && (
 					<div className="flex items-center mt-3">
 						<AlertCircle className={`text-${URGENCY_MAP[user.bracelet.urgency!].color}-500`} />

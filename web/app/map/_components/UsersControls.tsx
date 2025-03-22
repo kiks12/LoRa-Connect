@@ -59,12 +59,12 @@ export default function UsersControls() {
 			</div>
 			<div className="flex-1 overflow-y-auto">
 				<div>
-					<div className="flex justify-between items-center mt-2 border rounded-md p-3">
+					{/* <div className="flex justify-between items-center mt-2 border rounded-md p-3">
 						<Label className="ml-3" htmlFor="showLocations">
 							Show Locations
 						</Label>
 						<Switch id="showLocations" checked={showUserLocations} onCheckedChange={() => setShowUserLocations(!showUserLocations)} />
-					</div>
+					</div> */}
 					<div className="my-2">
 						<Label>Search User</Label>
 						<Input placeholder="Francis Tolentino..." onChange={onChange} value={search} />

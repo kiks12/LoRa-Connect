@@ -81,7 +81,7 @@ export function runHungarianAlgorithm(
 		const teamIndex = teams.findIndex((t) => t.teamId === teamId);
 
 		if (userIndex !== -1 && teamIndex !== -1) {
-			costMatrix[userIndex][teamIndex] = (alpha * distance) + ((1 - alpha) * time) * (1 - urgency);
+			costMatrix[userIndex][teamIndex] = (alpha * distance) + ((1 - alpha) * time) * (urgency);
 		}
 	});
 
