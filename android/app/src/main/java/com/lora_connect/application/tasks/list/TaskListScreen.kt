@@ -27,16 +27,23 @@ import androidx.compose.ui.unit.dp
 import com.lora_connect.application.tasks.TaskItem
 import com.lora_connect.application.tasks.TaskStatus
 import com.lora_connect.application.ui.theme.ApplicationTheme
+import compose.icons.FeatherIcons
+import compose.icons.feathericons.Calendar
+import java.time.ZoneId
+import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(viewModel: TaskListViewModel) {
     val state by viewModel.state.collectAsState()
-    val tasks by viewModel.tasks.collectAsState()
 
-    LaunchedEffect(tasks, state.activeStatus) {
-        viewModel.setTasksBreakdown(tasks)
+    LaunchedEffect(state.selectedDate) {
+        viewModel.setTasks()
+    }
+
+    LaunchedEffect(state.tasks, state.activeStatus) {
+        viewModel.setTasksBreakdown(state.tasks)
     }
 
     Scaffold(
@@ -46,6 +53,12 @@ fun TaskListScreen(viewModel: TaskListViewModel) {
                 navigationIcon = {
                     IconButton(onClick = { viewModel.finish() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Go Back")
+                    }
+                },
+                actions = {
+                    Text(text = state.selectedDate.toString())
+                    IconButton(onClick = viewModel::toggleShowDatePicker) {
+                        Icon(FeatherIcons.Calendar, contentDescription = "Date Picker")
                     }
                 }
             )
@@ -95,6 +108,16 @@ fun TaskListScreen(viewModel: TaskListViewModel) {
                     TaskItem(task = it, onStartButtonClick = { viewModel.onStartButtonClick(it) })
                 }
             }
+        }
+        if (state.showDatePicker) {
+            DatePickerModal(
+                onDateSelected = { dateInMillis ->
+                    dateInMillis?.let {
+                        viewModel.changeSelectedDate(Date(it).toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                    }
+                },
+                onDismiss = viewModel::toggleShowDatePicker
+            )
         }
     }
 }

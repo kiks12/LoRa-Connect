@@ -102,11 +102,23 @@ class MapViewModel(
             _state.value = _state.value.copy(
                 path = best
             )
+
+            viewModelScope.launch(Dispatchers.IO) {
+                val updatedTask = currentTask.value?.copy(
+                    distance = best.distance.toFloat(),
+                    eta = best.time.toFloat(),
+                )
+
+                updatedTask?.let {
+                    taskRepository.updateTask(it)
+                }
+            }
         }
     }
 
     fun logout() {
         CurrentTask.instance.setTask(null)
+        CurrentTask.instance.setInstructions(null)
         activityStarterHelper.startActivity(MainActivity::class.java)
     }
 

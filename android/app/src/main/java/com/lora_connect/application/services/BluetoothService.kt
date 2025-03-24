@@ -37,6 +37,8 @@ class BluetoothService : Service() {
         const val SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
         const val CHARACTERISTIC_UUID = "abcdef12-3456-7890-1234-56789abcdef1"
         const val DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805f9b34fb" // Standard CCCD UUID
+
+        const val WRITE_CHARACTERISTIC_UUID = "ghijkl12-3456-7890-1234-56789abcdef1"
     }
 
     private val binder = LocalBinder()
@@ -246,6 +248,30 @@ class BluetoothService : Service() {
             }
             it.close()
             bluetoothGatt = null
+        }
+    }
+
+    fun sendLongData(data: String) {
+        bluetoothGatt?.let { gatt ->
+            val service = gatt.getService(UUID.fromString(SERVICE_UUID))
+            val characteristic = service.getCharacteristic(UUID.fromString(WRITE_CHARACTERISTIC_UUID))
+
+            val maxLength = 20
+            val bytes = data.toByteArray()
+
+            for (i in bytes.indices step maxLength) {
+                val chunk = bytes.copyOfRange(i, minOf(i + maxLength, bytes.size))
+                characteristic.value = chunk
+                if (ActivityCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    return
+                }
+                gatt.writeCharacteristic(characteristic)
+                Thread.sleep(100) // Delay to avoid packet loss
+            }
         }
     }
 }

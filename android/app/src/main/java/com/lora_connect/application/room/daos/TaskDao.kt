@@ -10,7 +10,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.lora_connect.application.room.entities.Task
-import java.util.Date
 
 @Dao
 interface TaskDao {
@@ -22,7 +21,7 @@ interface TaskDao {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Query("SELECT * FROM task WHERE dateTime BETWEEN :startOfDay AND :endOfDay")
-    fun getTasksToday(startOfDay: Long, endOfDay: Long): LiveData<List<Task>>
+    fun getTasksWithinDay(startOfDay: Long, endOfDay: Long): LiveData<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertAll(vararg tasks: Task)

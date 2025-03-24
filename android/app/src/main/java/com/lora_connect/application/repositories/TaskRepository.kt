@@ -8,6 +8,7 @@ import com.lora_connect.application.room.AppDatabase
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskStatus
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 
 class TaskRepository(context: Context){
@@ -27,12 +28,11 @@ class TaskRepository(context: Context){
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getTasksToday() : LiveData<List<Task>> {
-        val now = LocalDate.now()
-        val startOfDay = now.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val endOfDay = now.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1
+    fun getTasksWithinDate(date: LocalDate) : LiveData<List<Task>> {
+        val startOfDay = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val endOfDay = date.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-        return taskDao.getTasksToday(startOfDay, endOfDay)
+        return taskDao.getTasksWithinDay(startOfDay, endOfDay)
     }
 
     suspend fun updateTask(task: Task) {

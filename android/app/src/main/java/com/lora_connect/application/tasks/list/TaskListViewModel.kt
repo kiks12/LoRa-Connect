@@ -13,11 +13,11 @@ import com.lora_connect.application.tasks.current_task.CurrentTask
 import com.lora_connect.application.tasks.TaskUrgency
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 class TaskListViewModel(application: Application, val finish: () -> Unit) : ViewModel() {
@@ -25,7 +25,16 @@ class TaskListViewModel(application: Application, val finish: () -> Unit) : View
     private val taskRepository = TaskRepository(application)
     private val _state = MutableStateFlow(TaskListState())
     val state : StateFlow<TaskListState> = _state.asStateFlow()
-    val tasks = taskRepository.getTasksToday().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
+    fun setTasks() {
+        viewModelScope.launch(Dispatchers.IO) {
+            taskRepository.getTasksWithinDate(_state.value.selectedDate).asFlow().collectLatest {
+                _state.value = _state.value.copy(
+                    tasks = it
+                )
+            }
+        }
+    }
 
     fun setTasksBreakdown(tasks: List<Task>) {
         _state.value = _state.value.copy(
@@ -47,6 +56,18 @@ class TaskListViewModel(application: Application, val finish: () -> Unit) : View
     fun changeActiveStatus(newStatus: String) {
         _state.value = _state.value.copy(
             activeStatus = newStatus
+        )
+    }
+
+    fun toggleShowDatePicker() {
+        _state.value = _state.value.copy(
+            showDatePicker = !_state.value.showDatePicker
+        )
+    }
+
+    fun changeSelectedDate(date: LocalDate) {
+        _state.value = _state.value.copy(
+            selectedDate = date
         )
     }
 }
