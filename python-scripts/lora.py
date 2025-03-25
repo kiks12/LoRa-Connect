@@ -171,8 +171,9 @@ class LoRaModule(LoRa):
 
     def instruction_to_user(self, instructions):
         print(INSTRUCTION_TO_USER_PY)
-        for instruction in instructions:
-            print(instruction)
+        evacuation_instructions = instructions.get(
+            "evacuationCenterInstructions")
+        for instruction in evacuation_instructions:
             self.send_message(instruction_to_user(instruction=instruction))
             sleep(0.5)
 
