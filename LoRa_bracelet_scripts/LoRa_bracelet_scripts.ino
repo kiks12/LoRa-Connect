@@ -22,7 +22,7 @@ TinyGPSPlus gps;
 
 volatile bool rx_flag = false;
 
-const char* ADDRESS = getDeviceAddress();
+const char* ADDRESS = "1100";
 
 const int PACKET_HISTORY_SIZE = 20;
 String packet_history[PACKET_HISTORY_SIZE];
@@ -125,7 +125,7 @@ void setup() {
   NimBLEDevice::init("Heltec V3");
   pServer = NimBLEDevice::createServer();
   pServer->setCallbacks(&serverCallbacks);
-  pService = pServer->createService(getServiceUuid());
+  pService = pServer->createService("af2b06a5-8a8e-41d6-9cba-b49e2500ae05");
   pWriteCharacteristic = pService->createCharacteristic(WRITE_CHARACTERISTIC_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
   pReadCharacteristic  = pService->createCharacteristic(READ_CHARACTERISTIC_UUID , NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
   pReadCharacteristic->setCallbacks(new CharacteristicCallbacks());
