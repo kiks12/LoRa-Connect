@@ -84,20 +84,20 @@ class LoRaModule(LoRa):
         data = bytes(payload).decode("utf-8", "ignore")
 
         print(f"Received Data: {data}")
-        uid, code = self.get_uid_code_from_payload(data)
-        if uid == TO_ALL or uid == TO_CENTRAL_NODE or uid == TO_RESCUERS_AND_CENTRAL_NODE:
-            match code:
-                case "1010":
+        source, dest, id, packet_type = self.get_uid_code_from_payload(data)
+        if dest == TO_ALL or dest == TO_CENTRAL_NODE or dest == TO_RESCUERS_AND_CENTRAL_NODE:
+            match packet_type:
+                case "1":
                     asyncio.run(self.location_from_user(data))
-                case "1020":
+                case "2":
                     asyncio.run(self.sos_from_user(data))
-                case "1070":
+                case "6":
                     asyncio.run(self.location_from_rescuer(data))
-                case "1030":
+                case "3":
                     asyncio.run(self.sos_from_rescuer(data))
-                case "1040":
+                case "4":
                     asyncio.run(self.task_acknowledgement_from_rescuer(data))
-                case "1050":
+                case "5":
                     asyncio.run(self.task_status_update_from_rescuer(data))
                 case _:
                     print("default")
@@ -208,8 +208,10 @@ class LoRaModule(LoRa):
     """ UTILITY FUNCTIONS """
 
     def get_uid_code_from_payload(self, payload):
-        uid = payload[0:8]
-        code = payload[8:12]
+        source = payload[0:4]
+        dest = payload[5:8]
+        id = payload[8:9]
+        packet_type = payload[10]
 
-        return [uid, code]
+        return [source, dest, id, packet_type]
     """ UTILITY FUNCTIONS """

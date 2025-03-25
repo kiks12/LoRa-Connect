@@ -10,11 +10,16 @@ def start_location_transmission_to_tru():
     return f"{TO_RESCUERS_AND_USERS}{START_LOCATION_TRANSMISSION_TO_TRU}"
 
 
-def instruction_to_user(instruction: dict):
-    braceletUid = instruction.get("braceletId")
-    evacuationCenter = instruction.get("evacuationCenter")
+def instruction_to_user(instruction):
+    owner_bracelet_id = instruction.get("ownerBraceletId")
+    id = "00"
+    ttl = "5"
+    distance = instruction.get("distance")
+    evacuation_center_name = instruction.get("evacuationCenterName")
     message = instruction.get("message")
-    return f"{braceletUid}{INSTRUCTION_TO_USER}{evacuationCenter}-{message}"
+
+    # [Source Address][Destination Address][ID][Packet Type][TTL][PAYLOAD]
+    return f"{TO_CENTRAL_NODE}{owner_bracelet_id}{id}{INSTRUCTION_TO_USER}{ttl}{distance}-{evacuation_center_name}-{message}"
 
 
 """
@@ -67,7 +72,9 @@ TASK TO RESCUER PAYLOAD FROM SERVER
 
 def task_to_rescuer(task):
     missionId = task.get("missionId")
-    braceletUid = task.get("teamBraceletId")
+    id = "00"
+    ttl = "5"
+    team_bracelet_uid = task.get("teamBraceletId")
     username = task.get("user").get("name")
     userLat = task.get("userLat")
     userLong = task.get("userLong")
@@ -85,8 +92,16 @@ def task_to_rescuer(task):
         case "COMPLETE":
             status = 5
     urgency = task.get("urgency")
+    match task.get("urgency"):
+        case 0.2:
+            urgency = 1
+        case 0.5:
+            urgency = 2
+        case 1:
+            urgency = 3
 
-    return f"{braceletUid}{TASK_TO_RESCUER}{missionId}-{username}-{userLat}-{userLong}-{numberOfVictims}-{status}-{urgency}"
+    # [Source Address][Destination Address][ID][Packet Type][TTL][PAYLOAD]
+    return f"{TO_CENTRAL_NODE}{team_bracelet_uid}{id}{TASK_TO_RESCUER}{ttl}{missionId}-{username}-{userLat}-{userLong}-{numberOfVictims}-{status}-{urgency}"
 
 
 """ PAYLOAD CREATION """
