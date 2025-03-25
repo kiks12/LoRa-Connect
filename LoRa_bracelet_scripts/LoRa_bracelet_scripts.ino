@@ -4,9 +4,9 @@
 #include <heltec_unofficial.h>
 
 #define PAUSE               0
-#define FREQUENCY           866.3       
+#define FREQUENCY           433.0       
 #define BANDWIDTH           250.0
-#define SPREADING_FACTOR    9
+#define SPREADING_FACTOR    7
 #define TRANSMIT_POWER      0
 
 #include <TinyGPSPlus.h>
@@ -19,6 +19,9 @@ TinyGPSPlus gps;
 
 #include <NimBLEDevice.h>
 #include <queue>
+
+#define WRITE_CHARACTERISTIC_UUID "04fb4f85-eb68-4d2a-bf8e-57c63a01cddf"
+#define READ_CHARACTERISTIC_UUID "d28bbf99-ca9f-4e97-bb0b-df5ae9254068"
 
 volatile bool rx_flag = false;
 
@@ -119,6 +122,7 @@ void setup() {
   RADIOLIB_OR_HALT(radio.setBandwidth(BANDWIDTH));
   RADIOLIB_OR_HALT(radio.setSpreadingFactor(SPREADING_FACTOR));
   RADIOLIB_OR_HALT(radio.setOutputPower(TRANSMIT_POWER));
+  RADIOLIB_OR_HALT(radio.setCodingRate(5)); // TRY LANG
 
   RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
 
@@ -136,7 +140,7 @@ void setup() {
   pAdvertising->enableScanResponse(true);
   pAdvertising->start();
 
-  both.println(getDeviceType() == 0 ? "User" : "Rescuer");
+  both.println(0 == 0 ? "User" : "Rescuer");
 }
 
 void txPacket(String packet) {
@@ -193,6 +197,10 @@ void rescuerProcessPayload(uint8_t type, String payload) {
 void loop() {
   heltec_loop();
 
+  // both.print("Sending: Hello From Device");
+  // txPacket("Hello from Device");
+  // delay(1000);
+
   while (gpsSerial.available()) {
     gps.encode(gpsSerial.read());
   }
@@ -222,12 +230,12 @@ void loop() {
     txPacket(packet);
   }
 
-  if (BT_flag) {
-    BT_flag = false;
-    // There is BT data to be sent, send the first in queue, the rest will be obtained as mobile device triggers onRead callback
-    pWriteCharacteristic->setValue((String) BT_queue.front());
-    BT_queue.pop();
-  }
+  // if (BT_flag) {
+  //   BT_flag = false;
+  //   // There is BT data to be sent, send the first in queue, the rest will be obtained as mobile device triggers onRead callback
+  //   pWriteCharacteristic->setValue((String) BT_queue.front());
+  //   BT_queue.pop();
+  // }
 
   if (rx_flag) {
     rx_flag = false;
@@ -235,7 +243,7 @@ void loop() {
 
     radio.readData((uint8_t*) rx_data, 255);
     if (_radiolib_status == RADIOLIB_ERR_NONE) {
-
+      both.print(rx_data);
       String dst = ((String)rx_data).substring(4,8);
       uint8_t type = rx_data[10]-'0'; // ignore 1 or 6
 

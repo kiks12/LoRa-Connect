@@ -88,6 +88,13 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
                     }
                 }
             }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween ,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                Text(text = "No. of Rescuee:")
+                Text(text = "${task.numberOfRescuee}")
+            }
             Column(
                 modifier = Modifier.padding(top = 18.dp)
             ){
@@ -98,27 +105,7 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
                     Text(text = "User Name:")
                     Text(text = "${task.userName}")
                 }
-//                Row(
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    modifier = Modifier.fillMaxWidth()
-//                ){
-//                    Text(text = "Distance:")
-//                    Text(text = if (task.distance != null) "${task.distance.roundTo(2)}km" else "No Distance")
-//                }
-//                Row(
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    modifier = Modifier.fillMaxWidth()
-//                ){
-//                    Text(text = "ETA:")
-//                    Text(text = if (task.eta != null) "${task.eta.roundTo(2)} seconds" else "No ETA")
-//                }
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween ,
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Text(text = "No. of Rescuee:")
-                    Text(text = "${task.numberOfRescuee}")
-                }
+
                 if (showMore) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween ,
@@ -133,6 +120,24 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
                     ){
                         Text(text = "Longitude:")
                         Text(text = "${task.longitude}")
+                    }
+                    if (task.distance != null) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            Text(text = "Distance:")
+                            Text(text = "${task.distance.roundTo(2)}km")
+                        }
+                    }
+                    if (task.eta != null) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ){
+                            Text(text = "ETA:")
+                            Text(text = "${task.eta.roundTo(2)} seconds")
+                        }
                     }
                     if (task.timeOfArrival != null) {
                         Row(

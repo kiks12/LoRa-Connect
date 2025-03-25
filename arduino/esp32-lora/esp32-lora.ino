@@ -81,11 +81,11 @@ void loop() {
     handleLoRaPacket();
   }
 
-  // LoRa.beginPacket();
-  // LoRa.print("Hello from ESP32");
-  // LoRa.endPacket();
-  // Serial.println("Packet Sent");
-  // delay(2000);
+  LoRa.beginPacket();
+  LoRa.print("Hello from ESP32");
+  LoRa.endPacket();
+  Serial.println("Packet Sent");
+  delay(2000);
 
   // try to parse packet
   int packetSize = LoRa.parsePacket();

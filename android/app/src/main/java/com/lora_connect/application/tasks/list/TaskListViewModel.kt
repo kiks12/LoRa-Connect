@@ -50,6 +50,7 @@ class TaskListViewModel(application: Application, val finish: () -> Unit) : View
             taskRepository.updateTask(updatedTask)
         }
         currentTask.setTask(updatedTask)
+        // Call From BluetoothService (sendLongData)
         finish()
     }
 

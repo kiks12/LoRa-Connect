@@ -66,24 +66,24 @@ export const useAdmin = () => {
 		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU);
 
 		// Receive user location signal from py
-		socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
-			const { braceletId } = data;
-			const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
-			console.log(correctOwner);
-			if (correctOwner.length === 0) return;
-			// addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
-			// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
-		});
+		// socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
+		// const { braceletId } = data;
+		// const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
+		// console.log(correctOwner);
+		// if (correctOwner.length === 0) return;
+		// addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
+		// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
+		// });
 
 		// Receive rescuer location signal from py
-		socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
-			const { braceletId } = data;
-			const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
-			console.log(correctOwner);
-			if (correctOwner.length === 0) return;
-			// addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier) }, false, true);
-			// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
-		});
+		// socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
+		// 	const { braceletId } = data;
+		// 	const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
+		// 	console.log(correctOwner);
+		// 	if (correctOwner.length === 0) return;
+		// 	// addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier) }, false, true);
+		// 	// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
+		// });
 	}
 
 	// Location Monitoring Code block - as long as monitorLocation is true this triggers

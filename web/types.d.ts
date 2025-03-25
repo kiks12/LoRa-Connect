@@ -51,6 +51,7 @@ export type ObstacleWithStatusIdentifier = Obstacle & StatusIdentifier
 export type EvacuationCenterWithStatusIdentifier = EvacuationCenters & StatusIdentifier 
 
 export type EvacuationInstruction = {
+  ownerBraceletId: string,
   ownerId: number,
   ownerName: string,
   evacuationCenterId: number,

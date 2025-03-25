@@ -11,7 +11,7 @@ import com.lora_connect.application.room.converters.Converters
 import com.lora_connect.application.room.daos.TaskDao
 import com.lora_connect.application.room.entities.Task
 
-@Database(entities = [Task::class], version = 4)
+@Database(entities = [Task::class], version = 5)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao() : TaskDao
@@ -21,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            val MIGRATION_3_4 = object : Migration(3, 4) {
+            val MIGRATION_4_5 = object : Migration(4, 5) {
                 override fun migrate(db: SupportSQLiteDatabase) {
                     // Rename old table
                     db.execSQL("ALTER TABLE Task RENAME TO Task_old")
@@ -32,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
                             missionId TEXT NOT NULL PRIMARY KEY,
                             createdAt INTEGER NOT NULL,
                             dateTime INTEGER NOT NULL,
-                            userId INTEGER NULL,
+                            userId TEXT NULL,
                             userName TEXT NULL,
                             numberOfRescuee INTEGER NULL,
                             status TEXT NULL,
@@ -58,7 +58,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "LoRa-Connect"
-                ).addMigrations(MIGRATION_3_4).build()
+                ).addMigrations(MIGRATION_4_5).build()
                 INSTANCE = instance
                 instance
             }

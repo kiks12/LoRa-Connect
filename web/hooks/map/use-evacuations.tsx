@@ -73,15 +73,20 @@ export const useEvacuations = () => {
 
 	async function createEvacuationInstructions() {
 		setCalculatingEvacuationInstructions(true);
-		setEvacuationInstructions([]);
+		setEvacuationInstructions([]); // Clear previous instructions
+
 		const familyDistances = await fetchFamilyDistanceFromEvacuationCenter();
+		const newInstructions: typeof familyDistances = []; // Temporary array to store results
 
 		users.forEach((user) => {
-			const distances = familyDistances.filter((familyDistance) => familyDistance.ownerId === user.userId);
-			if (distances.length <= 0) return;
-			const minimumDistanceForFamily = distances.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
-			setEvacuationInstructions((prev) => [...prev, minimumDistanceForFamily]);
+			const distances = familyDistances.filter((fd) => fd.ownerId === user.userId);
+			if (distances.length > 0) {
+				const minimumDistanceForFamily = distances.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
+				newInstructions.push(minimumDistanceForFamily);
+			}
 		});
+
+		setEvacuationInstructions(newInstructions);
 		setCalculatingEvacuationInstructions(false);
 	}
 
@@ -110,6 +115,7 @@ export const useEvacuations = () => {
 					const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 					return {
 						ownerId: user.userId,
+						ownerBraceletId: user.bracelet?.braceletId ?? "",
 						ownerName: user.name,
 						evacuationCenterId: evacuationCenter.evacuationId,
 						evacuationCenterName: evacuationCenter.name,
