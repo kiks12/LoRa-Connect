@@ -48,6 +48,7 @@ export function BraceletForm({
 			latitude: null,
 			longitude: null,
 			sos: false,
+			urgency: null,
 		});
 
 		showToast(result);
@@ -65,6 +66,7 @@ export function BraceletForm({
 			latitude: null,
 			longitude: null,
 			sos: false,
+			urgency: null,
 		});
 		showToast(result);
 	};

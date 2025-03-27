@@ -9,18 +9,25 @@ SAMPLE BODY
 {
   braceletId: string,
   latitude: number,
-  longitude: number
+  longitude: number,
+  urgency: number, 
 }
 
 */
 export async function PATCH(req: Request) {
   try {
-    const {braceletId, latitude, longitude}: {
+    const {braceletId, latitude, longitude, urgency}: {
       braceletId: string, 
       latitude: number, 
       longitude: number
+      urgency: number
     }= await req.json()
-    await updateBraceletLocation({braceletId, latitude: parseFloat(latitude.toFixed(6)), longitude: parseFloat(longitude.toFixed(6))})
+    await updateBraceletLocation({
+      braceletId, 
+      latitude: parseFloat(latitude.toFixed(6)),
+      longitude: parseFloat(longitude.toFixed(6)),
+      urgency: urgency
+    })
 
     return NextResponse.json({
       message: "Update Bracelet Location"

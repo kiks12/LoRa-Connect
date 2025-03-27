@@ -1,10 +1,15 @@
 import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWithTitleAndBackButton";
 import { RescuerForm } from "../_components/RescuerForm";
 
-export default function UpdateRescuerPage({ searchParams }: { searchParams?: { [key: string]: string | undefined } }) {
-	const rescuerId = searchParams?.rescuerId ? Number.parseInt(searchParams.rescuerId) : 0;
-	const name = searchParams?.name ?? "";
-	const braceletId = searchParams?.braceletId ?? "";
+interface PageProps {
+	searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export default async function UpdateRescuerPage({ searchParams }: PageProps) {
+	const params = await searchParams;
+	const rescuerId = params?.rescuerId ? Number.parseInt(params.rescuerId) : 0;
+	const name = params?.name ?? "";
+	const braceletId = params?.braceletId ?? "";
 
 	return (
 		<main>

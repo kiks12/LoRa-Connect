@@ -3,8 +3,13 @@ import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWith
 import TeamsForm from "../_components/TeamsForm";
 import { TeamWithRescuer } from "@/types";
 
-export default async function UpdateTeamsPage({ searchParams }: { searchParams?: { [key: string]: string | undefined } }) {
-	const teamId = searchParams?.teamId ? Number.parseInt(searchParams.teamId) : 0;
+interface PageProps {
+	searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export default async function UpdateTeamsPage({ searchParams }: PageProps) {
+	const params = await searchParams;
+	const teamId = params?.teamId ? Number.parseInt(params.teamId) : 0;
 	const existingTeam: TeamWithRescuer | null = await getTeam({ teamId });
 
 	return (

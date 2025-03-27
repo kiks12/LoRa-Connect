@@ -3,9 +3,9 @@ import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializ
 import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: {params: {operationId: string}}) {
+export async function GET(req: Request, { params }: {params: Promise<{operationId: string}>}) {
   try {
-    const { operationId } = params
+    const { operationId } = await params
 
     const victimStatusReports = await getVictimStatusReports({operationId: operationId})
 

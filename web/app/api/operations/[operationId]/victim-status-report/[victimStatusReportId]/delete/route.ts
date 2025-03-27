@@ -3,9 +3,9 @@ import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializ
 import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
-export async function DELETE(req: Request, { params }: {params: {operationId: string, victimStatusReportId: string}}) {
+export async function DELETE(req: Request, { params }: {params: Promise<{operationId: string, victimStatusReportId: string}>}) {
   try {
-    const { operationId, victimStatusReportId } = params
+    const { operationId, victimStatusReportId } = await params
 
     const deletedVictimStatusReport = await deleteVictimStatusReport({victimStatusReportId: parseInt(victimStatusReportId)})
 

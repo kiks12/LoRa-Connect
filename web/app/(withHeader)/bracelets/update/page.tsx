@@ -3,10 +3,15 @@
 import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWithTitleAndBackButton";
 import { BraceletForm } from "../_components/BraceletForm";
 
-export default async function UpdateBraceletPage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
-	const braceletId: string = searchParams.braceletId ?? "";
-	const name: string = searchParams.name ?? "";
-	const type: string = searchParams.type ?? "";
+interface PageProps {
+	searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export default async function UpdateBraceletPage({ searchParams }: PageProps) {
+	const params = await searchParams;
+	const braceletId: string = params.braceletId ?? "";
+	const name: string = params.name ?? "";
+	const type: string = params.type ?? "";
 
 	return (
 		<main>

@@ -3,12 +3,17 @@
 import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWithTitleAndBackButton";
 import { EvacuationForm } from "../_components/EvacuationCenterForm";
 
-export default async function UpdateEvacuationCenterPage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
-	const evacuationId = searchParams.evacuationId ? Number.parseInt(searchParams.evacuationId) : 0;
-	const capacity = searchParams.capacity ? Number.parseInt(searchParams.capacity) : 0;
-	const latitude = searchParams.latitude ? Number.parseInt(searchParams.latitude) : 0;
-	const longitude = searchParams.longitude ? Number.parseInt(searchParams.longitude) : 0;
-	const name = searchParams.name ?? "";
+interface PageProps {
+	searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export default async function UpdateEvacuationCenterPage({ searchParams }: PageProps) {
+	const params = await searchParams;
+	const evacuationId = params.evacuationId ? Number.parseInt(params.evacuationId) : 0;
+	const capacity = params.capacity ? Number.parseInt(params.capacity) : 0;
+	const latitude = params.latitude ? Number.parseInt(params.latitude) : 0;
+	const longitude = params.longitude ? Number.parseInt(params.longitude) : 0;
+	const name = params.name ?? "";
 
 	return (
 		<main>

@@ -17,7 +17,7 @@ SAMPLE BODY
 }
 
 */
-export async function POST(req: Request, { params }: {params: {operationId: string, victimStatusReportId: string}}) {
+export async function POST(req: Request, { params }: {params: Promise<{operationId: string, victimStatusReportId: string}>}) {
   try {
     const { operationId } = await params
     const { name, age, status, notes } = await req.json()

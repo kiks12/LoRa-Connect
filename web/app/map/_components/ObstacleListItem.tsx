@@ -13,13 +13,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useAdmin } from "@/hooks/map/use-admin";
 import { useToast } from "@/hooks/use-toast";
 import { Obstacle } from "@prisma/client";
 import { MoreVerticalIcon } from "lucide-react";
-import ObstacleForm from "./ObstacleForm";
 import ShowStatusIndicator from "./ShowStatusIndicator";
 import { ObstacleWithStatusIdentifier } from "@/types";
+import { useObstacles } from "@/hooks/map/use-obstacles";
 
 export default function ObstacleListItem({
 	obstacle,
@@ -31,7 +30,7 @@ export default function ObstacleListItem({
 	onDelete: (obstacle: number) => void;
 }) {
 	const { toast } = useToast();
-	const { toggleAddingObstacle } = useAdmin();
+	const { toggleAddingObstacle } = useObstacles();
 
 	function onEditClick() {
 		toggleAddingObstacle();

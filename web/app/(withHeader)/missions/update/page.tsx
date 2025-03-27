@@ -1,8 +1,12 @@
 import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWithTitleAndBackButton";
 import OperationsForm from "../_components/OperationsForm";
 
-export default function MissionsUpdatePage({ searchParams }: { searchParams: { [key: string]: string | undefined } }) {
-	const missionId = searchParams.missionId ?? "";
+interface PageProps {
+	searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export default async function MissionsUpdatePage({ searchParams }: PageProps) {
+	const missionId = (await searchParams).missionId ?? "";
 
 	return (
 		<main>

@@ -1,12 +1,17 @@
 import { ContainerWithTitleAndBackButton } from "../../_components/ContainerWithTitleAndBackButton";
 import { UserForm } from "../_components/UserForm";
 
-export default function UpdateOwnerPage({ searchParams }: { searchParams?: { [key: string]: string | undefined } }) {
-	const userId = searchParams?.userId ? Number.parseInt(searchParams.userId) : 0;
-	const name = searchParams?.name ?? "";
-	const members = searchParams?.members ? Number.parseInt(searchParams.members) : 0;
-	const braceletId = searchParams?.braceletId ?? "";
-	const address = searchParams?.address ?? "";
+interface PageProps {
+	searchParams: Promise<Record<string, string | undefined>>;
+}
+
+export default async function UpdateOwnerPage({ searchParams }: PageProps) {
+	const params = await searchParams;
+	const userId = params?.userId ? Number.parseInt(params.userId) : 0;
+	const name = params?.name ?? "";
+	const members = params?.members ? Number.parseInt(params.members) : 0;
+	const braceletId = params?.braceletId ?? "";
+	const address = params?.address ?? "";
 
 	return (
 		<main>
