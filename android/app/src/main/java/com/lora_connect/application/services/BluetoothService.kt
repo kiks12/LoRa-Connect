@@ -1,14 +1,22 @@
 package com.lora_connect.application.services
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.bluetooth.*
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import com.lora_connect.application.R
+import com.lora_connect.application.authentication.BluetoothSessionManager
 import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskStatus
@@ -17,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.util.Date
 import java.util.UUID
 
@@ -39,10 +48,14 @@ class BluetoothService : Service() {
         const val DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805f9b34fb" // Standard CCCD UUID
 
         const val WRITE_CHARACTERISTIC_UUID = "ghijkl12-3456-7890-1234-56789abcdef1"
+
+        private const val BLUETOOTH_CHANNEL = "bluetooth_channel"
+        private const val BLUETOOTH_SERVICE_NAME = "Bluetooth Service"
     }
 
     private val binder = LocalBinder()
     private var bluetoothAdapter: BluetoothAdapter? = null
+    private var bluetoothSocket: BluetoothSocket? = null
     private var bluetoothGatt: BluetoothGatt? = null
     private var connectionState = STATE_DISCONNECTED
     private val taskRepository = TaskRepository(this)
@@ -106,10 +119,62 @@ class BluetoothService : Service() {
 
     override fun onBind(intent: Intent?): IBinder = binder
 
+    override fun onCreate() {
+        super.onCreate()
+        startForegroundService()
+    }
+
     fun initialize(): Boolean {
         val bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager?.adapter
         return bluetoothAdapter != null
+    }
+
+    // Start foreground service with notification
+    private fun startForegroundService() {
+        createNotificationChannel()
+
+        val notification = NotificationCompat.Builder(this, BLUETOOTH_CHANNEL)
+            .setContentTitle("Bluetooth Connection")
+            .setContentText("Bluetooth Service is currently working")
+            .setSmallIcon(R.drawable.ic_launcher_background)
+            .build()
+
+        startForeground(1, notification)
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                BLUETOOTH_CHANNEL, // Unique Channel ID
+                BLUETOOTH_SERVICE_NAME,
+                NotificationManager.IMPORTANCE_LOW // No sound/vibration
+            )
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(channel)
+        }
+    }
+
+    fun showNotification(context: Context, title: String, message: String) {
+        createNotificationChannel() // Ensure the channel exists
+
+        val notification = NotificationCompat.Builder(context, BLUETOOTH_CHANNEL)
+            .setSmallIcon(R.drawable.ic_launcher_background)  // Use a valid drawable icon
+            .setContentTitle(title)  // Notification title
+            .setContentText(message)  // Notification message
+            .setPriority(NotificationCompat.PRIORITY_HIGH)  // High importance for pop-up notifications
+            .setAutoCancel(true)  // Dismiss when tapped
+            .build()
+
+        val manager = NotificationManagerCompat.from(context)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        manager.notify(1, notification)  // Show notification with ID 1
     }
 
     fun connect(address: String): Boolean {
@@ -121,12 +186,35 @@ class BluetoothService : Service() {
                 }
                 bluetoothGatt = device.connectGatt(this, false, bluetoothGattCallback)
                 bluetoothGatt?.requestMtu(512)
+                BluetoothSessionManager.bluetoothDevice = device
+                showNotification(application, "Bluetooth Connected", "Connected to ${device.name}")
                 return true
             } catch (exception: IllegalArgumentException) {
                 Log.w(TAG, "Device not found with provided address.")
                 return false
             }
         } ?: return false
+    }
+
+    fun disconnectDevice() {
+        try {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
+            bluetoothGatt?.disconnect() // BLE
+            bluetoothGatt?.close()
+
+            bluetoothSocket = null
+            bluetoothGatt = null
+
+            Log.d("BluetoothService", "Device disconnected")
+        } catch (e: IOException) {
+            Log.e("BluetoothService", "Error while disconnecting", e)
+        }
     }
 
     @Suppress("DEPRECATION")
@@ -180,10 +268,10 @@ class BluetoothService : Service() {
     private fun processData(data: String) {
         val source = data.substring(0, 4)
         val dest = data.substring(4, 8)
-        val id = data[8]
-        val packetType = data[9]
-        val ttl = data[10]
-        val payload = data.substring(11, data.length)
+        val id = data.substring(8, 10)
+        val packetType = data[10]
+        val ttl = data[11]
+        val payload = data.substring(12, data.length)
         Log.w(TAG, "SOURCE: $source DEST: $dest ID: $id PACKET_TYPE: $packetType TTL: $ttl")
         when (packetType) {
             '9' -> processTaskData(payload)
@@ -231,7 +319,12 @@ class BluetoothService : Service() {
             teamId = null
         )
         scope.launch {
-            taskRepository.createTask(newTask)
+            try {
+                taskRepository.createTask(newTask)
+                showNotification(application, "New Mission Received!", "You have received a new mission from central node")
+            } catch (e: Exception) {
+                Log.d(TAG, "MISSION ID ALREADY RECEIVED")
+            }
         }
         Log.w(TAG, newTask.toString())
     }

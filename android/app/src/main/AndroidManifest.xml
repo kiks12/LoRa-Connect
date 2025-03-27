@@ -23,16 +23,19 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Application"
+        android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:targetApi="31">
         <activity
             android:name=".tasks.list.TaskListActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".tasks.completion.TaskCompletionActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".map.MapActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"
             android:exported="false" />
 
         <meta-data
@@ -43,7 +46,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Application">
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,7 +54,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.BluetoothService" android:enabled="true" />
+        <service
+            android:name=".services.BluetoothService"
+            android:enabled="true"
+            android:foregroundServiceType="connectedDevice"
+            />
     </application>
 
 </manifest>

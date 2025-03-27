@@ -5,6 +5,7 @@ package com.lora_connect.application.map
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +13,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,8 +36,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.lora_connect.application.R
+import com.lora_connect.application.authentication.BluetoothSessionManager
 import com.lora_connect.application.permissions.RequestLocationPermissionUsingRememberLauncherForActivityResult
 import com.lora_connect.application.tasks.InstructionItem
 import com.lora_connect.application.tasks.current_task.CurrentTaskCard
@@ -67,6 +78,9 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         Style.Builder().fromUri(
             Uri.fromFile(style).toString()
         )
+    }
+    var showMenu by remember {
+        mutableStateOf(false)
     }
 
     RequestLocationPermissionUsingRememberLauncherForActivityResult(
@@ -158,34 +172,52 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
                 modifier = Modifier.fillMaxSize()
             )
         }
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                FilledTonalButton(
-                    onClick = mapViewModel::logout,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = Color.White
-                    )
-                ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Log out")
-                    Text(text = "Log Out", modifier = Modifier.padding(start=10.dp))
-                }
-                FilledTonalButton(
-                    onClick = mapViewModel::startTasksList,
-                    colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = Color.White
-                    )
-                ) {
-                    Text(text = "Tasks")
-                    Icon(Icons.Default.Menu, contentDescription = "Tasks", modifier = Modifier.padding(start = 10.dp))
+        if (currentTask == null) {
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Row(
+                        modifier = Modifier.padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Icon(
+                            painterResource(R.drawable.ic_launcher_background),
+                            contentDescription = "LOGO",
+                            Modifier.size(40.dp)
+                        )
+                        if (BluetoothSessionManager.bluetoothDevice != null) {
+                            Column(
+                                modifier = Modifier.padding(start = 8.dp)
+                            ){
+                                Text(text = "Bluetooth Device", fontSize = 12.sp)
+                                Text(
+                                    text = BluetoothSessionManager.bluetoothDevice!!.name,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Medium,
+                                )
+                            }
+                        }
+                    }
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                        }
+                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                            DropdownMenuItem(text = { Text("Tasks") }, onClick = mapViewModel::startTasksList)
+                            DropdownMenuItem(text = { Text("Logout") }, onClick = mapViewModel::logout)
+                        }
+                    }
                 }
             }
         }
+
         if (currentTask != null) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Column(

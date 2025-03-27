@@ -11,6 +11,7 @@ import com.graphhopper.ResponsePath
 import com.lora_connect.application.MainActivity
 import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.room.entities.Task
+import com.lora_connect.application.shared.SharedBluetoothViewModel
 import com.lora_connect.application.tasks.TaskStatus
 import com.lora_connect.application.tasks.completion.TaskCompletionActivity
 import com.lora_connect.application.tasks.current_task.CurrentTask
@@ -38,6 +39,7 @@ class MapViewModel(
     private val getRoute: (startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double) -> ResponsePath?,
     private val activityStarterHelper: ActivityStarterHelper,
     private val taskRepository: TaskRepository,
+    private val sharedBluetoothViewModel: SharedBluetoothViewModel,
 ): ViewModel() {
     private val currentTaskClass = CurrentTask.instance
     private val _state = MutableStateFlow(MapState())
@@ -119,6 +121,7 @@ class MapViewModel(
     fun logout() {
         CurrentTask.instance.setTask(null)
         CurrentTask.instance.setInstructions(null)
+        sharedBluetoothViewModel.getService()?.disconnectDevice()
         activityStarterHelper.startActivity(MainActivity::class.java)
     }
 

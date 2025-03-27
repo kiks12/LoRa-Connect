@@ -10,10 +10,12 @@ import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lora_connect.application.utils.ActivityStarterHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @SuppressLint("MissingPermission")
 class AuthenticationViewModel(
@@ -78,9 +80,15 @@ class AuthenticationViewModel(
     }
 
     fun connectDevice(bluetoothDevice: BluetoothDevice) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
+                _state.value = _state.value.copy(connectingToDeviceLoading = true)
+            }
             connectToDevice(bluetoothDevice.address)
             activityStarterHelper.startMapActivity(bluetoothDevice.address)
+            withContext(Dispatchers.Main) {
+                _state.value = _state.value.copy(connectingToDeviceLoading = false)
+            }
         }
     }
 }

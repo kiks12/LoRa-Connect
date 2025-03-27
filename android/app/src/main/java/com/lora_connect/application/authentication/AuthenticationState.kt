@@ -7,4 +7,5 @@ data class AuthenticationState(
     val discoveringDevicesLoading: Boolean = false,
     val permissionDenied: Boolean = false,
     val enabledBluetooth: Boolean = false,
+    val connectingToDeviceLoading: Boolean = false,
 )

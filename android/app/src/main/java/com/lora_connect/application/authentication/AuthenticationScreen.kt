@@ -70,14 +70,18 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
                 }
             } else {
                 Column(
-                    modifier = Modifier.padding(innerPadding).padding(24.dp)
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .padding(24.dp)
                 ){
                     Column {
                         Text(text = "Welcome to LoRa-Connect", fontSize = 30.sp, fontWeight = FontWeight.SemiBold)
                         Text(text = "Please connect to a device to continue")
                     }
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(top = 32.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 32.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ){
@@ -91,24 +95,34 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
                             ScanningAnimation()
                         }
                     } else {
-                        LazyColumn(
-                            modifier = Modifier.padding(top = 10.dp).fillMaxSize()
-                        ) {
-                            item {
-                                if (state.namedDiscoveredDevices.isEmpty()) {
-                                    Box(modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(15.dp), contentAlignment = Alignment.Center) {
-                                        Text(text = "No Discovered Devices")
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .padding(top = 10.dp)
+                                    .fillMaxSize()
+                            ) {
+                                item {
+                                    if (state.namedDiscoveredDevices.isEmpty()) {
+                                        Box(modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(15.dp), contentAlignment = Alignment.Center) {
+                                            Text(text = "No Discovered Devices")
+                                        }
                                     }
                                 }
+                                items(state.namedDiscoveredDevices.toList()) {
+                                    ListItem(
+                                        modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
+                                        headlineContent = { Text(it.name ?: "Unknown Device") },
+                                        supportingContent = { Text(it.address) }
+                                    )
+                                }
                             }
-                            items(state.namedDiscoveredDevices.toList()) {
-                                ListItem(
-                                    modifier = Modifier.clickable { authenticationViewModel.connectDevice(it) },
-                                    headlineContent = { Text(it.name ?: "Unknown Device") },
-                                    supportingContent = { Text(it.address) }
-                                )
+
+                            if (state.connectingToDeviceLoading) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }

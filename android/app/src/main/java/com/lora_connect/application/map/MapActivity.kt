@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.lora_connect.application.repositories.TaskRepository
+import com.lora_connect.application.shared.SharedBluetoothViewModel
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.ActivityStarterHelper
 import com.lora_connect.application.utils.copyAssetsToFilesDir
@@ -32,6 +34,7 @@ class MapActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val ioScope = CoroutineScope(Dispatchers.IO)
     private val taskRepository = TaskRepository(this)
+    private lateinit var sharedBluetoothViewModel: SharedBluetoothViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +43,8 @@ class MapActivity : ComponentActivity() {
         mapView = MapView(this)
         mapView.onCreate(savedInstanceState)
         val activityStarterHelper = ActivityStarterHelper(this)
+
+        sharedBluetoothViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[SharedBluetoothViewModel::class.java]
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         val offlineRouting = OfflineRouting(this)
@@ -51,7 +56,8 @@ class MapActivity : ComponentActivity() {
             ::buildLocationComponentActivationOptions,
             offlineRouting::getRoute,
             activityStarterHelper,
-            taskRepository
+            taskRepository,
+            sharedBluetoothViewModel
         )
 
         setContent {
@@ -63,21 +69,7 @@ class MapActivity : ComponentActivity() {
                 }
             }
         }
-
-        // ONLY UNCOMMENT IF AUTHENTICATION IS RUNNING
-//         startBluetoothDataService()
     }
-
-//    private fun startBluetoothDataService() {
-//        val intent = Intent(this, BluetoothDataService::class.java).apply {
-//            putExtra("DEVICE_ADDRESS", intent.getStringExtra("DEVICE_ADDRESS"))
-//        }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            startForegroundService(intent)
-//        } else {
-//            startService(intent)
-//        }
-//    }
 
     private fun areLocationPermissionsGranted() : Boolean {
         val fineLocationPermission =
@@ -120,6 +112,8 @@ class MapActivity : ComponentActivity() {
         ioScope.launch {
             copyAssetsToFilesDir(this@MapActivity, "graph-cache", graphCacheFilesDir)
         }
+
+        sharedBluetoothViewModel.bindService(this)
     }
 
     override fun onPause() {

@@ -6,36 +6,36 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.BluetoothLeScanner
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Build.VERSION
 import android.os.Bundle
-import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.lora_connect.application.authentication.AuthenticationScreen
 import com.lora_connect.application.authentication.AuthenticationViewModel
-import com.lora_connect.application.map.MapActivity
 import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.services.BluetoothService
+import com.lora_connect.application.shared.SharedBluetoothViewModel
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.ActivityStarterHelper
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MAIN ACTIVITY"
+        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1001
     }
 
     private lateinit var taskRepository : TaskRepository
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var bluetoothAdapter : BluetoothAdapter
     private lateinit var bleScanner : BluetoothLeScanner
     private lateinit var authenticationViewModel: AuthenticationViewModel
-    private var bluetoothService : BluetoothService? = null
+    private lateinit var sharedBluetoothViewModel: SharedBluetoothViewModel
 
     private val bluetoothLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         try {
@@ -53,38 +53,17 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Code to manage Service lifecycle.
-    private val serviceConnection: ServiceConnection = object : ServiceConnection {
-        override fun onServiceConnected(
-            componentName: ComponentName,
-            service: IBinder,
-        ) {
-            val binder = service as BluetoothService.LocalBinder
-            bluetoothService = binder.getService()
-            bluetoothService.let { it?.initialize() }
-        }
-
-        override fun onServiceDisconnected(componentName: ComponentName) {
-            bluetoothService = null
-        }
-    }
-
     override fun onStart() {
         super.onStart()
-
-        val gattServiceIntent = Intent(this, BluetoothService::class.java)
-        bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        sharedBluetoothViewModel.bindService(this)
 
 //        UNCOMMENT ONLY WHEN SEEDING DB
 //         populateTasksDB()
-
-        val intent = Intent(this, MapActivity::class.java)
-        startActivity(intent)
     }
 
     override fun onStop() {
         super.onStop()
-        unbindService(serviceConnection)
+        sharedBluetoothViewModel.unbindService(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -95,6 +74,8 @@ class MainActivity : ComponentActivity() {
         bluetoothManager = getSystemService(BluetoothManager::class.java)
         bluetoothAdapter = bluetoothManager.adapter
         bleScanner = bluetoothAdapter.bluetoothLeScanner
+
+        sharedBluetoothViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[SharedBluetoothViewModel::class.java]
 
         registerReceiver(bluetoothEnabledStateBroadcastReceiver, IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED))
 
@@ -110,6 +91,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             ApplicationTheme {
                 AuthenticationScreen(authenticationViewModel)
+            }
+        }
+
+        // Check and request notification permission
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_REQUEST_CODE
+                )
             }
         }
     }
@@ -149,7 +143,7 @@ class MainActivity : ComponentActivity() {
                     Log.w(TAG, "DISCONNECTED")
                 }
                 BluetoothService.ACTION_GATT_SERVICES_DISCOVERED -> {
-                    Log.w(TAG, "GATT SERVICESS DISCOVERED")
+                    Log.w(TAG, "GATT SERVICES DISCOVERED")
                 }
                 BluetoothService.ACTION_DATA_AVAILABLE -> {
                     val data = intent.getStringExtra(BluetoothService.EXTRA_DATA)
@@ -173,8 +167,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun connectToDevice(address: String) {
-        bluetoothService.let { service ->
-            service?.connect(address)
+        sharedBluetoothViewModel.let { service ->
+            service.getService()?.connect(address)
         }
     }
 
@@ -211,6 +205,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Notification Permission Granted!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Notification Permission Denied!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     // UTILITY FUNCTION FOR TESTING
     // UNCOMMENT ONLY WHEN SEEDING ROOM DB
