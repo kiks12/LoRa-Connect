@@ -37,15 +37,21 @@ const AppContext = createContext<{
 	missions: MissionWithCost[];
 	setMissions: Dispatch<SetStateAction<MissionWithCost[]>>;
 	fetchUsersAPI: () => void;
+	monitorLocations: boolean;
+	setMonitorLocations: Dispatch<SetStateAction<boolean>>;
+	timeIntervals: { max: number; time: number; title: string }[];
+	setTimeIntervals: Dispatch<SetStateAction<{ max: number; time: number; title: string }[]>>;
 	fetchTeams: () => void;
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [users, setUsers] = useState<UserWithStatusIdentifier[]>([]);
 	const [rescuers, setRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
 	const [teams, setTeams] = useState<TeamWithStatusIdentifier[]>([]);
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
 	const [missions, setMissions] = useState<MissionWithCost[]>([]);
+	const [timeIntervals, setTimeIntervals] = useState<{ max: number; time: number; title: string }[]>([]);
 	const { mapRef, removeSourceAndLayer } = useMapContext();
 	const [styleLoaded, setStyleLoaded] = useState(false);
 
@@ -271,6 +277,52 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		console.log(source, payload);
 	}
 
+	// Receive user location signal from py
+	// socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
+	// const { braceletId } = data;
+	// const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
+	// console.log(correctOwner);
+	// if (correctOwner.length === 0) return;
+	// addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
+	// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
+	// });
+
+	// Receive rescuer location signal from py
+	// socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
+	// 	const { braceletId } = data;
+	// 	const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
+	// 	console.log(correctOwner);
+	// 	if (correctOwner.length === 0) return;
+	// 	// addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier) }, false, true);
+	// 	// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
+	// });
+
+	// async function saveNewLocationToDatabase({
+	// 	braceletId,
+	// 	latitude,
+	// 	longitude,
+	// 	rescuer,
+	// }: {
+	// 	braceletId: string;
+	// 	latitude: number;
+	// 	longitude: number;
+	// 	rescuer: boolean;
+	// }) {
+	// 	await fetch("/api/bracelets/update-location", {
+	// 		method: "PATCH",
+	// 		body: JSON.stringify({ braceletId, latitude, longitude }),
+	// 	});
+	// 	if (rescuer) {
+	// 		setRescuers(
+	// 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// 			(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
+	// 		);
+	// 	} else {
+	// 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// 		setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
+	// 	}
+	// }
+
 	return (
 		<AppContext.Provider
 			value={{
@@ -287,6 +339,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 				fetchUsersAPI,
 				fetchTeams,
+
+				monitorLocations,
+				setMonitorLocations,
+
+				timeIntervals,
+				setTimeIntervals,
 			}}
 		>
 			{children}

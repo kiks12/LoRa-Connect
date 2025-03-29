@@ -3,10 +3,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAdmin } from "@/hooks/map/use-admin";
 import MissionItem from "./MissionItem";
+import { useAppContext } from "@/contexts/AppContext";
 
 export default function AdminControls() {
+	const { monitorLocations } = useAppContext();
 	const {
-		monitorLocations,
 		toggleMonitorLocations,
 		automaticTaskAllocation,
 		toggleAutomaticTaskAllocation,

@@ -11,6 +11,7 @@ import { lazy } from "react";
 const Map = lazy(() => import("./_components/Map"));
 const SideBar = lazy(() => import("./_components/Sidebar"));
 const SosModals = lazy(() => import("./_components/SosModals"));
+const Timers = lazy(() => import("./_components/Timers"));
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
@@ -27,8 +28,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 							</div>
 							<div className="flex h-screen z-10 transition-transform transform">
 								<Map key={"main-map"} />
-								<div className="absolute w-72 p-2">
-									<SosModals />
+								<div className="w-full absolute flex justify-between items-start">
+									<div className="w-72 p-2">
+										<SosModals />
+									</div>
+									<div className="w-72 p-2">
+										<Timers />
+									</div>
 								</div>
 							</div>
 						</div>

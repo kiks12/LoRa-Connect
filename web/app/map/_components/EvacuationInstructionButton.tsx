@@ -4,6 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/contexts/AppContext";
+import useTimeUpdater from "@/hooks/map/use-timeUpdater";
+import { useToast } from "@/hooks/use-toast";
+import { triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
 import { INSTRUCTION_TO_USER } from "@/lora/lora-tags";
 import { socket } from "@/socket/socket";
 import { EvacuationInstruction } from "@/types";
@@ -23,8 +27,25 @@ export default function EvacuationInstructionButton({
 	createEvacuationInstructions: () => void;
 	setMessage: (index: number, message: string) => void;
 }) {
+	const { timeIntervals } = useAppContext();
+	const { updateTime } = useTimeUpdater();
+	const { toast } = useToast();
+
 	function sendViaLoRa() {
-		socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions });
+		if (timeIntervals.some((time) => time.title === "Evacuation Instructions")) {
+			toast({
+				variant: "destructive",
+				description: "Evacuation Instruction timer is currently working",
+			});
+		} else {
+			triggerFunctionWithTimerUsingTimeout2(
+				"Evacuation Instructions",
+				() => {
+					socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions });
+				},
+				updateTime
+			);
+		}
 	}
 
 	return (

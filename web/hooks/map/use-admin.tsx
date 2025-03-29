@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LocationDataFromPy, MissionWithCost } from "@/types";
+import { MissionWithCost } from "@/types";
 import { useMapContext } from "@/contexts/MapContext";
 import { useUsers } from "./use-users";
 import { useRescuers } from "./use-rescuers";
@@ -10,19 +10,23 @@ import { Bracelets, OperationStatus } from "@prisma/client";
 import { COLOR_MAP, createRouteLayerGeoJSON, createRouteSource } from "@/utils/map";
 import maplibregl from "maplibre-gl";
 import { socket } from "@/socket/socket";
-import { LOCATION_FROM_RESCUER, LOCATION_FROM_USER, START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora/lora-tags";
+import { START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora/lora-tags";
 import { calculateTeamAssignmentCosts, runHungarianAlgorithm } from "@/app/algorithm";
 import { NUMBER_TO_URGENCY } from "@/utils/urgency";
 import { useAppContext } from "@/contexts/AppContext";
+import { triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
+import useTimeUpdater from "./use-timeUpdater";
+import { useToast } from "../use-toast";
 
 export const useAdmin = () => {
 	const { mapRef, clearSourcesAndLayers } = useMapContext();
-	const { missions, setMissions } = useAppContext();
+	const { missions, setMissions, monitorLocations, setMonitorLocations, timeIntervals } = useAppContext();
+	const { updateTime } = useTimeUpdater();
 	const { users } = useUsers();
-	const { teams, rescuers } = useRescuers();
+	const { teams } = useRescuers();
+	const { toast } = useToast();
 	const { obstacles } = useObstacles();
 
-	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [automaticTaskAllocation, setAutomaticTaskAllocation] = useState(false);
 	const [taskAllocationMessage, setTaskAllocationMessage] = useState("Run Task Allocation");
 	const [markers, setMarkers] = useState<maplibregl.Marker[]>([]);
@@ -32,78 +36,41 @@ export const useAdmin = () => {
 	}
 
 	function toggleMonitorLocations() {
-		setMonitorLocations(!monitorLocations);
+		if (timeIntervals.some((time) => time.title === "Monitor Locations")) {
+			toast({
+				variant: "destructive",
+				description: "Monitor Locations timer currently running",
+			});
+		} else {
+			setMonitorLocations(!monitorLocations);
+		}
 	}
 
-	// async function saveNewLocationToDatabase({
-	// 	braceletId,
-	// 	latitude,
-	// 	longitude,
-	// 	rescuer,
-	// }: {
-	// 	braceletId: string;
-	// 	latitude: number;
-	// 	longitude: number;
-	// 	rescuer: boolean;
-	// }) {
-	// 	await fetch("/api/bracelets/update-location", {
-	// 		method: "PATCH",
-	// 		body: JSON.stringify({ braceletId, latitude, longitude }),
-	// 	});
-	// 	if (rescuer) {
-	// 		setRescuers(
-	// 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	// 			(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
-	// 		);
-	// 	} else {
-	// 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	// 		setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
-	// 	}
-	// }
-
 	function sendTransmitLocationSignalToBracelets() {
-		// Send the signal to monitor locations
 		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU);
-
-		// Receive user location signal from py
-		// socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
-		// const { braceletId } = data;
-		// const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
-		// console.log(correctOwner);
-		// if (correctOwner.length === 0) return;
-		// addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
-		// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
-		// });
-
-		// Receive rescuer location signal from py
-		// socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
-		// 	const { braceletId } = data;
-		// 	const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
-		// 	console.log(correctOwner);
-		// 	if (correctOwner.length === 0) return;
-		// 	// addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier) }, false, true);
-		// 	// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
-		// });
 	}
 
 	// Location Monitoring Code block - as long as monitorLocation is true this triggers
 	useEffect(() => {
-		if (!monitorLocations) {
-			socket.off(LOCATION_FROM_USER);
-			socket.off(LOCATION_FROM_RESCUER);
-			return;
+		if (monitorLocations) {
+			if (timeIntervals.some((time) => time.title === "Monitor Locations")) {
+				toast({
+					variant: "destructive",
+					description: "Monitor Locations timer currently running",
+				});
+			} else {
+				triggerFunctionWithTimerUsingTimeout2(
+					"Monitor Locations",
+					() => {
+						sendTransmitLocationSignalToBracelets();
+					},
+					updateTime
+				);
+			}
 		}
-		sendTransmitLocationSignalToBracelets();
-		return () => {
-			socket.off(LOCATION_FROM_USER);
-			socket.off(LOCATION_FROM_RESCUER);
-		};
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [monitorLocations]);
-
-	// function toggleMonitorLocations() {
-	// 	setMonitorLocations(!monitorLocations);
-	// }
 
 	async function saveTasksAsMissionsToDatabase() {
 		const tasks = missions.map(async (mission) => {
@@ -135,7 +102,20 @@ export const useAdmin = () => {
 	}
 
 	function sendTasksViaLoRa() {
-		socket.emit(TASK_TO_RESCUER, missions);
+		if (timeIntervals.some((time) => time.title === "Send Tasks Via LoRa")) {
+			toast({
+				variant: "destructive",
+				description: "Tasks Sender timer is currently working",
+			});
+		} else {
+			triggerFunctionWithTimerUsingTimeout2(
+				"Send Tasks Via LoRa",
+				() => {
+					socket.emit(TASK_TO_RESCUER, missions);
+				},
+				updateTime
+			);
+		}
 	}
 
 	useEffect(() => {
@@ -261,7 +241,6 @@ export const useAdmin = () => {
 		missions,
 		sendTasksViaLoRa,
 		saveTasksAsMissionsToDatabase,
-		monitorLocations,
 		toggleMonitorLocations,
 		clearRoutes,
 	};
