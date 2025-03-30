@@ -5,10 +5,15 @@ import { Obstacle } from "@prisma/client";
 import { useAppContext } from "@/contexts/AppContext";
 import { useMapContext } from "@/contexts/MapContext";
 import { useObstaclesContext } from "@/contexts/ObstacleContext";
+import { triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
+import { socket } from "@/socket/socket";
+import { OBSTACLE_TO_RESCUER } from "@/lora/lora-tags";
+import useTimeUpdater from "./use-timeUpdater";
+import { useToast } from "../use-toast";
 
 export const useObstacles = () => {
 	const { mapRef } = useMapContext();
-	const { obstacles, setObstacles } = useAppContext();
+	const { obstacles, setObstacles, timeIntervals } = useAppContext();
 	const [obstaclesLoading, setObstaclesLoading] = useState(true);
 	const [obstaclesMarkers, setObstaclesMarkers] = useState<
 		{
@@ -31,12 +36,32 @@ export const useObstacles = () => {
 		longitude: 0,
 	});
 	const { currentObstacleMarkerLatLng, setCurrentObstacleMarkerLatLng } = useObstaclesContext();
+	const { updateTime } = useTimeUpdater();
+	const { toast } = useToast();
 
 	function onNameChange(newVal: string) {
 		setForm((prev) => ({ ...prev, name: newVal }));
 	}
+
 	function onTypeChange(newVal: string) {
 		setForm((prev) => ({ ...prev, type: newVal }));
+	}
+
+	function sendObstaclesToRescuers() {
+		if (timeIntervals.some((time) => time.title === "Obstacles to Rescuers")) {
+			toast({
+				variant: "destructive",
+				description: "Obstacles to Rescuers timer currently running",
+			});
+		} else {
+			triggerFunctionWithTimerUsingTimeout2(
+				"Obstacles to Rescuers",
+				() => {
+					socket.emit(OBSTACLE_TO_RESCUER, obstacles);
+				},
+				updateTime
+			);
+		}
 	}
 
 	const onAddObtacleMapClick = useCallback(
@@ -166,5 +191,6 @@ export const useObstacles = () => {
 		form,
 		onNameChange,
 		onTypeChange,
+		sendObstaclesToRescuers,
 	};
 };

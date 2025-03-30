@@ -34,4 +34,6 @@ export const INSTRUCTION_TO_USER = "8"
 export const INSTRUCTION_TO_USER_PY = "PY-8"
 export const TASK_TO_RESCUER = "9"
 export const TASK_TO_RESCUER_PY = "PY-9"
+export const OBSTACLE_TO_RESCUER = "B"
+export const OBSTACLE_TO_RESCUER_PY = "PY-B"
 

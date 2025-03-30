@@ -19,6 +19,7 @@ export default function ObstacleControls() {
 		removeObstacleMarkerFromMap,
 		refreshObstacles,
 		obstaclesLoading,
+		sendObstaclesToRescuers,
 	} = useObstacles();
 	const [showForm, setShowForm] = useState(false);
 
@@ -43,12 +44,17 @@ export default function ObstacleControls() {
 						</Label>
 						<Switch checked={showObstacles} id="showObstacles" onCheckedChange={toggleShowObstacles} />
 					</div>
+					<div>
+						<Button variant="secondary" className="w-full" onClick={sendObstaclesToRescuers}>
+							Send Obstacles to Rescuers
+						</Button>
+					</div>
 					{obstaclesLoading ? (
 						<div className="flex items-center justify-center mt-10">
 							<Spinner />
 						</div>
 					) : (
-						<div className="max-h-96 min-h-96 overflow-y-auto">
+						<div className="max-h-96 min-h-96 overflow-y-auto mt-2">
 							{obstacles.length > 0 ? (
 								obstacles.map((obstacle, index) => {
 									return (
