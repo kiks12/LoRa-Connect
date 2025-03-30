@@ -10,7 +10,6 @@ class ObstacleAvoidanceWeighting(
 ) : FastestWeighting(encoder) {
 
     override fun calcEdgeWeight(edge: EdgeIteratorState, reverse: Boolean): Double {
-        // Apply a penalty to obstacle edges
         if (obstacleEdges.contains(edge.edge)) {
             return Double.POSITIVE_INFINITY
         }

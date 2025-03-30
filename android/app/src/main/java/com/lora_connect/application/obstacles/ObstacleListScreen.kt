@@ -74,7 +74,10 @@ fun ObstacleListScreen(viewModel: ObstacleListViewModel) {
                         text = { Text(text = "Are you sure you want to delete this obstacle?") },
                         onDismissRequest = { showDeleteDialog = false },
                         confirmButton = {
-                            Button(onClick = { }) {
+                            Button(onClick = {
+                                viewModel.deleteObstacle(obstacle)
+                                showDeleteDialog = false
+                            }) {
                                 Text("Confirm")
                             }
                         },

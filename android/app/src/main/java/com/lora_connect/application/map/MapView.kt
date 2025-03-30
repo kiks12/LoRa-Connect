@@ -120,6 +120,10 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         }
     }
 
+    LaunchedEffect(obstacles) {
+        mapViewModel.createRoute()
+    }
+
     LaunchedEffect(state.path) {
         if (state.path != null) {
             if (polyline != null) {

@@ -71,7 +71,6 @@ class OfflineRouting(private val context: Context) {
                                 if (qr.isValid) {
                                     val edge = qr.closestEdge
                                     obstacleEdges.add(edge.edge)
-                                    Log.w("OFFLINE ROUTING", "Penalizing edge ID: ${edge.edge} at ${obstacle.latitude}, ${obstacle.longitude}")
                                 }
                             }
                         }
@@ -83,7 +82,7 @@ class OfflineRouting(private val context: Context) {
                 graphHopper.graphHopperStorage.flush()
                 val weighting = ObstacleAvoidanceWeighting(encoder, obstacleEdges)
                 val algorithmOptions = AlgorithmOptions.start()
-                    .algorithm(Algorithms.DIJKSTRA_BI)
+                    .algorithm(Algorithms.ALT_ROUTE)
                     .weighting(weighting)
                     .build()
                 val routingAlgorithmFactory = graphHopper.getAlgorithmFactory("car", true, true)

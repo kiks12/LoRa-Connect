@@ -100,7 +100,7 @@ class MapViewModel(
         createRoute()
     }
 
-    private fun createRoute() {
+    fun createRoute() {
         if (_state.value.markerLatLng == null) return
         viewModelScope.launch(Dispatchers.IO) {
             val best = getRoute(_state.value.latitude, _state.value.longitude, _state.value.markerLatLng!!.latitude, _state.value.markerLatLng!!.longitude)

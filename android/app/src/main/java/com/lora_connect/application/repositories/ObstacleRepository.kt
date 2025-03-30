@@ -9,19 +9,34 @@ class ObstacleRepository(context: Context){
     private val db = AppDatabase.getDatabase(context)
     private val obstacleDao = db.obstacleDao()
 
-    suspend fun createObstacle(obstacle: Obstacle) {
-        obstacleDao.insertAll(obstacle)
+    fun createObstacle(obstacle: Obstacle) : Boolean {
+        return try {
+            obstacleDao.insertAll(obstacle)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun getAllObstacles() : LiveData<List<Obstacle>> {
         return obstacleDao.getObstacles()
     }
 
-    suspend fun updateObstacle(obstacle: Obstacle) {
-        obstacleDao.updateObstacle(obstacle)
+    fun updateObstacle(obstacle: Obstacle) : Boolean {
+        return try {
+            obstacleDao.updateObstacle(obstacle)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
-    suspend fun deleteObstacle(obstacle: Obstacle) {
-        obstacleDao.deleteObstacle(obstacle)
+    fun deleteObstacle(obstacle: Obstacle) : Boolean {
+        return try {
+            obstacleDao.deleteObstacle(obstacle)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
