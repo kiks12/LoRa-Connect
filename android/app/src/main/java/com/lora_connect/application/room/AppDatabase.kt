@@ -8,13 +8,16 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.lora_connect.application.room.converters.Converters
+import com.lora_connect.application.room.daos.ObstacleDao
 import com.lora_connect.application.room.daos.TaskDao
+import com.lora_connect.application.room.entities.Obstacle
 import com.lora_connect.application.room.entities.Task
 
-@Database(entities = [Task::class], version = 5)
+@Database(entities = [Task::class, Obstacle::class], version = 6)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao() : TaskDao
+    abstract fun obstacleDao() : ObstacleDao
 
     companion object {
         @Volatile
@@ -58,7 +61,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "LoRa-Connect"
-                ).addMigrations(MIGRATION_4_5).build()
+                )
+                    .addMigrations(MIGRATION_4_5)
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
