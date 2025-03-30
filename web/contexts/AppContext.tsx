@@ -156,7 +156,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 							...user.bracelet,
 							latitude: latitude,
 							longitude: longitude,
-							sos: true,
+							sos: false,
 							urgency: urgency,
 						},
 					};

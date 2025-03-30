@@ -4,10 +4,10 @@
 #include <heltec_unofficial.h>
 
 #define PAUSE               0
-#define FREQUENCY           433.0       
+#define FREQUENCY           866.3       
 #define BANDWIDTH           250.0
 #define SPREADING_FACTOR    7
-#define TRANSMIT_POWER      0
+#define TRANSMIT_POWER      20
 
 #include <TinyGPSPlus.h>
 
@@ -122,7 +122,7 @@ void setup() {
   RADIOLIB_OR_HALT(radio.setBandwidth(BANDWIDTH));
   RADIOLIB_OR_HALT(radio.setSpreadingFactor(SPREADING_FACTOR));
   RADIOLIB_OR_HALT(radio.setOutputPower(TRANSMIT_POWER));
-  RADIOLIB_OR_HALT(radio.setCodingRate(5)); // TRY LANG
+  RADIOLIB_OR_HALT(radio.setCodingRate(5)); ///TRY LANG
 
   RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
 
@@ -205,24 +205,24 @@ void loop() {
     gps.encode(gpsSerial.read());
   }
 
-  if (millis() - last_loc_update_time >= 3000) {
-    if (gps.location.isUpdated()) {
-      both.print("Lat: "); both.println(gps.location.lat(), 6);
-      both.print("Lon: "); both.println(gps.location.lng(), 6);
+  // if (millis() - last_loc_update_time >= 3000) {
+  //   if (gps.location.isUpdated()) {
+  //     // both.print("Lat: "); both.println(gps.location.lat(), 6);
+  //     // both.print("Lon: "); both.println(gps.location.lng(), 6);
 
-      char packet[231];
-      char lat_buffer[12];
-      char lng_buffer[12];
-      dtostrf(gps.location.lat(), 10, 6, lat_buffer);
-      dtostrf(gps.location.lng(), 10, 6, lng_buffer); 
-      snprintf(packet, sizeof(packet), "11001004ff95312152025-Trial-%s-%s-7-1-3", lat_buffer, lng_buffer); // LOCATION_FROM_USER, src 1100, dst 0001, 
+  //     char packet[231];
+  //     char lat_buffer[12];
+  //     char lng_buffer[12];
+  //     dtostrf(gps.location.lat(), 10, 6, lat_buffer);
+  //     dtostrf(gps.location.lng(), 10, 6, lng_buffer); 
+  //     snprintf(packet, sizeof(packet), "11001004ff95312152025-Trial-%s-%s-7-1-3", lat_buffer, lng_buffer); // LOCATION_FROM_USER, src 1100, dst 0001, 
       
-      txPacket(packet);
-      // txPacket();
+  //     txPacket(packet);
+  //     // txPacket();
 
-    }
-    last_loc_update_time = millis();
-  }
+  //   }
+  //   last_loc_update_time = millis();
+  // }
 
   if (button.isSingleClick()) {
     String packet = "00011100ff951102-312152025-Trial-15.133179-120.597592-7-1-3";
@@ -294,6 +294,27 @@ void loop() {
 
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
