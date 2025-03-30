@@ -59,6 +59,9 @@ class MainActivity : AppCompatActivity() {
 
 //        UNCOMMENT ONLY WHEN SEEDING DB
 //         populateTasksDB()
+
+//        val intent = Intent(this, MapActivity::class.java)
+//        startActivity(intent)
     }
 
     override fun onStop() {

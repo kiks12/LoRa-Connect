@@ -46,6 +46,10 @@ import com.lora_connect.application.authentication.BluetoothSessionManager
 import com.lora_connect.application.permissions.RequestLocationPermissionUsingRememberLauncherForActivityResult
 import com.lora_connect.application.tasks.InstructionItem
 import com.lora_connect.application.tasks.current_task.CurrentTaskCard
+import compose.icons.FeatherIcons
+import compose.icons.feathericons.AlertCircle
+import compose.icons.feathericons.List
+import compose.icons.feathericons.LogOut
 import org.maplibre.android.annotations.MarkerOptions
 import org.maplibre.android.annotations.Polyline
 import org.maplibre.android.annotations.PolylineOptions
@@ -57,6 +61,7 @@ import org.maplibre.android.maps.Style
 @SuppressLint("MissingPermission")
 @Composable
 fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
+    val obstacles by mapViewModel.obstacles.collectAsState()
     val currentTask by mapViewModel.currentTask.collectAsState()
     val instructions by mapViewModel.instructions.collectAsState()
     val clearPath by mapViewModel.clearPath.collectAsState()
@@ -99,12 +104,18 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         }
     )
 
-    LaunchedEffect(state.markerLatLng) {
+    LaunchedEffect(state.markerLatLng, obstacles) {
         if (state.markerLatLng != null) {
             mapView.getMapAsync {map ->
                 map.clear()
                 val newMarker : MarkerOptions = MarkerOptions().position(state.markerLatLng)
                 map.addMarker(newMarker)
+
+                obstacles.forEach {
+                    if (it.latitude == null || it.longitude == null) return@forEach
+                    val newObstacleMarker: MarkerOptions = MarkerOptions().position(LatLng(it.latitude.toDouble(), it.longitude.toDouble()))
+                    map.addMarker(newObstacleMarker)
+                }
             }
         }
     }
@@ -210,8 +221,21 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
                             Icon(Icons.Default.MoreVert, contentDescription = "Menu")
                         }
                         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
-                            DropdownMenuItem(text = { Text("Tasks") }, onClick = mapViewModel::startTasksList)
-                            DropdownMenuItem(text = { Text("Logout") }, onClick = mapViewModel::logout)
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(FeatherIcons.List, "Task List") },
+                                text = { Text("Tasks") },
+                                onClick = mapViewModel::startTasksList
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(FeatherIcons.AlertCircle, "Obstacles") },
+                                text = { Text("Obstacles") },
+                                onClick = mapViewModel::startObstaclesList
+                            )
+                            DropdownMenuItem(
+                                leadingIcon = { Icon(FeatherIcons.LogOut, "Logout") },
+                                text = { Text("Logout") },
+                                onClick = mapViewModel::logout
+                            )
                         }
                     }
                 }

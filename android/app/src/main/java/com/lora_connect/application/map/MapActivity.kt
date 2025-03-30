@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.lora_connect.application.repositories.ObstacleRepository
 import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.shared.SharedBluetoothViewModel
 import com.lora_connect.application.ui.theme.ApplicationTheme
@@ -34,6 +35,7 @@ class MapActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val ioScope = CoroutineScope(Dispatchers.IO)
     private val taskRepository = TaskRepository(this)
+    private val obstacleRepository = ObstacleRepository(this)
     private lateinit var sharedBluetoothViewModel: SharedBluetoothViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +59,7 @@ class MapActivity : ComponentActivity() {
             offlineRouting::getRoute,
             activityStarterHelper,
             taskRepository,
+            obstacleRepository,
             sharedBluetoothViewModel
         )
 
@@ -108,9 +111,9 @@ class MapActivity : ComponentActivity() {
         super.onStart()
         mapView.onStart()
 
-        val graphCacheFilesDir = File(filesDir, "graph-cache")
+        val graphCacheFilesDir = File(filesDir, "graph-cache-v1")
         ioScope.launch {
-            copyAssetsToFilesDir(this@MapActivity, "graph-cache", graphCacheFilesDir)
+            copyAssetsToFilesDir(this@MapActivity, "graph-cache-v1", graphCacheFilesDir)
         }
 
         sharedBluetoothViewModel.bindService(this)

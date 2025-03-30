@@ -9,6 +9,8 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.graphhopper.ResponsePath
 import com.lora_connect.application.MainActivity
+import com.lora_connect.application.obstacles.ObstacleListActivity
+import com.lora_connect.application.repositories.ObstacleRepository
 import com.lora_connect.application.repositories.TaskRepository
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.shared.SharedBluetoothViewModel
@@ -36,9 +38,10 @@ class MapViewModel(
     private val areLocationPermissionGranted: () -> Boolean,
     val buildLocationComponentOptions: () -> LocationComponentOptions,
     val buildLocationComponentActivationOptions: (style: Style, locationComponentOptions: LocationComponentOptions) -> LocationComponentActivationOptions,
-    private val getRoute: (startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double) -> ResponsePath?,
+    private val getRoute: suspend  (startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double) -> ResponsePath?,
     private val activityStarterHelper: ActivityStarterHelper,
     private val taskRepository: TaskRepository,
+    private val obstacleRepository: ObstacleRepository,
     private val sharedBluetoothViewModel: SharedBluetoothViewModel,
 ): ViewModel() {
     private val currentTaskClass = CurrentTask.instance
@@ -47,6 +50,7 @@ class MapViewModel(
     val currentTask = currentTaskClass.getTask().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = null)
     val instructions = currentTaskClass.getInstructions().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = null)
     val clearPath = currentTaskClass.clear.asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = false)
+    val obstacles = obstacleRepository.getAllObstacles().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = emptyList())
 
     fun setLatLng(latitude: Double, longitude: Double) {
         _state.value = _state.value.copy(
@@ -98,14 +102,16 @@ class MapViewModel(
 
     private fun createRoute() {
         if (_state.value.markerLatLng == null) return
-        val best = getRoute(_state.value.latitude, _state.value.longitude, _state.value.markerLatLng!!.latitude, _state.value.markerLatLng!!.longitude)
-        if (best != null) {
-            CurrentTask.instance.setInstructions(best.instructions)
-            _state.value = _state.value.copy(
-                path = best
-            )
+        viewModelScope.launch(Dispatchers.IO) {
+            val best = getRoute(_state.value.latitude, _state.value.longitude, _state.value.markerLatLng!!.latitude, _state.value.markerLatLng!!.longitude)
+            if (best != null) {
+                withContext(Dispatchers.Main) {
+                    if (best.instructions != null) CurrentTask.instance.setInstructions(best.instructions)
+                    _state.value = _state.value.copy(
+                        path = best
+                    )
+                }
 
-            viewModelScope.launch(Dispatchers.IO) {
                 val updatedTask = currentTask.value?.copy(
                     distance = best.distance.toFloat(),
                     eta = best.time.toFloat(),
@@ -127,6 +133,10 @@ class MapViewModel(
 
     fun startTasksList() {
         activityStarterHelper.startActivity(TaskListActivity::class.java)
+    }
+
+    fun startObstaclesList() {
+        activityStarterHelper.startActivity(ObstacleListActivity::class.java)
     }
 
     fun finishTask() {

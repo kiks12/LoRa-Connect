@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
 
@@ -26,17 +25,20 @@
         android:theme="@style/Theme.AppCompat.NoActionBar"
         tools:targetApi="31">
         <activity
-            android:name=".tasks.list.TaskListActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:name=".obstacles.ObstacleListActivity"
             android:exported="false" />
+        <activity
+            android:name=".tasks.list.TaskListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".tasks.completion.TaskCompletionActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".map.MapActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
 
         <meta-data
             android:name="com.maplibre.gl.MapboxAccessToken"
@@ -57,8 +59,7 @@
         <service
             android:name=".services.BluetoothService"
             android:enabled="true"
-            android:foregroundServiceType="connectedDevice"
-            />
+            android:foregroundServiceType="connectedDevice" />
     </application>
 
 </manifest>

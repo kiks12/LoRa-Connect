@@ -17,7 +17,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.lora_connect.application.R
 import com.lora_connect.application.authentication.BluetoothSessionManager
+import com.lora_connect.application.repositories.ObstacleRepository
 import com.lora_connect.application.repositories.TaskRepository
+import com.lora_connect.application.room.entities.Obstacle
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskStatus
 import com.lora_connect.application.tasks.TaskUrgency
@@ -59,6 +61,7 @@ class BluetoothService : Service() {
     private var bluetoothGatt: BluetoothGatt? = null
     private var connectionState = STATE_DISCONNECTED
     private val taskRepository = TaskRepository(this)
+    private val obstacleRepository = ObstacleRepository(this)
     private var finalData = ""
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
@@ -275,7 +278,34 @@ class BluetoothService : Service() {
         Log.w(TAG, "SOURCE: $source DEST: $dest ID: $id PACKET_TYPE: $packetType TTL: $ttl")
         when (packetType) {
             '9' -> processTaskData(payload)
+            'B' -> processObstacleData(payload)
             else -> Log.w(TAG, "NO PROCESSING")
+        }
+    }
+
+    private fun processObstacleData(payload: String) {
+        val list = payload.split("-")
+        val obstacleId = list[0].toInt()
+        val name = list[1]
+        val type = list[2]
+        val latitude = list[3].toFloat()
+        val longitude = list[4].toFloat()
+
+        val newObstacle = Obstacle(
+            obstacleId = obstacleId,
+            name = name,
+            type = type,
+            latitude = latitude,
+            longitude = longitude
+        )
+
+        scope.launch {
+            try {
+                obstacleRepository.createObstacle(newObstacle)
+                showNotification(application, "New Obstacle Received!", "You have received a new obstacle data from central node")
+            } catch (e: Exception) {
+                Log.d(TAG, "OBSTACLE ID ALREADY RECEIVED")
+            }
         }
     }
 
@@ -326,7 +356,6 @@ class BluetoothService : Service() {
                 Log.d(TAG, "MISSION ID ALREADY RECEIVED")
             }
         }
-        Log.w(TAG, newTask.toString())
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
