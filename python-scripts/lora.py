@@ -85,8 +85,8 @@ class LoRaModule(LoRa):
         self.clear_irq_flags(RxDone=1)
         payload = self.read_payload(nocheck=True)
         data = bytes(payload).decode("utf-8", "ignore")
-
-        print(f"Received Data: {data}")
+        print("\nRECEIVED DATA: ", data)
+        print("RSSI: ", self.get_rssi_value())
         source, dest, id, packet_type = self.get_uid_code_from_payload(data)
         if dest == TO_ALL or dest == TO_CENTRAL_NODE or dest == TO_RESCUERS_AND_CENTRAL_NODE:
             match packet_type:
@@ -144,6 +144,7 @@ class LoRaModule(LoRa):
         print("🚀 LoRa & WebSocket Running...")
         self.reset_ptr_rx()
         self.set_mode(MODE.RXCONT)  # Start LoRa in receive mode
+        self.print_information()
         # Keep running the LoRa listener forever
         try:
             while True:
