@@ -148,7 +148,6 @@ class LoRaModule(LoRa):
         try:
             while True:
                 sleep(0.5)
-                print("Listening to LoRa...")
         except KeyboardInterrupt:
             print("Stopping...")
             sys.stdout.flush()
