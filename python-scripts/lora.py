@@ -39,6 +39,8 @@ class LoRaModule(LoRa):
                functools.partial(self.instruction_to_user))
         sio.on(TASK_TO_RESCUER_PY,
                functools.partial(self.task_to_rescuer))
+        sio.on(OBSTACLE_TO_RESCUER_PY,
+               functools.partial(self.obstacle_to_rescuer))
 
     def print_information(self):
         print("LoRa initialized.")
@@ -68,7 +70,8 @@ class LoRaModule(LoRa):
 
     def start_socketio_listener(self):
         """ Runs the Socket.IO listener in a background thread """
-        asyncio.create_task(self.connect_to_socketio())
+        # asyncio.create_task(self.connect_to_socketio())
+        print("Starting Websocket Listener...")
         thread = threading.Thread(target=self.connect_to_socketio, daemon=True)
         thread.start()
 
@@ -101,15 +104,6 @@ class LoRaModule(LoRa):
                     asyncio.run(self.task_status_update_from_rescuer(data))
                 case _:
                     print("default")
-                    """
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                asyncio.run_coroutine_threadsafe(
-                    self.send_to_websocket("LORA_MESSAGE", {"data": data}), loop)
-            else:
-                asyncio.run(self.send_to_websocket(
-                    "LORA_MESSAGE", {"data": data}))
-                    """
         else:
             self.send_message(data)
 
@@ -144,6 +138,7 @@ class LoRaModule(LoRa):
 
     def start(self):
         """ Starts both LoRa reception & WebSocket listener """
+        print("Starting python server...")
         self.start_socketio_listener()
 
         print("🚀 LoRa & WebSocket Running...")
@@ -153,6 +148,7 @@ class LoRaModule(LoRa):
         try:
             while True:
                 sleep(0.5)
+                print("Listening to LoRa...")
         except KeyboardInterrupt:
             print("Stopping...")
             sys.stdout.flush()
@@ -181,6 +177,11 @@ class LoRaModule(LoRa):
         print(TASK_TO_RESCUER_PY)
         for task in tasks:
             self.send_message(task_to_rescuer(task))
+
+    def obstacle_to_rescuer(self, obstacles):
+        print(TASK_TO_RESCUER_PY)
+        for obstacle in obstacles:
+            self.send_message(obstacle_to_rescuer(obstacle))
 
     """ LORA TRANSMISSION METHODS """
 

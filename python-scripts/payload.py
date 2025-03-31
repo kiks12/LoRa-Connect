@@ -104,4 +104,16 @@ def task_to_rescuer(task):
     return f"{TO_CENTRAL_NODE}{team_bracelet_uid}{id}{TASK_TO_RESCUER}{ttl}{missionId}-{username}-{userLat}-{userLong}-{numberOfVictims}-{status}-{urgency}"
 
 
+def obstacle_to_rescuer(obstacle):
+    obstacleId = obstacle.get("obstacleId")
+    obstacleName = obstacle.get("name")
+    obstacleType = obstacle.get("type")
+    latitude = obstacle.get("latitude")
+    longitude = obstacle.get("longitude")
+    id = "00"
+    ttl = "5"
+
+    return f"{TO_CENTRAL_NODE}{TO_ALL_RESCUERS}{id}{OBSTACLE_TO_RESCUER}{ttl}{obstacleId}-{obstacleName}-{obstacleType}-{latitude}-{longitude}"
+
+
 """ PAYLOAD CREATION """
