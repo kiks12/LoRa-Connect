@@ -31,8 +31,6 @@ class LoRaModule(LoRa):
        # [0,0,0,0,0,0] in RX, [1,0,0,0,0,0] in TX
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
 
-        self.print_information()
-
         sio.on(START_LOCATION_TRANSMISSION_TO_TRU_PY,
                functools.partial(self.start_location_transmission))
         sio.on(INSTRUCTION_TO_USER_PY,
