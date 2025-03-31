@@ -142,12 +142,13 @@ class LoRaModule(LoRa):
         self.start_socketio_listener()
 
         print("🚀 LoRa & WebSocket Running...")
+        self.reset_ptr_rx()
         self.set_mode(MODE.RXCONT)  # Start LoRa in receive mode
-
         # Keep running the LoRa listener forever
         try:
             while True:
                 sleep(0.5)
+                sys.stdout.flush()
         except KeyboardInterrupt:
             print("Stopping...")
             sys.stdout.flush()
