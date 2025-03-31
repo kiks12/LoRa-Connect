@@ -3,6 +3,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Container } from "./components/Container";
 import HOME_LINKS from "./links";
+import Image from "next/image";
 
 const HomeCard = lazy(() => import("./_components/HomeCard"));
 
@@ -17,10 +18,10 @@ export default function Home() {
 		<main className="min-h-screen bg-[url(/bg.jpg)] bg-cover">
 			<div className="flex items-center justify-center min-h-screen min-w-screen bg-white/50 backdrop-blur-xl">
 				<Container className="pt-10 min-h-screen">
-					<div className="flex justify-between items-end">
-						<div className="">
-							<h1 className="text-3xl font-semibold tracking-normal">LoRa-Connect</h1>
-							<h2 className="text-xl font-medium">Control Center</h2>
+					<div className="flex justify-between items-center">
+						<div className="flex flex-col">
+							<Image src="/logos/single-line-transparent.png" height={10} width={300} alt="Logo" />
+							<h2 className="text-2xl font-medium">Control Center</h2>
 						</div>
 						<div className="flex flex-col justify-end items-end">
 							<Suspense>

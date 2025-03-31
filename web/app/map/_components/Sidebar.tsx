@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Ambulance, ArrowLeft, Ban, Hospital, Route, Shield, Users } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -45,7 +46,10 @@ export default function SideBar({ children }: { children: ReactNode }) {
 									<ArrowLeft />
 								</Button>
 							</Link>
-							<h1 className="ml-2 text-xl font-semibold tracking-tight">Control Panel</h1>
+							<div className="flex items-center">
+								<Image src="/logos/2.png" width={60} height={60} alt="Logo" />
+								<h1 className="text-xl font-semibold tracking-tight">Control Panel</h1>
+							</div>
 						</div>
 					</div>
 					<div className="flex-1">{children}</div>

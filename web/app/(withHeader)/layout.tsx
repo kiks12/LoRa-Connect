@@ -3,6 +3,7 @@ import { Container } from "../components/Container";
 import Link from "next/link";
 import { MenuDrawer } from "./_components/MenuDrawer";
 import HOME_LINKS from "../links";
+import Image from "next/image";
 
 export default function Layout({ children }: { children: ReactNode }) {
 	return (
@@ -18,7 +19,7 @@ const Header = () => {
 		<header className="flex h-20 w-screen border-b no-print">
 			<Container className="flex justify-between items-center">
 				<div>
-					<h1 className="text-lg font-semibold">LoRa Connect</h1>
+					<Image src="/logos/single-line-transparent.png" height={50} width={200} alt="Logo" />
 				</div>
 				<div>
 					<nav className="block md:hidden">
