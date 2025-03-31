@@ -35,7 +35,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MAIN ACTIVITY"
-        private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 1001
     }
 
     private lateinit var taskRepository : TaskRepository
@@ -67,6 +66,12 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         sharedBluetoothViewModel.unbindService(this)
+        try {
+            unregisterReceiver(bluetoothEnabledStateBroadcastReceiver)
+            unregisterReceiver(gattUpdateReceiver)
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -86,27 +91,18 @@ class MainActivity : AppCompatActivity() {
             registerReceiver(gattUpdateReceiver, makeGattUpdateIntentFilter(), RECEIVER_NOT_EXPORTED)
         }
 
-        askNotificationPermission()
-
         val activityStarterHelper = ActivityStarterHelper(this)
-        authenticationViewModel = AuthenticationViewModel(bluetoothAdapter, bleScanner, activityStarterHelper, ::connectToDevice, ::launchEnableBluetoothIntent)
+        authenticationViewModel = AuthenticationViewModel(
+            bluetoothAdapter,
+            bleScanner,
+            activityStarterHelper,
+            ::connectToDevice,
+            ::launchEnableBluetoothIntent,
+        )
 
         setContent {
             ApplicationTheme {
                 AuthenticationScreen(authenticationViewModel)
-            }
-        }
-
-        // Check and request notification permission
-        if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    NOTIFICATION_PERMISSION_REQUEST_CODE
-                )
             }
         }
     }
@@ -163,64 +159,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        unregisterReceiver(gattUpdateReceiver)
-        unregisterReceiver(bluetoothEnabledStateBroadcastReceiver)
-    }
-
     private fun connectToDevice(address: String) {
         sharedBluetoothViewModel.let { service ->
             service.getService()?.connect(address)
-        }
-    }
-
-    private fun askNotificationPermission() {
-        // This is only necessary for API level >= 33 (TIRAMISU)
-        if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED
-            ) {
-//                Log.e(TAG, "PERMISSION_GRANTED")
-                // FCM SDK (and your app) can post notifications.
-            } else {
-//                Log.e(TAG, "NO_PERMISSION")
-                // Directly ask for the permission
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
-
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Toast.makeText(this, "Notifications permission granted", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            if (VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val settingsIntent: Intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                startActivity(settingsIntent)
-            }
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Notification Permission Granted!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Notification Permission Denied!", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 

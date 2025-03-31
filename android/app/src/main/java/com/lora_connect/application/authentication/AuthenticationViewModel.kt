@@ -23,7 +23,7 @@ class AuthenticationViewModel(
     private val bleScanner: BluetoothLeScanner,
     private val activityStarterHelper: ActivityStarterHelper,
     private val connectToDevice: (address: String) -> Unit,
-    val enableBluetooth: () -> Unit
+    val enableBluetooth: () -> Unit,
 ): ViewModel(){
     private val _state = MutableStateFlow(AuthenticationState())
     val state : StateFlow<AuthenticationState> = _state.asStateFlow()

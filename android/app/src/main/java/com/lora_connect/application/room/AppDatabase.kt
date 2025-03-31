@@ -13,7 +13,7 @@ import com.lora_connect.application.room.daos.TaskDao
 import com.lora_connect.application.room.entities.Obstacle
 import com.lora_connect.application.room.entities.Task
 
-@Database(entities = [Task::class, Obstacle::class], version = 6)
+@Database(entities = [Task::class, Obstacle::class], version = 7)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao() : TaskDao
@@ -62,7 +62,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "LoRa-Connect"
                 )
-                    .addMigrations(MIGRATION_4_5)
+//                    .addMigrations(MIGRATION_4_5)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
