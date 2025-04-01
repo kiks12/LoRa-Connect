@@ -135,10 +135,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [packetId]);
 
-	function incrementPacketId() {
-		setPacketId((prev) => prev + 1);
-	}
-
 	const addUserPoint = useCallback(
 		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
 			if (!bracelet) return;
@@ -188,7 +184,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude });
+		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: false });
 		if (users.length > 0) {
 			setUsers((prev) => {
 				return prev.map((user) => {
