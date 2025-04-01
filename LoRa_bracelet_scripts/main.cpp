@@ -9,7 +9,6 @@
 #define DEVICE_ADDR "0001"
 
 #include <heltec_unofficial.h>
-#include <config.h>
 #include <TinyGPSPlus.h>
 
 #define PAUSE               0
