@@ -6,14 +6,15 @@ from tags import *
 """ PAYLOAD CREATION """
 
 
-def start_location_transmission_to_tru():
-    return f"{TO_RESCUERS_AND_USERS}{START_LOCATION_TRANSMISSION_TO_TRU}"
+def start_location_transmission_to_tru(packet):
+    packet_id = packet.get("packetId")
+    return f"{TO_CENTRAL_NODE}{TO_RESCUERS_AND_USERS}{packet_id}2{START_LOCATION_TRANSMISSION_TO_TRU}"
 
 
 def instruction_to_user(instruction):
     owner_bracelet_id = instruction.get("ownerBraceletId")
-    id = "00"
-    ttl = "5"
+    id = instruction.get("packetId")
+    ttl = "2"
     distance = instruction.get("distance")
     evacuation_center_name = instruction.get("evacuationCenterName")
     message = instruction.get("message")
@@ -72,8 +73,8 @@ TASK TO RESCUER PAYLOAD FROM SERVER
 
 def task_to_rescuer(task):
     missionId = task.get("missionId")
-    id = "00"
-    ttl = "5"
+    id = task.get("packetId")
+    ttl = "2"
     team_bracelet_uid = task.get("teamBraceletId")
     userId = task.get("userBraceletId")
     username = task.get("user").get("name")
@@ -111,8 +112,8 @@ def obstacle_to_rescuer(obstacle):
     obstacleType = obstacle.get("type")
     latitude = obstacle.get("latitude")
     longitude = obstacle.get("longitude")
-    id = "00"
-    ttl = "5"
+    id = obstacle.get("packetId")
+    ttl = "2"
 
     return f"{TO_CENTRAL_NODE}{TO_ALL_RESCUERS}{id}{OBSTACLE_TO_RESCUER}{ttl}{obstacleId}-{obstacleName}-{obstacleType}-{latitude}-{longitude}"
 

@@ -160,9 +160,9 @@ class LoRaModule(LoRa):
 
     """ LORA TRANSMISSION METHODS """
 
-    def start_location_transmission(self):
+    def start_location_transmission(self, data):
         print(START_LOCATION_TRANSMISSION_TO_TRU_PY)
-        self.send_message(start_location_transmission_to_tru())
+        self.send_message(start_location_transmission_to_tru(data))
 
     def instruction_to_user(self, instructions):
         print(INSTRUCTION_TO_USER_PY)
