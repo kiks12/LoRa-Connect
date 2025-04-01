@@ -10,7 +10,7 @@ from tags import *
 import functools
 
 BOARD.setup()
-sio = socketio.Client()
+sio = socketio.Client(logger=True, engineio_logger=True)
 
 
 class LoRaModule(LoRa):
@@ -26,7 +26,7 @@ class LoRaModule(LoRa):
         self.set_bw(BW.BW250)
         self.set_coding_rate(CODING_RATE.CR4_5)
         self.set_pa_config(pa_select=1, max_power=0x04)
-        self.set_spreading_factor(7)
+        self.set_spreading_factor(9)
         self.set_rx_crc(True)
        # [0,0,0,0,0,0] in RX, [1,0,0,0,0,0] in TX
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
@@ -60,11 +60,11 @@ class LoRaModule(LoRa):
 
     def connect_to_socketio(self):
         """ Connect to the Socket.IO server and keep listening """
-        sio.connect(self.ws_url)
+        sio.connect(self.ws_url, socketio_path="/socket.io/", transports=["websocket"])
         print(f"✅ Connected to Socket.IO server at {self.ws_url}")
         sys.stdout.flush()
-        while True:
-            sio.wait()  # Keeps the connection alive
+        #while True:
+        sio.wait()  # Keeps the connection alive
 
     def start_socketio_listener(self):
         """ Runs the Socket.IO listener in a background thread """
@@ -102,8 +102,6 @@ class LoRaModule(LoRa):
                     asyncio.run(self.task_status_update_from_rescuer(data))
                 case _:
                     print("default")
-        else:
-            self.send_message(data)
 
         self.set_mode(MODE.SLEEP)
         self.reset_ptr_rx()
@@ -133,6 +131,8 @@ class LoRaModule(LoRa):
         self.set_register(0x12, 0x08)  # clear IRQ flags
         sleep(0.5)
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
+        self.reset_ptr_rx()
+        self.set_mode(MODE.RXCONT)
 
     def start(self):
         """ Starts both LoRa reception & WebSocket listener """

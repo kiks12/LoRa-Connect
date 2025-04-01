@@ -8,7 +8,7 @@ from tags import *
 
 def start_location_transmission_to_tru(packet):
     packet_id = packet.get("packetId")
-    return f"{TO_CENTRAL_NODE}{TO_RESCUERS_AND_USERS}{packet_id}2{START_LOCATION_TRANSMISSION_TO_TRU}"
+    return f"{TO_CENTRAL_NODE}{TO_RESCUERS_AND_USERS}{packet_id}{START_LOCATION_TRANSMISSION_TO_TRU}2"
 
 
 def instruction_to_user(instruction):

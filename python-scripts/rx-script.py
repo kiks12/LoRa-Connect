@@ -61,7 +61,7 @@ lora.set_freq(433.0)
 lora.set_bw(BW.BW250)
 lora.set_coding_rate(CODING_RATE.CR4_5)
 lora.set_pa_config(pa_select=1, max_power=0x04)
-lora.set_spreading_factor(7)
+lora.set_spreading_factor(9)
 lora.set_rx_crc(True)
 
 print("LoRa initialized.")
