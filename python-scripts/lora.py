@@ -76,7 +76,7 @@ class LoRaModule(LoRa):
     def send_to_websocket(self, code, data):
         """ Sends a message to the Socket.IO server """
         message = {"data": data}
-        sio.emit("SEND_TO_FRONTEND", message)
+        sio.emit(code, message)
         print(f"📤 Sent via Socket.IO: {message}")
 
     def on_rx_done(self):
@@ -86,6 +86,7 @@ class LoRaModule(LoRa):
         print("\nRECEIVED DATA: ", data)
         print("RSSI: ", self.get_rssi_value())
         source, dest, id, packet_type = self.get_uid_code_from_payload(data)
+        print("SOURCE:", source, "DEST:", dest, "PACKET TYPE:", packet_type)
         if dest == TO_ALL or dest == TO_CENTRAL_NODE or dest == TO_RESCUERS_AND_CENTRAL_NODE:
             match packet_type:
                 case "1":
@@ -210,7 +211,7 @@ class LoRaModule(LoRa):
 
     def get_uid_code_from_payload(self, payload):
         source = payload[0:4]
-        dest = payload[5:8]
+        dest = payload[4:8]
         id = payload[8:9]
         packet_type = payload[10]
 
