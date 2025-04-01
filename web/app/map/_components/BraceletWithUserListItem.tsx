@@ -33,7 +33,7 @@ export default function BraceletWithUserListItem({ user, onShowLocation }: { use
 	return (
 		<Card
 			className={`my-1 shadow-none cursor-pointer border-0 rounded-none border-b ${
-				user.bracelet && user.bracelet.sos && URGENCY_MAP[user.bracelet.urgency!] ? `bg-${URGENCY_MAP[user.bracelet.urgency!].color}-50` : ""
+				user.bracelet && user.bracelet.sos ? `` : ""
 			}`}
 		>
 			<CardHeader className="flex justify-between items-start">
@@ -53,8 +53,8 @@ export default function BraceletWithUserListItem({ user, onShowLocation }: { use
 				</div> */}
 				{user.bracelet?.sos && (
 					<div className="flex items-center mt-3">
-						<AlertCircle className={`text-${URGENCY_MAP[user.bracelet.urgency!].color}-500`} />
-						<p className={`text-${URGENCY_MAP[user.bracelet.urgency!].color}-500 ml-3`}>Urgency: {URGENCY_MAP[user.bracelet.urgency!].text}</p>
+						<AlertCircle className={`text`} />
+						<p className={`ml-3`}>Urgency: {URGENCY_MAP[user.bracelet.urgency!].text}</p>
 					</div>
 				)}
 			</CardHeader>
