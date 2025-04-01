@@ -20,7 +20,7 @@ import {
 	UserWithStatusIdentifier,
 } from "@/types";
 import { URGENCY_LORA_TO_DB } from "@/utils/urgency";
-import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo } from "react";
 import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
@@ -51,8 +51,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const [packetId, setPacketId] = useState(98);
 	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [users, setUsers] = useState<UserWithStatusIdentifier[]>([]);
+	const [usersLoading, setUsersLoading] = useState(true);
 	const [rescuers, setRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
 	const [teams, setTeams] = useState<TeamWithStatusIdentifier[]>([]);
+	const [teamsLoading, setTeamsLoading] = useState(true);
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
 	const [missions, setMissions] = useState<MissionWithCost[]>([]);
 	const [timeIntervals, setTimeIntervals] = useState<{ max: number; time: number; title: string }[]>([]);
@@ -62,10 +64,44 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	mapRef.current?.on("load", () => setStyleLoaded(true));
 
 	useEffect(() => {
+		fetchUsersAPI();
+		fetchTeams();
+	}, []);
+
+	async function fetchUsersAPI() {
+		const { users }: { users: UserWithBracelet[] } = await (await fetch("/api/users")).json();
+		const mappedUsers = users ? users.map((user) => ({ ...user, showing: false })) : [];
+		setUsers(mappedUsers);
+		setUsersLoading(false);
+	}
+
+	async function fetchTeams() {
+		const { teams }: { teams: TeamWithRescuer[] } = await (await fetch("/api/teams")).json();
+		const mappedTeams = teams.map((team) => ({ ...team, showing: false }));
+		setTeams(mappedTeams);
+		setTeamsLoading(false);
+	}
+
+	useEffect(() => {
+		if (usersLoading) return;
+
 		socket.on(LOCATION_FROM_USER, locationFromUser);
 		socket.on(SOS_FROM_USER, sosFromUser);
+	}, [usersLoading])
+
+	useEffect(() => {
+		if (teamsLoading) return;
+
 		socket.on(LOCATION_FROM_RESCUER, locationFromRescuer);
 		socket.on(SOS_FROM_RESCUER, sosFromRescuer);
+	}, [teamsLoading])
+
+
+	useEffect(() => {
+		// socket.on(LOCATION_FROM_USER, locationFromUser);
+		// socket.on(SOS_FROM_USER, sosFromUser);
+		// socket.on(LOCATION_FROM_RESCUER, locationFromRescuer);
+		// socket.on(SOS_FROM_RESCUER, sosFromRescuer);
 		socket.on(TASK_ACKNOWLEDGEMENT_FROM_RESCUER, taskAcknowledgementFromRescuer);
 		socket.on(TASK_STATUS_UPDATE_FROM_RESCUER, taskStatusUpdateFromRescuer);
 	}, []);
@@ -75,7 +111,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			users.forEach((user) => addUserPoint(user));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [users, styleLoaded]);
+	}, [users]);
 
 	useEffect(() => {
 		if (styleLoaded) {
@@ -83,11 +119,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [teams, styleLoaded]);
-
-	useEffect(() => {
-		fetchUsersAPI();
-		fetchTeams();
-	}, []);
 
 	useEffect(() => {
 		if (packetId > 99) {
@@ -99,20 +130,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		setPacketId((prev) => prev + 1);
 	}
 
-	async function fetchUsersAPI() {
-		const { users }: { users: UserWithBracelet[] } = await (await fetch("/api/users")).json();
-		const mappedUsers = users ? users.map((user) => ({ ...user, showing: false })) : [];
-		setUsers(mappedUsers);
-	}
-
-	async function fetchTeams() {
-		const { teams }: { teams: TeamWithRescuer[] } = await (await fetch("/api/teams")).json();
-		const mappedTeams = teams.map((team) => ({ ...team, showing: false }));
-		setTeams(mappedTeams);
-	}
-
 	const addUserPoint = useCallback(
-		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
+		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
 			if (!bracelet) return;
 			if (bracelet && bracelet.latitude === null && bracelet.longitude === null) return;
 			if (!mapRef.current) return;
@@ -135,7 +154,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	const addTeamPoint = useCallback(
-		({ rescuers, teamId }: TeamWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
+		({ rescuers, teamId }: TeamWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
 			const { bracelet } = rescuers.filter((rescuer) => rescuer.bracelet !== null)[0];
 			if (bracelet && bracelet.latitude === null && bracelet.longitude === null) return;
 			if (!bracelet) return;
@@ -153,36 +172,38 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		[]
 	);
 
-	async function locationFromUser(data: string) {
+	async function locationFromUser({data}: { data: string }) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(10, data.length);
+		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await updateBraceletLocation({ braceletId: source, latitude, longitude, urgency });
-		setUsers((prev) => {
-			return prev.map((user) => {
-				if (user.bracelet && user.bracelet.braceletId === source) {
-					return {
-						...user,
-						bracelet: {
-							...user.bracelet,
-							latitude: latitude,
-							longitude: longitude,
-							sos: user.bracelet.sos,
-							urgency: urgency,
-						},
-					};
-				}
-				return user;
+		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude })
+		if (users.length > 0) {
+			setUsers((prev) => {
+				return prev.map((user) => {
+					if (user.bracelet && user.bracelet.braceletId === source) {
+						return {
+							...user,
+							bracelet: {
+								...user.bracelet,
+								latitude: latitude,
+								longitude: longitude,
+								sos: user.bracelet.sos,
+								urgency: urgency,
+							},
+						};
+					}
+					return user;
+				});
 			});
-		});
+		}
 	}
 
 	async function sosFromUser(data: string) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(10, data.length);
+		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
@@ -209,12 +230,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 	async function locationFromRescuer(data: string) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(10, data.length);
+		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await updateBraceletLocation({ braceletId: source, latitude, longitude, urgency });
+		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: true })
 		setTeams((prev) => {
 			return prev.map((team) => {
 				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
@@ -245,7 +266,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 	async function sosFromRescuer(data: string) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(10, data.length);
+		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
@@ -281,87 +302,81 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 	function taskAcknowledgementFromRescuer(data: string) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(10, data.length);
+		const payload = data.substring(12, data.length);
 		console.log(source, payload);
 	}
 
 	function taskStatusUpdateFromRescuer(data: string) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(10, data.length);
+		const payload = data.substring(12, data.length);
 		console.log(source, payload);
 	}
 
-	// Receive user location signal from py
-	// socket.on(LOCATION_FROM_USER, async (data: LocationDataFromPy) => {
-	// const { braceletId } = data;
-	// const correctOwner = users.filter((user) => user.bracelet?.braceletId === braceletId);
-	// console.log(correctOwner);
-	// if (correctOwner.length === 0) return;
-	// addUserPoint({ ...(correctOwner[0] as UserWithStatusIdentifier), latitude, longitude }, false, true);
-	// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: false });
-	// });
+	async function saveNewLocationToDatabase({
+		braceletId,
+		latitude,
+		longitude,
+		rescuer,
+	}: {
+		braceletId: string;
+		latitude: number;
+		longitude: number;
+		rescuer: boolean;
+	}) {
+		await fetch("/api/bracelets/update-location", {
+			method: "PATCH",
+			body: JSON.stringify({ braceletId, latitude, longitude, urgency: 1 }),
+		});
+		if (rescuer) {
+			setRescuers(
+			(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
+			);
+		} else {
+			setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
+		}
+	}
 
-	// Receive rescuer location signal from py
-	// socket.on(LOCATION_FROM_RESCUER, async (data: LocationDataFromPy) => {
-	// 	const { braceletId } = data;
-	// 	const correctOwner = rescuers.filter((user) => user.bracelet?.braceletId === braceletId);
-	// 	console.log(correctOwner);
-	// 	if (correctOwner.length === 0) return;
-	// 	// addRescuerPoint({ ...(correctOwner[0] as RescuerWithStatusIdentifier) }, false, true);
-	// 	// await saveNewLocationToDatabase({ braceletId, latitude, longitude, rescuer: true });
-	// });
+	const providerValue = useMemo(() => {
+		return {
+			users,
+			setUsers,
+			rescuers,
+			setRescuers,
+			teams,
+			setTeams,
+			obstacles,
+			setObstacles,
+			missions,
+			setMissions,
 
-	// async function saveNewLocationToDatabase({
-	// 	braceletId,
-	// 	latitude,
-	// 	longitude,
-	// 	rescuer,
-	// }: {
-	// 	braceletId: string;
-	// 	latitude: number;
-	// 	longitude: number;
-	// 	rescuer: boolean;
-	// }) {
-	// 	await fetch("/api/bracelets/update-location", {
-	// 		method: "PATCH",
-	// 		body: JSON.stringify({ braceletId, latitude, longitude }),
-	// 	});
-	// 	if (rescuer) {
-	// 		setRescuers(
-	// 			(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
-	// 		);
-	// 	} else {
-	// 		setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
-	// 	}
-	// }
+			fetchUsersAPI,
+			fetchTeams,
+
+			monitorLocations,
+			setMonitorLocations,
+
+			timeIntervals,
+			setTimeIntervals,
+
+			packetId,
+			setPacketId,
+			incrementPacketId,
+		}
+
+	}, [
+		users,
+		rescuers,
+		teams,
+		obstacles,
+		missions,
+		monitorLocations,
+		timeIntervals,
+		packetId,
+	]);
 
 	return (
 		<AppContext.Provider
-			value={{
-				users,
-				setUsers,
-				rescuers,
-				setRescuers,
-				teams,
-				setTeams,
-				obstacles,
-				setObstacles,
-				missions,
-				setMissions,
-
-				fetchUsersAPI,
-				fetchTeams,
-
-				monitorLocations,
-				setMonitorLocations,
-
-				timeIntervals,
-				setTimeIntervals,
-
-				packetId,
-				setPacketId,
-				incrementPacketId,
-			}}
+			value={providerValue}
 		>
 			{children}
 		</AppContext.Provider>

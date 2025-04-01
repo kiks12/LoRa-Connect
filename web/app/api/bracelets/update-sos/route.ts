@@ -1,4 +1,4 @@
-import { updateBraceletLocation } from "@/server/db/bracelets"
+import { updateBraceletSos } from "@/server/db/bracelets"
 import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue, syntaxErrorReturnValue, typeErrorReturnValue } from "@/utils/api"
 import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library"
 import { NextResponse } from "next/server"
@@ -20,17 +20,19 @@ export async function PATCH(req: Request) {
       braceletId: string, 
       latitude: number, 
       longitude: number
-      urgency: number
+      urgency: number,
+      sos: boolean
     }= await req.json()
     await updateBraceletLocation({
       braceletId, 
       latitude: parseFloat(latitude.toFixed(6)),
       longitude: parseFloat(longitude.toFixed(6)),
-      urgency: urgency
+      urgency: urgency,
+      sos
     })
 
     return NextResponse.json({
-      message: "Update Bracelet Location"
+      message: "Update Bracelet Sos"
     })
   } catch (error) {
     console.error(error)

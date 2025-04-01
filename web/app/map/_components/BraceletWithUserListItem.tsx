@@ -11,6 +11,10 @@ export const URGENCY_MAP: {
 		color: string;
 	};
 } = {
+	0: {
+		text: "UNKNOWN",
+		color: "neutral",
+	},
 	0.2: {
 		text: "LOW",
 		color: "yellow",
@@ -29,7 +33,7 @@ export default function BraceletWithUserListItem({ user, onShowLocation }: { use
 	return (
 		<Card
 			className={`my-1 shadow-none cursor-pointer border-0 rounded-none border-b ${
-				user.bracelet && user.bracelet.sos ? `bg-${URGENCY_MAP[user.bracelet.urgency!].color}-50` : ""
+				user.bracelet && user.bracelet.sos && URGENCY_MAP[user.bracelet.urgency!] ? `bg-${URGENCY_MAP[user.bracelet.urgency!].color}-50` : ""
 			}`}
 		>
 			<CardHeader className="flex justify-between items-start">
