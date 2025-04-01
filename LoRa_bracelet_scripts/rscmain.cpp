@@ -18,7 +18,7 @@
 #define DESCRIPTOR_UUID "caed62e7-f146-4fe4-a0d2-609edaf76228"
 
 #define PAUSE               0
-#define FREQUENCY           866.3       
+#define FREQUENCY           433.0       
 #define BANDWIDTH           250.0
 #define SPREADING_FACTOR    9
 #define CODING_RATE         5
@@ -59,11 +59,23 @@ BLEServer *pServer;
 std::queue<String> BT_queue;
 bool BT_flag = false;
 
+void txPacket(String packet) {
+    radio.clearDio1Action();
+    heltec_led(50);
+    RADIOLIB(radio.transmit(packet.c_str()));
+    heltec_led(0);
+    radio.setDio1Action(rx);
+    RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
+}
+
 class ServerCallbacks : public NimBLEServerCallbacks {
   void onConnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo) override {
     pServer->updateConnParams(connInfo.getConnHandle(), 24, 48, 0, 180);
+    pServer->getAdvertising()->stop();
+    both.println("BLE Connected");
   }
   void onDisconnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo, int reason) override {
+    both.println("BLE Disconnected");
     NimBLEDevice::startAdvertising();
   }
 } serverCallbacks;
@@ -83,6 +95,13 @@ class CharacteristicCallbacks : public NimBLECharacteristicCallbacks {
   }
 } chrCallbacks;
 
+class ReadCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
+  void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
+      String value = pCharacteristic->getValue().c_str();
+      both.printf("BLE: %s\n", value.c_str());
+      txPacket(value);
+  }
+};
 
 void setup() {
     heltec_setup();
@@ -107,6 +126,7 @@ void setup() {
     pReadCharacteristic  = pService->createCharacteristic(READ_CHARACTERISTIC_UUID , NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
     pDescriptor = pWriteCharacteristic->createDescriptor(DESCRIPTOR_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
     pReadCharacteristic->setCallbacks(new CharacteristicCallbacks());
+    pReadCharacteristic->setCallbacks(new ReadCharacteristicCallbacks());
     pService->start();
 
     NimBLEAdvertising* pAdvertising = NimBLEDevice::getAdvertising();
@@ -117,15 +137,6 @@ void setup() {
 
     both.println("Rescuer");
     both.printf("Device address: %s\n", DEVICE_ADDR);
-}
-
-void txPacket(String packet) {
-    radio.clearDio1Action();
-    heltec_led(50);
-    RADIOLIB(radio.transmit(packet.c_str()));
-    heltec_led(0);
-    radio.setDio1Action(rx);
-    RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
 }
 
 void txLocPacket() {
