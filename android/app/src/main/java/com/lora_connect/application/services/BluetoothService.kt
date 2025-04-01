@@ -45,11 +45,11 @@ class BluetoothService : Service() {
         private const val STATE_DISCONNECTED = 0
         private const val STATE_CONNECTED = 2
 
-        const val SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
-        const val CHARACTERISTIC_UUID = "abcdef12-3456-7890-1234-56789abcdef1"
-        const val DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805f9b34fb" // Standard CCCD UUID
+        const val SERVICE_UUID = "dc0d15eb-6298-44e3-9813-d9a5c58c43cc"
+        const val CHARACTERISTIC_UUID = "d0d12d27-be27-4495-a236-9fa0860b4554"
+        const val DESCRIPTOR_UUID = "caed62e7-f146-4fe4-a0d2-609edaf76228" // Standard CCCD UUID
 
-        const val WRITE_CHARACTERISTIC_UUID = "ghijkl12-3456-7890-1234-56789abcdef1"
+        const val WRITE_CHARACTERISTIC_UUID = "c31628d9-f40c-4e67-a03a-3a0445b44ce0"
 
         private const val BLUETOOTH_CHANNEL = "bluetooth_channel"
         private const val BLUETOOTH_SERVICE_NAME = "Bluetooth Service"
