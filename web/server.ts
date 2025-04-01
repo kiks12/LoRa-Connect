@@ -14,7 +14,12 @@ const handler = app.getRequestHandler();
 app.prepare().then(async () => {
   const httpServer = createServer(handler);
 
-  const io = new Server(httpServer);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST", "DELETE", "PATCH", "PUT"]
+    }
+  });
 
   io.on("connection", (socket) => {
     console.log("Client Connected")
