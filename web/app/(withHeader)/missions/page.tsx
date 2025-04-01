@@ -1,10 +1,10 @@
-import { getOperationsCached } from "@/server/db/operations";
+import { getLatestOperations } from "@/server/db/operations";
 import { DataTable } from "../../components/DataTable";
 import { columns } from "./columns";
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
 
 export default async function MissionPage() {
-	const operations = await getOperationsCached();
+	const operations = await getLatestOperations();
 
 	return (
 		<main>

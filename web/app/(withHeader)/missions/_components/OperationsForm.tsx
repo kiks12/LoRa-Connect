@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, formatLocalDateTime } from "@/lib/utils";
 import { operationsSchema } from "@/schema/operations";
 import { updateOperation } from "@/server/actions/operations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EvacuationCenters, OperationStatus, Users, Rescuers, RescueUrgency, VictimStatusReport } from "@prisma/client";
-import { Check, Printer } from "lucide-react";
+import { Check, FileDiff, Printer } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -137,8 +137,8 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 			urgency: values.urgency as RescueUrgency,
 			teamsTeamId: values.teamId,
 			usersUserId: values.userId,
-			teamBraceletId: values.teamBraceletId,
-			userBraceletId: values.userBraceletId,
+			teamBraceletId: mission?.teamBraceletId ?? "",
+			userBraceletId: mission?.userBraceletId ?? "",
 		});
 		showToast(result);
 	}
@@ -296,7 +296,7 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 											<FormItem>
 												<FormLabel>Time of Arrival</FormLabel>
 												<FormControl>
-													<Input placeholder="" {...field} value={field.value?.toTimeString() ?? "No Time to show"} readOnly />
+													<Input placeholder="" {...field} value={field.value ? formatLocalDateTime(field.value) : ""} type="datetime-local" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -311,7 +311,7 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 											<FormItem>
 												<FormLabel>Time of Completion</FormLabel>
 												<FormControl>
-													<Input placeholder="" {...field} value={field.value?.toTimeString() ?? "No Time to show"} readOnly />
+													<Input placeholder="" {...field} value={field.value ? formatLocalDateTime(field.value) : ""} type="datetime-local" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>

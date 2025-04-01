@@ -8,8 +8,8 @@ export const operationsSchema = z.object({
   dateTime: z.date().nullable(),
   distance: z.coerce.number(),
   eta: z.coerce.number(),
-  timeOfArrival: z.date().nullable(),
-  timeOfCompletion: z.date().nullable(),
+  timeOfArrival: z.coerce.date().nullable(),
+  timeOfCompletion: z.coerce.date().nullable(),
   userName: z.string().nonempty({
     message: "User name should not be empty"
   }),

@@ -95,7 +95,18 @@ export const useAdmin = () => {
 				}),
 			});
 
-			return await res.json();
+			if (res.status === 200) {
+				toast({
+					description: `Successfully saved mission ${mission.missionId}`,
+				});
+			} else {
+				toast({
+					variant: "destructive",
+					description: `There is an error saving mission ${mission.missionId}. It is possible the mission is already saved`,
+				});
+			}
+
+			return Promise.resolve(res.status === 200);
 		});
 
 		return await Promise.all(tasks);
