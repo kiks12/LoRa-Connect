@@ -47,7 +47,7 @@ export const useAdmin = () => {
 	}
 
 	function sendTransmitLocationSignalToBracelets() {
-		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, { packetId });
+		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, { packetId: formatTwoDigitNumber(packetId) });
 		incrementPacketId();
 	}
 

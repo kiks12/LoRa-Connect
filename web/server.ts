@@ -1,10 +1,13 @@
-import { createServer } from "node:http";
-import next from "next";
-import { Server } from "socket.io";
+//import { createServer } from "node:http";
+//import next from "next";
+//import { Server } from "socket.io";
+const next = require("next");
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 import { INSTRUCTION_TO_USER, INSTRUCTION_TO_USER_PY, LOCATION_FROM_RESCUER, LOCATION_FROM_RESCUER_PY, LOCATION_FROM_USER, LOCATION_FROM_USER_PY, OBSTACLE_TO_RESCUER, OBSTACLE_TO_RESCUER_PY, SOS_FROM_RESCUER, SOS_FROM_RESCUER_PY, SOS_FROM_USER, SOS_FROM_USER_PY, START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU_PY, TASK_ACKNOWLEDGEMENT_FROM_RESCUER_PY, TASK_STATUS_UPDATE_FROM_RESCUER, TASK_STATUS_UPDATE_FROM_RESCUER_PY, TASK_TO_RESCUER, TASK_TO_RESCUER_PY } from "./lora/lora-tags";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
+const hostname = "0.0.0.0";
 const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
@@ -17,17 +20,18 @@ app.prepare().then(async () => {
   const io = new Server(httpServer, {
     cors: {
       origin: "*",
-      methods: ["GET", "POST", "DELETE", "PATCH", "PUT"]
-    }
+      methods: ["GET", "POST"],
+    },
+    path: "/socket.io/"
   });
 
   io.on("connection", (socket) => {
     console.log("Client Connected")
 
     // FROM FRONTEND TO PY
-    socket.on(START_LOCATION_TRANSMISSION_TO_TRU, () => {
-      console.log(START_LOCATION_TRANSMISSION_TO_TRU)
-      io.emit(START_LOCATION_TRANSMISSION_TO_TRU_PY)
+    socket.on(START_LOCATION_TRANSMISSION_TO_TRU, (data) => {
+      console.log(START_LOCATION_TRANSMISSION_TO_TRU, data)
+      io.emit(START_LOCATION_TRANSMISSION_TO_TRU_PY, data)
     })
     socket.on(INSTRUCTION_TO_USER, (data) => {
       console.log(INSTRUCTION_TO_USER)
