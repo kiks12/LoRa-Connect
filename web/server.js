@@ -36,9 +36,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-//import { createServer } from "node:http";
-//import next from "next";
-//import { Server } from "socket.io";
 var next = require("next");
 var createServer = require("http").createServer;
 var Server = require("socket.io").Server;
@@ -49,7 +46,6 @@ var port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 var app = next({ dev: dev, hostname: hostname, port: port });
 var handler = app.getRequestHandler();
-// let flag = false;
 app.prepare().then(function () { return __awaiter(void 0, void 0, void 0, function () {
     var httpServer, io;
     return __generator(this, function (_a) {
@@ -65,47 +61,47 @@ app.prepare().then(function () { return __awaiter(void 0, void 0, void 0, functi
             console.log("Client Connected");
             // FROM FRONTEND TO PY
             socket.on(lora_tags_1.START_LOCATION_TRANSMISSION_TO_TRU, function (data) {
-                console.log(lora_tags_1.START_LOCATION_TRANSMISSION_TO_TRU, data);
+                // console.log(START_LOCATION_TRANSMISSION_TO_TRU, data)
                 io.emit(lora_tags_1.START_LOCATION_TRANSMISSION_TO_TRU_PY, data);
             });
             socket.on(lora_tags_1.INSTRUCTION_TO_USER, function (data) {
-                console.log(lora_tags_1.INSTRUCTION_TO_USER);
-                console.log(data);
+                // console.log(INSTRUCTION_TO_USER)
+                // console.log(data)
                 io.emit(lora_tags_1.INSTRUCTION_TO_USER_PY, data);
             });
             socket.on(lora_tags_1.TASK_TO_RESCUER, function (data) {
-                console.log(lora_tags_1.TASK_TO_RESCUER);
-                console.log(data);
+                // console.log(TASK_TO_RESCUER)
+                // console.log(data)
                 io.emit(lora_tags_1.TASK_TO_RESCUER_PY, data);
             });
             socket.on(lora_tags_1.OBSTACLE_TO_RESCUER, function (data) {
-                console.log(lora_tags_1.OBSTACLE_TO_RESCUER);
-                console.log(data);
+                // console.log(OBSTACLE_TO_RESCUER)
+                // console.log(data)
                 io.emit(lora_tags_1.OBSTACLE_TO_RESCUER_PY, data);
             });
             // FROM PY TO FRONTEND 
             socket.on(lora_tags_1.LOCATION_FROM_USER_PY, function (data) {
-                console.log(data);
+                // console.log(data)
                 io.emit(lora_tags_1.LOCATION_FROM_USER, data);
             });
             socket.on(lora_tags_1.SOS_FROM_USER_PY, function (data) {
-                console.log(data);
+                // console.log(data)
                 io.emit(lora_tags_1.SOS_FROM_USER, data);
             });
             socket.on(lora_tags_1.LOCATION_FROM_RESCUER_PY, function (data) {
-                console.log(data);
+                // console.log(data)
                 io.emit(lora_tags_1.LOCATION_FROM_RESCUER, data);
             });
             socket.on(lora_tags_1.SOS_FROM_RESCUER_PY, function (data) {
-                console.log(data);
+                // console.log(data)
                 io.emit(lora_tags_1.SOS_FROM_RESCUER, data);
             });
             socket.on(lora_tags_1.TASK_ACKNOWLEDGEMENT_FROM_RESCUER_PY, function (data) {
-                console.log(data);
+                // console.log(data)
                 io.emit(lora_tags_1.SOS_FROM_RESCUER, data);
             });
             socket.on(lora_tags_1.TASK_STATUS_UPDATE_FROM_RESCUER_PY, function (data) {
-                console.log(data);
+                // console.log(data)
                 io.emit(lora_tags_1.TASK_STATUS_UPDATE_FROM_RESCUER, data);
             });
         });

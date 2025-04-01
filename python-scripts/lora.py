@@ -131,6 +131,7 @@ class LoRaModule(LoRa):
         print("TX DONE IRQ FLAGS: ", hex(self.get_register(0x12)))
         self.set_register(0x12, 0x08)  # clear IRQ flags
         sleep(0.5)
+
         self.set_dio_mapping([0, 0, 0, 0, 0, 0])
         self.reset_ptr_rx()
         self.set_mode(MODE.RXCONT)
