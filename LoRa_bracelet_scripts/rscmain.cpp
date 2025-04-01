@@ -21,6 +21,7 @@
 #define FREQUENCY           866.3       
 #define BANDWIDTH           250.0
 #define SPREADING_FACTOR    9
+#define CODING_RATE         5
 #define TRANSMIT_POWER      0
 
 #define RXD2 47
@@ -91,7 +92,12 @@ void setup() {
   
     int state = radio.begin();
     radio.setDio1Action(rx);
-    RADIOLIB_OR_HALT(radio.setFrequency(FREQUENCY)); RADIOLIB_OR_HALT(radio.setBandwidth(BANDWIDTH)); RADIOLIB_OR_HALT(radio.setSpreadingFactor(SPREADING_FACTOR)); RADIOLIB_OR_HALT(radio.setOutputPower(TRANSMIT_POWER)); RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));    
+    RADIOLIB_OR_HALT(radio.setFrequency(FREQUENCY));
+    RADIOLIB_OR_HALT(radio.setBandwidth(BANDWIDTH));
+    RADIOLIB_OR_HALT(radio.setSpreadingFactor(SPREADING_FACTOR));
+    RADIOLIB_OR_HALT(radio.setCodingRate(CODING_RATE));
+    RADIOLIB_OR_HALT(radio.setOutputPower(TRANSMIT_POWER));
+    RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
 
     NimBLEDevice::init("Heltec V3");
     pServer = NimBLEDevice::createServer();
