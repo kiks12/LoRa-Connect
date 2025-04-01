@@ -150,6 +150,7 @@ void setup() {
 void loop() {
   // LoRa reception is handled via interrupts (DIO1)
   sendBLE("100411000095312152025-Trial Dummy Sample UPDATED-15.133179-120.597592-7-1-3");
-  sendBLE("1004110000B51-Obstacle 1-Concrete-15.150976-120.593229");
+  // sendBLE("1004110000B51-Obstacle 1-Concrete-15.150976-120.593229");
+  sendBLE("1004110000B52-Obstacle 2-Concrete-15.149323-120.594008");
   delay(20000);
 }

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,39 +29,50 @@ import compose.icons.feathericons.Bluetooth
 fun ScanningAnimation() {
     val infiniteTransition = rememberInfiniteTransition(label = "")
 
-    // Animate scale (expanding and contracting effect)
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 2.5f, // Expands outward
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
+    // Function to create a delayed pulsating animation for multiple circles
+    @Composable
+    fun pulsatingAnimation(delay: Int): Pair<State<Float>, State<Float>> {
+        val scale = infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 2.5f, // Expands outward
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1200, delayMillis = delay, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ), label = ""
+        )
 
-    // Animate alpha (fading effect as it expands)
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0f, // Fades out
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
+        val alpha = infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 0f, // Fades out
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1200, delayMillis = delay, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ), label = ""
+        )
 
-    val color = Color(50, 122, 237)
+        return Pair(scale, alpha)
+    }
+
+    // Three layered animations with different delays
+    val (scale1, alpha1) = pulsatingAnimation(0)
+    val (scale2, alpha2) = pulsatingAnimation(400)
+    val (scale3, alpha3) = pulsatingAnimation(8600)
+
+    val color = Color(50, 122, 237) // RGB Color
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        // Outer Pulsating Circle
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .scale(scale)
-                .background(color.copy(alpha = alpha), shape = CircleShape)
-        )
+        // Layered expanding circles
+        listOf(Pair(scale1, alpha1), Pair(scale2, alpha2), Pair(scale3, alpha3)).forEach { (scale, alpha) ->
+            Box(
+                modifier = Modifier
+                    .size(200.dp)
+                    .scale(scale.value)
+                    .background(color.copy(alpha = alpha.value), shape = CircleShape)
+            )
+        }
 
         // Static Center Circle (representing the scanning icon)
         Box(

@@ -75,6 +75,7 @@ def task_to_rescuer(task):
     id = "00"
     ttl = "5"
     team_bracelet_uid = task.get("teamBraceletId")
+    userId = task.get("userBraceletId")
     username = task.get("user").get("name")
     userLat = task.get("userLat")
     userLong = task.get("userLong")
@@ -101,7 +102,7 @@ def task_to_rescuer(task):
             urgency = 3
 
     # [Source Address][Destination Address][ID][Packet Type][TTL][PAYLOAD]
-    return f"{TO_CENTRAL_NODE}{team_bracelet_uid}{id}{TASK_TO_RESCUER}{ttl}{missionId}-{username}-{userLat}-{userLong}-{numberOfVictims}-{status}-{urgency}"
+    return f"{TO_CENTRAL_NODE}{team_bracelet_uid}{id}{TASK_TO_RESCUER}{ttl}{missionId}-{userId}-{username}-{userLat}-{userLong}-{numberOfVictims}-{status}-{urgency}"
 
 
 def obstacle_to_rescuer(obstacle):

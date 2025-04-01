@@ -4,7 +4,7 @@
 #include <heltec_unofficial.h>
 
 #define PAUSE               0
-#define FREQUENCY           866.3       
+#define FREQUENCY           433.0       
 #define BANDWIDTH           250.0
 #define SPREADING_FACTOR    7
 #define TRANSMIT_POWER      20
