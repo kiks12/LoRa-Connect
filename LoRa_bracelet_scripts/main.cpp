@@ -9,7 +9,6 @@
 #define DEVICE_ADDR "0001"
 
 #include <heltec_unofficial.h>
-#include <config.h>
 #include <TinyGPSPlus.h>
 
 #define PAUSE               0
@@ -21,6 +20,10 @@
 
 #define RXD2 47
 #define TXD2 48
+
+#define SOS_PIN 21
+#define URGENCY_PIN_1 38
+#define URGENCY_PIN_2 39
 
 HardwareSerial gpsSerial(1);
 TinyGPSPlus gps;
@@ -37,10 +40,29 @@ int bounced_packet_history_index = 0;
 
 uint8_t current_packet_id = 0;
 
-bool sos_flag = false;
+volatile bool sos_flag = false;
 
 int last_gps_update_time = 0;
-uint8_t urgency;
+volatile uint8_t urgency;
+
+void IRAM_ATTR handleSOSInterrupt() {
+    sos_flag = true;
+}
+
+void IRAM_ATTR handleUrgencyInterrupt() {
+    bool pin38 = digitalRead(URGENCY_PIN_1);
+    bool pin39 = digitalRead(URGENCY_PIN_2);
+
+    if (pin38 && pin39) {
+        urgency = 3;
+    } else if (pin38) {
+        urgency = 1;
+    } else if (pin39) {
+        urgency = 2;
+    } else {
+        urgency = 0;
+    }
+}
 
 void rx() {
     rx_flag = true;
@@ -48,6 +70,16 @@ void rx() {
 
 void setup() {
     heltec_setup();
+
+    // Configure GPIO pins
+    pinMode(SOS_PIN, INPUT_PULLUP);
+    pinMode(URGENCY_PIN_1, INPUT_PULLUP);
+    pinMode(URGENCY_PIN_2, INPUT_PULLUP);
+
+    // Attach interrupts
+    attachInterrupt(SOS_PIN, handleSOSInterrupt, RISING);
+    attachInterrupt(URGENCY_PIN_1, handleUrgencyInterrupt, CHANGE);
+    attachInterrupt(URGENCY_PIN_2, handleUrgencyInterrupt, CHANGE);
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");

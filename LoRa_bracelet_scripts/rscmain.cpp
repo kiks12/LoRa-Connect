@@ -4,7 +4,6 @@
 #define HELTEC_POWER_BUTTON   // must be before "#include <heltec_unofficial.h>"
 
 #include <heltec_unofficial.h>
-#include <config.h>
 #include <TinyGPSPlus.h>
 #include <NimBLEDevice.h>
 #include <queue>
