@@ -129,6 +129,7 @@ export type TeamAssignmentCost = {
 }
 
 export type MissionWithCost = {
+  packetId: string,
   missionId: string;
 
   userId: number;

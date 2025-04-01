@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useAppContext } from "@/contexts/AppContext";
 import useTimeUpdater from "@/hooks/map/use-timeUpdater";
 import { useToast } from "@/hooks/use-toast";
-import { triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
+import { formatTwoDigitNumber, triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
 import { INSTRUCTION_TO_USER } from "@/lora/lora-tags";
 import { socket } from "@/socket/socket";
 import { EvacuationInstruction } from "@/types";
@@ -27,7 +27,7 @@ export default function EvacuationInstructionButton({
 	createEvacuationInstructions: () => void;
 	setMessage: (index: number, message: string) => void;
 }) {
-	const { timeIntervals } = useAppContext();
+	const { timeIntervals, packetId, incrementPacketId } = useAppContext();
 	const { updateTime } = useTimeUpdater();
 	const { toast } = useToast();
 
@@ -41,7 +41,17 @@ export default function EvacuationInstructionButton({
 			triggerFunctionWithTimerUsingTimeout2(
 				"Evacuation Instructions",
 				() => {
-					socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions });
+					let localPacketId = packetId;
+					const mapped = evacuationCenterInstructions.map((evacuation) => {
+						const stringPacketId = formatTwoDigitNumber(localPacketId);
+						localPacketId = (localPacketId + 1) % 100;
+						incrementPacketId();
+						return {
+							...evacuation,
+							packetId: stringPacketId,
+						};
+					});
+					socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions: mapped });
 				},
 				updateTime
 			);

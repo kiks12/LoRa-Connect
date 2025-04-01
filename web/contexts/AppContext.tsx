@@ -8,7 +8,7 @@ import {
 	TASK_ACKNOWLEDGEMENT_FROM_RESCUER,
 	TASK_STATUS_UPDATE_FROM_RESCUER,
 } from "@/lora/lora-tags";
-import { updateBraceletLocation } from "@/server/db/bracelets";
+import { updateBraceletLocation, updateBraceletSos } from "@/server/db/bracelets";
 import { socket } from "@/socket/socket";
 import {
 	MissionWithCost,
@@ -42,9 +42,13 @@ const AppContext = createContext<{
 	timeIntervals: { max: number; time: number; title: string }[];
 	setTimeIntervals: Dispatch<SetStateAction<{ max: number; time: number; title: string }[]>>;
 	fetchTeams: () => void;
+	packetId: number;
+	setPacketId: Dispatch<SetStateAction<number>>;
+	incrementPacketId: () => void;
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+	const [packetId, setPacketId] = useState(98);
 	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [users, setUsers] = useState<UserWithStatusIdentifier[]>([]);
 	const [rescuers, setRescuers] = useState<RescuerWithStatusIdentifier[]>([]);
@@ -84,6 +88,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		fetchUsersAPI();
 		fetchTeams();
 	}, []);
+
+	useEffect(() => {
+		if (packetId > 99) {
+			setPacketId(0);
+		}
+	}, [packetId]);
+
+	function incrementPacketId() {
+		setPacketId((prev) => prev + 1);
+	}
 
 	async function fetchUsersAPI() {
 		const { users }: { users: UserWithBracelet[] } = await (await fetch("/api/users")).json();
@@ -156,7 +170,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 							...user.bracelet,
 							latitude: latitude,
 							longitude: longitude,
-							sos: false,
+							sos: user.bracelet.sos,
 							urgency: urgency,
 						},
 					};
@@ -173,7 +187,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await updateBraceletLocation({ braceletId: source, latitude, longitude, urgency });
+		await updateBraceletSos({ braceletId: source, latitude, longitude, urgency, sos: true });
 		setUsers((prev) => {
 			return prev.map((user) => {
 				if (user.bracelet && user.bracelet.braceletId === source) {
@@ -236,7 +250,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await updateBraceletLocation({ braceletId: source, latitude, longitude, urgency });
+		await updateBraceletSos({ braceletId: source, latitude, longitude, urgency, sos: true });
 		setTeams((prev) => {
 			return prev.map((team) => {
 				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
@@ -314,11 +328,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	// 	});
 	// 	if (rescuer) {
 	// 		setRescuers(
-	// 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	// 			(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
 	// 		);
 	// 	} else {
-	// 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	// 		setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
 	// 	}
 	// }
@@ -345,6 +357,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 				timeIntervals,
 				setTimeIntervals,
+
+				packetId,
+				setPacketId,
+				incrementPacketId,
 			}}
 		>
 			{children}

@@ -98,3 +98,19 @@ export async function updateBraceletLocation({braceletId, latitude, longitude, u
     }
   })
 }
+
+export async function updateBraceletSos({braceletId, latitude, longitude, urgency, sos}: {braceletId: string, latitude: number, longitude: number, urgency: number, sos: boolean,}) {
+  const bracelet = await getBracelet({ braceletId })  
+  if (bracelet === null) return
+  return await client.bracelets.update({
+    where: {
+      braceletId: bracelet.braceletId,
+    },
+    data: {
+      latitude,
+      longitude,
+      urgency,
+      sos: sos
+    }
+  })
+}

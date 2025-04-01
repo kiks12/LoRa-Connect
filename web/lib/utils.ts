@@ -72,3 +72,9 @@ export function triggerFunctionWithTimerUsingTimeout2(
 
 }
 
+export function formatTwoDigitNumber(num: number): string {
+  if (num < 0 || num > 99) {
+      throw new Error("Number must be between 0 and 99");
+  }
+  return num.toFixed(0).padStart(2, '0');
+}

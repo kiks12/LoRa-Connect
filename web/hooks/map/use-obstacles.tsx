@@ -5,7 +5,7 @@ import { Obstacle } from "@prisma/client";
 import { useAppContext } from "@/contexts/AppContext";
 import { useMapContext } from "@/contexts/MapContext";
 import { useObstaclesContext } from "@/contexts/ObstacleContext";
-import { triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
+import { formatTwoDigitNumber, triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
 import { socket } from "@/socket/socket";
 import { OBSTACLE_TO_RESCUER } from "@/lora/lora-tags";
 import useTimeUpdater from "./use-timeUpdater";
@@ -13,7 +13,7 @@ import { useToast } from "../use-toast";
 
 export const useObstacles = () => {
 	const { mapRef } = useMapContext();
-	const { obstacles, setObstacles, timeIntervals } = useAppContext();
+	const { obstacles, setObstacles, timeIntervals, packetId, setPacketId } = useAppContext();
 	const [obstaclesLoading, setObstaclesLoading] = useState(true);
 	const [obstaclesMarkers, setObstaclesMarkers] = useState<
 		{
@@ -57,7 +57,17 @@ export const useObstacles = () => {
 			triggerFunctionWithTimerUsingTimeout2(
 				"Obstacles to Rescuers",
 				() => {
-					socket.emit(OBSTACLE_TO_RESCUER, obstacles);
+					let localPacketId = packetId;
+					const mapped = obstacles.map((obstacle) => {
+						const stringPacketId = formatTwoDigitNumber(localPacketId);
+						localPacketId = (localPacketId + 1) % 100;
+						return {
+							...obstacle,
+							packetId: stringPacketId,
+						};
+					});
+					setPacketId(localPacketId);
+					socket.emit(OBSTACLE_TO_RESCUER, mapped);
 				},
 				updateTime
 			);

@@ -14,13 +14,13 @@ import { START_LOCATION_TRANSMISSION_TO_TRU, TASK_TO_RESCUER } from "@/lora/lora
 import { calculateTeamAssignmentCosts, runHungarianAlgorithm } from "@/app/algorithm";
 import { NUMBER_TO_URGENCY } from "@/utils/urgency";
 import { useAppContext } from "@/contexts/AppContext";
-import { triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
+import { formatTwoDigitNumber, triggerFunctionWithTimerUsingTimeout2 } from "@/lib/utils";
 import useTimeUpdater from "./use-timeUpdater";
 import { useToast } from "../use-toast";
 
 export const useAdmin = () => {
 	const { mapRef, clearSourcesAndLayers } = useMapContext();
-	const { missions, setMissions, monitorLocations, setMonitorLocations, timeIntervals } = useAppContext();
+	const { missions, setMissions, monitorLocations, setMonitorLocations, timeIntervals, packetId, incrementPacketId, setPacketId } = useAppContext();
 	const { updateTime } = useTimeUpdater();
 	const { users } = useUsers();
 	const { teams } = useRescuers();
@@ -47,7 +47,8 @@ export const useAdmin = () => {
 	}
 
 	function sendTransmitLocationSignalToBracelets() {
-		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, START_LOCATION_TRANSMISSION_TO_TRU);
+		socket.emit(START_LOCATION_TRANSMISSION_TO_TRU, { packetId });
+		incrementPacketId();
 	}
 
 	// Location Monitoring Code block - as long as monitorLocation is true this triggers
@@ -122,7 +123,17 @@ export const useAdmin = () => {
 			triggerFunctionWithTimerUsingTimeout2(
 				"Send Tasks Via LoRa",
 				() => {
-					socket.emit(TASK_TO_RESCUER, missions);
+					let localPacketId = packetId;
+					const mapped = missions.map((mission) => {
+						const stringPacketId = formatTwoDigitNumber(localPacketId);
+						localPacketId = (localPacketId + 1) % 100;
+						return {
+							...mission,
+							packetId: stringPacketId,
+						};
+					});
+					setPacketId(localPacketId);
+					socket.emit(TASK_TO_RESCUER, mapped);
 				},
 				updateTime
 			);
