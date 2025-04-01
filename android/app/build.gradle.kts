@@ -111,4 +111,6 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.35.0-alpha")
 
     implementation("br.com.devsrsouza.compose.icons:feather:1.1.1")
+
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.31.0-alpha")
 }
