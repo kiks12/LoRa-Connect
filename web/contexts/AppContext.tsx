@@ -68,6 +68,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		fetchTeams();
 	}, []);
 
+	useEffect(() => {
+		if (packetId > 99) {
+			setPacketId(0);
+		}
+	}, [packetId]);
+
+	function incrementPacketId() {
+		setPacketId((prev) => prev + 1);
+	}
+
 	async function fetchUsersAPI() {
 		const { users }: { users: UserWithBracelet[] } = await (await fetch("/api/users")).json();
 		const mappedUsers = users ? users.map((user) => ({ ...user, showing: false })) : [];
@@ -87,15 +97,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 		socket.on(LOCATION_FROM_USER, locationFromUser);
 		socket.on(SOS_FROM_USER, sosFromUser);
-	}, [usersLoading])
+	}, [usersLoading]);
 
 	useEffect(() => {
 		if (teamsLoading) return;
 
 		socket.on(LOCATION_FROM_RESCUER, locationFromRescuer);
 		socket.on(SOS_FROM_RESCUER, sosFromRescuer);
-	}, [teamsLoading])
-
+	}, [teamsLoading]);
 
 	useEffect(() => {
 		// socket.on(LOCATION_FROM_USER, locationFromUser);
@@ -172,14 +181,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		[]
 	);
 
-	async function locationFromUser({data}: { data: string }) {
+	async function locationFromUser({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude })
+		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude });
 		if (users.length > 0) {
 			setUsers((prev) => {
 				return prev.map((user) => {
@@ -235,7 +244,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: true })
+		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: true });
 		setTeams((prev) => {
 			return prev.map((team) => {
 				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
@@ -329,7 +338,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		});
 		if (rescuer) {
 			setRescuers(
-			(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
+				(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
 			);
 		} else {
 			setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
@@ -361,26 +370,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			packetId,
 			setPacketId,
 			incrementPacketId,
-		}
+		};
+	}, [users, rescuers, teams, obstacles, missions, monitorLocations, timeIntervals, packetId]);
 
-	}, [
-		users,
-		rescuers,
-		teams,
-		obstacles,
-		missions,
-		monitorLocations,
-		timeIntervals,
-		packetId,
-	]);
-
-	return (
-		<AppContext.Provider
-			value={providerValue}
-		>
-			{children}
-		</AppContext.Provider>
-	);
+	return <AppContext.Provider value={providerValue}>{children}</AppContext.Provider>;
 };
 
 export const useAppContext = () => {
