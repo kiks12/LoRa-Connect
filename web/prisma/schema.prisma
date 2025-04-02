@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AccountType {
+  ADMIN
+}
+
+model Accounts {
+  accountId String      @id @unique @default(uuid())
+  email     String      @unique
+  password  String
+  type      AccountType @default(ADMIN)
+}
+
 model Bracelets {
   braceletId String       @id
   createdAt  DateTime     @default(now())
