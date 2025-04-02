@@ -32,7 +32,8 @@ TASK TO RESCUER PAYLOAD FROM SERVER
     user: {
       userId: 3,
       createdAt: '2025-03-02T13:59:17.904Z',
-      name: 'Trial Dummy Sample UPDATED',
+      givenName: 'Francis',
+      lastName: 'James'
       numberOfMembersInFamily: 7,
       address: 'SAMPLE ADDRESS DUMMY UPDATED',
       bracelet: [Object],
@@ -75,10 +76,10 @@ def task_to_rescuer(task):
     ttl = "2"
     team_bracelet_uid = task.get("teamBraceletId")
     userId = task.get("userBraceletId")
-    username = task.get("user").get("name")
+    username = task.get("user").get("givenName") + " " + task.get("user").get("lastName")
     userLat = task.get("userLat")
     userLong = task.get("userLong")
-    numberOfVictims = task.get("numberOfVictims")
+    numberOfVictims = task.get("user").get("numberOfMembersInFamily")
     status = 0
     match task.get("status"):
         case "ASSIGNED":
