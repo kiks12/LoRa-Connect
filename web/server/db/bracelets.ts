@@ -41,7 +41,7 @@ export async function createBracelet({bracelet}: {bracelet: Bracelets}) {
   })
 }
 
-export async function setBraceletUserId({braceletId, userId}: {braceletId: string, userId: number}) {
+export async function setBraceletUserId({braceletId, userId}: {braceletId: string, userId: number | null}) {
   return await client.bracelets.update({
     where: {
       braceletId,
@@ -52,7 +52,7 @@ export async function setBraceletUserId({braceletId, userId}: {braceletId: strin
   })
 }
 
-export async function setBraceletRescuerId({braceletId, rescuerId}: {braceletId: string, rescuerId: number}) {
+export async function setBraceletRescuerId({braceletId, rescuerId}: {braceletId: string, rescuerId: number | null}) {
   return await client.bracelets.update({
     where: {
       braceletId,

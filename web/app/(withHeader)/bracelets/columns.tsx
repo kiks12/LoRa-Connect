@@ -75,6 +75,28 @@ export const columns: ColumnDef<Bracelets>[] = [
 		cell: ({ row }) => {
 			const { ownerId, rescuerId, braceletId, name, type } = row.original;
 
+			function unassignBracelet() {
+				fetch("/api/bracelets/unassign", {
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ braceletId, type }),
+				})
+					.then((res) => {
+						if (res.status === 200) {
+							alert("Device unassigned successfully. Reloading...");
+							location.reload();
+						} else {
+							alert("Device unassignent failed. Please try again");
+							return;
+						}
+					})
+					.catch((e) => {
+						alert(e);
+					});
+			}
+
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
@@ -83,15 +105,15 @@ export const columns: ColumnDef<Bracelets>[] = [
 							<MoreHorizontal className="h-4 w-4" />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-36" align="end">
+					<DropdownMenuContent className="w-20" align="end">
 						<Card className="z-30">
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							{ownerId != null || rescuerId != null ? (
-								<DropdownMenuItem disabled={true}>Assign Owner</DropdownMenuItem>
+								<DropdownMenuItem onClick={unassignBracelet}>Unassign</DropdownMenuItem>
 							) : (
 								<Link href={`/assign?braceletId=${braceletId}&braceletName=${name}&previousLink=bracelets&type=${type}`}>
-									<DropdownMenuItem>Assign Owner</DropdownMenuItem>
+									<DropdownMenuItem>Assign</DropdownMenuItem>
 								</Link>
 							)}
 							<Link href={`/bracelets/update?braceletId=${braceletId}&name=${name}&type=${type}`}>

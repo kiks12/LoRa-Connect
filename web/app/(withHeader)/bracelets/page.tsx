@@ -1,4 +1,4 @@
-import { getBracelets } from "@/server/db/bracelets";
+import { getLatestBracelets } from "@/server/db/bracelets";
 import { DataTable } from "../../components/DataTable";
 import { columns } from "./columns";
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
@@ -7,7 +7,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 
 export default async function BraceletsPages() {
-	const bracelets = await getBracelets();
+	const bracelets = await getLatestBracelets();
 
 	return (
 		<main>
