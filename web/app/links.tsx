@@ -2,7 +2,7 @@ import { Ambulance, HomeIcon, Hospital, LayoutDashboard, Map, Target, User, User
 
 const HOME_LINKS = [
 	{ title: "Home", link: "/", icon: <HomeIcon size={40} />, subtitle: "Main navigation of the system" },
-	{ title: "Map", link: "/map", icon: <Map size={40} />, subtitle: "Navigate your connected ecosystem" },
+	{ title: "Control Panel", link: "/map", icon: <Map size={40} />, subtitle: "Run algorithms and send signals" },
 	{ title: "Dashboard", link: "/dashboard", icon: <LayoutDashboard size={40} />, subtitle: "Analyze performance and trends" },
 	{ title: "Missions", link: "/missions", icon: <Target size={44} />, subtitle: "Track active and completed missions" },
 	{ title: "Devices", link: "/bracelets", icon: <Watch size={44} />, subtitle: "Manage and assign tracking units" },
