@@ -30,6 +30,14 @@ export async function setUserBracelet({userId, braceletId}: {userId: number, bra
   return { error: true, message: "There seems to be a problem setting the user of bracelet. Please try again later" }
 }
 
+export async function unassignUserBracelet({braceletId}: {braceletId: string}) {
+  const result = await setBraceletUserId({braceletId, userId: null})
+  revalidateTag(BRACELETS_TAG)
+  revalidateTag(USERS_TAG)
+  if (result) return { error: false, message: "Successfully unassigned device" }
+  return { error: true, message: "There seems to be a problem unassigning the device. Please try again later" }
+}
+
 export async function deleteUser({userId}: {userId: number}) {
   const result = await deleteUserDB(userId)
   revalidateTag(USERS_TAG)
