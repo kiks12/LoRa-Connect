@@ -16,7 +16,7 @@ export async function calculateTeamAssignmentCosts(
 
 		const teamsCostsPromises = teams.flatMap((team) => {
 			const rescuer = team.rescuers.find((rescuer) => rescuer.bracelet);
-			if (!rescuer || !rescuer.bracelet) return [];
+			if (!rescuer || !rescuer.bracelet || !rescuer.bracelet.latitude || !rescuer.bracelet.longitude) return [];
 
 			// Get rescuer's last known location, or their initial position if not updated yet
 			const rescuerStartLocation = updatedRescuerLocations.get(team.teamId) || {
@@ -85,14 +85,14 @@ export function runHungarianAlgorithm(
 		}
 	});
 
-	console.table(costMatrix);
+	// console.table(costMatrix);
 
 	// 🔹 Solve Hungarian Algorithm
 	const assignments = minWeightAssign(costMatrix);
 	// const greedy = greedyAssignment(costMatrix)
 
 	// console.log("Hungarian Assignments: ");
-	console.table(assignments.assignments);
+	// console.table(assignments.assignments);
 	// console.log("Greedy Assignments: ")
 	// console.table(greedy);
 

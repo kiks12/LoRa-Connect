@@ -200,24 +200,69 @@ export const useAdmin = () => {
 	async function runTaskAllocation() {
 		setMissions([]);
 		setTaskAllocationMessage("Running Task Allocation Algorithm...");
-		if (users.length === 0 || teams.length === 0) return;
+
+		if (users.length === 0) {
+			toast({
+				title: "Task Allocation Algorithm Failed",
+				description: "No registered users. Cannot run algorithm",
+				variant: "destructive",
+			});
+			setTaskAllocationMessage("Run Task Allocation");
+			return;
+		}
+
+		if (teams.length === 0) {
+			toast({
+				title: "Task Allocation Algorithm Failed",
+				description: "No registered teams. Cannot run algorithm",
+				variant: "destructive",
+			});
+			setTaskAllocationMessage("Run Task Allocation");
+			return;
+		}
+
+		const filteredTeams = teams.filter((team) => {
+			const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet).bracelet;
+			return teamBracelet.latitude !== null && teamBracelet.longitude !== null;
+		});
+
+		if (filteredTeams.length === 0) {
+			toast({
+				title: "Task Allocation Algorithm Failed",
+				description: "No teams location data available",
+				variant: "destructive",
+			});
+			setTaskAllocationMessage("Run Task Allocation");
+			return;
+		}
 
 		let rescuerLocations = new Map<number, { lat: number; lon: number }>();
-		let unassignedUsers = [...users.filter((user) => user.bracelet?.sos)]; // Copy users list to track unassigned ones
+		let unassignedUsers = [...users.filter((user) => user.bracelet?.sos && user.bracelet.latitude && user.bracelet.longitude)]; // Copy users list to track unassigned ones
+		if (unassignedUsers.length === 0) {
+			toast({
+				title: "Task Allocation Algorithm Failed",
+				variant: "destructive",
+				description: "No active SOS signal or No location data from users",
+			});
+			setTaskAllocationMessage("Run Task Allocation");
+			return;
+		}
 		const assignedUserIds = new Set<number>(); // Track already assigned users
 
 		while (unassignedUsers.length > 0) {
 			setTaskAllocationMessage(`Calculating Costs... (${unassignedUsers.length} users left)`);
 
 			// 🔹 Step 1: Calculate Costs
-			const costs = await calculateTeamAssignmentCosts(teams, obstacles, rescuerLocations, unassignedUsers);
+			const costs = await calculateTeamAssignmentCosts(filteredTeams, obstacles, rescuerLocations, unassignedUsers);
+			// console.log("Costs:", costs);
 			if (costs.length === 0) {
 				console.warn("No valid assignments found. Exiting loop.");
 				break; // Prevent infinite loop
 			}
 
 			// 🔹 Step 2: Assign Teams using Hungarian Algorithm
-			const newAssignments = runHungarianAlgorithm(unassignedUsers, teams, costs, assignedUserIds);
+			const newAssignments = runHungarianAlgorithm(unassignedUsers, filteredTeams, costs, assignedUserIds);
+			// console.log("Assignments:", newAssignments);
 
 			if (newAssignments.length === 0) {
 				console.warn("No new assignments made. Stopping loop.");
