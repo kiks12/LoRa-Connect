@@ -9,6 +9,7 @@ const Map = lazy(() => import("./_components/Map"));
 const SideBar = lazy(() => import("./_components/Sidebar"));
 const SosModals = lazy(() => import("./_components/SosModals"));
 const Timers = lazy(() => import("./_components/Timers"));
+const MapLegend = lazy(() => import("./_components/MapLegend"));
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
@@ -30,6 +31,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 							<div className="w-72 p-2">
 								<Timers />
 							</div>
+						</div>
+						<div className="absolute bottom-0 left-1/2 transform -translate-x-1/2">
+							<MapLegend />
 						</div>
 					</div>
 				</div>
