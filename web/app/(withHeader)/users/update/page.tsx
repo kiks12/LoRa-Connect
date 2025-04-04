@@ -8,7 +8,10 @@ interface PageProps {
 export default async function UpdateOwnerPage({ searchParams }: PageProps) {
 	const params = await searchParams;
 	const userId = params?.userId ? Number.parseInt(params.userId) : 0;
-	const name = params?.name ?? "";
+	const givenName = params?.givenName ?? "";
+	const middleName = params?.middleName ?? "";
+	const lastName = params?.lastName ?? "";
+	const suffix = params?.suffix ?? "";
 	const members = params?.members ? Number.parseInt(params.members) : 0;
 	const braceletId = params?.braceletId ?? "";
 	const address = params?.address ?? "";
@@ -17,7 +20,17 @@ export default async function UpdateOwnerPage({ searchParams }: PageProps) {
 		<main>
 			<ContainerWithTitleAndBackButton title="Update User" previousLink="/users">
 				<div className="mt-4 p-16">
-					<UserForm type="UPDATE" braceletId={braceletId} userId={userId} name={name} numberOfMembersInFamily={members} address={address} />
+					<UserForm
+						type="UPDATE"
+						braceletId={braceletId}
+						userId={userId}
+						givenName={givenName}
+						middleName={middleName}
+						lastName={lastName}
+						suffix={suffix}
+						numberOfMembersInFamily={members}
+						address={address}
+					/>
 				</div>
 			</ContainerWithTitleAndBackButton>
 		</main>

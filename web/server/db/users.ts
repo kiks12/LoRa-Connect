@@ -30,7 +30,10 @@ export async function getUsersWithoutDevice() {
 export async function createUser({...data}: Users) {
   return await client.users.create({
     data: {
-      name: data.name,
+      givenName: data.givenName,
+      middleName: data.middleName,
+      lastName: data.lastName,
+      suffix: data.suffix,
       numberOfMembersInFamily: data.numberOfMembersInFamily,
       address: data.address,
     },
@@ -43,7 +46,10 @@ export async function updateUser({...data}: Users) {
       userId: data.userId,
     },
     data: {
-      name: data.name,
+      givenName: data.givenName,
+      middleName: data.middleName,
+      lastName: data.lastName,
+      suffix: data.suffix,
       numberOfMembersInFamily: data.numberOfMembersInFamily,
       address: data.address
     }

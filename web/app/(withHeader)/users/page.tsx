@@ -10,7 +10,7 @@ export default async function OwnersPage() {
 	return (
 		<main>
 			<ContainerWithTitle title="Users">
-				<DataTable filter="name" columns={columns} data={owners}>
+				<DataTable filter="givenName" columns={columns} data={owners}>
 					<Link href="/users/new">
 						<Button>Register User</Button>
 					</Link>
