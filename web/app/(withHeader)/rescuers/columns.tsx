@@ -46,6 +46,20 @@ export const columns: ColumnDef<RescuerWithBracelet>[] = [
 		},
 	},
 	{
+		id: "Device ID",
+		header: () => {
+			return <Button variant="ghost">Device ID</Button>;
+		},
+		cell: ({ row }) => {
+			const { bracelet } = row.original;
+			return (
+				<div>
+					<p>{bracelet ? bracelet.braceletId : "No Bracelet"}</p>
+				</div>
+			);
+		},
+	},
+	{
 		id: "actions",
 		cell: ({ row }) => {
 			const { rescuerId, name } = row.original;
