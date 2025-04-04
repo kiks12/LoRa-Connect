@@ -21,7 +21,7 @@ model Accounts {
 model Bracelets {
   braceletId String       @id
   createdAt  DateTime     @default(now())
-  name       String
+  name       String       @unique
   ownerId    Int?         @unique
   rescuerId  Int?         @unique
   type       BraceletType @default(USER)
@@ -36,7 +36,7 @@ model Bracelets {
 model Rescuers {
   rescuerId   Int        @id @default(autoincrement())
   createdAt   DateTime   @default(now())
-  name        String
+  name        String     @unique
   bracelet    Bracelets?
   Teams       Teams?     @relation(fields: [teamsTeamId], references: [teamId])
   teamsTeamId Int?
@@ -45,14 +45,14 @@ model Rescuers {
 model Teams {
   teamId    Int          @id @default(autoincrement())
   createdAt DateTime     @default(now())
-  name      String?
+  name      String?      @unique
   rescuers  Rescuers[]
   operation Operations[]
 }
 
 model EvacuationCenters {
   evacuationId Int      @id @default(autoincrement())
-  name         String
+  name         String   @unique
   latitude     Float
   longitude    Float
   capacity     Int
@@ -102,15 +102,15 @@ model Obstacle {
   createdAt  DateTime @default(now())
   dateTime   DateTime @default(now())
   type       String
-  name       String
+  name       String   @unique
   longitude  Float
   latitude   Float
 }
 
 model Users {
-  userId                  Int          @id @default(autoincrement())
+  userId                  Int          @id @unique @default(autoincrement())
   createdAt               DateTime     @default(now())
-  name                    String
+  name                    String       @unique
   numberOfMembersInFamily Int
   address                 String?
   bracelet                Bracelets?
