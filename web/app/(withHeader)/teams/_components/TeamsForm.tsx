@@ -93,6 +93,15 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 			return;
 		}
 
+		if (team.rescuers.length < 2) {
+			toast({
+				variant: "destructive",
+				title: "Insufficient Members",
+				description: "Please select at least 2 members for the team",
+			});
+			return;
+		}
+
 		if (team.rescuers.filter((rescuer) => rescuer.bracelet).length === 0) {
 			toast({
 				variant: "destructive",
