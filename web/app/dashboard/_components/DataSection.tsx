@@ -6,12 +6,14 @@ import { ReactNode } from "react";
 export default function DataSection({
 	loading,
 	title,
+	description,
 	data,
 	link,
 	icon,
 }: {
 	loading: boolean;
 	title: string;
+	description: string;
 	data: number;
 	link?: string;
 	icon?: ReactNode;
@@ -24,19 +26,24 @@ export default function DataSection({
 						<Spinner />
 					</div>
 				) : (
-					<div className="flex">
-						{icon && <div className="mr-4">{icon}</div>}
-						<div>
-							<CardTitle className="text-3xl font-bold">{data}</CardTitle>
-							{link ? (
-								<Link href={link}>
-									<CardDescription className="hover:underline">{title.toUpperCase()}</CardDescription>
-								</Link>
-							) : (
-								<CardDescription>{title.toUpperCase()}</CardDescription>
-							)}
+					<>
+						<div className="mb-4">
+							<h2 className="text-xl font-semibold">{title}</h2>
 						</div>
-					</div>
+						<div className="flex">
+							{icon && <div className="mr-4">{icon}</div>}
+							<div>
+								<CardTitle className="text-3xl font-bold">{data}</CardTitle>
+								{link ? (
+									<Link href={link}>
+										<CardDescription className="hover:underline">{description.toUpperCase()}</CardDescription>
+									</Link>
+								) : (
+									<CardDescription>{title.toUpperCase()}</CardDescription>
+								)}
+							</div>
+						</div>
+					</>
 				)}
 			</CardHeader>
 		</Card>

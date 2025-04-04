@@ -105,6 +105,9 @@ export default function MissionsData({
 		<div>
 			<Card className="border-0 shadow-md">
 				<CardHeader>
+					<div className="mb-4">
+						<h2 className="text-xl font-semibold">Missions Summary</h2>
+					</div>
 					<div className="flex">
 						<div className="flex-1 flex">
 							<div className="flex flex-col">
