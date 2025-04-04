@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const braceletSchema = z.object({
-  braceletId: z.string().min(8, {
-    message: "Bracelet ID should be at least 8 characters"
+  braceletId: z.string()
+    .min(4, { message: "Device ID should be 4 characters" })
+    .max(4, { message: "Device ID should be 4 characters" })
+    .regex(/^\d+$/, { message: "Device ID should contain only numbers" }), // Ensure only numbers
+  name: z.string().nonempty({
+    message: "Device name should not be empty"
   }),
-	name: z.string().min(5, {
-		message: "Name should be at least 5 characters",
-	}),
   type: z.string()
 });
-

@@ -6,7 +6,7 @@ import { BraceletForm } from "../_components/BraceletForm";
 export default async function NewBraceletPage() {
 	return (
 		<main>
-			<ContainerWithTitleAndBackButton title="Create Device" previousLink="/bracelets">
+			<ContainerWithTitleAndBackButton title="Register a Device" previousLink="/bracelets">
 				<div className="mt-4 p-16">
 					<BraceletForm />
 				</div>

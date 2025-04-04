@@ -96,7 +96,7 @@ export function BraceletForm({
 								<FormItem>
 									<FormLabel>Device ID</FormLabel>
 									<FormControl>
-										<Input placeholder="Enter bracelet id..." {...field} />
+										<Input placeholder="Enter device id..." {...field} readOnly />
 									</FormControl>
 									<Label className="italic font-normal text-xs text-neutral-500">
 										*Scan Device using NFC Reader to automatically input device ID
@@ -112,9 +112,9 @@ export function BraceletForm({
 							name="name"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Bracelet Name</FormLabel>
+									<FormLabel>Device Name</FormLabel>
 									<FormControl>
-										<Input placeholder="Enter bracelet name..." {...field} />
+										<Input placeholder="Enter device name..." {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -127,7 +127,7 @@ export function BraceletForm({
 							name="type"
 							render={({ field }) => (
 								<FormItem className="flex flex-col">
-									<FormLabel>Bracelet Type</FormLabel>
+									<FormLabel>Device Type</FormLabel>
 									<FormControl>
 										<DropdownMenu>
 											<DropdownMenuTrigger>
