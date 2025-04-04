@@ -68,6 +68,20 @@ export const columns: ColumnDef<UserWithBracelet>[] = [
 		},
 	},
 	{
+		id: "Device ID",
+		header: ({ column }) => {
+			return <Button variant="ghost">Device ID</Button>;
+		},
+		cell: ({ row }) => {
+			const { bracelet } = row.original;
+			return (
+				<div>
+					<p>{bracelet ? bracelet.braceletId : "No Bracelet"}</p>
+				</div>
+			);
+		},
+	},
+	{
 		id: "actions",
 		cell: ({ row }) => {
 			const { userId, name, numberOfMembersInFamily, address } = row.original;
