@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>({ children, filter, columns, data }: Da
 
 	return (
 		<div>
-			<div className="flex justify-between">
+			<div className="flex items-end justify-between">
 				<Input
 					placeholder={`Filter ${filter}...`}
 					value={(table.getColumn(filter)?.getFilterValue() as string) ?? ""}
