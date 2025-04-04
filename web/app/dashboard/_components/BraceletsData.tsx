@@ -40,6 +40,9 @@ export default function DevicesData({ data }: { data: { bracelets: Bracelets[]; 
 				) : (
 					<>
 						<CardHeader>
+							<div className="mb-4">
+								<h2 className="text-xl font-semibold">Devices Summary</h2>
+							</div>
 							<div className="flex flex-col">
 								<div className="flex justify-between items-center">
 									<div className="flex-1">

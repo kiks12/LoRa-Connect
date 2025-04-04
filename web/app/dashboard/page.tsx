@@ -81,14 +81,16 @@ export default function DashboardPage() {
 							}
 							link="/evacuationCenters"
 							loading={evacuationCenters.loading}
-							title="Total Evacuation Centers"
+							title="Evacuation Centers Summary"
+							description="Total Evacuation Centers"
 							data={evacuationCenters.evacuationCenters.length}
 						/>
 					</div>
 					<div className="flex-1 ml-2">
 						<DataSection
 							loading={obstacles.loading}
-							title="Total Obstacles"
+							title="Obstacles Summary"
+							description="Total Obstacles"
 							data={obstacles.obstacles.length}
 							icon={
 								<div className="p-4 rounded-full bg-red-100 border border-red-300 ">

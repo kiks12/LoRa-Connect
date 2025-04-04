@@ -61,6 +61,9 @@ export default function UsersData({
 							<>
 								<div className="flex-1">
 									<CardHeader>
+										<div className="mb-4">
+											<h2 className="text-xl font-semibold">Users Summary</h2>
+										</div>
 										<div className="flex ">
 											<div>
 												<div className="p-4 rounded-full bg-teal-100 border border-teal-300 mr-4">
