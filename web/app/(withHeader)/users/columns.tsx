@@ -35,13 +35,22 @@ export const columns: ColumnDef<UserWithBracelet>[] = [
 		cell: DateCell,
 	},
 	{
-		accessorKey: "name",
+		accessorKey: "givenName",
+		id: "givenName",
 		header: ({ column }) => {
 			return (
 				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
 					Name
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
+			);
+		},
+		cell: ({ row }) => {
+			const { givenName, middleName, lastName, suffix } = row.original;
+			return (
+				<p>
+					{givenName} {middleName ? `${middleName[0].toUpperCase()}.` : ""} {lastName} {suffix}
+				</p>
 			);
 		},
 	},
@@ -84,7 +93,7 @@ export const columns: ColumnDef<UserWithBracelet>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			const { userId, name, numberOfMembersInFamily, address } = row.original;
+			const { userId, givenName, middleName, lastName, suffix, numberOfMembersInFamily, address } = row.original;
 
 			return (
 				<DropdownMenu>
@@ -98,10 +107,12 @@ export const columns: ColumnDef<UserWithBracelet>[] = [
 						<Card>
 							<DropdownMenuLabel>Actions</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<Link href={`/users/update?userId=${userId}&name=${name}&members=${numberOfMembersInFamily}&address=${address}`}>
+							<Link
+								href={`/users/update?userId=${userId}&givenName=${givenName}&middleName=${middleName}&lastName=${lastName}&suffix=${suffix}&members=${numberOfMembersInFamily}&address=${address}`}
+							>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
-							<Link href={`/users/delete?userId=${userId}&name=${name}`}>
+							<Link href={`/users/delete?userId=${userId}&name=${givenName} ${lastName}`}>
 								<DropdownMenuItem>Delete</DropdownMenuItem>
 							</Link>
 						</Card>

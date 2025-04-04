@@ -15,14 +15,20 @@ export type UserFormType = "CREATE" | "UPDATE";
 
 export const UserForm = ({
 	userId,
-	name,
+	givenName,
+	middleName,
+	lastName,
+	suffix,
 	address,
 	braceletId,
 	numberOfMembersInFamily,
 	type = "CREATE",
 }: {
 	userId?: number;
-	name?: string;
+	givenName?: string;
+	middleName?: string;
+	lastName?: string;
+	suffix?: string;
 	address?: string;
 	braceletId?: string;
 	numberOfMembersInFamily?: number;
@@ -32,8 +38,11 @@ export const UserForm = ({
 	const form = useForm<z.infer<typeof ownerSchema>>({
 		resolver: zodResolver(ownerSchema),
 		defaultValues: {
-			name: name ?? "",
-			numberOfMembersInFamily: numberOfMembersInFamily ?? 0,
+			givenName: givenName ?? "",
+			middleName: middleName ?? "",
+			lastName: lastName ?? "",
+			suffix: suffix ?? "",
+			numberOfMembersInFamily: numberOfMembersInFamily ?? 1,
 			braceletId: braceletId ?? "",
 			address: address ?? "",
 		},
@@ -42,7 +51,10 @@ export const UserForm = ({
 	async function onUpdateSubmit(values: z.infer<typeof ownerSchema>) {
 		const result = await updateUser({
 			user: {
-				name: values.name,
+				givenName: values.givenName,
+				middleName: values.middleName,
+				lastName: values.lastName,
+				suffix: values.suffix,
 				address: values.address,
 				numberOfMembersInFamily: values.numberOfMembersInFamily,
 				userId: userId ?? 0,
@@ -56,7 +68,10 @@ export const UserForm = ({
 		const result = await registerUser({
 			user: {
 				createdAt: new Date(),
-				name: values.name,
+				givenName: values.givenName,
+				middleName: values.middleName,
+				lastName: values.lastName,
+				suffix: values.suffix,
 				address: values.address,
 				numberOfMembersInFamily: values.numberOfMembersInFamily,
 				userId: 0,
@@ -85,12 +100,12 @@ export const UserForm = ({
 					<div className="mt-8">
 						<FormField
 							control={form.control}
-							name="name"
+							name="givenName"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>User Full Name</FormLabel>
+									<FormLabel>Given Name</FormLabel>
 									<FormControl>
-										<Input placeholder="Enter fullname..." {...field} />
+										<Input placeholder="Enter your given name..." {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -98,6 +113,51 @@ export const UserForm = ({
 						/>
 					</div>
 					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="middleName"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Middle Name</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter your middle name..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="lastName"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Last Name</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter your last name..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="suffix"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Suffix</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter your suffix..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-8">
 						<FormField
 							control={form.control}
 							name="numberOfMembersInFamily"

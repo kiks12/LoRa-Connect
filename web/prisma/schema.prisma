@@ -110,7 +110,10 @@ model Obstacle {
 model Users {
   userId                  Int          @id @unique @default(autoincrement())
   createdAt               DateTime     @default(now())
-  name                    String       @unique
+  givenName               String
+  middleName              String?
+  lastName                String
+  suffix                  String?
   numberOfMembersInFamily Int
   address                 String?
   bracelet                Bracelets?
