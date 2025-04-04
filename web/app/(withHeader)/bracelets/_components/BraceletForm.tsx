@@ -11,6 +11,7 @@ import { braceletSchema } from "@/schema/bracelets";
 import { createBracelet, updateBracelet } from "@/server/actions/bracelets";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BraceletType } from "@prisma/client";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -87,7 +88,11 @@ export function BraceletForm({
 	return (
 		<>
 			<Form {...form}>
-				<form className="mx-auto w-full md:w-[480px]" onSubmit={onSubmit}>
+				<div className="mx-auto w-full md:w-[480px]">
+					<p>To register a device, scan the barcode</p>
+					<Input placeholder="Barcode" />
+				</div>
+				<form className="mx-auto w-full md:w-[480px] mt-8" onSubmit={onSubmit}>
 					<div>
 						<FormField
 							control={form.control}
@@ -98,9 +103,6 @@ export function BraceletForm({
 									<FormControl>
 										<Input placeholder="Enter device id..." {...field} readOnly />
 									</FormControl>
-									<Label className="italic font-normal text-xs text-neutral-500">
-										*Scan Device using NFC Reader to automatically input device ID
-									</Label>
 									<FormMessage />
 								</FormItem>
 							)}
