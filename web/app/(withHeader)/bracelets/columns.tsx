@@ -23,6 +23,17 @@ export const columns: ColumnDef<Bracelets>[] = [
 		},
 	},
 	{
+		accessorKey: "macAddress",
+		header: ({ column }) => {
+			return (
+				<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+					Mac Address
+					<ArrowUpDown className="ml-2 h-4 w-4" />
+				</Button>
+			);
+		},
+	},
+	{
 		accessorKey: "createdAt",
 		header: ({ column }) => {
 			return (
@@ -73,7 +84,7 @@ export const columns: ColumnDef<Bracelets>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			const { ownerId, rescuerId, braceletId, name, type } = row.original;
+			const { ownerId, rescuerId, braceletId, macAddress, name, type } = row.original;
 
 			function unassignBracelet() {
 				fetch("/api/bracelets/unassign", {
@@ -116,7 +127,7 @@ export const columns: ColumnDef<Bracelets>[] = [
 									<DropdownMenuItem>Assign</DropdownMenuItem>
 								</Link>
 							)}
-							<Link href={`/bracelets/update?braceletId=${braceletId}&name=${name}&type=${type}`}>
+							<Link href={`/bracelets/update?braceletId=${braceletId}&macAddress=${macAddress}&name=${name}&type=${type}`}>
 								<DropdownMenuItem>Update</DropdownMenuItem>
 							</Link>
 							<Link href={`/bracelets/delete?braceletId=${braceletId}&name=${name}`}>

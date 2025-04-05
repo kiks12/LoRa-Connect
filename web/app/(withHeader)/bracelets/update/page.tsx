@@ -10,6 +10,7 @@ interface PageProps {
 export default async function UpdateBraceletPage({ searchParams }: PageProps) {
 	const params = await searchParams;
 	const braceletId: string = params.braceletId ?? "";
+	const macAddress: string = params.macAddress ?? "";
 	const name: string = params.name ?? "";
 	const type: string = params.type ?? "";
 
@@ -17,7 +18,7 @@ export default async function UpdateBraceletPage({ searchParams }: PageProps) {
 		<main>
 			<ContainerWithTitleAndBackButton title="Update Device" previousLink="/bracelets">
 				<div className="mt-4 p-16">
-					<BraceletForm formType="UPDATE" braceletId={braceletId} name={name} type={type} />
+					<BraceletForm formType="UPDATE" braceletId={braceletId} macAddress={macAddress} name={name} type={type} />
 				</div>
 			</ContainerWithTitleAndBackButton>
 		</main>
