@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,15 +10,19 @@ import { useObstacles } from "@/hooks/map/use-obstacles";
 import { useToast } from "@/hooks/use-toast";
 import { obstacleSchema } from "@/schema/obstacle";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronDown } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+const OBSTACLE_TYPE = ["Trash", "Building Debris", "Posts", "Power Line", "Fallen Trees", "Others"];
 
 export default function ObstacleForm({
 	name,
 	latitude,
 	longitude,
 	type,
+	customType,
 	obstacleId,
 	editing = false,
 }: {
@@ -25,6 +30,7 @@ export default function ObstacleForm({
 	latitude?: number;
 	longitude?: number;
 	type?: string;
+	customType?: string;
 	obstacleId?: number;
 	editing?: boolean;
 }) {
@@ -35,9 +41,10 @@ export default function ObstacleForm({
 		resolver: zodResolver(obstacleSchema),
 		defaultValues: {
 			name: name ?? "",
+			customType: customType ?? "",
 			latitude: latitude ?? 0.0,
 			longitude: longitude ?? 0.0,
-			type: type ?? "",
+			type: type ?? OBSTACLE_TYPE[0],
 		},
 	});
 
@@ -47,7 +54,13 @@ export default function ObstacleForm({
 	});
 
 	async function onUpdateSubmit(values: z.infer<typeof obstacleSchema>) {
-		const data = { obstacleId: obstacleId, name: values.name, latitude: values.latitude, type: values.type, longitude: values.longitude };
+		const data = {
+			obstacleId: obstacleId,
+			name: values.name,
+			latitude: values.latitude,
+			type: values.type === "Others" ? values.customType : values.type,
+			longitude: values.longitude,
+		};
 		const res = await fetch("/api/obstacles/update", {
 			method: "PUT",
 			body: JSON.stringify(data),
@@ -64,7 +77,12 @@ export default function ObstacleForm({
 	}
 
 	async function onCreateSubmit(values: z.infer<typeof obstacleSchema>) {
-		const data = { name: values.name, latitude: values.latitude, type: values.type, longitude: values.longitude };
+		const data = {
+			name: values.name,
+			latitude: values.latitude,
+			type: values.type === "Others" ? values.customType : values.type,
+			longitude: values.longitude,
+		};
 		const res = await fetch("/api/obstacles/new", {
 			method: "POST",
 			body: JSON.stringify(data),
@@ -106,7 +124,7 @@ export default function ObstacleForm({
 									<FormLabel>Name</FormLabel>
 									<FormControl>
 										<div className="flex">
-											<Input className="mr-2" placeholder="Obstacle name..." {...field} />
+											<Input placeholder="Obstacle name..." {...field} />
 										</div>
 									</FormControl>
 									<FormMessage />
@@ -119,16 +137,47 @@ export default function ObstacleForm({
 							control={form.control}
 							name="type"
 							render={({ field }) => (
-								<FormItem>
+								<FormItem className="flex flex-col">
 									<FormLabel>Type</FormLabel>
 									<FormControl>
-										<Input placeholder="Enter obstacle type..." {...field} />
+										<DropdownMenu>
+											<DropdownMenuTrigger>
+												<div className="p-2 px-2 w-full border rounded-md flex justify-between items-center">
+													<p>{field.value}</p>
+													<ChevronDown />
+												</div>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent className="w-full">
+												{OBSTACLE_TYPE.map((o, idx) => (
+													<DropdownMenuItem className="w-full" key={idx} onClick={() => form.setValue("type", o)}>
+														{o}
+													</DropdownMenuItem>
+												))}
+											</DropdownMenuContent>
+										</DropdownMenu>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
 							)}
 						/>
 					</div>
+					{form.watch("type") === "Others" && (
+						<div className="mt-2">
+							<FormField
+								control={form.control}
+								name="customType"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Custom Type</FormLabel>
+										<FormControl>
+											<Input placeholder="Enter custom obstacle type..." {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+					)}
 					<div className="mt-12">
 						<h2 className="text-lg font-semibold">Select Location</h2>
 						<Label>Click the location on the map</Label>

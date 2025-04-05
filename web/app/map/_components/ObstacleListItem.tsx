@@ -32,14 +32,6 @@ export default function ObstacleListItem({
 	const { toast } = useToast();
 	const { toggleAddingObstacle } = useObstacles();
 
-	function onEditClick() {
-		toggleAddingObstacle();
-		// toggleSidebar();
-
-		// setComponent(<ObstacleForm {...obstacle} editing={true} />);
-		// setCloseCallback(["TOGGLE_ADDING_OBSTACLE"]);
-	}
-
 	async function deleteObstacle() {
 		const deleted = await fetch("/api/obstacles/delete", {
 			method: "DELETE",
@@ -79,7 +71,6 @@ export default function ObstacleListItem({
 								</DropdownMenuTrigger>
 								<DropdownMenuContent>
 									<DropdownMenuLabel>Actions</DropdownMenuLabel>
-									<DropdownMenuItem onClick={onEditClick}>Edit</DropdownMenuItem>
 									<AlertDialogTrigger asChild>
 										<DropdownMenuItem>Delete</DropdownMenuItem>
 									</AlertDialogTrigger>

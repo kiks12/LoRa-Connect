@@ -7,6 +7,7 @@ export const obstacleSchema = z.object({
   type: z.string().nonempty({
     message: "Type should not be empty"
   }),
+  customType: z.string(),
   longitude: z.coerce.number(),
   latitude: z.coerce.number()
 });
