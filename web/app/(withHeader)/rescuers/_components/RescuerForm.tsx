@@ -15,12 +15,18 @@ export type RescuerFormType = "CREATE" | "UPDATE";
 
 export const RescuerForm = ({
 	rescuerId,
-	name,
+	givenName,
+	middleName,
+	lastName,
+	suffix,
 	braceletId,
 	type = "CREATE",
 }: {
 	rescuerId?: number;
-	name?: string;
+	givenName?: string;
+	middleName?: string;
+	lastName?: string;
+	suffix?: string;
 	braceletId?: string;
 	type?: RescuerFormType;
 }) => {
@@ -28,7 +34,10 @@ export const RescuerForm = ({
 	const form = useForm<z.infer<typeof rescuerSchema>>({
 		resolver: zodResolver(rescuerSchema),
 		defaultValues: {
-			name: name ?? "",
+			givenName: givenName ?? "",
+			middleName: middleName ?? "",
+			lastName: lastName ?? "",
+			suffix: suffix ?? "",
 			braceletId: braceletId ?? "",
 		},
 	});
@@ -36,7 +45,10 @@ export const RescuerForm = ({
 	async function onUpdateSubmit(values: z.infer<typeof rescuerSchema>) {
 		const result = await updateRescuer({
 			rescuer: {
-				name: values.name,
+				givenName: values.givenName,
+				middleName: values.middleName,
+				lastName: values.lastName,
+				suffix: values.suffix,
 				rescuerId: rescuerId ?? 0,
 				createdAt: new Date(),
 				teamsTeamId: 0,
@@ -49,7 +61,10 @@ export const RescuerForm = ({
 		const result = await registerRescuer({
 			rescuer: {
 				createdAt: new Date(),
-				name: values.name,
+				givenName: values.givenName,
+				middleName: values.middleName,
+				lastName: values.lastName,
+				suffix: values.suffix,
 				rescuerId: 0,
 				teamsTeamId: 0,
 			},
@@ -77,12 +92,57 @@ export const RescuerForm = ({
 					<div className="mt-8">
 						<FormField
 							control={form.control}
-							name="name"
+							name="givenName"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Rescuer Name</FormLabel>
+									<FormLabel>Given Name</FormLabel>
 									<FormControl>
-										<Input placeholder="Enter fullname..." {...field} />
+										<Input placeholder="Enter your given name..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="middleName"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Middle Name</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter your middle name..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="lastName"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Last Name</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter your last name..." {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="suffix"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Suffix</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter your suffix..." {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>

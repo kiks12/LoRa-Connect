@@ -86,3 +86,7 @@ export function formatUserId(id: number, length = 12): string {
 export function formatRescuerId(id: number, length = 12): string {
   return id.toString().padStart(length, "0");
 }
+
+export function formatName(givenName: string, middleName: string | undefined, lastName: string, suffix: string | undefined) {
+  return `${givenName} ${middleName ? `${middleName[0]}.` : ""} ${lastName} ${suffix ?? ""}`
+}

@@ -15,7 +15,8 @@ export type BraceletWithOwnerRescuer = Prisma.BraceletsGetPayload<{
 
 export type RescuerWithBracelet = Prisma.RescuersGetPayload<{
   include: {
-    bracelet: true
+    bracelet: true,
+    Teams: true,
   }
 }>
 

@@ -39,10 +39,13 @@ export async function getRescuersWithoutBracelets() {
   })
 }
 
-export async function createRescuer({name}: Rescuers) {
+export async function createRescuer(rescuer: Rescuers) {
   return await client.rescuers.create({
     data: {
-      name: name,
+      givenName: rescuer.givenName,
+      middleName: rescuer.middleName,
+      lastName: rescuer.lastName,
+      suffix: rescuer.suffix
     }
   })
 }
@@ -53,7 +56,10 @@ export async function updateRescuer({rescuer}: {rescuer: Rescuers}) {
       rescuerId: rescuer.rescuerId,
     },
     data: {
-      name: rescuer.name
+      givenName: rescuer.givenName,
+      middleName: rescuer.middleName,
+      lastName: rescuer.lastName,
+      suffix: rescuer.suffix
     }
   })
 }
