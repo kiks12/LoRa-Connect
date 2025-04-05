@@ -67,7 +67,6 @@ export async function updateBracelet({braceletId, bracelet}: {braceletId: string
   return await client.bracelets.update({
     data: {
       name: bracelet.name,
-      braceletId: bracelet.braceletId,
       type: bracelet.type,
     },
     where: {

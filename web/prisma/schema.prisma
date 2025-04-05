@@ -19,7 +19,8 @@ model Accounts {
 }
 
 model Bracelets {
-  braceletId String       @id
+  braceletId String       @id @unique
+  macAddress String       @unique
   createdAt  DateTime     @default(now())
   name       String       @unique
   ownerId    Int?         @unique
