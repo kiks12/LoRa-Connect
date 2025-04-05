@@ -9,7 +9,9 @@ export function OwnerListItem({ owner, onClick }: { owner: Users | Rescuers; onC
 					<div className="flex justify-between items-center">
 						<p className="text-xs">{(owner as Users).userId}</p>
 						<div className="flex flex-col items-end">
-							<p className="font-medium">{(owner as Users).name}</p>
+							<p className="font-medium">
+								{(owner as Users).givenName} {(owner as Users).middleName ? `${(owner as Users).middleName[0]}.` : ""} {(owner as Users).lastName}
+							</p>
 							<p className="text-xs">No. of Members in Family: {(owner as Users).numberOfMembersInFamily}</p>
 						</div>
 					</div>
