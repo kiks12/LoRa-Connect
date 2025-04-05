@@ -78,3 +78,7 @@ export function formatTwoDigitNumber(num: number): string {
   }
   return num.toFixed(0).padStart(2, '0');
 }
+
+export function formatUserId(id: number, length = 12): string {
+  return id.toString().padStart(length, "0");
+}
