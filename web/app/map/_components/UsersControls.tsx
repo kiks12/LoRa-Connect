@@ -90,7 +90,11 @@ export default function UsersControls() {
 									<ul className="h-[550px] overflow-y-auto">
 										{users.length > 0 ? (
 											users.map((user, index) => {
-												if (user.name.toLowerCase().includes(search.toLowerCase()))
+												if (
+													user.givenName.toLowerCase().includes(search.toLowerCase()) ||
+													user.lastName.toLowerCase().includes(search.toLowerCase()) ||
+													user.middleName.toLowerCase().includes(search.toLowerCase())
+												)
 													return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
 											})
 										) : (
@@ -104,7 +108,11 @@ export default function UsersControls() {
 											users
 												.filter((user) => user.bracelet)
 												.map((user, index) => {
-													if (user.name.toLowerCase().includes(search.toLowerCase()))
+													if (
+														user.givenName.toLowerCase().includes(search.toLowerCase()) ||
+														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
+														user.middleName.toLowerCase().includes(search.toLowerCase())
+													)
 														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
 												})
 										) : (
@@ -118,7 +126,11 @@ export default function UsersControls() {
 											users
 												.filter((user: UserWithStatusIdentifier) => !user.bracelet)
 												.map((user, index) => {
-													if (user.name.toLowerCase().includes(search.toLowerCase()))
+													if (
+														user.givenName.toLowerCase().includes(search.toLowerCase()) ||
+														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
+														user.middleName.toLowerCase().includes(search.toLowerCase())
+													)
 														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
 												})
 										) : (
