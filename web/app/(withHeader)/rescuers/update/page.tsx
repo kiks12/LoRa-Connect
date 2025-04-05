@@ -8,14 +8,25 @@ interface PageProps {
 export default async function UpdateRescuerPage({ searchParams }: PageProps) {
 	const params = await searchParams;
 	const rescuerId = params?.rescuerId ? Number.parseInt(params.rescuerId) : 0;
-	const name = params?.name ?? "";
+	const givenName = params?.givenName ?? "";
+	const middleName = params?.middleName ?? "";
+	const lastName = params?.lastName ?? "";
+	const suffix = params?.suffix ?? "";
 	const braceletId = params?.braceletId ?? "";
 
 	return (
 		<main>
-			<ContainerWithTitleAndBackButton title="Update Owner" previousLink="/rescuers">
+			<ContainerWithTitleAndBackButton title="Update Rescuer" previousLink="/rescuers">
 				<div className="mt-4 p-16">
-					<RescuerForm type="UPDATE" braceletId={braceletId} rescuerId={rescuerId} name={name} />
+					<RescuerForm
+						type="UPDATE"
+						braceletId={braceletId}
+						rescuerId={rescuerId}
+						givenName={givenName}
+						middleName={middleName}
+						lastName={lastName}
+						suffix={suffix}
+					/>
 				</div>
 			</ContainerWithTitleAndBackButton>
 		</main>

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatName } from "@/lib/utils";
 import { RescuerWithBracelet } from "@/types";
 import { Minus, Plus } from "lucide-react";
 
@@ -27,7 +28,9 @@ export default function RescuerItem({
 								</div>
 								<div className="ml-4">
 									<CardDescription>Name</CardDescription>
-									<CardTitle className="font-medium mt-1">{rescuer.name}</CardTitle>
+									<CardTitle className="font-medium mt-1">
+										{formatName(rescuer.givenName, rescuer.middleName, rescuer.lastName, rescuer.suffix)}
+									</CardTitle>
 								</div>
 							</div>
 							{rescuer.bracelet && (
