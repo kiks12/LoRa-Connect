@@ -6,7 +6,7 @@ import { assignSchema } from "@/schema/assign";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bracelets, Users, Rescuers, BraceletType } from "@prisma/client";
 import { TabsContent } from "@radix-ui/react-tabs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { BraceletListItem } from "./BraceletListItem";
@@ -43,6 +43,15 @@ export function AssignForm({
 	const [rescuers, setRescuers] = useState<Rescuers[]>([]);
 	const [users, setUsers] = useState<Users[]>([]);
 	const [searchOwners, setSearchOwners] = useState("");
+	const filteredUsers = useMemo(() => {
+		return users.filter((user) => {
+			return (
+				user.givenName.toLowerCase().includes(searchOwners.toLowerCase()) ||
+				user.middleName.toLowerCase().includes(searchOwners.toLowerCase()) ||
+				user.lastName.toLowerCase().includes(searchOwners.toLowerCase())
+			);
+		});
+	}, [users, searchOwners]);
 	// const [bracelets, setBracelets] = useState<Bracelets[]>([]);
 	const [searchBracelet, setSearchBracelet] = useState("");
 	const form = useForm<z.infer<typeof assignSchema>>({
@@ -97,8 +106,9 @@ export function AssignForm({
 			return;
 		}
 		if (isOwner(owner)) {
-			form.setValue("userId", (owner as Users).userId);
-			form.setValue("userName", (owner as Users).name);
+			const user = owner as Users;
+			form.setValue("userId", user.userId);
+			form.setValue("userName", `${user.givenName} ${user.middleName ? `${user.middleName[0]}.` : ""} ${user.lastName}`);
 			return;
 		}
 		form.setValue("userId", (owner as Rescuers).rescuerId);
@@ -182,12 +192,10 @@ export function AssignForm({
 					{type === "USER" ? (
 						<div className="mt-2 h-96 overflow-y-auto">
 							<ul className="flex flex-col">
-								{users.filter((u) => u.name.toLowerCase().includes(searchOwners)).length > 0 ? (
-									users
-										.filter((u) => u.name.toLowerCase().includes(searchOwners))
-										.map((owner, index) => {
-											return <OwnerListItem owner={owner} key={index} onClick={onOwnerClick} />;
-										})
+								{filteredUsers.length > 0 ? (
+									filteredUsers.map((owner, index) => {
+										return <OwnerListItem owner={owner} key={index} onClick={onOwnerClick} />;
+									})
 								) : (
 									<div className="flex items-center justify-center h-48 w-full">No Users available</div>
 								)}
