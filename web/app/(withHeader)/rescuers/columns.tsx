@@ -4,6 +4,7 @@ import { DateCell } from "@/app/components/DateCell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { formatRescuerId } from "@/lib/utils";
 import { RescuerWithBracelet } from "@/types";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
@@ -20,6 +21,10 @@ export const columns: ColumnDef<RescuerWithBracelet>[] = [
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
 			);
+		},
+		cell: ({ row }) => {
+			const { rescuerId } = row.original;
+			return <p>{formatRescuerId(rescuerId)}</p>;
 		},
 	},
 	{

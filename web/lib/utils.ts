@@ -82,3 +82,7 @@ export function formatTwoDigitNumber(num: number): string {
 export function formatUserId(id: number, length = 12): string {
   return id.toString().padStart(length, "0");
 }
+
+export function formatRescuerId(id: number, length = 12): string {
+  return id.toString().padStart(length, "0");
+}
