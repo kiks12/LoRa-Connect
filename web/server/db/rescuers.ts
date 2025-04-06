@@ -25,7 +25,8 @@ export async function getRescuersWithoutTeam() {
 export const getRescuers = unstable_cache(async () => {
   return await client.rescuers.findMany({
     include: {
-      bracelet: true
+      bracelet: true,
+      Teams: true,
     }
   }
   )
