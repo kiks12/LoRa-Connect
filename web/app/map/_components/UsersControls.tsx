@@ -95,7 +95,7 @@ export default function UsersControls() {
 													user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 													user.middleName.toLowerCase().includes(search.toLowerCase())
 												)
-													return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
+													return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} withUrgency={false} />;
 											})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -113,7 +113,7 @@ export default function UsersControls() {
 														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 														user.middleName.toLowerCase().includes(search.toLowerCase())
 													)
-														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
+														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} withUrgency={false} />;
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -131,7 +131,7 @@ export default function UsersControls() {
 														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 														user.middleName.toLowerCase().includes(search.toLowerCase())
 													)
-														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} />;
+														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} withUrgency={false} />;
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
