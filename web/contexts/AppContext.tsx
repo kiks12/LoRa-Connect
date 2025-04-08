@@ -211,7 +211,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}
 
-	async function sosFromUser(data: string) {
+	async function sosFromUser({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -238,7 +238,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		});
 	}
 
-	async function locationFromRescuer(data: string) {
+	async function locationFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -274,7 +274,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		});
 	}
 
-	async function sosFromRescuer(data: string) {
+	async function sosFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -310,13 +310,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		});
 	}
 
-	function taskAcknowledgementFromRescuer(data: string) {
+	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		console.log(source, payload);
 	}
 
-	function taskStatusUpdateFromRescuer(data: string) {
+	function taskStatusUpdateFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		console.log(source, payload);
