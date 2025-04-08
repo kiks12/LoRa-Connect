@@ -47,14 +47,16 @@ export function BraceletForm({
 		const input = e.target.value;
 		setBarcode(input);
 
-		const format = /^\d{4}-([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+		const format = /^\d{4}-([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}-(U|R)$/;
 
 		if (!format.test(input)) {
-			setError("Format must be XXXX-00:1C:2B:3C:4D:5E");
+			setError("Format must be XXXX-00:1C:2B:3C:4D:5E-U");
 		} else {
-			const [deviceId, macAddress] = input.split("-");
+			const [deviceId, macAddress, type] = input.split("-");
 			form.setValue("braceletId", deviceId);
 			form.setValue("macAddress", macAddress);
+			form.setValue("type", type === "U" ? "USER" : "RESCUER");
+			setBarcode("");
 			setError("");
 		}
 	};
@@ -147,6 +149,30 @@ export function BraceletForm({
 							)}
 						/>
 					</div>
+					<div className="mt-2">
+						<FormField
+							control={form.control}
+							name="type"
+							render={({ field }) => (
+								<FormItem className="flex flex-col">
+									<FormLabel>Device Type</FormLabel>
+									<FormControl>
+										<Input placeholder="Enter device type..." {...field} readOnly />
+										{/* <DropdownMenu>
+											<DropdownMenuTrigger>
+												<Input value={field.value} readOnly className="cursor-pointer" />
+											</DropdownMenuTrigger>
+											<DropdownMenuContent>
+												<DropdownMenuItem onClick={() => field.onChange("USER")}>USER</DropdownMenuItem>
+												<DropdownMenuItem onClick={() => field.onChange("RESCUER")}>RESCUER</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu> */}
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
 					<div className="mt-8">
 						<FormField
 							control={form.control}
@@ -162,29 +188,7 @@ export function BraceletForm({
 							)}
 						/>
 					</div>
-					<div className="mt-4">
-						<FormField
-							control={form.control}
-							name="type"
-							render={({ field }) => (
-								<FormItem className="flex flex-col">
-									<FormLabel>Device Type</FormLabel>
-									<FormControl>
-										<DropdownMenu>
-											<DropdownMenuTrigger>
-												<Input value={field.value} readOnly className="cursor-pointer" />
-											</DropdownMenuTrigger>
-											<DropdownMenuContent>
-												<DropdownMenuItem onClick={() => field.onChange("USER")}>USER</DropdownMenuItem>
-												<DropdownMenuItem onClick={() => field.onChange("RESCUER")}>RESCUER</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</div>
+
 					<div className="flex justify-end mt-8">
 						<Button type="submit">Submit</Button>
 					</div>
