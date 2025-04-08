@@ -150,7 +150,7 @@ void txLocPacket() {
     current_packet_id++;
     if (current_packet_id > 99) { current_packet_id = 0; }
 
-    snprintf(packet, sizeof(packet), "%s1004%s62%s-%d-%d", DEVICE_ADDR, id_buffer, USER_ID, lat_buffer, lng_buffer);
+    snprintf(packet, sizeof(packet), "%s1004%s62%s-%s-%s", DEVICE_ADDR, id_buffer, USER_ID, lat_buffer, lng_buffer);
     both.printf("Location packet: %s\n", packet);
 
     txPacket(packet);
