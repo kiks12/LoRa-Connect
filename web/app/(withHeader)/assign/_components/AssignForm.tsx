@@ -52,6 +52,15 @@ export function AssignForm({
 			);
 		});
 	}, [users, searchOwners]);
+	const filteredRescuers = useMemo(() => {
+		return rescuers.filter((rescuer) => {
+			return (
+				rescuer.givenName.toLowerCase().includes(searchOwners.toLowerCase()) ||
+				rescuer.middleName.toLowerCase().includes(searchOwners.toLowerCase()) ||
+				rescuer.lastName.toLowerCase().includes(searchOwners.toLowerCase())
+			);
+		});
+	}, [rescuers, searchOwners]);
 	// const [bracelets, setBracelets] = useState<Bracelets[]>([]);
 	const [searchBracelet, setSearchBracelet] = useState("");
 	const form = useForm<z.infer<typeof assignSchema>>({
@@ -111,8 +120,9 @@ export function AssignForm({
 			form.setValue("userName", `${user.givenName} ${user.middleName ? `${user.middleName[0]}.` : ""} ${user.lastName}`);
 			return;
 		}
-		form.setValue("userId", (owner as Rescuers).rescuerId);
-		form.setValue("userName", (owner as Rescuers).name);
+		const rescuer = owner as Rescuers;
+		form.setValue("userId", rescuer.rescuerId);
+		form.setValue("userName", `${rescuer.givenName} ${rescuer.middleName ? `${rescuer.middleName[0]}.` : ""} ${rescuer.lastName}`);
 	}
 
 	// function onCheckboxChange(value: boolean) {
@@ -204,11 +214,13 @@ export function AssignForm({
 					) : (
 						<div className="mt-2 h-96 overflow-y-auto">
 							<ul className="flex max-h-96 overflow-y-auto flex-col">
-								{rescuers
-									.filter((r) => r.name.toLowerCase().includes(searchOwners))
-									.map((rescuer, index) => {
+								{filteredRescuers.length > 0 ? (
+									rescuers.map((rescuer, index) => {
 										return <OwnerListItem owner={rescuer} key={index} onClick={onOwnerClick} />;
-									})}
+									})
+								) : (
+									<div className="flex items-center justify-center h-48 w-full">No Users available</div>
+								)}
 							</ul>
 						</div>
 					)}
