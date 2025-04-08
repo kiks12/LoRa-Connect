@@ -20,7 +20,10 @@ export function OwnerListItem({ owner, onClick }: { owner: Users | Rescuers; onC
 				<>
 					<div className="">
 						<p className="text-xs">Rescuer ID: {(owner as Rescuers).rescuerId}</p>
-						<p className="font-medium">{(owner as Rescuers).name}</p>
+						<p className="font-medium">
+							{(owner as Rescuers).givenName} {(owner as Rescuers).middleName ? `${(owner as Rescuers).middleName[0]}.` : ""}{" "}
+							{(owner as Rescuers).lastName}
+						</p>
 					</div>
 				</>
 			)}
