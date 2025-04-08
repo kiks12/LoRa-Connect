@@ -11,6 +11,7 @@ SAMPLE BODY
   latitude: number,
   longitude: number,
   urgency: number, 
+  sos: boolean,
 }
 
 */
