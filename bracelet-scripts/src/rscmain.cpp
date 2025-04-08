@@ -1,7 +1,7 @@
-//rescuer device
+// rescuer device
 
-// Turns the 'PRG' button into the power button, long press is off 
-#define HELTEC_POWER_BUTTON   // must be before "#include <heltec_unofficial.h>"
+// Turns the 'PRG' button into the power button, long press is off
+#define HELTEC_POWER_BUTTON // must be before "#include <heltec_unofficial.h>"
 
 #include <heltec_unofficial.h>
 #include <TinyGPSPlus.h>
@@ -16,12 +16,12 @@
 #define READ_CHARACTERISTIC_UUID "c31628d9-f40c-4e67-a03a-3a0445b44ce0"
 #define DESCRIPTOR_UUID "caed62e7-f146-4fe4-a0d2-609edaf76228"
 
-#define PAUSE               0
-#define FREQUENCY           433.0       
-#define BANDWIDTH           250.0
-#define SPREADING_FACTOR    9
-#define CODING_RATE         5
-#define TRANSMIT_POWER      0
+#define PAUSE 0
+#define FREQUENCY 433.0
+#define BANDWIDTH 250.0
+#define SPREADING_FACTOR 9
+#define CODING_RATE 5
+#define TRANSMIT_POWER 0
 
 #define RXD2 47
 #define TXD2 48
@@ -45,20 +45,22 @@ bool sos_flag = false;
 
 int last_gps_update_time = 0;
 
-void rx() {
+void rx()
+{
     rx_flag = true;
 }
 
-NimBLEService*        pService = NULL;
-NimBLECharacteristic* pWriteCharacteristic = NULL;
-NimBLECharacteristic* pReadCharacteristic  = NULL;
-NimBLEDescriptor*     pDescriptor = NULL;
+NimBLEService *pService = NULL;
+NimBLECharacteristic *pWriteCharacteristic = NULL;
+NimBLECharacteristic *pReadCharacteristic = NULL;
+NimBLEDescriptor *pDescriptor = NULL;
 BLEServer *pServer;
 
 std::queue<String> BT_queue;
 bool BT_flag = false;
 
-void txPacket(String packet) {
+void txPacket(String packet)
+{
     radio.clearDio1Action();
     heltec_led(50);
     RADIOLIB(radio.transmit(packet.c_str()));
@@ -67,47 +69,59 @@ void txPacket(String packet) {
     RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
 }
 
-class ServerCallbacks : public NimBLEServerCallbacks {
-  void onConnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo) override {
-    pServer->updateConnParams(connInfo.getConnHandle(), 24, 48, 0, 180);
-    pServer->getAdvertising()->stop();
-    both.println("BLE Connected");
-  }
-  void onDisconnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo, int reason) override {
-    both.println("BLE Disconnected");
-    NimBLEDevice::startAdvertising();
-  }
+class ServerCallbacks : public NimBLEServerCallbacks
+{
+    void onConnect(NimBLEServer *pServer, NimBLEConnInfo &connInfo) override
+    {
+        pServer->updateConnParams(connInfo.getConnHandle(), 24, 48, 0, 180);
+        pServer->getAdvertising()->stop();
+        both.println("BLE Connected");
+    }
+    void onDisconnect(NimBLEServer *pServer, NimBLEConnInfo &connInfo, int reason) override
+    {
+        both.println("BLE Disconnected");
+        NimBLEDevice::startAdvertising();
+    }
 } serverCallbacks;
 
-class CharacteristicCallbacks : public NimBLECharacteristicCallbacks {
-  void onRead(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
-    if (BT_queue.empty() == false) {
-      pWriteCharacteristic->setValue(BT_queue.front());
-      BT_queue.pop();
+class CharacteristicCallbacks : public NimBLECharacteristicCallbacks
+{
+    void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override
+    {
+        if (BT_queue.empty() == false)
+        {
+            pWriteCharacteristic->setValue(BT_queue.front());
+            BT_queue.pop();
+        }
     }
-  }
-  void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
-  }
-  void onStatus(NimBLECharacteristic* pCharacteristic, int code) override {
-  }
-  void onSubscribe(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo, uint16_t subValue) override {   
-  }
+    void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override
+    {
+    }
+    void onStatus(NimBLECharacteristic *pCharacteristic, int code) override
+    {
+    }
+    void onSubscribe(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo, uint16_t subValue) override
+    {
+    }
 } chrCallbacks;
 
-class ReadCharacteristicCallbacks : public NimBLECharacteristicCallbacks {
-  void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
-      String value = pCharacteristic->getValue().c_str();
-      both.printf("BLE: %s\n", value.c_str());
-      txPacket(value);
-  }
+class ReadCharacteristicCallbacks : public NimBLECharacteristicCallbacks
+{
+    void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override
+    {
+        String value = pCharacteristic->getValue().c_str();
+        both.printf("BLE: %s\n", value.c_str());
+        txPacket(value);
+    }
 };
 
-void setup() {
+void setup()
+{
     heltec_setup();
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
-  
+
     int state = radio.begin();
     radio.setDio1Action(rx);
     RADIOLIB_OR_HALT(radio.setFrequency(FREQUENCY));
@@ -122,13 +136,13 @@ void setup() {
     pServer->setCallbacks(&serverCallbacks);
     pService = pServer->createService(SERVICE_UUID);
     pWriteCharacteristic = pService->createCharacteristic(WRITE_CHARACTERISTIC_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
-    pReadCharacteristic  = pService->createCharacteristic(READ_CHARACTERISTIC_UUID , NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
+    pReadCharacteristic = pService->createCharacteristic(READ_CHARACTERISTIC_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
     pDescriptor = pWriteCharacteristic->createDescriptor(DESCRIPTOR_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
     pReadCharacteristic->setCallbacks(new CharacteristicCallbacks());
     pReadCharacteristic->setCallbacks(new ReadCharacteristicCallbacks());
     pService->start();
 
-    NimBLEAdvertising* pAdvertising = NimBLEDevice::getAdvertising();
+    NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
     pAdvertising->setName("NimBLE-Server");
     pAdvertising->addServiceUUID(pService->getUUID());
     pAdvertising->enableScanResponse(true);
@@ -138,7 +152,8 @@ void setup() {
     both.printf("Device address: %s\n", DEVICE_ADDR);
 }
 
-void txLocPacket() {
+void txLocPacket()
+{
     char packet[231];
     char lat_buffer[12];
     char lng_buffer[12];
@@ -148,41 +163,54 @@ void txLocPacket() {
     char id_buffer[3];
     snprintf(id_buffer, sizeof(id_buffer), "%02d", current_packet_id);
     current_packet_id++;
-    if (current_packet_id > 99) { current_packet_id = 0; }
+    if (current_packet_id > 99)
+    {
+        current_packet_id = 0;
+    }
 
-    snprintf(packet, sizeof(packet), "%s1004%s62%s-%s-%s", DEVICE_ADDR, id_buffer, USER_ID, lat_buffer, lng_buffer);
+    snprintf(packet, sizeof(packet), "%s1004%s62%s-%s-%s", DEVICE_ADDR, id_buffer, lat_buffer, lng_buffer, "1");
     both.printf("Location packet: %s\n", packet);
 
     txPacket(packet);
 }
 
-bool isFamiliarBounce(String incoming) {
-    String * p = std::find(bounced_packet_history, bounced_packet_history+BOUNCED_PACKET_HISTORY_SIZE, incoming);
-    if (p == bounced_packet_history+BOUNCED_PACKET_HISTORY_SIZE) {
+bool isFamiliarBounce(String incoming)
+{
+    String *p = std::find(bounced_packet_history, bounced_packet_history + BOUNCED_PACKET_HISTORY_SIZE, incoming);
+    if (p == bounced_packet_history + BOUNCED_PACKET_HISTORY_SIZE)
+    {
         both.printf("New, reTx\n");
         bounced_packet_history[bounced_packet_history_index] = incoming;
         bounced_packet_history_index++;
-        if (bounced_packet_history_index >= PACKET_HISTORY_SIZE) {
+        if (bounced_packet_history_index >= PACKET_HISTORY_SIZE)
+        {
             bounced_packet_history_index = 0;
         }
         return false;
-    } else {
+    }
+    else
+    {
         both.printf("Old, no reTx\n");
         return true;
     }
 }
 
-bool isFamiliarProcess(String incoming) {
-    String * p = std::find(packet_history, packet_history+PACKET_HISTORY_SIZE, incoming);
-    if (p == packet_history+PACKET_HISTORY_SIZE) {
+bool isFamiliarProcess(String incoming)
+{
+    String *p = std::find(packet_history, packet_history + PACKET_HISTORY_SIZE, incoming);
+    if (p == packet_history + PACKET_HISTORY_SIZE)
+    {
         both.printf("New, reTx\n");
         packet_history[packet_history_index] = incoming;
         packet_history_index++;
-        if (packet_history_index >= PACKET_HISTORY_SIZE) {
+        if (packet_history_index >= PACKET_HISTORY_SIZE)
+        {
             packet_history_index = 0;
         }
         return false;
-    } else {
+    }
+    else
+    {
         both.printf("Old, no reTx\n");
         return true;
     }
@@ -192,17 +220,22 @@ bool tx_loc_flag = false;
 String instruction;
 String rescuer_name;
 
-void processPayload(char type, String payload) {
-    if (type == '7') {
-        tx_loc_flag = true;    
-    } else {
+void processPayload(char type, String payload)
+{
+    if (type == '7')
+    {
+        tx_loc_flag = true;
+    }
+    else
+    {
         both.println(payload.c_str());
         uint8_t len = payload.length();
         uint8_t chunks_len = (len + 20 - 1) / 20;
 
-        for (int i = 0; i < chunks_len; i++) {
+        for (int i = 0; i < chunks_len; i++)
+        {
             uint8_t start = i * 20;
-            uint8_t end = min(start + 20, (int) len);  
+            uint8_t end = min(start + 20, (int)len);
             String chunk = payload.substring(start, end);
             BT_queue.push(chunk);
         }
@@ -213,71 +246,86 @@ void processPayload(char type, String payload) {
     }
 }
 
-void loop() {
+void loop()
+{
     heltec_loop();
 
-    if (button.isSingleClick()) {
+    if (button.isSingleClick())
+    {
         // txPacket("1100000100A2Doomfist-400");
         txPacket("100410030072");
     }
 
-    while (gpsSerial.available()) {
+    while (gpsSerial.available())
+    {
         gps.encode(gpsSerial.read());
     }
-    
-    if (gps.location.isUpdated()) {
-        if (last_gps_update_time + 3000 < millis() && tx_loc_flag) {
+
+    if (gps.location.isUpdated())
+    {
+        if (last_gps_update_time + 3000 < millis() && tx_loc_flag)
+        {
             txLocPacket();
             last_gps_update_time = millis();
         }
     }
 
-    if (rx_flag) {
+    if (rx_flag)
+    {
         rx_flag = false;
         char rx_data[255] = {0};
 
-        radio.readData((uint8_t*) rx_data, 255);
-        if (_radiolib_status == RADIOLIB_ERR_NONE) {
-            
-            String rx_data_str = (String) rx_data;
-            String dst = rx_data_str.substring(4,8);
-            String incoming = rx_data_str.substring(0,4) + " " + rx_data_str.substring(8,10);
+        radio.readData((uint8_t *)rx_data, 255);
+        if (_radiolib_status == RADIOLIB_ERR_NONE)
+        {
+
+            String rx_data_str = (String)rx_data;
+            String dst = rx_data_str.substring(4, 8);
+            String incoming = rx_data_str.substring(0, 4) + " " + rx_data_str.substring(8, 10);
             both.printf("In: %s\n", incoming.c_str());
             // both.println(dst.c_str());
             // both.println(incoming.c_str());
 
-            if (dst == DEVICE_ADDR || dst == "1003" || dst == "1002" || dst == "1001") {//remove 1004 later
+            if (dst == DEVICE_ADDR || dst == "1003" || dst == "1002" || dst == "1001")
+            { // remove 1004 later
                 // both.println(rx_data_str.c_str());
-                if (isFamiliarProcess(incoming) == false) {
+                if (isFamiliarProcess(incoming) == false)
+                {
                     both.println("new packet, will process");
                     // both.printf("New packet: %s\n", rx_data_str.c_str()); //process here
                     char type = rx_data[10];
                     // both.println("Type: " + String(type));
                     processPayload(type, rx_data_str.substring(12));
-                } else {
+                }
+                else
+                {
                     // both.println("Recently processed");
                 }
+            }
+            else
+            {
 
-            } else {
-
-                if (isFamiliarBounce(incoming) == false) {
+                if (isFamiliarBounce(incoming) == false)
+                {
                     // both.printf("New packet: %s\n", rx_data_str.c_str()); //retransmit here
                     int ttl = rx_data[12] - '0';
                     // both.printf("TTL: %d\n", ttl);
-                    if (ttl > 0) {
-                        String new_packet = rx_data_str.substring(0,8) + String(ttl-1) + rx_data_str.substring(10);
+                    if (ttl > 0)
+                    {
+                        String new_packet = rx_data_str.substring(0, 8) + String(ttl - 1) + rx_data_str.substring(10);
                         txPacket(new_packet);
                         // both.printf("ReTx: %s\n", new_packet.c_str());
-                    } else {
+                    }
+                    else
+                    {
                         // both.printf("TTL expired, no reTx\n");
                     }
-                } else {
+                }
+                else
+                {
                     // both.printf("Bounced packet: %s\n", rx_data_str.c_str());
                 }
-                
             }
-
         }
     }
-    
 }
