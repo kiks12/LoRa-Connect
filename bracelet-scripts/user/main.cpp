@@ -23,7 +23,6 @@
 #define RXD2 47
 #define TXD2 48
 
-volatile uint8_t urgency = 1;
 
 HardwareSerial gpsSerial(1);
 TinyGPSPlus gps;
