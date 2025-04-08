@@ -143,7 +143,7 @@ export default function UsersControls() {
 					</Tabs>
 				</div>
 			</div>
-			<div>
+			{/* <div>
 				<EvacuationInstructionButton
 					onRerunClick={() => setRerunEvacuationInstructionAlgorithm(!rerunEvacuationInstructionAlgorithm)}
 					onOpenChange={() => setRunEvacuationInstructionAlgorithm(!runEvacuationInstructionAlgorithm)}
@@ -152,7 +152,7 @@ export default function UsersControls() {
 					evacuationCenterInstructions={evacuationInstructions}
 					createEvacuationInstructions={createEvacuationInstructions}
 				/>
-			</div>
+			</div> */}
 		</div>
 	);
 }
