@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu
 import { useEffect, useMemo, useState } from "react";
 import { useObstacles } from "@/hooks/map/use-obstacles";
 import { useRouting } from "@/hooks/map/use-routing";
+import { formatName } from "@/lib/utils";
 
 type listType = "RESCUERS" | "USERS" | "EVACUATION_CENTERS" | "OBSTACLES";
 export type generalType = { name: string; type: listType; latitude: number | null | undefined; longitude: number | null | undefined };
@@ -40,7 +41,7 @@ export default function RoutingControls() {
 	useEffect(() => {
 		const mappedUsers: generalType[] =
 			users.map((user: UserWithStatusIdentifier) => ({
-				name: user.name,
+				name: formatName(user.givenName, user.middleName, user.lastName, user.suffix),
 				latitude: user.bracelet?.latitude,
 				longitude: user.bracelet?.longitude,
 				type: "USERS",
