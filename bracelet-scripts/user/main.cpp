@@ -9,6 +9,7 @@
 #define DEVICE_ADDR "0001"
 
 #include <heltec_unofficial.h>
+// #include <config.h>
 #include <TinyGPSPlus.h>
 
 #define PAUSE               0
@@ -20,10 +21,6 @@
 
 #define RXD2 47
 #define TXD2 48
-
-#define SOS_PIN 21
-#define URGENCY_PIN_1 38
-#define URGENCY_PIN_2 39
 
 HardwareSerial gpsSerial(1);
 TinyGPSPlus gps;
@@ -45,41 +42,12 @@ volatile bool sos_flag = false;
 int last_gps_update_time = 0;
 volatile uint8_t urgency;
 
-void IRAM_ATTR handleSOSInterrupt() {
-    sos_flag = true;
-}
-
-void IRAM_ATTR handleUrgencyInterrupt() {
-    bool pin38 = digitalRead(URGENCY_PIN_1);
-    bool pin39 = digitalRead(URGENCY_PIN_2);
-
-    if (pin38 && pin39) {
-        urgency = 3;
-    } else if (pin38) {
-        urgency = 1;
-    } else if (pin39) {
-        urgency = 2;
-    } else {
-        urgency = 0;
-    }
-}
-
 void rx() {
     rx_flag = true;
 }
 
 void setup() {
     heltec_setup();
-
-    // Configure GPIO pins
-    pinMode(SOS_PIN, INPUT_PULLUP);
-    pinMode(URGENCY_PIN_1, INPUT_PULLUP);
-    pinMode(URGENCY_PIN_2, INPUT_PULLUP);
-
-    // Attach interrupts
-    attachInterrupt(SOS_PIN, handleSOSInterrupt, RISING);
-    attachInterrupt(URGENCY_PIN_1, handleUrgencyInterrupt, CHANGE);
-    attachInterrupt(URGENCY_PIN_2, handleUrgencyInterrupt, CHANGE);
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -106,8 +74,8 @@ void txPacket(String packet) {
     RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
 }
 
-void txPacket(bool isSOS) {
-    char packet[250];
+void txLocPacket(bool isSOS) {
+    char packet[255];
     char lat_buffer[12];
     char lng_buffer[12];
     dtostrf(gps.location.lat(), 10, 6, lat_buffer);
@@ -169,34 +137,27 @@ String rescuer_name;
 
 void processPayload(char type, String payload) {
     if (type == '7') {
-        tx_loc_flag = true;
         both.println("Starting location tx");
+        tx_loc_flag = true;
     } else if (type == '8') {
         instruction = payload;
+        both.println(instruction);
     } else if (type == 'A') {
-        both.println(payload.c_str());
-        uint8_t dash_index = payload.indexOf('-');
-        rescuer_name = payload.substring(0, dash_index);
-        String distance = payload.substring(dash_index + 1);
-        both.printf("Rescuer name: %s\n", rescuer_name.c_str());
-        both.printf("Distance: %s\n", distance.c_str());
+        both.printf("Distance: %s\n", payload.c_str());
     }
 }
 
 void loop() {
     heltec_loop();
 
-    if (button.isDoubleClick()) {
+    if (button.isSingleClick()) {
+        both.println("SOS button pressed");
         sos_flag = true;
+        // both.println("Lorem ipsum dolor sit amet,\n consectetur adipiscing eli\nt. Nunc id sapien ut arcu f\ninibus eleifend non id nunc");
     }
 
-    if (button.isSingleClick()) {
-        urgency++;
-        if (urgency > 3) {
-            urgency = 0;
-        }
-        both.printf("Urgency level: %d\n", urgency);
-        // txPacket("");
+    if (button.isDoubleClick()) {
+        txPacket("100410030072");
     }
 
     while (gpsSerial.available()) {
@@ -205,7 +166,7 @@ void loop() {
     
     if (gps.location.isUpdated()) {
         if (last_gps_update_time + 3000 < millis() && tx_loc_flag) {
-            txPacket(sos_flag);
+            txLocPacket(sos_flag);
             last_gps_update_time = millis();
         }
     }
@@ -220,8 +181,6 @@ void loop() {
             String rx_data_str = (String) rx_data;
             String dst = rx_data_str.substring(4,8);
             String incoming = rx_data_str.substring(0,4) + rx_data_str.substring(8,10);
-            both.println(dst.c_str());
-            both.println(incoming.c_str());
 
             if (dst == DEVICE_ADDR || dst == "1003") {
 
@@ -236,20 +195,20 @@ void loop() {
 
             } else {
 
-                if (isFamiliarBounce(incoming) == false) {
-                    // both.printf("New packet: %s\n", rx_data_str.c_str()); //retransmit here
-                    int ttl = rx_data[12] - '0';
-                    // both.printf("TTL: %d\n", ttl);
-                    if (ttl > 0) {
-                        String new_packet = rx_data_str.substring(0,8) + String(ttl-1) + rx_data_str.substring(10);
-                        txPacket(new_packet);
-                        // both.printf("ReTx: %s\n", new_packet.c_str());
-                    } else {
-                        // both.printf("TTL expired, no reTx\n");
-                    }
-                } else {
-                    // both.printf("Bounced packet: %s\n", rx_data_str.c_str());
-                }
+                // if (isFamiliarBounce(incoming) == false) {
+                //     // both.printf("New packet: %s\n", rx_data_str.c_str()); //retransmit here
+                //     int ttl = rx_data[12] - '0';
+                //     // both.printf("TTL: %d\n", ttl);
+                //     if (ttl > 0) {
+                //         String new_packet = rx_data_str.substring(0,8) + String(ttl-1) + rx_data_str.substring(10);
+                //         txPacket(new_packet);
+                //         // both.printf("ReTx: %s\n", new_packet.c_str());
+                //     } else {
+                //         // both.printf("TTL expired, no reTx\n");
+                //     }
+                // } else {
+                //     // both.printf("Bounced packet: %s\n", rx_data_str.c_str());
+                // }
 
             }
 
