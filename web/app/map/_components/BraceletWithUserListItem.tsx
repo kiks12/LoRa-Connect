@@ -29,7 +29,15 @@ export const URGENCY_MAP: {
 	},
 };
 
-export default function BraceletWithUserListItem({ user, onShowLocation }: { user: UserWithStatusIdentifier; onShowLocation: () => void }) {
+export default function BraceletWithUserListItem({
+	user,
+	onShowLocation,
+	withUrgency = false,
+}: {
+	user: UserWithStatusIdentifier;
+	onShowLocation: () => void;
+	withUrgency?: boolean;
+}) {
 	return (
 		<Card className={`my-1 shadow-none cursor-pointer border-0 rounded-none border-b ${user.bracelet && user.bracelet.sos ? `` : ""}`}>
 			<CardHeader className="flex justify-between items-start">
@@ -49,10 +57,10 @@ export default function BraceletWithUserListItem({ user, onShowLocation }: { use
 						<Label className="ml-2">Hide Location</Label>
 					</div>
 				</div> */}
-				{user.bracelet?.sos && (
+				{withUrgency && user.bracelet?.sos && (
 					<div className="flex items-center mt-3">
 						<AlertCircle className={`text`} />
-						<p className={`ml-3`}>Urgency: {URGENCY_MAP[user.bracelet.urgency!].text}</p>
+						{/* <p className={`ml-3`}>Urgency: {URGENCY_MAP[user.bracelet.urgency!].text}</p> */}
 					</div>
 				)}
 			</CardHeader>

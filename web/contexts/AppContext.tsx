@@ -20,7 +20,7 @@ import {
 	UserWithStatusIdentifier,
 } from "@/types";
 import { URGENCY_LORA_TO_DB } from "@/utils/urgency";
-import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, use } from "react";
 import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
@@ -65,6 +65,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		fetchUsersAPI();
+	}, []);
+
+	useEffect(() => {
 		fetchTeams();
 	}, []);
 
@@ -97,6 +100,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 		socket.on(LOCATION_FROM_USER, locationFromUser);
 		socket.on(SOS_FROM_USER, sosFromUser);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [usersLoading]);
 
 	useEffect(() => {
@@ -104,6 +108,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 		socket.on(LOCATION_FROM_RESCUER, locationFromRescuer);
 		socket.on(SOS_FROM_RESCUER, sosFromRescuer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [teamsLoading]);
 
 	useEffect(() => {
@@ -120,7 +125,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			users.forEach((user) => addUserPoint(user));
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [users]);
+	}, [users, styleLoaded]);
 
 	useEffect(() => {
 		if (styleLoaded) {
