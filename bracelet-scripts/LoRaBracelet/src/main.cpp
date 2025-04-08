@@ -215,20 +215,20 @@ void loop() {
 
             } else {
 
-                // if (isFamiliarBounce(incoming) == false) {
-                //     // both.printf("New packet: %s\n", rx_data_str.c_str()); //retransmit here
-                //     int ttl = rx_data[12] - '0';
-                //     // both.printf("TTL: %d\n", ttl);
-                //     if (ttl > 0) {
-                //         String new_packet = rx_data_str.substring(0,8) + String(ttl-1) + rx_data_str.substring(10);
-                //         txPacket(new_packet);
-                //         // both.printf("ReTx: %s\n", new_packet.c_str());
-                //     } else {
-                //         // both.printf("TTL expired, no reTx\n");
-                //     }
-                // } else {
-                //     // both.printf("Bounced packet: %s\n", rx_data_str.c_str());
-                // }
+                if (isFamiliarBounce(incoming) == false) {
+                    // both.printf("New packet: %s\n", rx_data_str.c_str()); //retransmit here
+                    int ttl = rx_data[12] - '0';
+                    // both.printf("TTL: %d\n", ttl);
+                    if (ttl > 0) {
+                        String new_packet = rx_data_str.substring(0,8) + String(ttl-1) + rx_data_str.substring(10);
+                        txPacket(new_packet);
+                        // both.printf("ReTx: %s\n", new_packet.c_str());
+                    } else {
+                        // both.printf("TTL expired, no reTx\n");
+                    }
+                } else {
+                    // both.printf("Bounced packet: %s\n", rx_data_str.c_str());
+                }
 
             }
 

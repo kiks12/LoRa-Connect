@@ -81,10 +81,10 @@ class ServerCallbacks : public NimBLEServerCallbacks {
 
 class CharacteristicCallbacks : public NimBLECharacteristicCallbacks {
   void onRead(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
-    if (BT_queue.empty() == false) {
-      pWriteCharacteristic->setValue(BT_queue.front());
-      BT_queue.pop();
-    }
+    // if (BT_queue.empty() == false) {
+    //   pWriteCharacteristic->setValue(BT_queue.front());
+    //   BT_queue.pop();
+    // }
   }
   void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override {
   }
@@ -206,13 +206,13 @@ void processPayload(char type, String payload) {
             String chunk = payload.substring(start, end);
             pWriteCharacteristic->setValue(chunk);
             pWriteCharacteristic->notify();
-            delay(50)
+            delay(50);
             // BT_queue.push(chunk);
         }
 
         // BT_queue.push("ENDP");
         // BT_flag = true;
-        pWriteCharacteristic->setValue("ENDP")
+        pWriteCharacteristic->setValue("ENDP");
         pWriteCharacteristic->notify();
     }
 }
