@@ -90,3 +90,17 @@ export function formatRescuerId(id: number, length = 12): string {
 export function formatName(givenName: string, middleName: string | undefined, lastName: string, suffix: string | undefined) {
   return `${givenName} ${middleName ? `${middleName[0]}.` : ""} ${lastName} ${suffix ?? ""}`
 }
+
+export function formatMessage(evacuationCenterName: string, distance: number, message: string) {
+  const distanceInKm = distance / 1000;
+
+  function insertNewlines(text: string, interval: number = 27): string {
+    let result = '';
+    for (let i = 0; i < text.length; i += interval) {
+      result += text.slice(i, i + interval) + '\n';
+    }
+    return result.trim(); // Removes trailing newline
+  }
+
+  return insertNewlines(`Evac: ${evacuationCenterName} {${distanceInKm}km} - ${message}`);
+}

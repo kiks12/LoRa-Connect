@@ -15,12 +15,10 @@ def instruction_to_user(instruction):
     owner_bracelet_id = instruction.get("ownerBraceletId")
     id = instruction.get("packetId")
     ttl = "2"
-    distance = instruction.get("distance")
-    evacuation_center_name = instruction.get("evacuationCenterName")
     message = instruction.get("message")
 
     # [Source Address][Destination Address][ID][Packet Type][TTL][PAYLOAD]
-    return f"{TO_CENTRAL_NODE}{owner_bracelet_id}{id}{INSTRUCTION_TO_USER}{ttl}{distance}-{evacuation_center_name}-{message}"
+    return f"{TO_CENTRAL_NODE}{owner_bracelet_id}{id}{INSTRUCTION_TO_USER}{ttl}{message}"
 
 
 """

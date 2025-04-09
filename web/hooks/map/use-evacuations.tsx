@@ -4,6 +4,7 @@ import { EVACUATION_CENTER_MARKER_COLOR } from "@/map-styles";
 import maplibregl from "maplibre-gl";
 import { useAppContext } from "@/contexts/AppContext";
 import { useMapContext } from "@/contexts/MapContext";
+import { formatName } from "@/lib/utils";
 
 export const useEvacuations = () => {
 	const { mapRef } = useMapContext();
@@ -116,7 +117,7 @@ export const useEvacuations = () => {
 					return {
 						ownerId: user.userId,
 						ownerBraceletId: user.bracelet?.braceletId ?? "",
-						ownerName: user.name,
+						ownerName: formatName(user.givenName, user.middleName, user.lastName, user.suffix),
 						evacuationCenterId: evacuationCenter.evacuationId,
 						evacuationCenterName: evacuationCenter.name,
 						time: minimumTime.time,

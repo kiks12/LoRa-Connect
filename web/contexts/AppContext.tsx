@@ -218,7 +218,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await updateBraceletSos({ braceletId: source, latitude, longitude, urgency, sos: true });
+		await saveSosToDatabase({ braceletId: source, latitude, longitude, urgency, sos: true, rescuer: false });
 		setUsers((prev) => {
 			return prev.map((user) => {
 				if (user.bracelet && user.bracelet.braceletId === source) {
@@ -281,7 +281,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
 		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await updateBraceletSos({ braceletId: source, latitude, longitude, urgency, sos: true });
+		await saveSosToDatabase({ braceletId: source, latitude, longitude, urgency, sos: true, rescuer: true });
 		setTeams((prev) => {
 			return prev.map((team) => {
 				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
@@ -336,6 +336,34 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		await fetch("/api/bracelets/update-location", {
 			method: "PATCH",
 			body: JSON.stringify({ braceletId, latitude, longitude, urgency: 1 }),
+		});
+		if (rescuer) {
+			setRescuers(
+				(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
+			);
+		} else {
+			setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
+		}
+	}
+
+	async function saveSosToDatabase({
+		braceletId,
+		latitude,
+		longitude,
+		urgency,
+		sos,
+		rescuer,
+	}: {
+		braceletId: string;
+		latitude: number;
+		longitude: number;
+		urgency: number;
+		sos: boolean;
+		rescuer: boolean;
+	}) {
+		await fetch("/api/bracelets/update-sos", {
+			method: "PATCH",
+			body: JSON.stringify({ braceletId, latitude, longitude, urgency: urgency, sos }),
 		});
 		if (rescuer) {
 			setRescuers(

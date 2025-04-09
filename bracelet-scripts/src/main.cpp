@@ -1,3 +1,4 @@
+
 // user device
 
 // Turns the 'PRG' button into the power button, long press is off
@@ -40,7 +41,28 @@ uint8_t current_packet_id = 0;
 volatile bool sos_flag = false;
 
 int last_gps_update_time = 0;
-volatile uint8_t urgency;
+volatile uint8_t urgency = 1;
+volatile bool urg_update = false;
+#define URGENCY_PIN_1 38
+#define URGENCY_PIN_2 39
+void urgencyChange()
+{
+    bool pin1 = digitalRead(URGENCY_PIN_1);
+    bool pin2 = digitalRead(URGENCY_PIN_2);
+    if (pin1 == 1 && pin2 == 1)
+    {
+        urgency = 2;
+    }
+    else if (pin1 == 1 && pin2 == 0)
+    {
+        urgency = 1;
+    }
+    else if (pin1 == 0 && pin2 == 1)
+    {
+        urgency = 3;
+    }
+    urg_update = true;
+}
 
 void rx()
 {
@@ -50,6 +72,11 @@ void rx()
 void setup()
 {
     heltec_setup();
+
+    pinMode(URGENCY_PIN_1, INPUT_PULLUP);
+    pinMode(URGENCY_PIN_2, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChange, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChange, CHANGE);
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -95,8 +122,6 @@ void txLocPacket(bool isSOS)
 
     if (isSOS)
     {
-
-        both.printf(DEVICE_ADDR);
         snprintf(packet, sizeof(packet), "%s1004%s22%s-%s-%s-%d", DEVICE_ADDR, id_buffer, USER_ID, lat_buffer, lng_buffer, urgency);
         both.printf("Sn:%s\n", packet);
         txPacket(packet);
@@ -176,6 +201,12 @@ void processPayload(char type, String payload)
 void loop()
 {
     heltec_loop();
+
+    if (urg_update)
+    {
+        urg_update = false;
+        both.println(urg_update);
+    }
 
     if (button.isSingleClick())
     {
