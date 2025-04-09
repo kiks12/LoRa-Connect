@@ -14,7 +14,7 @@
 #define SERVICE_UUID "dc0d15eb-6298-44e3-9813-d9a5c58c43cc"
 #define WRITE_CHARACTERISTIC_UUID "d0d12d27-be27-4495-a236-9fa0860b4554"
 #define READ_CHARACTERISTIC_UUID "c31628d9-f40c-4e67-a03a-3a0445b44ce0"
-#define DESCRIPTOR_UUID "caed62e7-f146-4fe4-a0d2-609edaf76228"
+#define DESCRIPTOR_UUID "00002902-0000-1000-8000-00805f9b34fb"
 
 #define PAUSE 0
 #define FREQUENCY 433.0
@@ -138,7 +138,7 @@ void setup()
     pWriteCharacteristic = pService->createCharacteristic(WRITE_CHARACTERISTIC_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
     pReadCharacteristic = pService->createCharacteristic(READ_CHARACTERISTIC_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY);
     pDescriptor = pWriteCharacteristic->createDescriptor(DESCRIPTOR_UUID, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
-    pReadCharacteristic->setCallbacks(new CharacteristicCallbacks());
+    pWriteCharacteristic->setCallbacks(new CharacteristicCallbacks());
     pReadCharacteristic->setCallbacks(new ReadCharacteristicCallbacks());
     pService->start();
 
@@ -220,30 +220,29 @@ bool tx_loc_flag = false;
 String instruction;
 String rescuer_name;
 
-void processPayload(char type, String payload)
+void processPayload(char type, String data)
 {
     if (type == '7')
     {
         tx_loc_flag = true;
+        return;
     }
-    else
+
+    const size_t maxChunkSize = 20;
+    size_t payloadLen = data.length();
+
+    for (size_t i = 0; i < payloadLen; i += maxChunkSize)
     {
-        both.println(payload.c_str());
-        uint8_t len = payload.length();
-        uint8_t chunks_len = (len + 20 - 1) / 20;
-
-        for (int i = 0; i < chunks_len; i++)
-        {
-            uint8_t start = i * 20;
-            uint8_t end = min(start + 20, (int)len);
-            String chunk = payload.substring(start, end);
-            BT_queue.push(chunk);
-        }
-
-        BT_queue.push("ENDP");
-        BT_flag = true;
+        String chunk = data.substring(i, i + maxChunkSize);
+        pWriteCharacteristic->setValue((uint8_t *)chunk.c_str(), chunk.length());
         pWriteCharacteristic->notify();
+        delay(10); // slight delay to give BLE stack time to handle notifications
     }
+
+    // Optionally send an end-of-payload marker if needed
+    String endMarker = "-ENDP";
+    pWriteCharacteristic->setValue((uint8_t *)endMarker.c_str(), endMarker.length());
+    pWriteCharacteristic->notify();
 }
 
 void loop()
@@ -295,7 +294,7 @@ void loop()
                     // both.printf("New packet: %s\n", rx_data_str.c_str()); //process here
                     char type = rx_data[10];
                     // both.println("Type: " + String(type));
-                    processPayload(type, rx_data_str.substring(12));
+                    processPayload(type, rx_data_str);
                 }
                 else
                 {
