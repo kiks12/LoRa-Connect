@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { formatName } from "@/lib/utils";
 import { OperationsWithPayload } from "@/types";
 import { DropdownMenuContent } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
@@ -81,7 +82,8 @@ export const columns: ColumnDef<OperationsWithPayload>[] = [
 	{
 		header: "User",
 		cell: ({ row }) => {
-			return <p>{row.original.user.name}</p>;
+			const { givenName, middleName, lastName, suffix } = row.original.user;
+			return <p>{formatName(givenName, middleName, lastName, suffix)}</p>;
 		},
 	},
 	{
