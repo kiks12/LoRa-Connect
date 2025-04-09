@@ -3,6 +3,7 @@ import { MissionWithCost } from "@/types";
 import { AlertCircle } from "lucide-react";
 import { useMemo } from "react";
 import { URGENCY_MAP } from "./BraceletWithUserListItem";
+import { formatName } from "@/lib/utils";
 
 export default function MissionItem({ mission }: { mission: MissionWithCost }) {
 	const distance: null | number = useMemo(() => {
@@ -26,7 +27,9 @@ export default function MissionItem({ mission }: { mission: MissionWithCost }) {
 				<div className="flex justify-between items-start mt-10">
 					<div>
 						<CardDescription className="text-xs text-neutral-500">User</CardDescription>
-						<CardDescription className="text-neutral-900 font-medium">{mission.user.name}</CardDescription>
+						<CardDescription className="text-neutral-900 font-medium">
+							{formatName(mission.user.givenName, mission.user.middleName, mission.user.lastName, mission.user.suffix)}
+						</CardDescription>
 						<CardDescription className="text-neutral-500 mt-0">No. of Members: {mission.user.numberOfMembersInFamily}</CardDescription>
 					</div>
 					<div className="">

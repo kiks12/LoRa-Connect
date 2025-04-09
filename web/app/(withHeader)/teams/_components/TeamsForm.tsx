@@ -55,10 +55,11 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 						rescuers: [...prev.rescuers.filter((d) => !d.bracelet), rescuer],
 					};
 				});
-				setRescuers((prev) =>
-					[...prev.filter((prevRescuer) => rescuer.rescuerId !== prevRescuer.rescuerId), memberWithBracelet[0]].sort(
-						(a, b) => a.rescuerId - b.rescuerId
-					)
+				setRescuers(
+					(prev) =>
+						[...prev.filter((prevRescuer) => rescuer.rescuerId !== prevRescuer.rescuerId), memberWithBracelet[0]].sort(
+							(a, b) => a.rescuerId - b.rescuerId
+						) as RescuerWithBracelet[]
 				);
 			}
 			return;
@@ -222,7 +223,7 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 							<div className="mt-4">
 								<p>LoRa Bracelet Equipped</p>
 								{loraBraceletEquipped ? (
-									<RescuerItem rescuer={loraBraceletEquipped} />
+									<RescuerItem rescuer={loraBraceletEquipped as RescuerWithBracelet} />
 								) : (
 									<Card className="shadow-sm mt-2">
 										<CardHeader>
@@ -237,7 +238,7 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 									team.rescuers
 										.filter((rescuer) => !rescuer.bracelet)
 										.map((rescuer, index) => {
-											return <RescuerItem key={index} rescuer={rescuer} withDelete={true} onDelete={deleteRescuerFromTeam} />;
+											return <RescuerItem key={index} rescuer={rescuer as RescuerWithBracelet} withDelete={true} onDelete={deleteRescuerFromTeam} />;
 										})
 								) : (
 									<></>

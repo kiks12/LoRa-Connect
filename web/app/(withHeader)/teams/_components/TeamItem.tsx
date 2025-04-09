@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-import { TeamWithRescuer, TeamWithStatusIdentifier } from "@/types";
+import { RescuerWithBracelet, TeamWithRescuer, TeamWithStatusIdentifier } from "@/types";
 import { AlertCircle, ChevronDown, ChevronUp, Edit, Trash } from "lucide-react";
 import { useMemo, useState } from "react";
 import TeamRescuerSubItem from "./TeamRescuerSubItem";
@@ -138,12 +138,12 @@ export default function TeamItem({
 					{team.rescuers
 						.filter((rescuer) => rescuer.bracelet)
 						.map((rescuer, index) => {
-							return <TeamRescuerSubItem rescuer={rescuer} key={index} />;
+							return <TeamRescuerSubItem rescuer={rescuer as RescuerWithBracelet} key={index} />;
 						})}
 					{team.rescuers
 						.filter((rescuer) => !rescuer.bracelet)
 						.map((rescuer, index) => {
-							return <TeamRescuerSubItem rescuer={rescuer} key={index} />;
+							return <TeamRescuerSubItem rescuer={rescuer as RescuerWithBracelet} key={index} />;
 						})}
 				</div>
 			)}
