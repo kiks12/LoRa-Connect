@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import { cn, formatLocalDateTime } from "@/lib/utils";
+import { cn, formatLocalDateTime, formatName } from "@/lib/utils";
 import { operationsSchema } from "@/schema/operations";
 import { updateOperation } from "@/server/actions/operations";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -172,7 +172,7 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 			form.setValue("timeOfArrival", timeOfArrival);
 			form.setValue("timeOfCompletion", timeOfCompletion);
 			form.setValue("userId", user.userId);
-			form.setValue("userName", user.name);
+			form.setValue("userName", formatName(user.givenName, user.middleName, user.lastName, user.suffix));
 			form.setValue("status", status);
 			form.setValue("urgency", urgency);
 			form.setValue("numberOfRescuee", numberOfRescuee);
@@ -496,17 +496,24 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 																		{users.map((user, index) => (
 																			<CommandItem
 																				key={index}
-																				value={user.name}
+																				value={formatName(user.givenName, user.middleName, user.lastName, user.suffix)}
 																				onSelect={(currentValue) => {
 																					setOwnersSearchValue(currentValue === usersSearchValue ? "" : currentValue);
 																					setOpenOwners(false);
 																					form.setValue("userId", user.userId);
-																					form.setValue("userName", user.name);
+																					form.setValue("userName", formatName(user.givenName, user.middleName, user.lastName, user.suffix));
 																					form.setValue("numberOfRescuee", user.numberOfMembersInFamily);
 																				}}
 																			>
-																				{user.name}
-																				<Check className={cn("ml-auto", usersSearchValue === user.name ? "opacity-100" : "opacity-0")} />
+																				{formatName(user.givenName, user.middleName, user.lastName, user.suffix)}
+																				<Check
+																					className={cn(
+																						"ml-auto",
+																						usersSearchValue === formatName(user.givenName, user.middleName, user.lastName, user.suffix)
+																							? "opacity-100"
+																							: "opacity-0"
+																					)}
+																				/>
 																			</CommandItem>
 																		))}
 																	</CommandGroup>
@@ -610,16 +617,26 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 																	{rescuers.map((rescuer, index) => (
 																		<CommandItem
 																			key={index}
-																			value={rescuer.name}
+																			value={formatName(rescuer.givenName, rescuer.middleName, rescuer.lastName, rescuer.suffix)}
 																			onSelect={(currentValue) => {
 																				setRescuersSearchValue(currentValue === rescuersSearchValue ? "" : currentValue);
 																				setOpenRescuers(false);
 																				form.setValue("teamId", rescuer.rescuerId);
-																				form.setValue("teamName", rescuer.name);
+																				form.setValue(
+																					"teamName",
+																					formatName(rescuer.givenName, rescuer.middleName, rescuer.lastName, rescuer.suffix)
+																				);
 																			}}
 																		>
-																			{rescuer.name}
-																			<Check className={cn("ml-auto", rescuersSearchValue === rescuer.name ? "opacity-100" : "opacity-0")} />
+																			{formatName(rescuer.givenName, rescuer.middleName, rescuer.lastName, rescuer.suffix)}
+																			<Check
+																				className={cn(
+																					"ml-auto",
+																					rescuersSearchValue === formatName(rescuer.givenName, rescuer.middleName, rescuer.lastName, rescuer.suffix)
+																						? "opacity-100"
+																						: "opacity-0"
+																				)}
+																			/>
 																		</CommandItem>
 																	))}
 																</CommandGroup>
