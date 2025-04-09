@@ -10,8 +10,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -47,7 +50,7 @@ class BluetoothService : Service() {
 
         const val SERVICE_UUID = "dc0d15eb-6298-44e3-9813-d9a5c58c43cc"
         const val CHARACTERISTIC_UUID = "d0d12d27-be27-4495-a236-9fa0860b4554"
-        const val DESCRIPTOR_UUID = "caed62e7-f146-4fe4-a0d2-609edaf76228" // Standard CCCD UUID
+        const val DESCRIPTOR_UUID = "00002902-0000-1000-8000-00805f9b34fb" // Standard CCCD UUID
 
         const val WRITE_CHARACTERISTIC_UUID = "c31628d9-f40c-4e67-a03a-3a0445b44ce0"
 
@@ -65,6 +68,7 @@ class BluetoothService : Service() {
     private var finalData = ""
     private val job = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
+    private val handler = Handler(Looper.getMainLooper())
 
     inner class LocalBinder : Binder() {
         fun getService(): BluetoothService = this@BluetoothService
@@ -93,17 +97,51 @@ class BluetoothService : Service() {
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED)
-                Log.i(TAG, "Services discovered. Attempting to enable notifications.")
+                for (service in gatt.services) {
+                    Log.d(TAG, "Service: ${service.uuid}")
+                    for (characteristic in service.characteristics) {
+                        Log.d(TAG, "  Characteristic: ${characteristic.uuid}")
+                    }
+                }
 
-                val characteristic = gatt.getService(UUID.fromString(SERVICE_UUID))
-                    ?.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID))
+                val service = gatt.getService(UUID.fromString(SERVICE_UUID))
+                Log.d(TAG, service.toString())
+                if (service == null) {
+                    handler.post {
+                        Toast.makeText(
+                            this@BluetoothService,
+                            "BLE Service not found!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    Log.e(TAG, "Service not found!")
+                    return
+                }
 
-                characteristic?.let {
-                    enableNotifications(gatt, it)
-                } ?: Log.e(TAG, "Characteristic not found!")
+                val characteristic = service.getCharacteristic(UUID.fromString(CHARACTERISTIC_UUID))
+                Log.d(TAG, characteristic.toString())
+                if (characteristic == null) {
+                    handler.post {
+                        Toast.makeText(
+                            this@BluetoothService,
+                            "BLE Characteristic not found!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    Log.e(TAG, "Characteristic not found!")
+                    return
+                }
+
+                enableNotifications(gatt, characteristic)
             } else {
-                Log.w(TAG, "onServicesDiscovered received: $status")
+                handler.post {
+                    Toast.makeText(
+                        this@BluetoothService,
+                        "Failed to discover services",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                Log.w(TAG, "onServicesDiscovered failed with status: $status")
             }
         }
 
@@ -256,6 +294,7 @@ class BluetoothService : Service() {
             val data = it.value
             if (data != null) {
                 val stringValue = String(data, Charsets.UTF_8)
+                Log.d(TAG, stringValue)
                 finalData += stringValue
                 intent.putExtra(EXTRA_DATA, finalData)
                 if (stringValue.contains("-ENDP")) {
@@ -269,6 +308,7 @@ class BluetoothService : Service() {
     }
 
     private fun processData(data: String) {
+        Log.w("BluetoothService", data)
         val source = data.substring(0, 4)
         val dest = data.substring(4, 8)
         val id = data.substring(8, 10)
@@ -312,11 +352,12 @@ class BluetoothService : Service() {
     private fun processTaskData(payload: String) {
         val list = payload.split("-")
         val missionId = list[0]
-        val userName = list[1]
-        val latitude = list[2].toFloat()
-        val longitude = list[3].toFloat()
-        val numberOfVictims = list[4].toInt()
-        val status = when (list[5]) {
+        val userId = list[1]
+        val userName = list[2]
+        val latitude = list[3].toFloat()
+        val longitude = list[4].toFloat()
+        val numberOfVictims = list[5].toInt()
+        val status = when (list[6]) {
             "1" -> TaskStatus.ASSIGNED
             "2" -> TaskStatus.PENDING
             "3" -> TaskStatus.CANCELED
@@ -324,7 +365,7 @@ class BluetoothService : Service() {
             "5" -> TaskStatus.COMPLETE
             else -> TaskStatus.ASSIGNED
         }
-        val urgency = when (list[6]) {
+        val urgency = when (list[7]) {
             "1" -> TaskUrgency.LOW
             "2" -> TaskUrgency.MODERATE
             "3" -> TaskUrgency.SEVERE
@@ -336,7 +377,7 @@ class BluetoothService : Service() {
             createdAt = Date(),
             latitude = latitude,
             longitude = longitude,
-            userId = null,
+            userId = userId,
             userName = userName,
             status = status,
             distance = null,
