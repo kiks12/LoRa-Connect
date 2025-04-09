@@ -40,10 +40,16 @@ uint8_t current_packet_id = 0;
 volatile bool sos_flag = false;
 
 int last_gps_update_time = 0;
+
+volatile bool sos = false;
+
 volatile uint8_t urgency = 1;
 volatile bool urg_update = false;
-#define URGENCY_PIN_1 38
-#define URGENCY_PIN_2 39
+#define URGENCY_PIN_1 1
+#define URGENCY_PIN_2 38
+#define SOS_PIN 39
+
+
 void urgencyChange()
 {
     bool pin1 = digitalRead(URGENCY_PIN_1);
@@ -63,10 +69,9 @@ void urgencyChange()
     urg_update = true;
 }
 
-void rx()
-{
-    rx_flag = true;
-}
+void sosPressed() { sos = true; }
+
+void rx() { rx_flag = true; }
 
 void setup()
 {
@@ -74,8 +79,10 @@ void setup()
 
     pinMode(URGENCY_PIN_1, INPUT_PULLUP);
     pinMode(URGENCY_PIN_2, INPUT_PULLUP);
+    pinMode(SOS_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChange, CHANGE);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChange, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, RISING);
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -176,6 +183,8 @@ bool isFamiliarProcess(String incoming)
 }
 
 bool tx_loc_flag = false;
+int time_start_loc_tx;
+bool sos_lock = false;
 String instruction;
 
 void processPayload(char type, String payload)
@@ -184,6 +193,7 @@ void processPayload(char type, String payload)
     {
         both.println("Starting location tx");
         tx_loc_flag = true;
+        time_start_loc_tx = millis();
     }
     else if (type == '8')
     {
@@ -192,6 +202,7 @@ void processPayload(char type, String payload)
     }
     else if (type == 'A')
     {
+        sos = false;
         both.printf("Distance: %s\n", payload.c_str());
     }
 }
@@ -210,7 +221,7 @@ void loop()
     {
         both.println("SOS button pressed");
         sos_flag = true;
-        // both.println("Lorem ipsum dolor sit amet,\n consectetur adipiscing eli\nt. Nunc id sapien ut arcu f\ninibus eleifend non id nunc");
+        // both.println("Lorem ipsum dolor sit amet,\n consectetur adip iscing eli\nt. Nunc id sapien ut arcu f\ninibus eleifend non id nunc");
     }
 
     if (button.isDoubleClick())
