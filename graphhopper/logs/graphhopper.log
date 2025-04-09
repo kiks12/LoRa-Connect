@@ -45,7 +45,7 @@
 
     POST    /tasks/log-level (io.dropwizard.servlets.tasks.LogConfigurationTask)
     POST    /tasks/gc (io.dropwizard.servlets.tasks.GarbageCollectionTask)
-
+    
 2025-04-02 05:33:11.038 [main] INFO  o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@61f377d1{/,null,AVAILABLE}
 2025-04-02 05:33:11.071 [main] INFO  o.e.jetty.server.AbstractConnector - Started application@3fbfbf84{HTTP/1.1, (http/1.1)}{localhost:8989}
 2025-04-02 05:33:11.079 [main] INFO  o.e.jetty.server.AbstractConnector - Started admin@23f72d88{HTTP/1.1, (http/1.1)}{localhost:8990}
