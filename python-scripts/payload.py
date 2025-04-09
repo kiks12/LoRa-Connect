@@ -75,7 +75,7 @@ def task_to_rescuer(task):
     ttl = "2"
     team_bracelet_uid = task.get("teamBraceletId")
     userId = task.get("userBraceletId")
-    username = task.get("user").get("name")
+    username = task.get("user").name("name")
     userLat = task.get("userLat")
     userLong = task.get("userLong")
     numberOfVictims = task.get("numberOfVictims")
