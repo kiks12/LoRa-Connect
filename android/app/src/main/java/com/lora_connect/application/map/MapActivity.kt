@@ -37,6 +37,7 @@ class MapActivity : ComponentActivity() {
     private val taskRepository = TaskRepository(this)
     private val obstacleRepository = ObstacleRepository(this)
     private lateinit var sharedBluetoothViewModel: SharedBluetoothViewModel
+    private lateinit var mapViewModel: MapViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +52,7 @@ class MapActivity : ComponentActivity() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         val offlineRouting = OfflineRouting(this)
         offlineRouting.initializeGraphHopper()
-        val mapViewModel = MapViewModel(
+        mapViewModel = MapViewModel(
             fusedLocationProviderClient,
             ::areLocationPermissionsGranted,
             ::buildLocationComponentOptions,
@@ -132,6 +133,8 @@ class MapActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+        sharedBluetoothViewModel.unbindService(this)
+        mapViewModel.stopLocationUpdates()
     }
 
     override fun onDestroy() {

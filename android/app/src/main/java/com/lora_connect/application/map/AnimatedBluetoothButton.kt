@@ -1,5 +1,6 @@
 package com.lora_connect.application.map
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,9 +23,11 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lora_connect.application.authentication.BluetoothSessionManager
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.Bluetooth
 
+@SuppressLint("MissingPermission")
 @Composable
 fun BluetoothButton() {
     var showText by remember { mutableStateOf(true) }
@@ -54,7 +57,7 @@ fun BluetoothButton() {
                 },
                 modifier = Modifier.padding(top = 8.dp)
             ) {
-                Text(text = "Bluetooth Device", fontSize = 12.sp)
+                Text(text = BluetoothSessionManager.bluetoothDevice!!.name, fontSize = 12.sp)
             }
         } else {
             // IconButton when only the icon is visible
