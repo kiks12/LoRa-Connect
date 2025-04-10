@@ -51,6 +51,42 @@ class MapViewModel(
     val instructions = currentTaskClass.getInstructions().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = null)
     val clearPath = currentTaskClass.clear.asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = false)
     val obstacles = obstacleRepository.getAllObstacles().asFlow().stateIn(viewModelScope, SharingStarted.Lazily, initialValue = emptyList())
+    private var locationCallback: com.google.android.gms.location.LocationCallback? = null
+
+    @SuppressLint("MissingPermission")
+    fun startLocationUpdates(
+        onLocationUpdate: (latitude: Double, longitude: Double) -> Unit
+    ) {
+        if (!areLocationPermissionGranted()) return
+
+        val request = com.google.android.gms.location.LocationRequest
+            .create()
+            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
+            .setInterval(1000)
+            .setFastestInterval(500)
+
+        // Store callback to remove it later
+        locationCallback = object : com.google.android.gms.location.LocationCallback() {
+            override fun onLocationResult(result: com.google.android.gms.location.LocationResult) {
+                result.lastLocation?.let { location ->
+                    onLocationUpdate(location.latitude, location.longitude)
+                }
+            }
+        }
+
+        fusedLocationProviderClient.requestLocationUpdates(
+            request,
+            locationCallback!!,
+            android.os.Looper.getMainLooper()
+        )
+    }
+
+    fun stopLocationUpdates() {
+        locationCallback?.let {
+            fusedLocationProviderClient.removeLocationUpdates(it)
+            locationCallback = null
+        }
+    }
 
     fun setLatLng(latitude: Double, longitude: Double) {
         _state.value = _state.value.copy(

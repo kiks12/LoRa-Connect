@@ -38,9 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.lora_connect.application.R
 import compose.icons.FeatherIcons
@@ -175,8 +173,8 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
                                         Column(modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(15.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                            Icon(FeatherIcons.Slash, contentDescription = "No", Modifier.size(40.dp))
-                                            Text(text = "No Discovered Devices")
+                                            Icon(FeatherIcons.Slash, contentDescription = "No", Modifier.size(80.dp))
+                                            Text(text = "No Discovered Devices", modifier = Modifier.padding(top=20.dp))
                                         }
                                     }
                                 }
@@ -191,7 +189,7 @@ fun AuthenticationScreen(authenticationViewModel: AuthenticationViewModel) {
 
                             if (state.connectingToDeviceLoading) {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator()
+                                    CircularProgressIndicator(modifier = Modifier.size(30.dp))
                                 }
                             }
                         }

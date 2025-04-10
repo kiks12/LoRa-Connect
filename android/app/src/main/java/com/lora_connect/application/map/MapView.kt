@@ -110,6 +110,21 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
 //        }
 //    )
 
+    LaunchedEffect(Unit) {
+        mapViewModel.startLocationUpdates { lat, lon ->
+            mapView.getMapAsync { map ->
+                if (map.locationComponent.isLocationComponentActivated) {
+                    val location = android.location.Location("fused").apply {
+                        latitude = lat
+                        longitude = lon
+                    }
+                    map.locationComponent.forceLocationUpdate(location)
+                    mapViewModel.setLatLng(location.latitude, location.longitude)
+                }
+            }
+        }
+    }
+
     LaunchedEffect(state.markerLatLng, obstacles) {
         if (state.markerLatLng != null) {
             mapView.getMapAsync {map ->
@@ -126,7 +141,7 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         }
     }
 
-    LaunchedEffect(obstacles) {
+    LaunchedEffect(state.latitude, state.longitude, obstacles) {
         mapViewModel.createRoute()
     }
 

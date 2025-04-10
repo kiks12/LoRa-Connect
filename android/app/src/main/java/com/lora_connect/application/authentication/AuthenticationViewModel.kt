@@ -85,9 +85,11 @@ class AuthenticationViewModel(
                 _state.value = _state.value.copy(connectingToDeviceLoading = true)
             }
             connectToDevice(bluetoothDevice.address)
-            activityStarterHelper.startMapActivity(bluetoothDevice.address)
             withContext(Dispatchers.Main) {
-                _state.value = _state.value.copy(connectingToDeviceLoading = false)
+                activityStarterHelper.startMapActivity(bluetoothDevice.address)
+                handler.postDelayed({
+                    _state.value = _state.value.copy(connectingToDeviceLoading = false)
+                }, 5000)
             }
         }
     }
