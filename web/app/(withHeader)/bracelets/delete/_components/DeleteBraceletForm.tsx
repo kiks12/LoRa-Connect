@@ -18,6 +18,9 @@ export default function DeleteBraceletForm() {
 			title: "Delete Confirmation",
 			description: message,
 		});
+		if (!error) {
+			location.replace("/bracelets");
+		}
 	}
 
 	return (

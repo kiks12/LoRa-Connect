@@ -91,7 +91,7 @@ export default function LoginForm() {
 									</CardHeader>
 									<CardContent>
 										<Form {...form}>
-											<form className="mx-auto w-full md:w-[480px]" onSubmit={onSubmit}>
+											<form className="mx-auto w-full" onSubmit={onSubmit}>
 												<div className="mt-8">
 													<FormField
 														control={form.control}

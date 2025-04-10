@@ -61,6 +61,7 @@ export const UserForm = ({
 				createdAt: new Date(),
 			},
 		});
+		if (!result.error) location.replace("/users");
 		showToast(result);
 	}
 
@@ -77,6 +78,7 @@ export const UserForm = ({
 				userId: 0,
 			},
 		});
+		if (!result.error) form.reset();
 		showToast(result);
 	}
 

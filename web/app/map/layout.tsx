@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					<div className="flex h-screen z-10 transition-transform transform">
 						<Map key={"main-map"} />
 						<div className="w-full absolute flex justify-between items-start">
-							<div className="w-72 p-2">
+							<div className="w-full p-2">
 								<SosModals />
 							</div>
 							<div className="w-72 p-2">

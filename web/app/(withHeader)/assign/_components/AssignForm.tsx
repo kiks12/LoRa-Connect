@@ -132,11 +132,13 @@ export function AssignForm({
 
 	async function onUserSubmit({ braceletId, userId }: z.infer<typeof assignSchema>) {
 		const result = await setUserBracelet({ userId, braceletId });
+		if (!result.error) form.reset();
 		showToast(result);
 	}
 
 	async function onRescuerSubmit({ braceletId, userId }: z.infer<typeof assignSchema>) {
 		const result = await setRescuerBracelet({ rescuerId: userId, braceletId });
+		if (!result.error) form.reset();
 		showToast(result);
 	}
 

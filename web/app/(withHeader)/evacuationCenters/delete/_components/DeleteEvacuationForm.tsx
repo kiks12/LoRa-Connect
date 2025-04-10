@@ -20,6 +20,9 @@ export default function DeleteEvacuationForm() {
 			title: "Delete Confirmation",
 			description: message,
 		});
+		if (!error) {
+			location.replace("/evacuationCenters");
+		}
 	}
 	return (
 		<ContainerWithTitleAndBackButton title="Delete Bracelet" previousLink="/bracelets">

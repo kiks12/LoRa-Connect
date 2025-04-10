@@ -140,6 +140,7 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 			teamBraceletId: mission?.teamBraceletId ?? "",
 			userBraceletId: mission?.userBraceletId ?? "",
 		});
+		if (!result.error) location.replace("/missions");
 		showToast(result);
 	}
 
