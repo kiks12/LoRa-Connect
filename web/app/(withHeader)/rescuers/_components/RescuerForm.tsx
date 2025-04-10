@@ -54,6 +54,7 @@ export const RescuerForm = ({
 				teamsTeamId: 0,
 			},
 		});
+		if (!result.error) location.replace("/rescuers");
 		showToast(result);
 	}
 
@@ -69,6 +70,7 @@ export const RescuerForm = ({
 				teamsTeamId: 0,
 			},
 		});
+		if (!result.error) form.reset();
 		showToast(result);
 	}
 

@@ -18,6 +18,9 @@ export default function DeleteRescuerForm() {
 			title: "Delete Confirmation",
 			description: message,
 		});
+		if (!error) {
+			location.replace("/rescuers");
+		}
 	}
 
 	return (

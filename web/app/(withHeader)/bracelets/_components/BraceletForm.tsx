@@ -76,6 +76,7 @@ export function BraceletForm({
 			urgency: null,
 		});
 
+		if (!result.error) form.reset();
 		showToast(result);
 	};
 
@@ -94,6 +95,7 @@ export function BraceletForm({
 			sos: false,
 			urgency: null,
 		});
+		if (!result.error) location.replace("/bracelets");
 		showToast(result);
 	};
 
