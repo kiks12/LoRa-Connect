@@ -15,6 +15,7 @@ fun createTaskStartAcknowledgementPacket(task: Task) : String {
 fun createTaskStatusUpdatePacket(task: Task) : String {
     val source = task.teamId ?: "1100"
     val destination = "1004"
+    val missionId = task.missionId
     val status = when(task.status) {
         null -> 0
         TaskStatus.ASSIGNED -> 1
@@ -23,7 +24,7 @@ fun createTaskStatusUpdatePacket(task: Task) : String {
         TaskStatus.FAILED -> 4
         TaskStatus.COMPLETE -> 5
     }
-    val packet = "${source}${destination}${PacketIdManager.getPacketId()}52${status}"
+    val packet = "${source}${destination}${PacketIdManager.getPacketId()}52${missionId}-${status}"
     PacketIdManager.setPacketId(PacketIdManager.getPacketId() + 1)
     return packet
 }

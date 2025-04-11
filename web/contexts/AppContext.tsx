@@ -8,7 +8,6 @@ import {
 	TASK_ACKNOWLEDGEMENT_FROM_RESCUER,
 	TASK_STATUS_UPDATE_FROM_RESCUER,
 } from "@/lora/lora-tags";
-import { updateBraceletLocation, updateBraceletSos } from "@/server/db/bracelets";
 import { socket } from "@/socket/socket";
 import {
 	MissionWithCost,
@@ -24,6 +23,8 @@ import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useCon
 import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
+import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
+import { OperationStatus } from "@prisma/client";
 
 const AppContext = createContext<{
 	users: UserWithStatusIdentifier[];
@@ -118,6 +119,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		// socket.on(SOS_FROM_RESCUER, sosFromRescuer);
 		socket.on(TASK_ACKNOWLEDGEMENT_FROM_RESCUER, taskAcknowledgementFromRescuer);
 		socket.on(TASK_STATUS_UPDATE_FROM_RESCUER, taskStatusUpdateFromRescuer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -316,10 +318,32 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		console.log(source, payload);
 	}
 
-	function taskStatusUpdateFromRescuer({ data }: { data: string }) {
-		const source = data.substring(0, 4);
+	async function taskStatusUpdateFromRescuer({ data }: { data: string }) {
 		const payload = data.substring(12);
-		console.log(source, payload);
+		const [missionId, status] = payload.split("-");
+		console.log(missionId, status);
+		setMissions((prev) =>
+			prev.map((mission) => {
+				if (mission.missionId === missionId) {
+					return {
+						...mission,
+						status: MISSION_STATUS_MAP[payload] ?? OperationStatus.PENDING,
+					};
+				}
+				return mission;
+			})
+		);
+		const mission = missions.find((mission) => mission.missionId === missionId);
+		if (status === "5") {
+			await saveSosToDatabase({
+				braceletId: mission.userBraceletId,
+				latitude: mission.userLat,
+				longitude: mission.userLong,
+				urgency: mission.urgency,
+				sos: false,
+				rescuer: false,
+			});
+		}
 	}
 
 	async function saveNewLocationToDatabase({
