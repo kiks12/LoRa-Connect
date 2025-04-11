@@ -13,7 +13,7 @@ import com.lora_connect.application.room.daos.TaskDao
 import com.lora_connect.application.room.entities.Obstacle
 import com.lora_connect.application.room.entities.Task
 
-@Database(entities = [Task::class, Obstacle::class], version = 7)
+@Database(entities = [Task::class, Obstacle::class], version = 8)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao() : TaskDao
@@ -24,7 +24,7 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            val MIGRATION_4_5 = object : Migration(4, 5) {
+            val MIGRATION_7_8 = object : Migration(7, 8) {
                 override fun migrate(db: SupportSQLiteDatabase) {
                     // Rename old table
                     db.execSQL("ALTER TABLE Task RENAME TO Task_old")
@@ -42,7 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                             latitude REAL NULL,
                             longitude REAL NULL,
                             urgency TEXT NULL,
-                            teamId INTEGER NULL,
+                            teamId TEXT NULL,
                             distance REAL NULL,
                             eta REAL NULL,
                             timeOfArrival INTEGER NULL,
@@ -62,7 +62,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "LoRa-Connect"
                 )
-//                    .addMigrations(MIGRATION_4_5)
+                    .addMigrations(MIGRATION_7_8)
                     .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance

@@ -59,7 +59,7 @@ class MapViewModel(
     ) {
         if (!areLocationPermissionGranted()) return
 
-        val request = com.google.android.gms.location.LocationRequest
+        @Suppress("DEPRECATION") val request = com.google.android.gms.location.LocationRequest
             .create()
             .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
             .setInterval(1000)

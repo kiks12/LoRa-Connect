@@ -20,7 +20,7 @@ data class Task(
     @ColumnInfo("latitude") val latitude: Float?,
     @ColumnInfo("longitude") val longitude: Float?,
     @ColumnInfo("urgency") val urgency: TaskUrgency?,
-    @ColumnInfo("teamId") val teamId: Int?,
+    @ColumnInfo("teamId") val teamId: String?,
     @ColumnInfo("distance") val distance: Float?,
     @ColumnInfo("eta") val eta: Float? = null,
     @ColumnInfo("timeOfArrival") val timeOfArrival : Date? = null,

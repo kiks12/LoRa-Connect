@@ -312,13 +312,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(12, data.length);
+		const payload = data.substring(12);
 		console.log(source, payload);
 	}
 
 	function taskStatusUpdateFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
-		const payload = data.substring(12, data.length);
+		const payload = data.substring(12);
 		console.log(source, payload);
 	}
 

@@ -3,6 +3,7 @@ package com.lora_connect.application.tasks.list
 import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
@@ -24,6 +25,8 @@ class TaskListViewModel(application: Application, val finish: () -> Unit) : View
     private val currentTask = CurrentTask.instance
     private val taskRepository = TaskRepository(application)
     private val _state = MutableStateFlow(TaskListState())
+    val startButtonClickLiveData = MutableLiveData(false)
+    val taskLiveData = MutableLiveData<Task?>(null)
     val state : StateFlow<TaskListState> = _state.asStateFlow()
 
     fun setTasks() {
@@ -49,8 +52,9 @@ class TaskListViewModel(application: Application, val finish: () -> Unit) : View
         viewModelScope.launch(Dispatchers.IO) {
             taskRepository.updateTask(updatedTask)
         }
+        taskLiveData.postValue(task)
+        startButtonClickLiveData.postValue(true)
         currentTask.setTask(updatedTask)
-        // Call From BluetoothService (sendLongData)
         finish()
     }
 
