@@ -178,7 +178,7 @@ class BluetoothService : Service() {
         val notification = NotificationCompat.Builder(this, BLUETOOTH_CHANNEL)
             .setContentTitle("Bluetooth Connection")
             .setContentText("Bluetooth Service is currently working")
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.logo_transparent)
             .build()
 
         startForeground(1, notification)
@@ -200,7 +200,7 @@ class BluetoothService : Service() {
         createNotificationChannel() // Ensure the channel exists
 
         val notification = NotificationCompat.Builder(context, BLUETOOTH_CHANNEL)
-            .setSmallIcon(R.drawable.ic_launcher_background)  // Use a valid drawable icon
+            .setSmallIcon(R.drawable.logo_transparent)  // Use a valid drawable icon
             .setContentTitle(title)  // Notification title
             .setContentText(message)  // Notification message
             .setPriority(NotificationCompat.PRIORITY_HIGH)  // High importance for pop-up notifications
@@ -352,12 +352,13 @@ class BluetoothService : Service() {
     private fun processTaskData(payload: String) {
         val list = payload.split("-")
         val missionId = list[0]
-        val userId = list[1]
-        val userName = list[2]
-        val latitude = list[3].toFloat()
-        val longitude = list[4].toFloat()
-        val numberOfVictims = list[5].toInt()
-        val status = when (list[6]) {
+        val teamId = list[1]
+        val userId = list[2]
+        val userName = list[3]
+        val latitude = list[4].toFloat()
+        val longitude = list[5].toFloat()
+        val numberOfVictims = list[6].toInt()
+        val status = when (list[7]) {
             "1" -> TaskStatus.ASSIGNED
             "2" -> TaskStatus.PENDING
             "3" -> TaskStatus.CANCELED
@@ -365,7 +366,7 @@ class BluetoothService : Service() {
             "5" -> TaskStatus.COMPLETE
             else -> TaskStatus.ASSIGNED
         }
-        val urgency = when (list[7]) {
+        val urgency = when (list[8]) {
             "1" -> TaskUrgency.LOW
             "2" -> TaskUrgency.MODERATE
             "3" -> TaskUrgency.SEVERE
@@ -387,7 +388,7 @@ class BluetoothService : Service() {
             timeOfCompletion = null,
             numberOfRescuee = numberOfVictims,
             notes = null,
-            teamId = null
+            teamId = teamId
         )
         scope.launch {
             try {
