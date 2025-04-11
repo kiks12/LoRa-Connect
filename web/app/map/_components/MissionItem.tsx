@@ -30,7 +30,11 @@ export default function MissionItem({ mission }: { mission: MissionWithCost }) {
 						<CardDescription className="text-neutral-900 font-medium">
 							{formatName(mission.user.givenName, mission.user.middleName, mission.user.lastName, mission.user.suffix)}
 						</CardDescription>
-						<CardDescription className="text-neutral-500 mt-0">No. of Members: {mission.user.numberOfMembersInFamily}</CardDescription>
+						<CardDescription className="text-neutral-500 mt-0">No. of People: {mission.user.numberOfMembersInFamily}</CardDescription>
+					</div>
+					<div>
+						<CardDescription className="text-neutral-50">Status: </CardDescription>
+						<CardDescription className="text-xs text-neutral-900 font-medium">{mission.status.toString()}</CardDescription>
 					</div>
 					<div className="">
 						<CardDescription className="text-xs text-neutral-500">Team</CardDescription>
