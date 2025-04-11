@@ -415,6 +415,7 @@ class BluetoothService : Service() {
     }
 
     fun sendLongData(data: String) {
+        Log.d(TAG, data)
         bluetoothGatt?.let { gatt ->
             val service = gatt.getService(UUID.fromString(SERVICE_UUID))
             val characteristic = service.getCharacteristic(UUID.fromString(WRITE_CHARACTERISTIC_UUID))

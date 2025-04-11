@@ -1,6 +1,7 @@
 package com.lora_connect.application.tasks.completion
 
 import android.app.Application
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lora_connect.application.repositories.TaskRepository
@@ -23,6 +24,8 @@ class TaskCompletionViewModel(
     private val taskRepository = TaskRepository(application)
     private val _state = MutableStateFlow(TaskCompletionState(task = task))
     val state : StateFlow<TaskCompletionState> = _state.asStateFlow()
+    val statusUpdateTriggerLiveData = MutableLiveData(false)
+    val taskLiveData = MutableLiveData<Task?>(null)
 
     fun toggleNewStatusDropdown() {
         _state.value = _state.value.copy(showDropdownMenu = !_state.value.showDropdownMenu)
@@ -50,7 +53,10 @@ class TaskCompletionViewModel(
             if (_state.value.task != null) {
                 taskRepository.updateTask(_state.value.task!!)
             }
+
             withContext(Dispatchers.Main) {
+                taskLiveData.postValue(_state.value.task)
+                statusUpdateTriggerLiveData.postValue(true)
                 CurrentTask.instance.setTask(null)
                 CurrentTask.instance.setInstructions(null)
                 CurrentTask.instance.clear.postValue(!CurrentTask.instance.clear.value!!)
