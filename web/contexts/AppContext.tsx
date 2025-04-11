@@ -18,7 +18,7 @@ import {
 	UserWithBracelet,
 	UserWithStatusIdentifier,
 } from "@/types";
-import { URGENCY_LORA_TO_DB } from "@/utils/urgency";
+import { NUMBER_TO_URGENCY, URGENCY_LORA_TO_DB } from "@/utils/urgency";
 import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, use } from "react";
 import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
@@ -141,6 +141,51 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			setPacketId(0);
 		}
 	}, [packetId]);
+
+	useEffect(() => {
+		if (missions.length > 0) {
+			async function saveTasksAsMissionsToDatabase() {
+				const tasks = missions.map(async (mission) => {
+					const res = await fetch("/api/operations/new", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							missionId: mission.missionId,
+							distance: mission.distance,
+							eta: mission.time,
+
+							userId: mission.user.userId,
+							userBraceletId: mission.userBraceletId,
+							status: OperationStatus.ASSIGNED,
+							urgency: NUMBER_TO_URGENCY[mission.urgency],
+							numberOfRescuee: mission.user.numberOfMembersInFamily,
+
+							teamId: mission.teamId,
+							teamBraceletId: mission.teamBraceletId,
+						}),
+					});
+
+					// if (res.status === 200) {
+					// 	toast({
+					// 		description: `Successfully saved mission ${mission.missionId}`,
+					// 	});
+					// } else {
+					// 	toast({
+					// 		variant: "destructive",
+					// 		description: `There is an error saving mission ${mission.missionId}. It is possible the mission is already saved`,
+					// 	});
+					// }
+
+					return Promise.resolve(res.status === 200);
+				});
+
+				return await Promise.all(tasks);
+			}
+			saveTasksAsMissionsToDatabase().then(() => {});
+		}
+	}, [missions]);
 
 	const addUserPoint = useCallback(
 		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
