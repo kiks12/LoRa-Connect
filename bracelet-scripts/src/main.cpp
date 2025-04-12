@@ -22,7 +22,7 @@
 #define RXD2 47
 #define TXD2 48
 
-#define URGENCY_PIN_1 1
+#define URGENCY_PIN_1 2
 #define URGENCY_PIN_2 38
 #define SOS_PIN 39
 
@@ -67,12 +67,12 @@ void urgencyChanged()
     urg_update = true;
 }
 
+volatile int last_sos_button_time;
 void sosPressed()
 {
     // if (sos_flag == false)
     // {
     //     sos_once_flag = true;
-    // }
     sos_flag = true;
 }
 
@@ -87,7 +87,7 @@ void setup()
     pinMode(SOS_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChanged, CHANGE);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChanged, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, RISING);
+    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, FALLING);  
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -211,10 +211,17 @@ void processPayload(char type, String payload)
 }
 
 String urgency_strings[3] = {"Low", "Moderate", "Severe"};
-
+int last_bat_update = 0;
 void loop()
 {
     heltec_loop();
+
+    if (last_bat_update + 1000 < millis())
+    {
+        display.print(heltec_battery_percent());
+        display.println(heltec_vbat());
+        last_bat_update = millis();
+    }
 
     while (gpsSerial.available())
     {
@@ -224,7 +231,7 @@ void loop()
     if (urg_update)
     {
         urg_update = false;
-        both.println("Set urgency to: " + urgency_strings[urgency]);
+        both.println("Set urgency to: " + urgency_strings[urgency-1]);
     }
 
     // if (sos_once_flag)
@@ -235,9 +242,14 @@ void loop()
     //     last_tx_loc_time = millis();
     // }
 
-    if (sos_flag) {
+    if (sos_flag)
+    {
         sos_flag = false;
-        txLocPacket(true);
+        if (millis() > last_sos_button_time + 100);
+        {
+            txLocPacket(true);
+            last_sos_button_time = millis();
+        }
     }
 
     if (gps.location.isUpdated())
