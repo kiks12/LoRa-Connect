@@ -19,7 +19,7 @@ import {
 	UserWithStatusIdentifier,
 } from "@/types";
 import { NUMBER_TO_URGENCY, URGENCY_LORA_TO_DB } from "@/utils/urgency";
-import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, use } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, use, useRef } from "react";
 import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
@@ -60,6 +60,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const [teamsLoading, setTeamsLoading] = useState(true);
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
 	const [missions, setMissions] = useState<MissionWithCost[]>([]);
+	const missionsLookupRef = useRef<MissionWithCost[]>([]);
 	const [timeIntervals, setTimeIntervals] = useState<{ max: number; time: number; title: string }[]>([]);
 	const { mapRef, removeSourceAndLayer } = useMapContext();
 	const [styleLoaded, setStyleLoaded] = useState(false);
@@ -79,6 +80,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			setPacketId(0);
 		}
 	}, [packetId]);
+
+	useEffect(() => {
+		missionsLookupRef.current = missions;
+	}, [missions]);
 
 	function incrementPacketId() {
 		setPacketId((prev) => prev + 1);
@@ -362,7 +367,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			const payload = data.substring(12);
 			const [missionId, status] = payload.split("-");
 			console.log(missionId, status);
-			const mission = missions.find((mission) => mission.missionId === missionId);
+			const mission = missionsLookupRef.current.find((mission) => mission.missionId === missionId);
 			console.log(mission);
 			if (status === "5" && mission) {
 				await saveSosToDatabase({
