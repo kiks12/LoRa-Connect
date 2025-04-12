@@ -76,6 +76,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	useEffect(() => {
+		fetchMissionsToday();
+	}, []);
+
+	useEffect(() => {
 		if (packetId > 99) {
 			setPacketId(0);
 		}
@@ -101,6 +105,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const mappedTeams = teams.map((team) => ({ ...team, showing: false }));
 		setTeams(mappedTeams);
 		setTeamsLoading(false);
+	}
+
+	async function fetchMissionsToday() {
+		const { operations }: { operations: MissionWithCost[] } = await (await fetch("/api/operations/today")).json();
+		setMissions(operations);
 	}
 
 	useEffect(() => {
@@ -359,16 +368,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12);
-		console.log(source, payload);
 	}
 
 	const taskStatusUpdateFromRescuer = useCallback(
 		async ({ data }: { data: string }) => {
 			const payload = data.substring(12);
 			const [missionId, status] = payload.split("-");
-			console.log(missionId, status);
 			const mission = missionsLookupRef.current.find((mission) => mission.missionId === missionId);
-			console.log(mission);
 			if (status === "5" && mission) {
 				await saveSosToDatabase({
 					braceletId: mission.userBraceletId,

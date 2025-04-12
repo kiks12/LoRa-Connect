@@ -1,11 +1,11 @@
-import { getPendingOperationsToday } from "@/server/db/operations";
+import { getOperationsToday } from "@/server/db/operations";
 import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue } from "@/utils/api";
 import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const operations = await getPendingOperationsToday()
+    const operations = await getOperationsToday()
 
     return NextResponse.json({
       operations
