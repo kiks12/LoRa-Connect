@@ -53,7 +53,6 @@ volatile uint8_t urgency = 1;
 
 int last_tx_loc_time = 0;
 
-
 void rx()
 {
     rx_flag = true;
@@ -115,7 +114,8 @@ class ServerCallbacks : public NimBLEServerCallbacks
         both.println("BLE Connected");
         BT_connected = true;
 
-        while (!BT_queue.empty()) {
+        while (!BT_queue.empty())
+        {
             pWriteCharacteristic->setValue(BT_queue.front());
             pWriteCharacteristic->notify();
             BT_queue.pop();
@@ -145,25 +145,19 @@ class CharacteristicCallbacks : public NimBLECharacteristicCallbacks
     }
 } chrCallbacks;
 
-std::queue<String> BT_queue_incoming; 
+std::queue<String> BT_queue_incoming;
+String buffer = "";
 class ReadCharacteristicCallbacks : public NimBLECharacteristicCallbacks
 {
     void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override
     {
-        String chunk = pCharacteristic->getValue().c_str(); 
-        if (chunk == "-ENDP") {
-            bool BT_queue_empty = BT_queue_incoming.empty();
-            if (BT_queue_empty) { return; }
-            String packet = "";
-            while (!BT_queue_empty) {
-                packet = packet + BT_queue_incoming.front();
-                BT_queue_incoming.pop();
-            }
-            txPacket(packet);
-        } else {
-            BT_queue_incoming.push(chunk);
+        String chunk = pCharacteristic->getValue().c_str();
+        buffer += chunk;
+        if (buffer.endsWith("-ENDP"))
+        {
+            txPacket(buffer);
+            buffer = "";
         }
-
     }
 };
 
@@ -292,20 +286,26 @@ void processPayload(char type, String data)
     for (size_t i = 0; i < payloadLen; i += maxChunkSize)
     {
         String chunk = data.substring(i, i + maxChunkSize);
-        if (BT_connected) {
+        if (BT_connected)
+        {
             pWriteCharacteristic->setValue((uint8_t *)chunk.c_str(), chunk.length());
             pWriteCharacteristic->notify();
-        } else {
+        }
+        else
+        {
             BT_queue.push(chunk);
         }
         delay(10);
     }
 
     String endMarker = "-ENDP";
-    if (BT_connected) {
+    if (BT_connected)
+    {
         pWriteCharacteristic->setValue((uint8_t *)endMarker.c_str(), endMarker.length());
         pWriteCharacteristic->notify();
-    } else {
+    }
+    else
+    {
         BT_queue.push("-EMDP");
     }
 }
