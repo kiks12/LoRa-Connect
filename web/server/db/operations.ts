@@ -119,24 +119,44 @@ export const getOperationsCached = unstable_cache(async () => {
 }, [OPERATIONS_TAG], {tags: [OPERATIONS_TAG]})
 
 export async function createOperation({operation}: {operation: Operations}) {
-  return await client.operations.create({
-    data: {
+  return await client.operations.upsert({
+    where: {
       missionId: operation.missionId,
-
+    },
+    create: {
+      missionId: operation.missionId,
       dateTime: operation.dateTime,
       distance: operation.distance,
       eta: operation.eta,    
-
-      usersUserId: operation.usersUserId,
+      timeOfArrival: null,
+      timeOfCompletion: null,
+      user: {
+        connect: {
+          userId: operation.usersUserId
+        }
+      },
       userBraceletId: operation.userBraceletId,
       numberOfRescuee: operation.numberOfRescuee,
       status: operation.status,
       urgency: operation.urgency,
-
-      teamsTeamId: operation.teamsTeamId,
+      Teams: {
+        connect: {
+          teamId: operation.teamsTeamId,
+        }
+      },
       teamBraceletId: operation.teamBraceletId,
-
       evacuationCenter: operation.evacuationCenter
+    },
+    update: {
+      dateTime: operation.dateTime,
+      distance: operation.distance,
+      eta: operation.eta,    
+      timeOfArrival: operation.timeOfArrival,
+      timeOfCompletion: operation.timeOfCompletion,
+      numberOfRescuee: operation.numberOfRescuee,
+      status: operation.status,
+      urgency: operation.urgency,
+      evacuationCenter: operation.evacuationCenter,
     } 
   })
 }

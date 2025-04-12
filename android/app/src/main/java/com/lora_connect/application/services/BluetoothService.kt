@@ -29,6 +29,7 @@ import com.lora_connect.application.tasks.TaskUrgency
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.Date
@@ -415,7 +416,7 @@ class BluetoothService : Service() {
         }
     }
 
-    fun sendLongData(data: String) {
+    suspend fun sendLongData(data: String) {
         Log.d(TAG, data)
         bluetoothGatt?.let { gatt ->
             val service = gatt.getService(UUID.fromString(SERVICE_UUID))
@@ -435,7 +436,7 @@ class BluetoothService : Service() {
                     return
                 }
                 gatt.writeCharacteristic(characteristic)
-                Thread.sleep(100) // Delay to avoid packet loss
+                delay(100)
             }
         }
     }

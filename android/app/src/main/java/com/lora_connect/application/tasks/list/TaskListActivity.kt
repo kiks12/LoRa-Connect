@@ -7,9 +7,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.lifecycleScope
 import com.lora_connect.application.shared.SharedBluetoothViewModel
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.createTaskStartAcknowledgementPacket
+import kotlinx.coroutines.launch
 
 class TaskListActivity : ComponentActivity() {
     private lateinit var sharedBluetoothViewModel: SharedBluetoothViewModel
@@ -40,7 +42,9 @@ class TaskListActivity : ComponentActivity() {
             if (it) {
                 val taskData = taskListViewModel.taskLiveData.value
                 val packet = taskData?.let { it1 -> createTaskStartAcknowledgementPacket(it1) }
-                service?.sendLongData(packet ?: "")
+                lifecycleScope.launch {
+                    service?.sendLongData(packet ?: "")
+                }
             }
         }
     }
