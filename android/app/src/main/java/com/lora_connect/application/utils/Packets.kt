@@ -1,5 +1,6 @@
 package com.lora_connect.application.utils
 
+import android.util.Log
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskStatus
 
@@ -7,7 +8,7 @@ fun createTaskStartAcknowledgementPacket(task: Task) : String {
     val source = task.teamId ?: "1100"
     val destination = task.userId ?: "0001"
     val distance = task.distance ?: 0
-    val packet = "${source}${destination}${PacketIdManager.getPacketId()}A2${distance}"
+    val packet = "${source}${destination}${PacketIdManager.getPacketId()}A2${distance}-ENDP"
     PacketIdManager.setPacketId(PacketIdManager.getPacketId() + 1)
     return packet
 }
@@ -24,7 +25,8 @@ fun createTaskStatusUpdatePacket(task: Task) : String {
         TaskStatus.FAILED -> 4
         TaskStatus.COMPLETE -> 5
     }
-    val packet = "${source}${destination}${PacketIdManager.getPacketId()}52${missionId}-${status}"
+    val packet = "${source}${destination}${PacketIdManager.getPacketId()}52${missionId}-${status}-ENDP"
     PacketIdManager.setPacketId(PacketIdManager.getPacketId() + 1)
+    Log.d("PACKETS", packet)
     return packet
 }

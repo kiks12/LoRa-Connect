@@ -25,6 +25,7 @@ import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPoi
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
 import { OperationStatus } from "@prisma/client";
+import { useToast } from "@/hooks/use-toast";
 
 const AppContext = createContext<{
 	users: UserWithStatusIdentifier[];
@@ -49,6 +50,7 @@ const AppContext = createContext<{
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+	const { toast } = useToast();
 	const [packetId, setPacketId] = useState(98);
 	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [users, setUsers] = useState<UserWithStatusIdentifier[]>([]);
@@ -144,6 +146,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		if (missions.length > 0) {
+			console.log(missions);
 			async function saveTasksAsMissionsToDatabase() {
 				const tasks = missions.map(async (mission) => {
 					const res = await fetch("/api/operations/new", {
@@ -152,31 +155,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 							"Content-Type": "application/json",
 						},
 						body: JSON.stringify({
-							missionId: mission.missionId,
-							distance: mission.distance,
-							eta: mission.time,
-
-							userId: mission.user.userId,
-							userBraceletId: mission.userBraceletId,
+							...mission,
 							status: OperationStatus.ASSIGNED,
 							urgency: NUMBER_TO_URGENCY[mission.urgency],
-							numberOfRescuee: mission.user.numberOfMembersInFamily,
-
-							teamId: mission.teamId,
-							teamBraceletId: mission.teamBraceletId,
 						}),
 					});
 
-					// if (res.status === 200) {
-					// 	toast({
-					// 		description: `Successfully saved mission ${mission.missionId}`,
-					// 	});
-					// } else {
-					// 	toast({
-					// 		variant: "destructive",
-					// 		description: `There is an error saving mission ${mission.missionId}. It is possible the mission is already saved`,
-					// 	});
-					// }
+					if (res.status === 200) {
+						toast({
+							description: `Successfully saved mission ${mission.missionId}`,
+						});
+					} else {
+						toast({
+							variant: "destructive",
+							description: `There is an error saving mission ${mission.missionId}. It is possible the mission is already saved`,
+						});
+					}
 
 					return Promise.resolve(res.status === 200);
 				});
@@ -185,7 +179,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			}
 			saveTasksAsMissionsToDatabase().then(() => {});
 		}
-	}, [missions]);
+	}, [missions, toast]);
 
 	const addUserPoint = useCallback(
 		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
@@ -388,6 +382,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 				sos: false,
 				rescuer: false,
 			});
+			setUsers((prev) =>
+				prev.map((user) => {
+					if (user.bracelet.braceletId === mission.userBraceletId) {
+						return {
+							...user,
+							bracelet: {
+								...user.bracelet,
+								sos: false,
+							},
+						};
+					}
+					return user;
+				})
+			);
 		}
 	}
 

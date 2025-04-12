@@ -13,10 +13,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import com.lora_connect.application.shared.SharedBluetoothViewModel
 import com.lora_connect.application.tasks.current_task.CurrentTask
 import com.lora_connect.application.ui.theme.ApplicationTheme
 import com.lora_connect.application.utils.createTaskStatusUpdatePacket
+import kotlinx.coroutines.launch
 
 class TaskCompletionActivity : ComponentActivity() {
     private lateinit var sharedBluetoothViewModel: SharedBluetoothViewModel
@@ -67,7 +69,9 @@ class TaskCompletionActivity : ComponentActivity() {
             if (it) {
                 val task = taskCompletionViewModel.taskLiveData.value
                 val packet = task?.let { it1 -> createTaskStatusUpdatePacket(it1) }
-                service?.sendLongData(packet ?: "")
+                lifecycleScope.launch {
+                    service?.sendLongData(packet ?: "")
+                }
             }
         }
     }

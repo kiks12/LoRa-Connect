@@ -1,4 +1,4 @@
-import { createOperation } from "@/server/db/operations"
+import { updateOperation } from "@/server/db/operations"
 import { createMultipleVictimStatusReports } from "@/server/db/victimStatusReports"
 import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue, syntaxErrorReturnValue } from "@/utils/api"
 import { VictimStatusReport } from "@prisma/client"
@@ -42,16 +42,12 @@ SAMPLE BODY
 }
 
 */
-export async function POST(req: Request) {
+export async function PUT(req: Request) {
   try {
     const { 
       missionId,
       distance, 
       eta, 
-
-      timeOfArrival,
-      timeOfCompletion,
-      evacuationCenter,
 
       userId, 
       userBraceletId,  
@@ -65,21 +61,21 @@ export async function POST(req: Request) {
       victimStatusReport
     } = await req.json()
 
-    const createdOperation = await createOperation({
+    const updatedOperation = await updateOperation({
       operation: {
         missionId: missionId,
         createAt: new Date(),
         dateTime: new Date(),
         distance: distance,
         eta: eta,
-        timeOfArrival: timeOfArrival,
-        timeOfCompletion: timeOfCompletion,
+        timeOfArrival: null,
+        timeOfCompletion: null,
         teamsTeamId: teamId,
         teamBraceletId: teamBraceletId,
         usersUserId: userId,
         userBraceletId: userBraceletId,
         numberOfRescuee: numberOfRescuee,
-        evacuationCenter: evacuationCenter,
+        evacuationCenter: "",
         status: status,
         urgency: urgency,
       }
@@ -87,12 +83,12 @@ export async function POST(req: Request) {
 
     if (victimStatusReport) {
       const victimStatusReportList = victimStatusReport as VictimStatusReport[]
-      await createMultipleVictimStatusReports({operationId: createdOperation.missionId, victimStatusReports: victimStatusReportList})
+      await createMultipleVictimStatusReports({operationId: updatedOperation.missionId, victimStatusReports: victimStatusReportList})
     }
 
     return NextResponse.json({
       message: "Successfully created operation",
-      createdOperation
+      updatedOperation
     })
   } catch (error) {
     console.error(error)
@@ -114,7 +110,7 @@ export function PATCH() {
   return methodNotAllowed({})
 }
 
-export function PUT() {
+export function POSt() {
   return methodNotAllowed({})
 }
 
