@@ -48,6 +48,11 @@ class OfflineRouting(private val context: Context) {
         }
     }
 
+    fun unloadGraphHopper() {
+        graphHopper.close()
+        Log.w("OFFLINE ROUTING", "GraphHopper has been unloaded")
+    }
+
     suspend fun getRoute(startLat: Double, startLong: Double, endLat: Double, endLong: Double) : ResponsePath? {
         return withContext(Dispatchers.IO) {
             val graph = graphHopper.graphHopperStorage
@@ -57,29 +62,45 @@ class OfflineRouting(private val context: Context) {
             val translationMap = graphHopper.translationMap // For localized instructions
             val translation = translationMap.getWithFallBack(Locale.US)
 
-            scope.launch {
-                async {
-                    obstacles.collect { obstacleList ->
-                        obstacleList.forEach { obstacle ->
-                            if (obstacle.latitude != null && obstacle.longitude != null) {
-                                val qr = graphHopper.locationIndex.findClosest(
-                                    obstacle.latitude.toDouble(),
-                                    obstacle.longitude.toDouble(),
-                                    EdgeFilter.ALL_EDGES
-                                )
-
-                                if (qr.isValid) {
-                                    val edge = qr.closestEdge
-                                    obstacleEdges.add(edge.edge)
-                                }
-                            }
+            obstacles.collect { obstacleList ->
+                obstacleList.forEach { obstacle ->
+                    if (obstacle.latitude != null && obstacle.longitude != null) {
+                        val qr = locationIndex.findClosest(
+                            obstacle.latitude.toDouble(),
+                            obstacle.longitude.toDouble(),
+                            EdgeFilter.ALL_EDGES
+                        )
+                        if (qr.isValid) {
+                            val edge = qr.closestEdge
+                            obstacleEdges.add(edge.edge)
                         }
                     }
-                }.await()
+                }
             }
 
+//            scope.launch {
+//                async {
+//                    obstacles.collect { obstacleList ->
+//                        obstacleList.forEach { obstacle ->
+//                            if (obstacle.latitude != null && obstacle.longitude != null) {
+//                                val qr = graphHopper.locationIndex.findClosest(
+//                                    obstacle.latitude.toDouble(),
+//                                    obstacle.longitude.toDouble(),
+//                                    EdgeFilter.ALL_EDGES
+//                                )
+//
+//                                if (qr.isValid) {
+//                                    val edge = qr.closestEdge
+//                                    obstacleEdges.add(edge.edge)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }.await()
+//            }
+
             async {
-                graphHopper.graphHopperStorage.flush()
+//                graphHopper.graphHopperStorage.flush()
                 val weighting = ObstacleAvoidanceWeighting(encoder, obstacleEdges)
                 val algorithmOptions = AlgorithmOptions.start()
                     .algorithm(Algorithms.ALT_ROUTE)

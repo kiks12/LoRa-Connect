@@ -38,6 +38,7 @@ class MapActivity : ComponentActivity() {
     private val obstacleRepository = ObstacleRepository(this)
     private lateinit var sharedBluetoothViewModel: SharedBluetoothViewModel
     private lateinit var mapViewModel: MapViewModel
+    private lateinit var offlineRouting: OfflineRouting
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,8 +51,7 @@ class MapActivity : ComponentActivity() {
         sharedBluetoothViewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))[SharedBluetoothViewModel::class.java]
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-        val offlineRouting = OfflineRouting(this)
-        offlineRouting.initializeGraphHopper()
+        offlineRouting = OfflineRouting(this)
         mapViewModel = MapViewModel(
             fusedLocationProviderClient,
             ::areLocationPermissionsGranted,
@@ -117,6 +117,7 @@ class MapActivity : ComponentActivity() {
             copyAssetsToFilesDir(this@MapActivity, "graph-cache-v1", graphCacheFilesDir)
         }
 
+        offlineRouting.initializeGraphHopper()
         sharedBluetoothViewModel.bindService(this)
     }
 
@@ -133,6 +134,7 @@ class MapActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+        offlineRouting.unloadGraphHopper()
         sharedBluetoothViewModel.unbindService(this)
         mapViewModel.stopLocationUpdates()
     }

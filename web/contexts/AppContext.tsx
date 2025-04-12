@@ -357,47 +357,53 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		console.log(source, payload);
 	}
 
-	async function taskStatusUpdateFromRescuer({ data }: { data: string }) {
-		const payload = data.substring(12);
-		const [missionId, status] = payload.split("-");
-		console.log(missionId, status);
-		setMissions((prev) =>
-			prev.map((mission) => {
-				if (mission.missionId === missionId) {
-					return {
-						...mission,
-						status: MISSION_STATUS_MAP[payload] ?? OperationStatus.PENDING,
-					};
-				}
-				return mission;
-			})
-		);
-		const mission = missions.find((mission) => mission.missionId === missionId);
-		if (status === "5") {
-			await saveSosToDatabase({
-				braceletId: mission.userBraceletId,
-				latitude: mission.userLat,
-				longitude: mission.userLong,
-				urgency: mission.urgency,
-				sos: false,
-				rescuer: false,
-			});
-			setUsers((prev) =>
-				prev.map((user) => {
-					if (user.bracelet.braceletId === mission.userBraceletId) {
+	const taskStatusUpdateFromRescuer = useCallback(
+		async ({ data }: { data: string }) => {
+			const payload = data.substring(12);
+			const [missionId, status] = payload.split("-");
+			console.log(missionId, status);
+			const mission = missions.find((mission) => mission.missionId === missionId);
+			console.log(mission);
+			if (status === "5" && mission) {
+				await saveSosToDatabase({
+					braceletId: mission.userBraceletId,
+					latitude: mission.userLat,
+					longitude: mission.userLong,
+					urgency: mission.urgency,
+					sos: false,
+					rescuer: false,
+				});
+				setUsers((prev) =>
+					prev.map((user) => {
+						if (user.bracelet.braceletId === mission.userBraceletId) {
+							return {
+								...user,
+								bracelet: {
+									...user.bracelet,
+									sos: false,
+								},
+							};
+						}
+						return user;
+					})
+				);
+			}
+
+			setMissions((prev) =>
+				prev.map((mission) => {
+					if (mission.missionId === missionId) {
 						return {
-							...user,
-							bracelet: {
-								...user.bracelet,
-								sos: false,
-							},
+							...mission,
+							status: MISSION_STATUS_MAP[payload] ?? OperationStatus.PENDING,
 						};
 					}
-					return user;
+					return mission;
 				})
 			);
-		}
-	}
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[missions, users, saveSosToDatabase]
+	);
 
 	async function saveNewLocationToDatabase({
 		braceletId,

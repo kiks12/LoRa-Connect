@@ -58,7 +58,7 @@ abstract class AppDatabase : RoomDatabase() {
             }
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
+                    context,
                     AppDatabase::class.java,
                     "LoRa-Connect"
                 )
