@@ -318,7 +318,6 @@ void loop()
     if (last_bat_update + 1000 < millis())
     {
         display.print(heltec_battery_percent());
-        display.println(heltec_vbat());
         last_bat_update = millis();
     }
 
