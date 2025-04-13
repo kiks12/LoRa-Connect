@@ -52,6 +52,7 @@ class MapActivity : ComponentActivity() {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         offlineRouting = OfflineRouting(this)
+        offlineRouting.initializeGraphHopper()
         mapViewModel = MapViewModel(
             fusedLocationProviderClient,
             ::areLocationPermissionsGranted,
@@ -115,10 +116,14 @@ class MapActivity : ComponentActivity() {
         val graphCacheFilesDir = File(filesDir, "graph-cache-v1")
         ioScope.launch {
             copyAssetsToFilesDir(this@MapActivity, "graph-cache-v1", graphCacheFilesDir)
+            offlineRouting.initializeGraphHopper()
         }
 
         offlineRouting.initializeGraphHopper()
         sharedBluetoothViewModel.bindService(this)
+        if (::sharedBluetoothViewModel.isInitialized) {
+            sharedBluetoothViewModel.bindService(this)
+        }
     }
 
     override fun onPause() {

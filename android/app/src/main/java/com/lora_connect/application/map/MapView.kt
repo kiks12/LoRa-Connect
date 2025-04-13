@@ -57,6 +57,7 @@ import org.maplibre.android.maps.Style
 @SuppressLint("MissingPermission")
 @Composable
 fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
+    val mapReady = remember { mutableStateOf(false) }
     val obstacles by mapViewModel.obstacles.collectAsState()
     val currentTask by mapViewModel.currentTask.collectAsState()
     val instructions by mapViewModel.instructions.collectAsState()
@@ -112,14 +113,16 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
 
     LaunchedEffect(Unit) {
         mapViewModel.startLocationUpdates { lat, lon ->
-            mapView.getMapAsync { map ->
-                if (map.locationComponent.isLocationComponentActivated) {
-                    val location = android.location.Location("fused").apply {
-                        latitude = lat
-                        longitude = lon
+            if (mapReady.value) {
+                mapView.getMapAsync { map ->
+                    if (map.locationComponent.isLocationComponentActivated) {
+                        val location = android.location.Location("fused").apply {
+                            latitude = lat
+                            longitude = lon
+                        }
+                        map.locationComponent.forceLocationUpdate(location)
+                        mapViewModel.setLatLng(location.latitude, location.longitude)
                     }
-                    map.locationComponent.forceLocationUpdate(location)
-                    mapViewModel.setLatLng(location.latitude, location.longitude)
                 }
             }
         }
@@ -127,15 +130,17 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
 
     LaunchedEffect(state.markerLatLng, obstacles) {
         if (state.markerLatLng != null) {
-            mapView.getMapAsync {map ->
-                map.clear()
-                val newMarker : MarkerOptions = MarkerOptions().position(state.markerLatLng)
-                map.addMarker(newMarker)
+            if (mapReady.value) {
+                mapView.getMapAsync {map ->
+                    map.clear()
+                    val newMarker : MarkerOptions = MarkerOptions().position(state.markerLatLng)
+                    map.addMarker(newMarker)
 
-                obstacles.forEach {
-                    if (it.latitude == null || it.longitude == null) return@forEach
-                    val newObstacleMarker: MarkerOptions = MarkerOptions().position(LatLng(it.latitude.toDouble(), it.longitude.toDouble()))
-                    map.addMarker(newObstacleMarker)
+                    obstacles.forEach {
+                        if (it.latitude == null || it.longitude == null) return@forEach
+                        val newObstacleMarker: MarkerOptions = MarkerOptions().position(LatLng(it.latitude.toDouble(), it.longitude.toDouble()))
+                        map.addMarker(newObstacleMarker)
+                    }
                 }
             }
         }
@@ -149,8 +154,10 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
         if (state.path != null) {
             if (polyline != null) {
                 polyline.let {
-                    mapView.getMapAsync { map ->
-                        map.removeAnnotation(it!!.id)
+                    if (mapReady.value) {
+                        mapView.getMapAsync { map ->
+                            map.removeAnnotation(it!!.id)
+                        }
                     }
                 }
             }
@@ -172,11 +179,13 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
 
     LaunchedEffect(clearPath) {
         if (clearPath == true) {
-            mapView.getMapAsync { map ->
-                map.clear()
-                if (polyline != null) {
-                    polyline.let {
-                        map.removeAnnotation(it!!.id)
+            if (mapReady.value) {
+                mapView.getMapAsync { map ->
+                    map.clear()
+                    if (polyline != null) {
+                        polyline.let {
+                            map.removeAnnotation(it!!.id)
+                        }
                     }
                 }
             }
@@ -192,6 +201,8 @@ fun MapView(mapView: MapView, mapViewModel: MapViewModel) {
                 factory = {
                     mapView.getMapAsync { map ->
                         map.setStyle(styleBuilder) { style ->
+                            mapReady.value = true
+
                             val locationComponent = map.locationComponent
                             val locationComponentOptions = mapViewModel.buildLocationComponentOptions()
                             val locationComponentActivationOptions = mapViewModel.buildLocationComponentActivationOptions(style, locationComponentOptions)
