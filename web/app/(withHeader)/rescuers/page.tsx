@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "../../components/DataTable";
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
 import { columns } from "./columns";
-import { getRescuers } from "@/server/db/rescuers";
+import { getRescuersLatest } from "@/server/db/rescuers";
 import Link from "next/link";
 
 export default async function RescuersPage() {
-	const rescuers = await getRescuers();
+	const rescuers = await getRescuersLatest();
 
 	return (
 		<main>

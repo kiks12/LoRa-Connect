@@ -6,7 +6,8 @@ import { unstable_cache } from "next/cache"
 export async function getRescuersLatest() {
   return await client.rescuers.findMany({
     include: {
-      bracelet: true
+      bracelet: true,
+      Teams: true,
     }
   })
 }

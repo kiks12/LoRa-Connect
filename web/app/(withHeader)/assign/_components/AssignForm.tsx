@@ -20,6 +20,7 @@ import { setRescuerBracelet } from "@/server/actions/rescuers";
 import { Toaster } from "@/components/ui/toaster";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import Spinner from "@/app/components/Spinner";
 
 export function AssignForm({
 	braceletId,
@@ -39,6 +40,7 @@ export function AssignForm({
 	type?: BraceletType;
 }) {
 	const { toast } = useToast();
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const [ownerType, _setOwnerType] = useState<BraceletType>(type);
 	const [rescuers, setRescuers] = useState<Rescuers[]>([]);
 	const [users, setUsers] = useState<Users[]>([]);
@@ -143,8 +145,10 @@ export function AssignForm({
 	}
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof assignSchema>) => {
-		if (ownerType === "USER") onUserSubmit(values);
-		if (ownerType === "RESCUER") onRescuerSubmit(values);
+		setSubmitLoading(true);
+		if (ownerType === "USER") await onUserSubmit(values);
+		if (ownerType === "RESCUER") await onRescuerSubmit(values);
+		setSubmitLoading(false);
 	});
 
 	function showToast({ error, message }: { error: boolean; message: string }) {
@@ -342,7 +346,7 @@ export function AssignForm({
 							/> */}
 						</div>
 						<Button type="submit" className="w-full mt-8">
-							Submit
+							{submitLoading ? <Spinner /> : <p>Submit</p>}
 						</Button>
 					</form>
 				</Form>

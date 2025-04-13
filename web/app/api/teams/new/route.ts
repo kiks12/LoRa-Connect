@@ -1,8 +1,8 @@
 
 import { createTeam } from "@/server/db/teams"
-import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientValidationErrorReturnValue, syntaxErrorReturnValue } from "@/utils/api"
+import { internalServerErrorReturnValue, methodNotAllowed, prismaClientInitializationErrorReturnValue, prismaClientKnownErrorReturnValue, prismaClientValidationErrorReturnValue, syntaxErrorReturnValue } from "@/utils/api"
 import { TEAMS_TAG } from "@/utils/tags"
-import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library"
+import { PrismaClientInitializationError, PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library"
 import { revalidateTag } from "next/cache"
 import { NextResponse } from "next/server"
 
@@ -40,6 +40,8 @@ export async function POST(req: Request) {
     console.error(error)
     if (error instanceof SyntaxError)
       return syntaxErrorReturnValue(error)
+    if (error instanceof PrismaClientKnownRequestError)
+      return prismaClientKnownErrorReturnValue(error)
     if (error instanceof PrismaClientInitializationError)
       return prismaClientInitializationErrorReturnValue(error)
     if (error instanceof PrismaClientValidationError)

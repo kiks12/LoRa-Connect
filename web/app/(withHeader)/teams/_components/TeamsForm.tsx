@@ -10,10 +10,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardDescription, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Spinner from "@/app/components/Spinner";
 
 export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingTeam?: TeamWithRescuer | null; type?: "CREATE" | "UPDATE" }) {
 	const { toast } = useToast();
 	const [rescuers, setRescuers] = useState<RescuerWithBracelet[]>([]);
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const [team, setTeams] = useState<TeamWithRescuer>(
 		existingTeam ?? {
 			name: "",
@@ -85,12 +87,14 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 	}
 
 	async function submit() {
+		setSubmitLoading(true);
 		if (team.rescuers.length <= 0) {
 			toast({
 				variant: "destructive",
 				title: "Empty Roster",
 				description: "Please select from the rescuers pool",
 			});
+			setSubmitLoading(false);
 			return;
 		}
 
@@ -100,6 +104,7 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 				title: "Insufficient Members",
 				description: "Please select at least 2 members for the team",
 			});
+			setSubmitLoading(false);
 			return;
 		}
 
@@ -109,6 +114,7 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 				title: "Team without bracelet",
 				description: "Please select a rescuer with equipped with bracelet",
 			});
+			setSubmitLoading(false);
 			return;
 		}
 
@@ -118,11 +124,13 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 				title: "Invalid Name",
 				description: "Please enter a team name",
 			});
+			setSubmitLoading(false);
 			return;
 		}
 
 		if (type === "CREATE") await onCreateSubmit();
-		else onUpdateSubmit();
+		else await onUpdateSubmit();
+		setSubmitLoading(false);
 	}
 
 	async function onCreateSubmit() {
@@ -131,11 +139,19 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 			body: JSON.stringify({ ...team }),
 		});
 		const { message } = await res.json();
-		toast({
-			variant: res.status === 200 ? "default" : "destructive",
-			title: res.status === 200 ? "Successful Creation" : "Error in Creation",
-			description: message,
-		});
+		if (message.includes("Unique constraint failed on the constraint: `Teams_name_key`")) {
+			toast({
+				variant: "destructive",
+				title: "Registration Failed",
+				description: "Team name is already used",
+			});
+		} else {
+			toast({
+				variant: res.status === 200 ? "default" : "destructive",
+				title: res.status === 200 ? "Successful Registration" : "Registration Failed",
+				description: message,
+			});
+		}
 	}
 
 	async function onUpdateSubmit() {
@@ -248,7 +264,7 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 					</div>
 				</div>
 				<div className="flex justify-end mt-12">
-					<Button onClick={submit}>Submit</Button>
+					<Button onClick={submit}>{submitLoading ? <Spinner /> : <p>Submit</p>}</Button>
 				</div>
 			</div>
 			<Toaster />

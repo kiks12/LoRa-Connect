@@ -1,5 +1,6 @@
 "use client";
 
+import Spinner from "@/app/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -30,6 +31,7 @@ export function BraceletForm({
 	type?: string;
 	formType?: BraceletFormType;
 }) {
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const [barcode, setBarcode] = useState("");
 	const [error, setError] = useState("");
 	const { toast } = useToast();
@@ -100,8 +102,10 @@ export function BraceletForm({
 	};
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof braceletSchema>) => {
-		if (formType === "CREATE") onCreateSubmit(values);
-		if (formType === "UPDATE") onUpdateSubmit(values);
+		setSubmitLoading(true);
+		if (formType === "CREATE") await onCreateSubmit(values);
+		if (formType === "UPDATE") await onUpdateSubmit(values);
+		setSubmitLoading(false);
 	});
 
 	const showToast = ({ error, message }: { error: boolean; message: string }) => {
@@ -192,7 +196,7 @@ export function BraceletForm({
 					</div>
 
 					<div className="flex justify-end mt-8">
-						<Button type="submit">Submit</Button>
+						<Button type="submit">{submitLoading ? <Spinner /> : <p>Submit</p>}</Button>
 					</div>
 				</form>
 			</Form>

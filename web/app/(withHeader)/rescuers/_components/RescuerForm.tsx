@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { rescuerSchema } from "@/schema/rescuer";
 import { registerRescuer, updateRescuer } from "@/server/actions/rescuers";
+import { useState } from "react";
+import Spinner from "@/app/components/Spinner";
 
 export type RescuerFormType = "CREATE" | "UPDATE";
 
@@ -31,6 +33,7 @@ export const RescuerForm = ({
 	type?: RescuerFormType;
 }) => {
 	const { toast } = useToast();
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const form = useForm<z.infer<typeof rescuerSchema>>({
 		resolver: zodResolver(rescuerSchema),
 		defaultValues: {
@@ -83,8 +86,10 @@ export const RescuerForm = ({
 	}
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof rescuerSchema>) => {
-		if (type === "CREATE") onCreateSubmit(values);
-		if (type === "UPDATE") onUpdateSubmit(values);
+		setSubmitLoading(true);
+		if (type === "CREATE") await onCreateSubmit(values);
+		if (type === "UPDATE") await onUpdateSubmit(values);
+		setSubmitLoading(false);
 	});
 
 	return (
@@ -152,7 +157,7 @@ export const RescuerForm = ({
 						/>
 					</div>
 					<div className="flex justify-end mt-4">
-						<Button type="submit">Submit</Button>
+						<Button type="submit">{submitLoading ? <Spinner /> : <p>Submit</p>}</Button>
 					</div>
 				</form>
 			</Form>
