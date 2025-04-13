@@ -226,8 +226,9 @@ class BluetoothService : Service() {
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                     return false
                 }
+                bluetoothGatt?.disconnect()
+                bluetoothGatt?.requestConnectionPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH)
                 bluetoothGatt = device.connectGatt(this, false, bluetoothGattCallback)
-                bluetoothGatt?.requestMtu(512)
                 BluetoothSessionManager.bluetoothDevice = device
                 showNotification(application, "Bluetooth Connected", "Connected to ${device.name}")
                 return true

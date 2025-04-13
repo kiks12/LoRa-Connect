@@ -57,6 +57,7 @@ export function EvacuationForm({
 			createdAt: new Date(),
 		});
 
+		if (!result.error) form.reset();
 		showToast(result);
 	};
 
@@ -70,6 +71,7 @@ export function EvacuationForm({
 			createdAt: new Date(),
 		});
 
+		if (!result.error) location.replace("/evacuationCenters");
 		showToast(result);
 	};
 

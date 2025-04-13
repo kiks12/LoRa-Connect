@@ -21,15 +21,17 @@
 #define BANDWIDTH 250.0
 #define SPREADING_FACTOR 9
 #define CODING_RATE 5
-#define TRANSMIT_POWER 0
+#define TRANSMIT_POWER 20
 
 #define RXD2 47
 #define TXD2 48
 
+#define URGENCY_PIN_1 1
+#define URGENCY_PIN_2 38
+#define SOS_PIN 39
+
 HardwareSerial gpsSerial(1);
 TinyGPSPlus gps;
-
-volatile bool rx_flag = false;
 
 const int PACKET_HISTORY_SIZE = 20;
 String packet_history[PACKET_HISTORY_SIZE];
@@ -41,13 +43,47 @@ int bounced_packet_history_index = 0;
 
 uint8_t current_packet_id = 0;
 
-bool sos_flag = false;
+volatile bool sos_flag = false;
+volatile bool sos_once_flag = false;
+volatile bool rx_flag = false;
+volatile bool urg_update = false;
+bool BT_connected = false;
 
-int last_gps_update_time = 0;
+volatile uint8_t urgency = 1;
+
+int last_tx_loc_time = 0;
 
 void rx()
 {
     rx_flag = true;
+}
+
+void urgencyChanged()
+{
+    bool pin1 = digitalRead(URGENCY_PIN_1);
+    bool pin2 = digitalRead(URGENCY_PIN_2);
+    if (pin1 == true && pin2 == true)
+    {
+        urgency = 1;
+    }
+    else if (pin1 == true && pin2 == false)
+    {
+        urgency = 2;
+    }
+    else if (pin1 == false && pin2 == true)
+    {
+        urgency = 0;
+    }
+    urg_update = true;
+}
+
+void sosPressed()
+{
+    if (sos_flag == false)
+    {
+        sos_once_flag = true;
+    }
+    sos_flag = true;
 }
 
 NimBLEService *pService = NULL;
@@ -76,11 +112,20 @@ class ServerCallbacks : public NimBLEServerCallbacks
         pServer->updateConnParams(connInfo.getConnHandle(), 24, 48, 0, 180);
         pServer->getAdvertising()->stop();
         both.println("BLE Connected");
+        BT_connected = true;
+
+        while (!BT_queue.empty())
+        {
+            pWriteCharacteristic->setValue(BT_queue.front());
+            pWriteCharacteristic->notify();
+            BT_queue.pop();
+        }
     }
     void onDisconnect(NimBLEServer *pServer, NimBLEConnInfo &connInfo, int reason) override
     {
         both.println("BLE Disconnected");
         NimBLEDevice::startAdvertising();
+        BT_connected = false;
     }
 } serverCallbacks;
 
@@ -88,11 +133,6 @@ class CharacteristicCallbacks : public NimBLECharacteristicCallbacks
 {
     void onRead(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override
     {
-        if (BT_queue.empty() == false)
-        {
-            pWriteCharacteristic->setValue(BT_queue.front());
-            BT_queue.pop();
-        }
     }
     void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override
     {
@@ -105,19 +145,32 @@ class CharacteristicCallbacks : public NimBLECharacteristicCallbacks
     }
 } chrCallbacks;
 
+std::queue<String> BT_queue_incoming;
+String buffer = "";
 class ReadCharacteristicCallbacks : public NimBLECharacteristicCallbacks
 {
     void onWrite(NimBLECharacteristic *pCharacteristic, NimBLEConnInfo &connInfo) override
     {
-        String value = pCharacteristic->getValue().c_str();
-        both.printf("BLE: %s\n", value.c_str());
-        txPacket(value);
+        String chunk = pCharacteristic->getValue().c_str();
+        buffer += chunk;
+        if (buffer.endsWith("-ENDP"))
+        {
+            txPacket(buffer);
+            buffer = "";
+        }
     }
 };
 
 void setup()
 {
     heltec_setup();
+
+    pinMode(URGENCY_PIN_1, INPUT_PULLUP);
+    pinMode(URGENCY_PIN_2, INPUT_PULLUP);
+    pinMode(SOS_PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChanged, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChanged, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, RISING);
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -143,7 +196,7 @@ void setup()
     pService->start();
 
     NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
-    pAdvertising->setName("NimBLE-Server");
+    pAdvertising->setName("NimBLE-Server-2");
     pAdvertising->addServiceUUID(pService->getUUID());
     pAdvertising->enableScanResponse(true);
     pAdvertising->start();
@@ -154,7 +207,7 @@ void setup()
 
 void txLocPacket()
 {
-    char packet[231];
+    char packet[255];
     char lat_buffer[12];
     char lng_buffer[12];
     dtostrf(gps.location.lat(), 10, 6, lat_buffer);
@@ -170,7 +223,6 @@ void txLocPacket()
 
     snprintf(packet, sizeof(packet), "%s1004%s62%s-%s-%s", DEVICE_ADDR, id_buffer, lat_buffer, lng_buffer, "1");
     both.printf("Location packet: %s\n", packet);
-
     txPacket(packet);
 }
 
@@ -200,7 +252,7 @@ bool isFamiliarProcess(String incoming)
     String *p = std::find(packet_history, packet_history + PACKET_HISTORY_SIZE, incoming);
     if (p == packet_history + PACKET_HISTORY_SIZE)
     {
-        both.printf("New, reTx\n");
+        both.printf("New, process\n");
         packet_history[packet_history_index] = incoming;
         packet_history_index++;
         if (packet_history_index >= PACKET_HISTORY_SIZE)
@@ -211,20 +263,20 @@ bool isFamiliarProcess(String incoming)
     }
     else
     {
-        both.printf("Old, no reTx\n");
+        both.printf("Old, ignore\n");
         return true;
     }
 }
 
 bool tx_loc_flag = false;
-String instruction;
-String rescuer_name;
 
 void processPayload(char type, String data)
 {
     if (type == '7')
     {
         tx_loc_flag = true;
+        both.println("Starting loc tx");
+        last_tx_loc_time = millis();
         return;
     }
 
@@ -234,25 +286,40 @@ void processPayload(char type, String data)
     for (size_t i = 0; i < payloadLen; i += maxChunkSize)
     {
         String chunk = data.substring(i, i + maxChunkSize);
-        pWriteCharacteristic->setValue((uint8_t *)chunk.c_str(), chunk.length());
-        pWriteCharacteristic->notify();
-        delay(10); // slight delay to give BLE stack time to handle notifications
+        if (BT_connected)
+        {
+            pWriteCharacteristic->setValue((uint8_t *)chunk.c_str(), chunk.length());
+            pWriteCharacteristic->notify();
+        }
+        else
+        {
+            BT_queue.push(chunk);
+        }
+        delay(10);
     }
 
-    // Optionally send an end-of-payload marker if needed
     String endMarker = "-ENDP";
-    pWriteCharacteristic->setValue((uint8_t *)endMarker.c_str(), endMarker.length());
-    pWriteCharacteristic->notify();
+    if (BT_connected)
+    {
+        pWriteCharacteristic->setValue((uint8_t *)endMarker.c_str(), endMarker.length());
+        pWriteCharacteristic->notify();
+    }
+    else
+    {
+        BT_queue.push("-EMDP");
+    }
 }
 
+int last_bat_update = 0;
 void loop()
 {
     heltec_loop();
 
-    if (button.isSingleClick())
+    if (last_bat_update + 1000 < millis())
     {
-        // txPacket("1100000100A2Doomfist-400");
-        txPacket("100410030072");
+        display.print(heltec_battery_percent());
+        display.println(heltec_vbat());
+        last_bat_update = millis();
     }
 
     while (gpsSerial.available())
@@ -262,10 +329,10 @@ void loop()
 
     if (gps.location.isUpdated())
     {
-        if (last_gps_update_time + 3000 < millis() && tx_loc_flag)
+        if (last_tx_loc_time + 3000 < millis() && tx_loc_flag)
         {
             txLocPacket();
-            last_gps_update_time = millis();
+            last_tx_loc_time = millis();
         }
     }
 
@@ -281,48 +348,25 @@ void loop()
             String rx_data_str = (String)rx_data;
             String dst = rx_data_str.substring(4, 8);
             String incoming = rx_data_str.substring(0, 4) + " " + rx_data_str.substring(8, 10);
-            both.printf("In: %s\n", incoming.c_str());
-            // both.println(dst.c_str());
-            // both.println(incoming.c_str());
 
             if (dst == DEVICE_ADDR || dst == "1003" || dst == "1002" || dst == "1001")
-            { // remove 1004 later
-                // both.println(rx_data_str.c_str());
+            {
                 if (isFamiliarProcess(incoming) == false)
                 {
-                    both.println("new packet, will process");
-                    // both.printf("New packet: %s\n", rx_data_str.c_str()); //process here
                     char type = rx_data[10];
-                    // both.println("Type: " + String(type));
                     processPayload(type, rx_data_str);
-                }
-                else
-                {
-                    // both.println("Recently processed");
                 }
             }
             else
             {
-
                 if (isFamiliarBounce(incoming) == false)
                 {
-                    // both.printf("New packet: %s\n", rx_data_str.c_str()); //retransmit here
                     int ttl = rx_data[12] - '0';
-                    // both.printf("TTL: %d\n", ttl);
                     if (ttl > 0)
                     {
                         String new_packet = rx_data_str.substring(0, 8) + String(ttl - 1) + rx_data_str.substring(10);
                         txPacket(new_packet);
-                        // both.printf("ReTx: %s\n", new_packet.c_str());
                     }
-                    else
-                    {
-                        // both.printf("TTL expired, no reTx\n");
-                    }
-                }
-                else
-                {
-                    // both.printf("Bounced packet: %s\n", rx_data_str.c_str());
                 }
             }
         }

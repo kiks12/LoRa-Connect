@@ -54,6 +54,26 @@ export async function getPendingOperationsToday() {
   })
 }
 
+export async function getOperationsToday() {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return await client.operations.findMany({
+    where: {
+        dateTime: { gte: startOfDay, lte: endOfDay },
+    },
+    include: {
+      user: true,
+      Teams: true,
+      _count: true,
+      VictimStatusReport: true,
+    }
+  })
+}
+
 export async function getOperationsFromLastDays(days: number) : Promise<{date: string, count: number}[]> {
   try {
     const lastDay = Date.now() - days * 24 * 60 * 60 * 1000; // Calculate the date range
@@ -154,7 +174,7 @@ export async function createOperation({operation}: {operation: Operations}) {
       timeOfArrival: operation.timeOfArrival,
       timeOfCompletion: operation.timeOfCompletion,
       numberOfRescuee: operation.numberOfRescuee,
-      status: operation.status,
+      // status: operation.status,
       urgency: operation.urgency,
       evacuationCenter: operation.evacuationCenter,
     } 

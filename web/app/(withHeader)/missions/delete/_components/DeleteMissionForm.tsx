@@ -17,6 +17,9 @@ export default function DeleteMissionForm() {
 			title: "Delete Confirmation",
 			description: message,
 		});
+		if (!error) {
+			location.replace("/missions");
+		}
 	}
 
 	return (

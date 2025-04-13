@@ -1,7 +1,4 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import ShowStatusIndicator from "./ShowStatusIndicator";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { UserWithStatusIdentifier } from "@/types";
 import { AlertCircle } from "lucide-react";
 
@@ -57,10 +54,10 @@ export default function BraceletWithUserListItem({
 						<Label className="ml-2">Hide Location</Label>
 					</div>
 				</div> */}
-				{withUrgency && user.bracelet?.sos && (
+				{withUrgency && user.bracelet?.sos && user.bracelet.urgency && (
 					<div className="flex items-center mt-3">
 						<AlertCircle className={`text`} />
-						{/* <p className={`ml-3`}>Urgency: {URGENCY_MAP[user.bracelet.urgency!].text}</p> */}
+						<p className={`ml-3`}>Urgency: {URGENCY_MAP[user.bracelet.urgency!].text}</p>
 					</div>
 				)}
 			</CardHeader>

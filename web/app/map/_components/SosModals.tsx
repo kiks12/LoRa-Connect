@@ -8,28 +8,28 @@ import { useEffect, useState } from "react";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
 
 export default function SosModals() {
-	const { users, teams } = useAppContext();
+	const { users } = useAppContext();
 	const [userSos, setUserSos] = useState(false);
 	const [showUsers, setShowUsers] = useState(false);
-	const [rescuerSos, setRescuerSos] = useState(false);
+	// const [rescuerSos, setRescuerSos] = useState(false);
 
 	useEffect(() => {
 		setUserSos(users.some((user) => user.bracelet && user.bracelet.sos));
 	}, [users]);
 
-	useEffect(() => {
-		const mapped = teams.map((team) => team.rescuers.find((rescuer) => rescuer.bracelet));
-		setRescuerSos(mapped.some((rescuer) => rescuer?.bracelet && rescuer.bracelet.sos));
-	}, [teams]);
+	// useEffect(() => {
+	// 	const mapped = teams.map((team) => team.rescuers.find((rescuer) => rescuer.bracelet));
+	// 	setRescuerSos(mapped.some((rescuer) => rescuer?.bracelet && rescuer.bracelet.sos));
+	// }, [teams]);
 
 	return (
 		<>
 			{userSos && (
 				<>
-					<Card className="w-full border border-red-500 sos-card">
+					<Card className="w-full border border-red-500 bg-red-500 text-white sos-card">
 						<CardHeader className="p-2">
 							<CardTitle className="flex justify-between items-center">
-								<div className="flex items-center text-red-500">
+								<div className="flex items-center">
 									<AlertCircle className="mr-2" />
 									SOS from User
 								</div>
@@ -37,9 +37,9 @@ export default function SosModals() {
 									<Button size="icon" variant="ghost" onClick={() => setShowUsers(!showUsers)}>
 										<Menu />
 									</Button>
-									<Button size="icon" variant="ghost" onClick={() => setUserSos(false)}>
+									{/* <Button size="icon" variant="ghost" onClick={() => setUserSos(false)}>
 										<X />
-									</Button>
+									</Button> */}
 								</div>
 							</CardTitle>
 						</CardHeader>
@@ -61,7 +61,7 @@ export default function SosModals() {
 					)}
 				</>
 			)}
-			{rescuerSos && (
+			{/* {rescuerSos && (
 				<Card className="w-full border border-red-500 sos-card mt-2">
 					<CardHeader className="p-2">
 						<CardTitle className="flex justify-between items-center">
@@ -77,7 +77,7 @@ export default function SosModals() {
 						</CardTitle>
 					</CardHeader>
 				</Card>
-			)}
+			)} */}
 		</>
 	);
 }

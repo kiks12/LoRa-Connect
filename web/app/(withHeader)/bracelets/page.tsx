@@ -43,7 +43,7 @@ export default function BraceletsPages() {
 								<DropdownMenuTrigger asChild={true}>
 									<Button className="mr-2 w-32" variant="outline">
 										<div className="w-full flex items-center justify-between">
-											<p>ALL</p>
+											<p>{type}</p>
 											<ChevronDown />
 										</div>
 									</Button>

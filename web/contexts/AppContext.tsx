@@ -19,7 +19,7 @@ import {
 	UserWithStatusIdentifier,
 } from "@/types";
 import { NUMBER_TO_URGENCY, URGENCY_LORA_TO_DB } from "@/utils/urgency";
-import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, use } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, use, useRef } from "react";
 import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
@@ -60,6 +60,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const [teamsLoading, setTeamsLoading] = useState(true);
 	const [obstacles, setObstacles] = useState<ObstacleWithStatusIdentifier[]>([]);
 	const [missions, setMissions] = useState<MissionWithCost[]>([]);
+	const missionsLookupRef = useRef<MissionWithCost[]>([]);
 	const [timeIntervals, setTimeIntervals] = useState<{ max: number; time: number; title: string }[]>([]);
 	const { mapRef, removeSourceAndLayer } = useMapContext();
 	const [styleLoaded, setStyleLoaded] = useState(false);
@@ -75,10 +76,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	useEffect(() => {
+		fetchMissionsToday();
+	}, []);
+
+	useEffect(() => {
 		if (packetId > 99) {
 			setPacketId(0);
 		}
 	}, [packetId]);
+
+	useEffect(() => {
+		missionsLookupRef.current = missions;
+	}, [missions]);
 
 	function incrementPacketId() {
 		setPacketId((prev) => prev + 1);
@@ -96,6 +105,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const mappedTeams = teams.map((team) => ({ ...team, showing: false }));
 		setTeams(mappedTeams);
 		setTeamsLoading(false);
+	}
+
+	async function fetchMissionsToday() {
+		const { operations }: { operations: MissionWithCost[] } = await (await fetch("/api/operations/today")).json();
+		setMissions(operations);
 	}
 
 	useEffect(() => {
@@ -354,50 +368,53 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
 		const source = data.substring(0, 4);
 		const payload = data.substring(12);
-		console.log(source, payload);
 	}
 
-	async function taskStatusUpdateFromRescuer({ data }: { data: string }) {
-		const payload = data.substring(12);
-		const [missionId, status] = payload.split("-");
-		console.log(missionId, status);
-		setMissions((prev) =>
-			prev.map((mission) => {
-				if (mission.missionId === missionId) {
-					return {
-						...mission,
-						status: MISSION_STATUS_MAP[payload] ?? OperationStatus.PENDING,
-					};
-				}
-				return mission;
-			})
-		);
-		const mission = missions.find((mission) => mission.missionId === missionId);
-		if (status === "5") {
-			await saveSosToDatabase({
-				braceletId: mission.userBraceletId,
-				latitude: mission.userLat,
-				longitude: mission.userLong,
-				urgency: mission.urgency,
-				sos: false,
-				rescuer: false,
-			});
-			setUsers((prev) =>
-				prev.map((user) => {
-					if (user.bracelet.braceletId === mission.userBraceletId) {
+	const taskStatusUpdateFromRescuer = useCallback(
+		async ({ data }: { data: string }) => {
+			const payload = data.substring(12);
+			const [missionId, status] = payload.split("-");
+			const mission = missionsLookupRef.current.find((mission) => mission.missionId === missionId);
+			if (status === "5" && mission) {
+				await saveSosToDatabase({
+					braceletId: mission.userBraceletId,
+					latitude: mission.userLat,
+					longitude: mission.userLong,
+					urgency: mission.urgency,
+					sos: false,
+					rescuer: false,
+				});
+				setUsers((prev) =>
+					prev.map((user) => {
+						if (user.bracelet.braceletId === mission.userBraceletId) {
+							return {
+								...user,
+								bracelet: {
+									...user.bracelet,
+									sos: false,
+								},
+							};
+						}
+						return user;
+					})
+				);
+			}
+
+			setMissions((prev) =>
+				prev.map((mission) => {
+					if (mission.missionId === missionId) {
 						return {
-							...user,
-							bracelet: {
-								...user.bracelet,
-								sos: false,
-							},
+							...mission,
+							status: MISSION_STATUS_MAP[payload] ?? OperationStatus.PENDING,
 						};
 					}
-					return user;
+					return mission;
 				})
 			);
-		}
-	}
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[missions, users, saveSosToDatabase]
+	);
 
 	async function saveNewLocationToDatabase({
 		braceletId,

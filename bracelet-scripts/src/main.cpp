@@ -17,15 +17,17 @@
 #define BANDWIDTH 250.0
 #define SPREADING_FACTOR 9
 #define CODING_RATE 5
-#define TRANSMIT_POWER 0
+#define TRANSMIT_POWER 20
 
 #define RXD2 47
 #define TXD2 48
 
+#define URGENCY_PIN_1 2
+#define URGENCY_PIN_2 38
+#define SOS_PIN 39
+
 HardwareSerial gpsSerial(1);
 TinyGPSPlus gps;
-
-volatile bool rx_flag = false;
 
 const int PACKET_HISTORY_SIZE = 20;
 String packet_history[PACKET_HISTORY_SIZE];
@@ -38,38 +40,41 @@ int bounced_packet_history_index = 0;
 uint8_t current_packet_id = 0;
 
 volatile bool sos_flag = false;
-
-int last_gps_update_time = 0;
-
-volatile bool sos = false;
+// volatile bool sos_once_flag = false;
+volatile bool rx_flag = false;
+volatile bool urg_update = false;
 
 volatile uint8_t urgency = 1;
-volatile bool urg_update = false;
-#define URGENCY_PIN_1 1
-#define URGENCY_PIN_2 38
-#define SOS_PIN 39
 
+int last_tx_loc_time = 0;
 
-void urgencyChange()
+void urgencyChanged()
 {
     bool pin1 = digitalRead(URGENCY_PIN_1);
     bool pin2 = digitalRead(URGENCY_PIN_2);
-    if (pin1 == 1 && pin2 == 1)
+    if (pin1 == true && pin2 == true)
     {
         urgency = 2;
     }
-    else if (pin1 == 1 && pin2 == 0)
-    {
-        urgency = 1;
-    }
-    else if (pin1 == 0 && pin2 == 1)
+    else if (pin1 == true && pin2 == false)
     {
         urgency = 3;
+    }
+    else if (pin1 == false && pin2 == true)
+    {
+        urgency = 1;
     }
     urg_update = true;
 }
 
-void sosPressed() { sos = true; }
+volatile int last_sos_button_time;
+void sosPressed()
+{
+    // if (sos_flag == false)
+    // {
+    //     sos_once_flag = true;
+    sos_flag = true;
+}
 
 void rx() { rx_flag = true; }
 
@@ -80,9 +85,9 @@ void setup()
     pinMode(URGENCY_PIN_1, INPUT_PULLUP);
     pinMode(URGENCY_PIN_2, INPUT_PULLUP);
     pinMode(SOS_PIN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChange, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChange, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, RISING);
+    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChanged, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChanged, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, FALLING);  
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -128,14 +133,14 @@ void txLocPacket(bool isSOS)
 
     if (isSOS)
     {
-        snprintf(packet, sizeof(packet), "%s1004%s22%s-%s-%s-%d", DEVICE_ADDR, id_buffer, USER_ID, lat_buffer, lng_buffer, urgency);
-        both.printf("Sn:%s\n", packet);
+        snprintf(packet, sizeof(packet), "%s1004%s22%s-%s-%d", DEVICE_ADDR, id_buffer, lat_buffer, lng_buffer, urgency);
+        both.printf("Send SOS:%s\n", packet);
         txPacket(packet);
     }
     else
     {
         snprintf(packet, sizeof(packet), "%s1001%s12%s-%s-%d", DEVICE_ADDR, id_buffer, lat_buffer, lng_buffer, urgency);
-        both.printf("Location packet: %s\n", packet);
+        both.printf("Send LOC: %s\n", packet);
         txPacket(packet);
     }
 }
@@ -183,8 +188,6 @@ bool isFamiliarProcess(String incoming)
 }
 
 bool tx_loc_flag = false;
-int time_start_loc_tx;
-bool sos_lock = false;
 String instruction;
 
 void processPayload(char type, String payload)
@@ -193,7 +196,7 @@ void processPayload(char type, String payload)
     {
         both.println("Starting location tx");
         tx_loc_flag = true;
-        time_start_loc_tx = millis();
+        last_tx_loc_time = millis();
     }
     else if (type == '8')
     {
@@ -202,31 +205,21 @@ void processPayload(char type, String payload)
     }
     else if (type == 'A')
     {
-        sos = false;
+        sos_flag = false;
         both.printf("Distance: %s\n", payload.c_str());
     }
 }
 
+String urgency_strings[3] = {"Low", "Moderate", "Severe"};
+int last_bat_update = 0;
 void loop()
 {
     heltec_loop();
 
-    if (urg_update)
+    if (last_bat_update + 1000 < millis())
     {
-        urg_update = false;
-        both.println(urg_update);
-    }
-
-    if (button.isSingleClick())
-    {
-        both.println("SOS button pressed");
-        sos_flag = true;
-        // both.println("Lorem ipsum dolor sit amet,\n consectetur adip iscing eli\nt. Nunc id sapien ut arcu f\ninibus eleifend non id nunc");
-    }
-
-    if (button.isDoubleClick())
-    {
-        txPacket("100410030072");
+        display.print(heltec_battery_percent());
+        last_bat_update = millis();
     }
 
     while (gpsSerial.available())
@@ -234,12 +227,39 @@ void loop()
         gps.encode(gpsSerial.read());
     }
 
+    if (urg_update)
+    {
+        urg_update = false;
+        both.println("Set urgency to: " + urgency_strings[urgency-1]);
+    }
+
+    // if (sos_once_flag)
+    // {
+    //     sos_once_flag = false;
+    //     txLocPacket(true);
+    //     delay(50);
+    //     last_tx_loc_time = millis();
+    // }
+
+    if (sos_flag)
+    {
+        sos_flag = false;
+        if (millis() > last_sos_button_time + 100);
+        {
+            txLocPacket(true);
+            last_sos_button_time = millis();
+        }
+    }
+
     if (gps.location.isUpdated())
     {
-        if (last_gps_update_time + 3000 < millis() && tx_loc_flag)
+        // if (last_tx_loc_time + 1000 < millis()) {
+        //     both.println(gps.location.lng());
+        // }
+        if (last_tx_loc_time + 3000 < millis() && tx_loc_flag)
         {
             txLocPacket(sos_flag);
-            last_gps_update_time = millis();
+            last_tx_loc_time = millis();
         }
     }
 
@@ -251,43 +271,29 @@ void loop()
         radio.readData((uint8_t *)rx_data, 255);
         if (_radiolib_status == RADIOLIB_ERR_NONE)
         {
-
             String rx_data_str = (String)rx_data;
             String dst = rx_data_str.substring(4, 8);
             String incoming = rx_data_str.substring(0, 4) + rx_data_str.substring(8, 10);
 
             if (dst == DEVICE_ADDR || dst == "1003")
             {
-
                 if (isFamiliarProcess(incoming) == false)
                 {
-                    // both.printf("New packet: %s\n", rx_data_str.c_str()); //process here
                     char type = rx_data[10];
-                    // both.println("Type: " + String(type));
                     processPayload(type, rx_data_str.substring(12));
-                }
-                else
-                {
-                    // both.println("Recently processed");
                 }
             }
             else
             {
-
-                // if (isFamiliarBounce(incoming) == false) {
-                //     // both.printf("New packet: %s\n", rx_data_str.c_str()); //retransmit here
-                //     int ttl = rx_data[12] - '0';
-                //     // both.printf("TTL: %d\n", ttl);
-                //     if (ttl > 0) {
-                //         String new_packet = rx_data_str.substring(0,8) + String(ttl-1) + rx_data_str.substring(10);
-                //         txPacket(new_packet);
-                //         // both.printf("ReTx: %s\n", new_packet.c_str());
-                //     } else {
-                //         // both.printf("TTL expired, no reTx\n");
-                //     }
-                // } else {
-                //     // both.printf("Bounced packet: %s\n", rx_data_str.c_str());
-                // }
+                if (isFamiliarBounce(incoming) == false)
+                {
+                    int ttl = rx_data[12] - '0';
+                    if (ttl > 0)
+                    {
+                        String new_packet = rx_data_str.substring(0, 8) + String(ttl - 1) + rx_data_str.substring(10);
+                        txPacket(new_packet);
+                    }
+                }
             }
         }
     }

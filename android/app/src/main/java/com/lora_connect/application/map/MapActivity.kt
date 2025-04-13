@@ -119,6 +119,7 @@ class MapActivity : ComponentActivity() {
             offlineRouting.initializeGraphHopper()
         }
 
+        offlineRouting.initializeGraphHopper()
         sharedBluetoothViewModel.bindService(this)
         if (::sharedBluetoothViewModel.isInitialized) {
             sharedBluetoothViewModel.bindService(this)
@@ -138,6 +139,7 @@ class MapActivity : ComponentActivity() {
     override fun onStop() {
         super.onStop()
         mapView.onStop()
+        offlineRouting.unloadGraphHopper()
         sharedBluetoothViewModel.unbindService(this)
         mapViewModel.stopLocationUpdates()
     }

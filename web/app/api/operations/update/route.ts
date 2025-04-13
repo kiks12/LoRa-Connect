@@ -35,8 +35,7 @@ SAMPLE BODY
     {
       name: string,
       age: int, 
-      status: VictimStatus,
-      notes: string
+      status: VictimStatus, notes: string
     }
   ]
 }
@@ -110,7 +109,7 @@ export function PATCH() {
   return methodNotAllowed({})
 }
 
-export function POSt() {
+export function POST() {
   return methodNotAllowed({})
 }
 

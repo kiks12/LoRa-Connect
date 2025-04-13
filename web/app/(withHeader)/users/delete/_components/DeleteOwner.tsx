@@ -18,6 +18,9 @@ export default function DeleteOwnerForm() {
 			title: "Delete Confirmation",
 			description: message,
 		});
+		if (!error) {
+			location.replace("/users");
+		}
 	}
 
 	return (
