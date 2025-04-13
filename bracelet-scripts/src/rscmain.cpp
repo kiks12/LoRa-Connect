@@ -95,6 +95,14 @@ BLEServer *pServer;
 std::queue<String> BT_queue;
 bool BT_flag = false;
 
+String content = "";
+bool show_debug = false;
+void updateDisplay(String newContent = "") {
+    display.cls();
+    display.printf("Bat:%d BT:%s\n%s", heltec_battery_percent(), (BT_connected ? "Connected" : "Not Connected"), show_debug ? DEVICE_ADDR : (newContent == "" ? content.c_str() : newContent.c_str()));    
+    if (newContent != "") {content = newContent;}
+}
+
 void txPacket(String packet)
 {
     radio.clearDio1Action();
@@ -111,9 +119,9 @@ class ServerCallbacks : public NimBLEServerCallbacks
     {
         pServer->updateConnParams(connInfo.getConnHandle(), 24, 48, 0, 180);
         pServer->getAdvertising()->stop();
-        both.println("BLE Connected");
         BT_connected = true;
-
+        updateDisplay();
+        
         while (!BT_queue.empty())
         {
             pWriteCharacteristic->setValue(BT_queue.front());
@@ -123,9 +131,9 @@ class ServerCallbacks : public NimBLEServerCallbacks
     }
     void onDisconnect(NimBLEServer *pServer, NimBLEConnInfo &connInfo, int reason) override
     {
-        both.println("BLE Disconnected");
         NimBLEDevice::startAdvertising();
         BT_connected = false;
+        updateDisplay();
     }
 } serverCallbacks;
 
@@ -145,7 +153,6 @@ class CharacteristicCallbacks : public NimBLECharacteristicCallbacks
     }
 } chrCallbacks;
 
-std::queue<String> BT_queue_incoming;
 String buffer = "";
 class ReadCharacteristicCallbacks : public NimBLECharacteristicCallbacks
 {
@@ -201,8 +208,7 @@ void setup()
     pAdvertising->enableScanResponse(true);
     pAdvertising->start();
 
-    both.println("Rescuer");
-    both.printf("Device address: %s\n", DEVICE_ADDR);
+    updateDisplay("Waiting to start sending\nlocation");
 }
 
 void txLocPacket()
@@ -274,8 +280,8 @@ void processPayload(char type, String data)
 {
     if (type == '7')
     {
+        updateDisplay("Sending location...");
         tx_loc_flag = true;
-        both.println("Starting loc tx");
         last_tx_loc_time = millis();
         return;
     }
@@ -310,16 +316,26 @@ void processPayload(char type, String data)
     }
 }
 
-int last_bat_update = 0;
+int last_display_update = 0;
 void loop()
 {
     heltec_loop();
 
-    if (last_bat_update + 1000 < millis())
+    if (button.isSingleClick())
     {
-        display.print(heltec_battery_percent());
-        display.println(heltec_vbat());
-        last_bat_update = millis();
+        show_debug = true;
+    }
+
+    if (sos_flag) {
+        sos_flag = false;
+        txPacket("100410030072");//TODO REMOVE THIS 
+    }
+
+    if (last_display_update + 5000 < millis())
+    {
+        show_debug = false;
+        updateDisplay();
+        last_display_update = millis();
     }
 
     while (gpsSerial.available())

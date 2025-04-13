@@ -11,6 +11,7 @@
 
 #include <heltec_unofficial.h>
 #include <TinyGPSPlus.h>
+#include <Preferences.h>
 
 #define PAUSE 0
 #define FREQUENCY 433.0
@@ -29,6 +30,8 @@
 HardwareSerial gpsSerial(1);
 TinyGPSPlus gps;
 
+Preferences preferences;
+
 const int PACKET_HISTORY_SIZE = 20;
 String packet_history[PACKET_HISTORY_SIZE];
 int packet_history_index = 0;
@@ -40,13 +43,13 @@ int bounced_packet_history_index = 0;
 uint8_t current_packet_id = 0;
 
 volatile bool sos_flag = false;
-// volatile bool sos_once_flag = false;
 volatile bool rx_flag = false;
 volatile bool urg_update = false;
 
 volatile uint8_t urgency = 1;
 
 int last_tx_loc_time = 0;
+String urgency_strings[3] = {"Low", "Moderate", "Severe"};
 
 void urgencyChanged()
 {
@@ -67,16 +70,20 @@ void urgencyChanged()
     urg_update = true;
 }
 
-volatile int last_sos_button_time;
 void sosPressed()
 {
-    // if (sos_flag == false)
-    // {
-    //     sos_once_flag = true;
     sos_flag = true;
 }
 
 void rx() { rx_flag = true; }
+
+bool show_debug = false;
+String content = "";
+void updateDisplay(String newContent = "") {
+    display.cls();
+    display.printf("%3d      %.2f      %s\n%s\n", heltec_battery_percent(), heltec_vbat(), urgency_strings[urgency-1], show_debug ? DEVICE_ADDR : (newContent == "" ? content.c_str() : newContent.c_str()));    
+    if (newContent != "") {content = newContent;}
+}
 
 void setup()
 {
@@ -101,8 +108,10 @@ void setup()
     RADIOLIB_OR_HALT(radio.setOutputPower(TRANSMIT_POWER));
     RADIOLIB_OR_HALT(radio.startReceive(RADIOLIB_SX126X_RX_TIMEOUT_INF));
 
-    both.println("User");
-    both.printf("Device address: %s\n", DEVICE_ADDR);
+    preferences.begin("user");
+    urgency = preferences.getUShort("urgency", 1);
+
+    updateDisplay("Waiting to start sending\nlocation...");
 }
 
 void txPacket(String packet)
@@ -194,32 +203,35 @@ void processPayload(char type, String payload)
 {
     if (type == '7')
     {
-        both.println("Starting location tx");
+        updateDisplay("Sending location to\nrescuers...");
         tx_loc_flag = true;
         last_tx_loc_time = millis();
     }
     else if (type == '8')
     {
         instruction = payload;
-        both.println(instruction);
+        updateDisplay(instruction);
     }
     else if (type == 'A')
     {
         sos_flag = false;
-        both.printf("Distance: %s\n", payload.c_str());
+        updateDisplay("Rescue team on their way,\nDistance: " + payload);
     }
 }
 
-String urgency_strings[3] = {"Low", "Moderate", "Severe"};
-int last_bat_update = 0;
+
+int last_display_update = 0;
 void loop()
 {
     heltec_loop();
 
-    if (last_bat_update + 1000 < millis())
+    if (button.isSingleClick()) { show_debug = true; }
+
+    if (last_display_update + 5000 < millis())
     {
-        display.print(heltec_battery_percent());
-        last_bat_update = millis();
+        show_debug = false;
+        updateDisplay();
+        last_display_update = millis();
     }
 
     while (gpsSerial.available())
@@ -230,7 +242,8 @@ void loop()
     if (urg_update)
     {
         urg_update = false;
-        both.println("Set urgency to: " + urgency_strings[urgency-1]);
+        preferences.putUShort("urgency", urgency);
+        updateDisplay();
     }
 
     // if (sos_once_flag)
@@ -244,18 +257,11 @@ void loop()
     if (sos_flag)
     {
         sos_flag = false;
-        if (millis() > last_sos_button_time + 100);
-        {
-            txLocPacket(true);
-            last_sos_button_time = millis();
-        }
+        txLocPacket(true);
     }
 
     if (gps.location.isUpdated())
     {
-        // if (last_tx_loc_time + 1000 < millis()) {
-        //     both.println(gps.location.lng());
-        // }
         if (last_tx_loc_time + 3000 < millis() && tx_loc_flag)
         {
             txLocPacket(sos_flag);
