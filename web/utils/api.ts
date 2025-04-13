@@ -1,4 +1,4 @@
-import { PrismaClientInitializationError, PrismaClientValidationError } from "@prisma/client/runtime/library";
+import { PrismaClientInitializationError, PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library";
 import { NextResponse } from "next/server";
 
 type ApiMethods = "GET" | "POST" | "DELETE" | "PUT" | "PATCH"
@@ -27,6 +27,18 @@ export function prismaClientInitializationErrorReturnValue(error: PrismaClientIn
 }
 
 export function prismaClientValidationErrorReturnValue(error: PrismaClientValidationError) {
+  return NextResponse.json({
+    message: error.message,
+    name: error.name,
+    cause: error.cause,
+    stack: error.stack,
+    clientVersion: error.clientVersion,
+  }, {
+    status: 400
+  })
+}
+
+export function prismaClientKnownErrorReturnValue(error: PrismaClientKnownRequestError) {
   return NextResponse.json({
     message: error.message,
     name: error.name,

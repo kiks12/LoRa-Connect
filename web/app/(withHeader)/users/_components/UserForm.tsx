@@ -1,5 +1,6 @@
 "use client";
 
+import Spinner from "@/app/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ownerSchema } from "@/schema/owners";
 import { registerUser, updateUser } from "@/server/actions/users";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -35,6 +37,7 @@ export const UserForm = ({
 	type?: UserFormType;
 }) => {
 	const { toast } = useToast();
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const form = useForm<z.infer<typeof ownerSchema>>({
 		resolver: zodResolver(ownerSchema),
 		defaultValues: {
@@ -91,8 +94,10 @@ export const UserForm = ({
 	}
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof ownerSchema>) => {
-		if (type === "CREATE") onCreateSubmit(values);
-		if (type === "UPDATE") onUpdateSubmit(values);
+		setSubmitLoading(true);
+		if (type === "CREATE") await onCreateSubmit(values);
+		if (type === "UPDATE") await onUpdateSubmit(values);
+		setSubmitLoading(false);
 	});
 
 	return (
@@ -190,7 +195,7 @@ export const UserForm = ({
 						/>
 					</div>
 					<div className="flex justify-end mt-4">
-						<Button type="submit">Submit</Button>
+						<Button type="submit">{submitLoading ? <Spinner /> : <p>Submit</p>}</Button>
 					</div>
 				</form>
 			</Form>

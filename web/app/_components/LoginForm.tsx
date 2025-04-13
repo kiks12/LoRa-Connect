@@ -29,6 +29,7 @@ export default function LoginForm() {
 	const { toast } = useToast();
 	const [count, setCount] = useState(0);
 	const [loading, setLoading] = useState(true);
+	const [submitLoading, setSubmitLoading] = useState(false);
 
 	useEffect(() => {
 		fetch("/api/accounts/count")
@@ -45,6 +46,7 @@ export default function LoginForm() {
 	}, [toast]);
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof accountSchema>) => {
+		setSubmitLoading(true);
 		fetch("/api/accounts/login", {
 			method: "POST",
 			headers: {
@@ -71,7 +73,8 @@ export default function LoginForm() {
 				toast({
 					description: e,
 				});
-			});
+			})
+			.finally(() => setSubmitLoading(true));
 	});
 
 	return (
@@ -124,7 +127,7 @@ export default function LoginForm() {
 												</div>
 												<div className="flex justify-end mt-8">
 													<Button type="submit" className="w-full" onSubmit={onSubmit}>
-														Login
+														{submitLoading ? <Spinner /> : <p>Login</p>}
 													</Button>
 												</div>
 											</form>

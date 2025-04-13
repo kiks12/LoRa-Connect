@@ -1,4 +1,4 @@
-import { getCachedTeams } from "@/server/db/teams";
+import { getTeams } from "@/server/db/teams";
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
 import { TeamWithRescuer } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import TeamItem from "./_components/TeamItem";
 import { Toaster } from "@/components/ui/toaster";
 
 export default async function TeamsPage() {
-	const teams: TeamWithRescuer[] = await getCachedTeams();
+	const teams: TeamWithRescuer[] = await getTeams();
 
 	return (
 		<>

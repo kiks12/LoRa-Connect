@@ -1,5 +1,6 @@
 "use client";
 
+import Spinner from "@/app/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -11,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { obstacleSchema } from "@/schema/obstacle";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -37,6 +38,7 @@ export default function ObstacleForm({
 	const { toast } = useToast();
 	const { currentObstacleMarkerLatLng } = useObstaclesContext();
 	const { toggleAddingObstacle, addObstacle, updateObstacle } = useObstacles();
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const form = useForm<z.infer<typeof obstacleSchema>>({
 		resolver: zodResolver(obstacleSchema),
 		defaultValues: {
@@ -49,8 +51,10 @@ export default function ObstacleForm({
 	});
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof obstacleSchema>) => {
+		setSubmitLoading(true);
 		if (editing) await onUpdateSubmit(values);
 		else await onCreateSubmit(values);
+		setSubmitLoading(false);
 	});
 
 	async function onUpdateSubmit(values: z.infer<typeof obstacleSchema>) {
@@ -214,7 +218,7 @@ export default function ObstacleForm({
 					</div>
 					<div className="flex justify-end mt-8">
 						<Button type="submit" className="w-full">
-							Submit
+							{submitLoading ? <Spinner /> : <p>Submit</p>}
 						</Button>
 					</div>
 				</form>

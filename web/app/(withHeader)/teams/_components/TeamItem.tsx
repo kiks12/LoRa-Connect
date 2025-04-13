@@ -41,6 +41,7 @@ export default function TeamItem({
 			title: res.status === 200 ? "Successful Delete" : "Error in deleting record",
 			description: message,
 		});
+		location.reload();
 	}
 
 	function isTeamWithStatusIndicator(team: TeamWithRescuer | TeamWithStatusIdentifier): team is TeamWithStatusIdentifier {

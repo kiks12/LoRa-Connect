@@ -29,6 +29,7 @@ const STATUS_VALUES = [OperationStatus.ASSIGNED, OperationStatus.CANCELED, Opera
 
 export default function OperationsForm({ missionId, type = "UPDATE" }: { missionId: string; type?: FormType }) {
 	const { toast } = useToast();
+	const [submitLoading, setSubmitLoading] = useState(false);
 	const form = useForm<z.infer<typeof operationsSchema>>({
 		resolver: zodResolver(operationsSchema),
 		defaultValues: {
@@ -108,9 +109,11 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 
 	const onSubmit = form.handleSubmit(async (values: z.infer<typeof operationsSchema>) => {
 		console.log(values);
-		if (type === "CREATE") onCreateSubmit();
+		setSubmitLoading(true);
+		if (type === "CREATE") await onCreateSubmit();
 		if (type === "UPDATE") await onUpdateSubmit(values);
 		await handleVictimStatusReportsSync();
+		setSubmitLoading(false);
 	});
 
 	async function handleVictimStatusReportsSync() {
@@ -658,7 +661,7 @@ export default function OperationsForm({ missionId, type = "UPDATE" }: { mission
 								Print
 							</Button>
 							<Button type="submit" onSubmit={onSubmit}>
-								Submit
+								{submitLoading ? <Spinner /> : <p>Submit</p>}
 							</Button>
 						</div>
 					</form>
