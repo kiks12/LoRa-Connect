@@ -118,7 +118,7 @@ export function runHungarianAlgorithm(
 				status: OperationStatus.ASSIGNED.toString(),
 
 				teamId: team.teamId,
-				team,
+				Teams: team,
 				teamBraceletId: team.rescuers.find((rescuer) =>rescuer.bracelet)?.bracelet?.braceletId,
 
 				coordinates: costEntry?.coordinates,

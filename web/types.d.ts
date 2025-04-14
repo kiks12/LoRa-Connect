@@ -23,8 +23,20 @@ export type RescuerWithBracelet = Prisma.RescuersGetPayload<{
 export type OperationsWithPayload = Prisma.OperationsGetPayload<{
   include: {
     evacuationCenter: true,
-    user: true,
-    Teams: true,
+    user: {
+      include: {
+        bracelet: true
+      }
+    },
+    Teams: {
+      include: {
+        rescuers: {
+          include: {
+            bracelet: true
+          }
+        }
+      }
+    },
     VictimStatusReport: true,
     _count: true
   }
@@ -138,12 +150,12 @@ export type MissionWithCost = {
   userLong: number;
   user: UserWithStatusIdentifier;
   userBraceletId: string;
-  numberOfMembersInFamily: number,
+  numberOfRescuee: number,
   status: string,
   urgency: number,
   
   teamId: number;
-  team: TeamWithStatusIdentifier;
+  Teams: TeamWithStatusIdentifier;
   teamBraceletId: string;
   distance: number | undefined;
   time: number | undefined;

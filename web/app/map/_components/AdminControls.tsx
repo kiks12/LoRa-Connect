@@ -17,6 +17,7 @@ export default function AdminControls() {
 		clearRoutes,
 		sendTasksViaLoRa,
 		saveTasksAsMissionsToDatabase,
+		setShowRoutes,
 	} = useAdmin();
 
 	return (
@@ -64,9 +65,14 @@ export default function AdminControls() {
 			<div className="flex-1 flex flex-col mt-2 max-h-[600px] overflow-y-auto">
 				<div className="flex w-full justify-between items-center">
 					<h2 className="font-medium text-lg mt-2">Missions</h2>
-					<Button className="ml-2" variant="outline" onClick={clearRoutes}>
-						Clear Routes
-					</Button>
+					<div>
+						<Button className="ml-2" variant="outline" onClick={() => setShowRoutes((prev) => !prev)}>
+							Show Routes
+						</Button>
+						<Button className="ml-2" variant="outline" onClick={clearRoutes}>
+							Clear Routes
+						</Button>
+					</div>
 				</div>
 				{missions.length === 0 ? (
 					<>

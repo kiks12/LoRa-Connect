@@ -34,12 +34,12 @@ export default function MissionItem({ mission }: { mission: MissionWithCost }) {
 					</div>
 					<div className="">
 						<CardDescription className="text-xs text-neutral-500">Team</CardDescription>
-						<CardDescription className="text-neutral-900 font-medium">{mission.team.name}</CardDescription>
+						<CardDescription className="text-neutral-900 font-medium">{mission.Teams.name}</CardDescription>
 					</div>
 				</div>
-				<div className="mt-4 flex items-center justify-between">
-					<CardDescription className="text-neutral-50">Status: </CardDescription>
-					<CardDescription className="text-xs text-neutral-900 font-medium">{mission.status.toString()}</CardDescription>
+				<div className="mt-4 flex items-center ">
+					<CardDescription className="text-neutral-500">Status: </CardDescription>
+					<CardDescription className="text-xs ml-2 text-neutral-900 font-medium">{mission.status.toString()}</CardDescription>
 				</div>
 				<div className="flex mt-10">
 					<div className="flex-1">
