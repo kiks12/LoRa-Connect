@@ -67,8 +67,8 @@ model Operations {
   missionId        String    @unique()
   createAt         DateTime  @default(now())
   dateTime         DateTime  @default(now())
-  distance         Float
-  eta              Float
+  distance         Float?
+  eta              Float?
   timeOfArrival    DateTime?
   timeOfCompletion DateTime?
 

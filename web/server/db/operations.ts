@@ -66,8 +66,20 @@ export async function getOperationsToday() {
         dateTime: { gte: startOfDay, lte: endOfDay },
     },
     include: {
-      user: true,
-      Teams: true,
+      user: {
+        include: {
+          bracelet: true
+        }
+      },
+      Teams: {
+        include: {
+          rescuers: {
+            include: {
+              bracelet: true
+            }
+          }
+        }
+      },
       _count: true,
       VictimStatusReport: true,
     }

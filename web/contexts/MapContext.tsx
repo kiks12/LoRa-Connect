@@ -24,6 +24,8 @@ const MapContext = createContext<{
 	setLocation: Dispatch<SetStateAction<{ latitude: number; longitude: number }>>;
 	clearSourcesAndLayers: (includes: string) => void;
 	removeSourceAndLayer: (sourceId: string) => void;
+	styleLoaded: boolean;
+	setStyleLoaded: Dispatch<SetStateAction<boolean>>;
 } | null>(null);
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
@@ -34,6 +36,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		longitude: 120.62,
 	});
 	const [mapLoading, setMapLoading] = useState(true);
+	const [styleLoaded, setStyleLoaded] = useState(false);
 
 	// GET CURRENT LOCATION OF CENTRAL NODE
 	useEffect(() => {
@@ -57,6 +60,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		});
 		mapRef.current = newMap;
 
+		mapRef.current.once("load", () => setStyleLoaded(true));
 		newMap.on("error", (e) => console.error(e));
 
 		return () => {
@@ -117,8 +121,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			setLocation,
 			clearSourcesAndLayers,
 			removeSourceAndLayer,
+			styleLoaded,
+			setStyleLoaded,
 		}),
-		[location, mapLoading]
+		[location, mapLoading, styleLoaded]
 	);
 
 	return <MapContext.Provider value={providerValue}>{children}</MapContext.Provider>;

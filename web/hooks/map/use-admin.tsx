@@ -30,6 +30,7 @@ export const useAdmin = () => {
 	const [automaticTaskAllocation, setAutomaticTaskAllocation] = useState(false);
 	const [taskAllocationMessage, setTaskAllocationMessage] = useState("Run Task Allocation");
 	const [markers, setMarkers] = useState<maplibregl.Marker[]>([]);
+	const [showRoutes, setShowRoutes] = useState(false);
 
 	function toggleAutomaticTaskAllocation() {
 		setAutomaticTaskAllocation(!automaticTaskAllocation);
@@ -150,9 +151,11 @@ export const useAdmin = () => {
 
 	useEffect(() => {
 		clearMarkers();
-		missions.forEach((mission, index) => showRoute(index, mission));
+		missions.forEach((mission, index) => {
+			showRoute(index, mission);
+		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [missions]);
+	}, [missions, showRoutes]);
 
 	function clearMarkers() {
 		markers.forEach((marker) => marker.remove());
@@ -165,7 +168,7 @@ export const useAdmin = () => {
 	}
 
 	function showRoute(index: number, mission: MissionWithCost) {
-		const rescuerBracelet = mission.team.rescuers.find((rescuer) => rescuer.bracelet)?.bracelet;
+		const rescuerBracelet = mission.Teams.rescuers.find((rescuer) => rescuer.bracelet)?.bracelet;
 		const userBracelet = mission.user.bracelet;
 		if (!rescuerBracelet || !userBracelet) return;
 		if (!mission.coordinates) return;
@@ -310,5 +313,6 @@ export const useAdmin = () => {
 		saveTasksAsMissionsToDatabase,
 		toggleMonitorLocations,
 		clearRoutes,
+		setShowRoutes,
 	};
 };

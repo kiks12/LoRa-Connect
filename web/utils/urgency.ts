@@ -6,6 +6,12 @@ export const NUMBER_TO_URGENCY : {[key: number]: RescueUrgency}= {
   1: RescueUrgency.SEVERE,
 }
 
+export const URGENCY_TO_NUMBER: {[key: string]: number} = {
+  "LOW": 0.2,
+  "MODERATE": 0.5,
+  "SEVERE": 1,
+}
+
 export const URGENCY_LORA_TO_DB : {[key: string]: number}= {
   "1": 0.2, 
   "2": 0.5,

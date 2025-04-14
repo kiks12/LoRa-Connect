@@ -12,19 +12,20 @@ import { socket } from "@/socket/socket";
 import {
 	MissionWithCost,
 	ObstacleWithStatusIdentifier,
+	OperationsWithPayload,
 	RescuerWithStatusIdentifier,
 	TeamWithRescuer,
 	TeamWithStatusIdentifier,
 	UserWithBracelet,
 	UserWithStatusIdentifier,
 } from "@/types";
-import { NUMBER_TO_URGENCY, URGENCY_LORA_TO_DB } from "@/utils/urgency";
-import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, use, useRef } from "react";
+import { NUMBER_TO_URGENCY, URGENCY_LORA_TO_DB, URGENCY_TO_NUMBER } from "@/utils/urgency";
+import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, useRef } from "react";
 import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
-import { OperationStatus } from "@prisma/client";
+import { Operations, OperationStatus, RescueUrgency } from "@prisma/client";
 import { useToast } from "@/hooks/use-toast";
 
 const AppContext = createContext<{
@@ -62,10 +63,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const [missions, setMissions] = useState<MissionWithCost[]>([]);
 	const missionsLookupRef = useRef<MissionWithCost[]>([]);
 	const [timeIntervals, setTimeIntervals] = useState<{ max: number; time: number; title: string }[]>([]);
-	const { mapRef, removeSourceAndLayer } = useMapContext();
-	const [styleLoaded, setStyleLoaded] = useState(false);
-
-	mapRef.current?.on("load", () => setStyleLoaded(true));
+	const { mapRef, removeSourceAndLayer, styleLoaded } = useMapContext();
 
 	useEffect(() => {
 		fetchUsersAPI();
@@ -108,8 +106,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	async function fetchMissionsToday() {
-		const { operations }: { operations: MissionWithCost[] } = await (await fetch("/api/operations/today")).json();
-		setMissions(operations);
+		const { operations }: { operations: OperationsWithPayload[] } = await (await fetch("/api/operations/today")).json();
+		setMissions(
+			operations.map(
+				(operation) =>
+					({
+						...operation,
+						userId: operation.usersUserId,
+						teamId: operation.teamsTeamId,
+						urgency: URGENCY_TO_NUMBER[operation.urgency],
+					} as unknown as MissionWithCost)
+			)
+		);
 	}
 
 	useEffect(() => {
@@ -160,9 +168,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 	useEffect(() => {
 		if (missions.length > 0) {
-			console.log(missions);
 			async function saveTasksAsMissionsToDatabase() {
 				const tasks = missions.map(async (mission) => {
+					console.log(mission);
 					const res = await fetch("/api/operations/new", {
 						method: "POST",
 						headers: {
@@ -171,7 +179,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 						body: JSON.stringify({
 							...mission,
 							status: OperationStatus.ASSIGNED,
-							urgency: NUMBER_TO_URGENCY[mission.urgency],
+							urgency: NUMBER_TO_URGENCY[mission.urgency] ?? RescueUrgency.MODERATE,
+							numberOfRescuee: mission.user.numberOfMembersInFamily,
+							usersUserId: mission.userId,
+							teamsTeamId: mission.teamId,
 						}),
 					});
 
@@ -180,6 +191,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 							description: `Successfully saved mission ${mission.missionId}`,
 						});
 					} else {
+						console.error(await res.json());
 						toast({
 							variant: "destructive",
 							description: `There is an error saving mission ${mission.missionId}. It is possible the mission is already saved`,
