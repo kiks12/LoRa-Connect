@@ -6,8 +6,20 @@ import { unstable_cache } from "next/cache"
 export async function getLatestOperations() {
   return await client.operations.findMany({
     include: {
-      user: true,
-      Teams: true,
+      user: {
+        include: {
+          bracelet: true
+        }
+      },
+      Teams: {
+        include: {
+          rescuers: {
+            include: {
+              bracelet: true
+            }
+          }
+        }
+      },
       VictimStatusReport: true,
       _count: true
     }
