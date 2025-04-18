@@ -38,9 +38,9 @@ model Rescuers {
   rescuerId   Int        @id @default(autoincrement())
   createdAt   DateTime   @default(now())
   givenName   String
-  middleName  String
+  middleName  String?
   lastName    String
-  suffix      String
+  suffix      String?
   bracelet    Bracelets?
   Teams       Teams?     @relation(fields: [teamsTeamId], references: [teamId])
   teamsTeamId Int?
