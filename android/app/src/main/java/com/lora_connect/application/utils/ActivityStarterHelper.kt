@@ -16,4 +16,10 @@ class ActivityStarterHelper(private val context: Context) {
         }
         context.startActivity(intent)
     }
+
+    fun startActivityFromService(activity: Class<*>) {
+        val intent = Intent(context, activity)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
 }

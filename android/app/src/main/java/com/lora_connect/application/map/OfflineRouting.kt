@@ -31,6 +31,10 @@ class OfflineRouting(private val context: Context) {
     private val obstacles = obstacleRepository.getAllObstacles().asFlow()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    companion object {
+        const val TAG = "OfflineRouting"
+    }
+
     fun initializeGraphHopper() {
         graphHopper = GraphHopper().forMobile()
         graphHopper.chPreparationHandler.setCHProfiles(CHProfile("car")).setDisablingAllowed(true)
@@ -38,105 +42,117 @@ class OfflineRouting(private val context: Context) {
             .setStoreOnFlush(true)
             .setEncodingManager(EncodingManager.create("car"))
         val graphFolder = File(context.filesDir, "graph-cache-v1")
-        Log.w("OFFLINE ROUTING", "GRAPH CACHE EXISTS: ${graphFolder.exists()}")
+        Log.w(TAG, "GRAPH CACHE EXISTS: ${graphFolder.exists()}")
         graphHopper.graphHopperLocation = graphFolder.absolutePath
         try {
-            graphHopper.load(graphFolder.absolutePath)
-            Log.w("OFFLINE ROUTING", "GRAPH HOPPER LOADED SUCCESSFULLY")
+            graphHopper.importOrLoad()
+
+            if (!graphHopper.locationIndex.loadExisting()) {
+                graphHopper.postProcessing()
+            }
+
+            Log.w(TAG, "GRAPH HOPPER LOADED SUCCESSFULLY")
         } catch (e: Exception) {
-            Log.w("OFFLINE ROUTING", e.message.toString())
+            Log.w(TAG, e.message.toString())
         }
     }
 
     fun unloadGraphHopper() {
         graphHopper.close()
-        Log.w("OFFLINE ROUTING", "GraphHopper has been unloaded")
+        Log.w(TAG, "GraphHopper has been unloaded")
     }
 
     suspend fun getRoute(startLat: Double, startLong: Double, endLat: Double, endLong: Double) : ResponsePath? {
         return withContext(Dispatchers.IO) {
-            val graph = graphHopper.graphHopperStorage
-            val locationIndex = graphHopper.locationIndex
-            val obstacleEdges = mutableSetOf<Int>()
-            val encoder = graphHopper.encodingManager.getEncoder("car")
-            val translationMap = graphHopper.translationMap // For localized instructions
-            val translation = translationMap.getWithFallBack(Locale.US)
+            try {
+                val graph = graphHopper.graphHopperStorage
+                val locationIndex = graphHopper.locationIndex
+                val obstacleEdges = mutableSetOf<Int>()
+                val encoder = graphHopper.encodingManager.getEncoder("car")
+                val translationMap = graphHopper.translationMap // For localized instructions
+                val translation = translationMap.getWithFallBack(Locale.US)
 
-            obstacles.collect { obstacleList ->
-                obstacleList.forEach { obstacle ->
-                    if (obstacle.latitude != null && obstacle.longitude != null) {
-                        val qr = locationIndex.findClosest(
-                            obstacle.latitude.toDouble(),
-                            obstacle.longitude.toDouble(),
-                            EdgeFilter.ALL_EDGES
-                        )
-                        if (qr.isValid) {
-                            val edge = qr.closestEdge
-                            obstacleEdges.add(edge.edge)
+                obstacles.collect { obstacleList ->
+                    obstacleList.forEach { obstacle ->
+                        if (obstacle.latitude != null && obstacle.longitude != null) {
+                            val qr = locationIndex.findClosest(
+                                obstacle.latitude.toDouble(),
+                                obstacle.longitude.toDouble(),
+                                EdgeFilter.ALL_EDGES
+                            )
+                            if (qr.isValid) {
+                                val edge = qr.closestEdge
+                                obstacleEdges.add(edge.edge)
+                            }
                         }
                     }
                 }
+
+    //            scope.launch {
+    //                async {
+    //                    obstacles.collect { obstacleList ->
+    //                        obstacleList.forEach { obstacle ->
+    //                            if (obstacle.latitude != null && obstacle.longitude != null) {
+    //                                val qr = graphHopper.locationIndex.findClosest(
+    //                                    obstacle.latitude.toDouble(),
+    //                                    obstacle.longitude.toDouble(),
+    //                                    EdgeFilter.ALL_EDGES
+    //                                )
+    //
+    //                                if (qr.isValid) {
+    //                                    val edge = qr.closestEdge
+    //                                    obstacleEdges.add(edge.edge)
+    //                                }
+    //                            }
+    //                        }
+    //                    }
+    //                }.await()
+    //            }
+
+                async {
+    //                graphHopper.graphHopperStorage.flush()
+                    val weighting = ObstacleAvoidanceWeighting(encoder, obstacleEdges)
+                    val algorithmOptions = AlgorithmOptions.start()
+                        .algorithm(Algorithms.ALT_ROUTE)
+                        .weighting(weighting)
+                        .build()
+                    val routingAlgorithmFactory = graphHopper.getAlgorithmFactory("car", true, true)
+                    val algorithm = routingAlgorithmFactory.createAlgo(graph, algorithmOptions)
+
+                    val startNode = locationIndex.findClosest(startLat, startLong, EdgeFilter.ALL_EDGES).closestNode
+                    val endNode = locationIndex.findClosest(endLat, endLong, EdgeFilter.ALL_EDGES).closestNode
+
+                    val path = algorithm.calcPath(startNode, endNode)
+                    val instructionList = InstructionList(translation)
+
+                    path.calcEdges().forEach { edge ->
+                        val distance = edge.distance
+                        val speed = edge.get(encoder.averageSpeedEnc)
+                        val time = if (speed > 0) (distance / speed) * 3600 * 1000 else 0
+                        val points = edge.fetchWayGeometry(FetchMode.ALL)
+                        val instruction = Instruction(Instruction.CONTINUE_ON_STREET, edge.name, InstructionAnnotation.EMPTY, points)
+                        instruction.distance = distance
+                        instruction.time = time.toLong()
+                        instructionList.add(instruction)
+                    }
+
+                    if (path.isFound) {
+                        val responsePath = ResponsePath()
+                        responsePath.setPoints(path.calcPoints())
+                        responsePath.setDistance(path.distance)
+                        responsePath.setTime(path.time)
+                        responsePath.instructions = instructionList
+                        return@async responsePath
+                    }
+
+                    return@async null
+                }.await()
+            } catch (e: IllegalStateException) {
+                Log.d(TAG, "")
+                e.printStackTrace()
+
+                null
             }
-
-//            scope.launch {
-//                async {
-//                    obstacles.collect { obstacleList ->
-//                        obstacleList.forEach { obstacle ->
-//                            if (obstacle.latitude != null && obstacle.longitude != null) {
-//                                val qr = graphHopper.locationIndex.findClosest(
-//                                    obstacle.latitude.toDouble(),
-//                                    obstacle.longitude.toDouble(),
-//                                    EdgeFilter.ALL_EDGES
-//                                )
-//
-//                                if (qr.isValid) {
-//                                    val edge = qr.closestEdge
-//                                    obstacleEdges.add(edge.edge)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }.await()
-//            }
-
-            async {
-//                graphHopper.graphHopperStorage.flush()
-                val weighting = ObstacleAvoidanceWeighting(encoder, obstacleEdges)
-                val algorithmOptions = AlgorithmOptions.start()
-                    .algorithm(Algorithms.ALT_ROUTE)
-                    .weighting(weighting)
-                    .build()
-                val routingAlgorithmFactory = graphHopper.getAlgorithmFactory("car", true, true)
-                val algorithm = routingAlgorithmFactory.createAlgo(graph, algorithmOptions)
-
-                val startNode = locationIndex.findClosest(startLat, startLong, EdgeFilter.ALL_EDGES).closestNode
-                val endNode = locationIndex.findClosest(endLat, endLong, EdgeFilter.ALL_EDGES).closestNode
-
-                val path = algorithm.calcPath(startNode, endNode)
-                val instructionList = InstructionList(translation)
-
-                path.calcEdges().forEach { edge ->
-                    val distance = edge.distance
-                    val speed = edge.get(encoder.averageSpeedEnc)
-                    val time = if (speed > 0) (distance / speed) * 3600 * 1000 else 0
-                    val points = edge.fetchWayGeometry(FetchMode.ALL)
-                    val instruction = Instruction(Instruction.CONTINUE_ON_STREET, edge.name, InstructionAnnotation.EMPTY, points)
-                    instruction.distance = distance
-                    instruction.time = time.toLong()
-                    instructionList.add(instruction)
-                }
-
-                if (path.isFound) {
-                    val responsePath = ResponsePath()
-                    responsePath.setPoints(path.calcPoints())
-                    responsePath.setDistance(path.distance)
-                    responsePath.setTime(path.time)
-                    responsePath.instructions = instructionList
-                    return@async responsePath
-                }
-
-                return@async null
-            }.await()
         }
     }
 }

@@ -141,7 +141,6 @@ class MapActivity : ComponentActivity() {
         mapView.onStop()
         offlineRouting.unloadGraphHopper()
         sharedBluetoothViewModel.unbindService(this)
-        mapViewModel.stopLocationUpdates()
     }
 
     override fun onDestroy() {

@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.lora_connect.application.MainActivity
 import com.lora_connect.application.R
 import com.lora_connect.application.authentication.BluetoothSessionManager
 import com.lora_connect.application.repositories.ObstacleRepository
@@ -26,6 +27,8 @@ import com.lora_connect.application.room.entities.Obstacle
 import com.lora_connect.application.room.entities.Task
 import com.lora_connect.application.tasks.TaskStatus
 import com.lora_connect.application.tasks.TaskUrgency
+import com.lora_connect.application.tasks.current_task.CurrentTask
+import com.lora_connect.application.utils.ActivityStarterHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -59,6 +62,7 @@ class BluetoothService : Service() {
         private const val BLUETOOTH_SERVICE_NAME = "Bluetooth Service"
     }
 
+    private val activityStarterHelper = ActivityStarterHelper(this)
     private val binder = LocalBinder()
     private var bluetoothAdapter: BluetoothAdapter? = null
     private var bluetoothSocket: BluetoothSocket? = null
@@ -92,6 +96,13 @@ class BluetoothService : Service() {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 connectionState = STATE_DISCONNECTED
                 Log.w(TAG, "Disconnected from GATT server.")
+                BluetoothSessionManager.bluetoothDevice = null
+                handler.post {
+                    CurrentTask.instance.setTask(null)
+                    CurrentTask.instance.setInstructions(null)
+                    Toast.makeText(this@BluetoothService, "BLE Device disconnected", Toast.LENGTH_SHORT).show()
+                }
+                activityStarterHelper.startActivityFromService(MainActivity::class.java)
                 broadcastUpdate(ACTION_GATT_DISCONNECTED)
             }
         }
