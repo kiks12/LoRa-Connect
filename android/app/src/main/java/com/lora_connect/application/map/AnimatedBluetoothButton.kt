@@ -57,7 +57,7 @@ fun BluetoothButton() {
                 },
                 modifier = Modifier.padding(top = 8.dp)
             ) {
-                Text(text = BluetoothSessionManager.bluetoothDevice!!.name, fontSize = 12.sp)
+                Text(text = BluetoothSessionManager.bluetoothDevice?.name ?: "Not Connected", fontSize = 12.sp)
             }
         } else {
             // IconButton when only the icon is visible

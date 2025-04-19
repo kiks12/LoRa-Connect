@@ -181,7 +181,7 @@ fun TaskItem(task: Task, onStartButtonClick: () -> Unit = {}, withStartButton: B
                 TextButton(onClick = { showMore = !showMore }, modifier = Modifier.padding(end = 12.dp)) {
                     Text(text = if (showMore) "Less Details" else "More Details")
                 }
-                if (withStartButton) {
+                if (withStartButton) { // Add && task.status == TaskStatus.ASSIGNED
                     Button(onClick = onStartButtonClick) {
                         Text(text = "Start Mission", modifier = Modifier.padding(horizontal = 20.dp))
                     }

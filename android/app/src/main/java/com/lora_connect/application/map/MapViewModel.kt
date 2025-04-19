@@ -147,15 +147,15 @@ class MapViewModel(
                         path = best
                     )
                 }
+            }
 
-                val updatedTask = currentTask.value?.copy(
-                    distance = best.distance.toFloat(),
-                    eta = best.time.toFloat(),
-                )
+            val updatedTask = currentTask.value?.copy(
+                distance = best?.distance?.toFloat() ?: 0f,
+                eta = best?.time?.toFloat() ?: 0f,
+            )
 
-                updatedTask?.let {
-                    taskRepository.updateTask(it)
-                }
+            updatedTask?.let {
+                taskRepository.updateTask(it)
             }
         }
     }
