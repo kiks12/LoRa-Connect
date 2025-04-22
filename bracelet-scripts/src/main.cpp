@@ -6,8 +6,8 @@
 
 // Define build flags directly in the code
 #define DEVICE_TYPE 0
-#define USER_ID "1"
-#define DEVICE_ADDR "0001"
+#define USER_ID "2"
+#define DEVICE_ADDR "0002"
 
 #include <heltec_unofficial.h>
 #include <TinyGPSPlus.h>
@@ -70,9 +70,13 @@ void urgencyChanged()
     urg_update = true;
 }
 
+int sos_pressed_start;
+volatile bool sos_state = false;
+volatile bool sos_pressed = false;
 void sosPressed()
 {
-    sos_flag = true;
+    sos_state = digitalRead(SOS_PIN);
+    sos_pressed = true;
 }
 
 void rx() { rx_flag = true; }
@@ -81,7 +85,13 @@ bool show_debug = false;
 String content = "";
 void updateDisplay(String newContent = "") {
     display.cls();
-    display.printf("%3d      %.2f      %s\n%s\n", heltec_battery_percent(), heltec_vbat(), urgency_strings[urgency-1], show_debug ? DEVICE_ADDR : (newContent == "" ? content.c_str() : newContent.c_str()));    
+    if (show_debug) {
+        char debug_buffer[32];
+        snprintf(debug_buffer, 32, "ADDR: %s UID: %s", DEVICE_ADDR, USER_ID);
+        display.printf("%3d      %.2f      %s\n%s\n", heltec_battery_percent(), heltec_vbat(), urgency_strings[urgency-1], debug_buffer);    
+    } else {
+        display.printf("%3d      %.2f      %s\n%s\n", heltec_battery_percent(), heltec_vbat(), urgency_strings[urgency-1], newContent == "" ? content.c_str() : newContent.c_str());    
+    }
     if (newContent != "") {content = newContent;}
 }
 
@@ -94,7 +104,7 @@ void setup()
     pinMode(SOS_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChanged, CHANGE);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChanged, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, FALLING);  
+    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, CHANGE);  
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -159,7 +169,6 @@ bool isFamiliarBounce(String incoming)
     String *p = std::find(bounced_packet_history, bounced_packet_history + BOUNCED_PACKET_HISTORY_SIZE, incoming);
     if (p == bounced_packet_history + BOUNCED_PACKET_HISTORY_SIZE)
     {
-        both.printf("New, reTx\n");
         bounced_packet_history[bounced_packet_history_index] = incoming;
         bounced_packet_history_index++;
         if (bounced_packet_history_index >= PACKET_HISTORY_SIZE)
@@ -170,7 +179,6 @@ bool isFamiliarBounce(String incoming)
     }
     else
     {
-        both.printf("Old, no reTx\n");
         return true;
     }
 }
@@ -180,7 +188,6 @@ bool isFamiliarProcess(String incoming)
     String *p = std::find(packet_history, packet_history + PACKET_HISTORY_SIZE, incoming);
     if (p == packet_history + PACKET_HISTORY_SIZE)
     {
-        both.printf("New, process\n");
         packet_history[packet_history_index] = incoming;
         packet_history_index++;
         if (packet_history_index >= PACKET_HISTORY_SIZE)
@@ -191,7 +198,6 @@ bool isFamiliarProcess(String incoming)
     }
     else
     {
-        both.printf("Old, ignore\n");
         return true;
     }
 }
@@ -221,11 +227,33 @@ void processPayload(char type, String payload)
 
 
 int last_display_update = 0;
+int last_rx_indicator = 0;
+bool rx_pixel = false;
 void loop()
 {
     heltec_loop();
 
-    if (button.isSingleClick()) { show_debug = true; }
+    if (sos_pressed)
+    {
+        sos_pressed = false;
+        if (sos_state)
+        {
+            sos_pressed_start = millis();
+        }
+        else
+        {
+            int press_duration = millis() - sos_pressed_start;
+            if (press_duration < 3000)
+            {
+                sos_flag = true;
+            }
+            else
+            {
+                show_debug = !show_debug;
+                updateDisplay();
+            }
+        }
+    }
 
     if (last_display_update + 5000 < millis())
     {
@@ -246,14 +274,6 @@ void loop()
         updateDisplay();
     }
 
-    // if (sos_once_flag)
-    // {
-    //     sos_once_flag = false;
-    //     txLocPacket(true);
-    //     delay(50);
-    //     last_tx_loc_time = millis();
-    // }
-
     if (sos_flag)
     {
         sos_flag = false;
@@ -269,6 +289,12 @@ void loop()
         }
     }
 
+    if (rx_pixel && last_rx_indicator + 500 < millis()) {
+        rx_pixel = false;
+        display.clearPixel(63,63);
+        display.display();
+    }
+
     if (rx_flag)
     {
         rx_flag = false;
@@ -279,27 +305,40 @@ void loop()
         {
             String rx_data_str = (String)rx_data;
             String dst = rx_data_str.substring(4, 8);
-            String incoming = rx_data_str.substring(0, 4) + rx_data_str.substring(8, 10);
 
-            if (dst == DEVICE_ADDR || dst == "1003")
-            {
-                if (isFamiliarProcess(incoming) == false)
+            String src = rx_data_str.substring(0, 4); 
+            if (src != DEVICE_ADDR) {
+
+                display.setPixel(127, 63);
+                display.display();
+                rx_pixel = true;
+                last_rx_indicator = millis();
+
+                String incoming = src + rx_data_str.substring(8, 10);
+
+                if (dst == DEVICE_ADDR || dst == "1003")
                 {
-                    char type = rx_data[10];
-                    processPayload(type, rx_data_str.substring(12));
-                }
-            }
-            else
-            {
-                if (isFamiliarBounce(incoming) == false)
-                {
-                    int ttl = rx_data[12] - '0';
-                    if (ttl > 0)
+                    if (isFamiliarProcess(incoming) == false)
                     {
-                        String new_packet = rx_data_str.substring(0, 8) + String(ttl - 1) + rx_data_str.substring(10);
-                        txPacket(new_packet);
+                        char type = rx_data[10];
+                        processPayload(type, rx_data_str.substring(12));
                     }
                 }
+                else
+                {
+                    if (isFamiliarBounce(incoming) == false)
+                    {
+                        int ttl = rx_data[12] - '0';
+                        if (ttl > 0)
+                        {
+                            String new_packet = rx_data_str.substring(0, 8) + String(ttl - 1) + rx_data_str.substring(10);
+                            txPacket(new_packet);
+                        }
+                    }
+                }
+
+                display.clearPixel(127, 63);
+
             }
         }
     }

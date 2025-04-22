@@ -9,12 +9,13 @@
 #include <queue>
 
 #define DEVICE_TYPE 1
-#define USER_ID "1"
-#define DEVICE_ADDR "1100"
+#define USER_ID "2"
+#define DEVICE_ADDR "1101"
 #define SERVICE_UUID "dc0d15eb-6298-44e3-9813-d9a5c58c43cc"
 #define WRITE_CHARACTERISTIC_UUID "d0d12d27-be27-4495-a236-9fa0860b4554"
 #define READ_CHARACTERISTIC_UUID "c31628d9-f40c-4e67-a03a-3a0445b44ce0"
 #define DESCRIPTOR_UUID "00002902-0000-1000-8000-00805f9b34fb"
+#define ADVERT_NAME "NimBLE Server 2"
 
 #define PAUSE 0
 #define FREQUENCY 433.0
@@ -77,19 +78,20 @@ void urgencyChanged()
     urg_update = true;
 }
 
+int sos_pressed_start;
+volatile bool sos_state = false;
+volatile bool sos_pressed = false;
 void sosPressed()
 {
-    if (sos_flag == false)
-    {
-        sos_once_flag = true;
-    }
-    sos_flag = true;
+    sos_state = digitalRead(SOS_PIN);
+    sos_pressed = true;
 }
 
 NimBLEService *pService = NULL;
 NimBLECharacteristic *pWriteCharacteristic = NULL;
 NimBLECharacteristic *pReadCharacteristic = NULL;
 NimBLEDescriptor *pDescriptor = NULL;
+
 BLEServer *pServer;
 
 std::queue<String> BT_queue;
@@ -99,7 +101,13 @@ String content = "";
 bool show_debug = false;
 void updateDisplay(String newContent = "") {
     display.cls();
-    display.printf("Bat:%d BT:%s\n%s", heltec_battery_percent(), (BT_connected ? "Connected" : "Not Connected"), show_debug ? DEVICE_ADDR : (newContent == "" ? content.c_str() : newContent.c_str()));    
+    if (show_debug) {
+        char debug_buffer[32];
+        snprintf(debug_buffer, 32, "ADDR: %s UID: %s \nBT: %s", DEVICE_ADDR, USER_ID, ADVERT_NAME);
+        display.printf("%d    BT %s\n%s", heltec_battery_percent(), (BT_connected ? "Connected" : "Not Connected"), debug_buffer);    
+    } else {
+        display.printf("%d    BT %s\n%s", heltec_battery_percent(), (BT_connected ? "Connected" : "Not Connected"), newContent == "" ? content.c_str() : newContent.c_str());    
+    }
     if (newContent != "") {content = newContent;}
 }
 
@@ -321,9 +329,26 @@ void loop()
 {
     heltec_loop();
 
-    if (button.isSingleClick())
+    if (sos_pressed)
     {
-        show_debug = true;
+        sos_pressed = false;
+        if (sos_state)
+        {
+            sos_pressed_start = millis();
+        }
+        else
+        {
+            int press_duration = millis() - sos_pressed_start;
+            if (press_duration < 3000)
+            {
+                sos_flag = true;
+            }
+            else
+            {
+                show_debug = !show_debug;
+                updateDisplay();
+            }
+        }
     }
 
     if (sos_flag) {
