@@ -25,7 +25,7 @@ export default function AdminControls() {
 			<div>
 				<div className="flex justify-between items-center my-2 border rounded-md p-3">
 					<Label className="ml-3" htmlFor="monitorLocations">
-						Monitor Bracelet Locations
+						Monitor Device Locations
 					</Label>
 					<Switch checked={monitorLocations} id="monitorLocations" onCheckedChange={toggleMonitorLocations} />
 				</div>
