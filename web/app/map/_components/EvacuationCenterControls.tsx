@@ -50,7 +50,7 @@ export default function EvacuationCenterControls() {
 				<Switch checked={showEvacuationCenters} id="showEvacuationCenters" onCheckedChange={toggleShowEvacuationCenters} />
 			</div>
 			{evacuationCentersLoading ? (
-				<div className="flex items-center justify-center mt-10">
+				<div className="flex items-center justify-center my-20">
 					<Spinner />
 				</div>
 			) : (

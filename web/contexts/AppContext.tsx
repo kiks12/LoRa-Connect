@@ -25,8 +25,9 @@ import { useMapContext } from "./MapContext";
 import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
-import { Operations, OperationStatus, RescueUrgency } from "@prisma/client";
+import { Obstacle, Operations, OperationStatus, RescueUrgency } from "@prisma/client";
 import { useToast } from "@/hooks/use-toast";
+import { fetchRoute } from "@/app/algorithm";
 
 const AppContext = createContext<{
 	users: UserWithStatusIdentifier[];
@@ -73,9 +74,52 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		fetchTeams();
 	}, []);
 
+	async function fetchObstaclesAPI() {
+		const { obstacles }: { obstacles: Obstacle[] } = await (await fetch("/api/obstacles")).json();
+		const mappedObstacles = obstacles ? obstacles.map((obstacle) => ({ ...obstacle, showing: false })) : [];
+		setObstacles(mappedObstacles);
+	}
+
+	// API FETCHING OF OBSTACLES
+	useEffect(() => {
+		fetchObstaclesAPI();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const fetchMissionsToday = useCallback(async () => {
+		const { operations }: { operations: OperationsWithPayload[] } = await (await fetch("/api/operations/today")).json();
+		setMissions(
+			await Promise.all(
+				operations.map(async (operation) => {
+					const rescuerBracelet = operation.Teams.rescuers.find((rescuer) => rescuer.bracelet).bracelet;
+					const minimumTime = await fetchRoute({
+						userLat: operation.user.bracelet.latitude,
+						userLong: operation.user.bracelet.longitude,
+						rescuerLat: rescuerBracelet.latitude,
+						rescuerLong: rescuerBracelet.longitude,
+						obstacles,
+					});
+					const newOperation = {
+						...operation,
+						userLat: operation.user.bracelet.latitude,
+						userLong: operation.user.bracelet.longitude,
+						userId: operation.usersUserId,
+						teamId: operation.teamsTeamId,
+						urgency: URGENCY_TO_NUMBER[operation.urgency],
+						coordinates: minimumTime.points.coordinates,
+						distance: minimumTime.distance,
+						time: minimumTime.time,
+					} as unknown as MissionWithCost;
+
+					return newOperation;
+				})
+			)
+		);
+	}, [obstacles]);
+
 	useEffect(() => {
 		fetchMissionsToday();
-	}, []);
+	}, [fetchMissionsToday]);
 
 	useEffect(() => {
 		if (packetId > 99) {
@@ -103,21 +147,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const mappedTeams = teams.map((team) => ({ ...team, showing: false }));
 		setTeams(mappedTeams);
 		setTeamsLoading(false);
-	}
-
-	async function fetchMissionsToday() {
-		const { operations }: { operations: OperationsWithPayload[] } = await (await fetch("/api/operations/today")).json();
-		setMissions(
-			operations.map(
-				(operation) =>
-					({
-						...operation,
-						userId: operation.usersUserId,
-						teamId: operation.teamsTeamId,
-						urgency: URGENCY_TO_NUMBER[operation.urgency],
-					} as unknown as MissionWithCost)
-			)
-		);
 	}
 
 	useEffect(() => {
@@ -170,7 +199,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		if (missions.length > 0) {
 			async function saveTasksAsMissionsToDatabase() {
 				const tasks = missions.map(async (mission) => {
-					console.log(mission);
 					const res = await fetch("/api/operations/new", {
 						method: "POST",
 						headers: {

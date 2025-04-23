@@ -66,6 +66,35 @@ export async function getPendingOperationsToday() {
   })
 }
 
+export async function getAssignedPendingOperations() {
+  return await client.operations.findMany({
+    where: {
+      OR: [
+        { status: OperationStatus.ASSIGNED },
+        { status: OperationStatus.PENDING },
+      ]
+    },
+    include: {
+      user: {
+        include: {
+          bracelet: true
+        }
+      },
+      Teams: {
+        include: {
+          rescuers: {
+            include: {
+              bracelet: true
+            }
+          }
+        }
+      },
+      _count: true,
+      VictimStatusReport: true,
+    }
+  })
+}
+
 export async function getOperationsToday() {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);

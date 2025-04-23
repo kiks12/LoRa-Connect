@@ -3,6 +3,31 @@ import { createCustomModelObject, LatLng } from "@/utils/routing";
 import { OperationStatus } from "@prisma/client";
 import { minWeightAssign } from "munkres-algorithm";
 
+export async function fetchRoute({userLat, userLong, rescuerLat, rescuerLong, obstacles}: {userLat: number, userLong: number, rescuerLat: number, rescuerLong: number, obstacles: ObstacleWithStatusIdentifier[]}) {
+	const points = [
+		[rescuerLong, rescuerLat], // Updated rescuer location
+		[userLong, userLat], // User location
+	];
+
+	const obstaclesCoordinates = obstacles.map((d: ObstacleWithStatusIdentifier) => [d.latitude, d.longitude] as LatLng);
+		const customModelObject = createCustomModelObject(obstaclesCoordinates);
+
+	const res = await fetch(`http://localhost:8989/route`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(
+			obstaclesCoordinates.length === 0
+				? { points, points_encoded: false, profile: "car" }
+				: { points, points_encoded: false, profile: "car", "ch.disable": true, custom_model: customModelObject }
+		),
+	});
+
+	const json: GraphHopperAPIResult = await res.json();
+	const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
+
+	return minimumTime
+}
+
 export async function calculateTeamAssignmentCosts(
     teams: TeamWithStatusIdentifier[],
     obstacles: ObstacleWithStatusIdentifier[],
@@ -27,23 +52,25 @@ export async function calculateTeamAssignmentCosts(
 			return unassignedUsers.map(async (user) => {
 				if (!user.bracelet || !user.bracelet.latitude || !user.bracelet.longitude) return null;
 
-				const points = [
-					[rescuerStartLocation.lon, rescuerStartLocation.lat], // Updated rescuer location
-					[user.bracelet.longitude, user.bracelet.latitude], // User location
-				];
+				// const points = [
+				// 	[rescuerStartLocation.lon, rescuerStartLocation.lat], // Updated rescuer location
+				// 	[user.bracelet.longitude, user.bracelet.latitude], // User location
+				// ];
 
-				const res = await fetch(`http://localhost:8989/route`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify(
-						obstaclesCoordinates.length === 0
-							? { points, points_encoded: false, profile: "car" }
-							: { points, points_encoded: false, profile: "car", "ch.disable": true, custom_model: customModelObject }
-					),
-				});
+				// const res = await fetch(`http://localhost:8989/route`, {
+				// 	method: "POST",
+				// 	headers: { "Content-Type": "application/json" },
+				// 	body: JSON.stringify(
+				// 		obstaclesCoordinates.length === 0
+				// 			? { points, points_encoded: false, profile: "car" }
+				// 			: { points, points_encoded: false, profile: "car", "ch.disable": true, custom_model: customModelObject }
+				// 	),
+				// });
 
-				const json: GraphHopperAPIResult = await res.json();
-				const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
+				// const json: GraphHopperAPIResult = await res.json();
+				// const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
+
+				const minimumTime = await fetchRoute({userLat: user.bracelet.latitude, userLong: user.bracelet.longitude, rescuerLat: rescuerStartLocation.lat, rescuerLong: rescuerStartLocation.lon, obstacles })
 
 				return {
 					userId: user.userId,

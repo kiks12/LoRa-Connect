@@ -102,5 +102,5 @@ export function formatMessage(evacuationCenterName: string, distance: number, me
     return result.trim(); // Removes trailing newline
   }
 
-  return insertNewlines(`Evac: ${evacuationCenterName} {${distanceInKm}km} - ${message}`);
+  return `Evac: ${evacuationCenterName} {${distanceInKm}km} - ${message}`
 }
