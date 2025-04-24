@@ -241,63 +241,55 @@ export const useAdmin = () => {
 		}
 	}, [users, teams, automaticTaskAllocation, obstacles, runTaskAllocation, sendTasksViaLoRa]);
 
-	const clearMarkers = useCallback(() => {
-		markers.forEach((marker) => marker.remove());
-		setMarkers([]);
-	}, [markers]);
-
-	const addRoute = useCallback(
-		(index: number, coordinates: number[][]) => {
-			if (!mapRef.current) return;
-			const tag = `TASK-ROUTE-${index}`;
-			mapRef.current.addSource(tag, createRouteSource(coordinates));
-			mapRef.current.addLayer(createRouteLayerGeoJSON(tag, tag));
-		},
-		[mapRef]
-	);
-
-	const addMarkers = useCallback(
-		({ rescuer, user }: { rescuer: Bracelets; user: Bracelets }) => {
-			if (!mapRef.current) return;
-			if (!rescuer.latitude || !rescuer.longitude || !user.latitude || !user.longitude) return;
-			const rescuerMarker = new maplibregl.Marker({
-				color: COLOR_MAP["RESCUERS"],
-			})
-				.setLngLat([rescuer.longitude, rescuer.latitude])
-				.addTo(mapRef.current);
-			const userMarker = new maplibregl.Marker({
-				color: COLOR_MAP["USERS"],
-			})
-				.setLngLat([user.longitude, user.latitude])
-				.addTo(mapRef.current);
-			setMarkers((prev) => [...prev, rescuerMarker, userMarker]);
-		},
-		[mapRef]
-	);
-
-	const showRoute = useCallback(
-		(index: number, mission: MissionWithCost) => {
-			const rescuerBracelet = mission.Teams.rescuers.find((rescuer) => rescuer.bracelet)?.bracelet;
-			const userBracelet = mission.user.bracelet;
-			if (!rescuerBracelet || !userBracelet) return;
-			if (!mission.coordinates) return;
-			clearSourcesAndLayers(`TASK-ROUTE-${index}`);
-			addRoute(index, mission.coordinates);
-			addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
-		},
-		[addMarkers, addRoute, clearSourcesAndLayers]
-	);
-
 	useEffect(() => {
 		clearMarkers();
 		missions.forEach((mission, index) => {
 			showRoute(index, mission);
 		});
-	}, [clearMarkers, missions, showRoute, showRoutes]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [missions, showRoutes]);
+
+	function clearMarkers() {
+		markers.forEach((marker) => marker.remove());
+		setMarkers([]);
+	}
 
 	function clearRoutes() {
 		clearMarkers();
 		clearSourcesAndLayers(`TASK-ROUTE`);
+	}
+
+	function showRoute(index: number, mission: MissionWithCost) {
+		const rescuerBracelet = mission.Teams.rescuers.find((rescuer) => rescuer.bracelet)?.bracelet;
+		const userBracelet = mission.user.bracelet;
+		if (!rescuerBracelet || !userBracelet) return;
+		if (!mission.coordinates) return;
+		clearSourcesAndLayers(`TASK-ROUTE-${index}`);
+		addRoute(index, mission.coordinates);
+		addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
+	}
+
+	function addRoute(index: number, coordinates: number[][]) {
+		if (!mapRef.current) return;
+		const tag = `TASK-ROUTE-${index}`;
+		mapRef.current.addSource(tag, createRouteSource(coordinates));
+		mapRef.current.addLayer(createRouteLayerGeoJSON(tag, tag));
+	}
+
+	function addMarkers({ rescuer, user }: { rescuer: Bracelets; user: Bracelets }) {
+		if (!mapRef.current) return;
+		if (!rescuer.latitude || !rescuer.longitude || !user.latitude || !user.longitude) return;
+		const rescuerMarker = new maplibregl.Marker({
+			color: COLOR_MAP["RESCUERS"],
+		})
+			.setLngLat([rescuer.longitude, rescuer.latitude])
+			.addTo(mapRef.current);
+		const userMarker = new maplibregl.Marker({
+			color: COLOR_MAP["USERS"],
+		})
+			.setLngLat([user.longitude, user.latitude])
+			.addTo(mapRef.current);
+		setMarkers((prev) => [...prev, rescuerMarker, userMarker]);
 	}
 
 	function updateRescuerLocations(assignments: MissionWithCost[]) {
