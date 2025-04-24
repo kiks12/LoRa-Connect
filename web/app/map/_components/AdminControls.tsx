@@ -47,7 +47,7 @@ export default function AdminControls() {
 					<Button
 						className="w-full mt-2"
 						variant="secondary"
-						onClick={sendTasksViaLoRa}
+						onClick={() => sendTasksViaLoRa(false)}
 						disabled={users.filter((user) => user.bracelet && user.bracelet.sos).length === 0}
 					>
 						Send Task via LoRa
