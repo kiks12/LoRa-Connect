@@ -66,7 +66,10 @@ export const useAdmin = () => {
 					() => {
 						sendTransmitLocationSignalToBracelets();
 					},
-					updateTime
+					updateTime,
+					() => {
+						setMonitorLocations(false);
+					}
 				);
 			}
 		}
@@ -115,7 +118,8 @@ export const useAdmin = () => {
 	}
 
 	function sendTasksViaLoRa(automatic: boolean = false) {
-		if (timeIntervals.some((time) => time.title === "Send Tasks Via LoRa") && !automatic) {
+		if (timeIntervals.some((time) => time.title === "Send Tasks Via LoRa")) {
+			if (automatic) return;
 			toast({
 				variant: "destructive",
 				description: "Tasks Sender timer is currently working",
@@ -136,13 +140,14 @@ export const useAdmin = () => {
 					setPacketId(localPacketId);
 					socket.emit(TASK_TO_RESCUER, mapped);
 				},
-				updateTime
+				updateTime,
+				() => {}
 			);
 		}
 	}
 
 	useEffect(() => {
-		if (automaticTaskAllocation) {
+		if (automaticTaskAllocation && users.some((user) => user.bracelet.sos)) {
 			runTaskAllocation();
 			sendTasksViaLoRa(true);
 		}

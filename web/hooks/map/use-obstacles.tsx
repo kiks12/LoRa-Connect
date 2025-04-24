@@ -69,7 +69,8 @@ export const useObstacles = () => {
 					setPacketId(localPacketId);
 					socket.emit(OBSTACLE_TO_RESCUER, mapped);
 				},
-				updateTime
+				updateTime,
+				() => {}
 			);
 		}
 	}
