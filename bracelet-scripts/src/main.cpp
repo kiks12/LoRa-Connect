@@ -6,8 +6,8 @@
 
 // Define build flags directly in the code
 #define DEVICE_TYPE 0
-#define USER_ID "2"
-#define DEVICE_ADDR "0002"
+#define USER_ID "2"        // 1, 2
+#define DEVICE_ADDR "0002" // 0001, 0002
 
 #include <heltec_unofficial.h>
 #include <TinyGPSPlus.h>
@@ -50,7 +50,7 @@ volatile uint8_t urgency = 1;
 
 int last_tx_loc_time = 0;
 String urgency_strings[3] = {"Low", "Moderate", "Severe"};
-uint8_t urg_offsets[3] = {12,0,6};
+uint8_t urg_offsets[3] = {12, 0, 6};
 
 void urgencyChanged()
 {
@@ -82,38 +82,51 @@ void sosPressed()
 
 void rx() { rx_flag = true; }
 
-void clearRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-    for (uint16_t i = x; i < x+width; i++) {
-        for (uint16_t j = y; j < y+height; j++) {
-            display.clearPixel(i,j);
+void clearRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+    for (uint16_t i = x; i < x + width; i++)
+    {
+        for (uint16_t j = y; j < y + height; j++)
+        {
+            display.clearPixel(i, j);
         }
     }
 }
- 
+
 int last_display_update = 0;
 int last_rx_indicator = 0;
 bool rx_pixel = false;
 bool show_debug = false;
 String content = "";
-void updateDisplay(String new_content) {
+void updateDisplay(String new_content)
+{
     content = new_content;
-    clearRect(0,0,128,64);
-    display.drawString(0,0,((String) heltec_battery_percent() + "%"));
-    display.drawString(38+urg_offsets[urgency-1],0,urgency_strings[urgency-1]);
-    if (gps.location.isValid()) {
-        display.drawString(96,0,"GPS:O");
-    } else {
-        display.drawString(96,0,"GPS:X");
+    clearRect(0, 0, 128, 64);
+    display.drawString(0, 0, ((String)heltec_battery_percent() + "%"));
+    display.drawString(38 + urg_offsets[urgency - 1], 0, urgency_strings[urgency - 1]);
+    if (gps.location.isValid())
+    {
+        display.drawString(96, 0, "GPS:O");
     }
-    display.drawHorizontalLine(0,12,128);
-    display.drawStringMaxWidth(0,14,128,"Listening for signals");
-    if (show_debug) {
-        display.drawStringMaxWidth(0,26,128,"DEVICE ID: " + (String) USER_ID);    
-        display.drawStringMaxWidth(0,38,128,"DEVICE TYPE: User");    
-    } else {
-        display.drawStringMaxWidth(0,26,128,content);
+    else
+    {
+        display.drawString(96, 0, "GPS:X");
     }
-    if (rx_pixel) { display.fillRect(123,59,5,5); }
+    display.drawHorizontalLine(0, 12, 128);
+    display.drawStringMaxWidth(0, 14, 128, "Listening for signals");
+    if (show_debug)
+    {
+        display.drawStringMaxWidth(0, 26, 128, "DEVICE ID: " + (String)DEVICE_ADDR);
+        display.drawStringMaxWidth(0, 38, 128, "DEVICE TYPE: User");
+    }
+    else
+    {
+        display.drawStringMaxWidth(0, 26, 128, content);
+    }
+    if (rx_pixel)
+    {
+        display.fillRect(123, 59, 5, 5);
+    }
     display.display();
 }
 
@@ -126,7 +139,7 @@ void setup()
     pinMode(SOS_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChanged, CHANGE);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChanged, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, CHANGE);  
+    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, CHANGE);
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -298,9 +311,10 @@ void loop()
         }
     }
 
-    if (rx_pixel && last_rx_indicator + 1000 < millis()) {
+    if (rx_pixel && last_rx_indicator + 1000 < millis())
+    {
         rx_pixel = false;
-        clearRect(123,59,5,5);
+        clearRect(123, 59, 5, 5);
         display.display();
     }
 
@@ -315,10 +329,11 @@ void loop()
             String rx_data_str = (String)rx_data;
             String dst = rx_data_str.substring(4, 8);
 
-            String src = rx_data_str.substring(0, 4); 
-            if (src != DEVICE_ADDR) {
+            String src = rx_data_str.substring(0, 4);
+            if (src != DEVICE_ADDR)
+            {
 
-                display.fillRect(123,59,5,5);
+                display.fillRect(123, 59, 5, 5);
                 display.display();
                 rx_pixel = true;
                 last_rx_indicator = millis();

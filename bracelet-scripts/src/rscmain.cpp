@@ -9,8 +9,8 @@
 #include <queue>
 
 #define DEVICE_TYPE 1
-#define USER_ID "1"
-#define DEVICE_ADDR "1100"
+#define USER_ID "1"        // 1, 2
+#define DEVICE_ADDR "1100" // 1101, 1102
 #define SERVICE_UUID "dc0d15eb-6298-44e3-9813-d9a5c58c43cc"
 #define WRITE_CHARACTERISTIC_UUID "d0d12d27-be27-4495-a236-9fa0860b4554"
 #define READ_CHARACTERISTIC_UUID "c31628d9-f40c-4e67-a03a-3a0445b44ce0"
@@ -97,44 +97,60 @@ BLEServer *pServer;
 std::queue<String> BT_queue;
 bool BT_flag = false;
 
-void clearRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
-    for (uint16_t i = x; i < x+width; i++) {
-        for (uint16_t j = y; j < y+height; j++) {
-            display.clearPixel(i,j);
+void clearRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
+{
+    for (uint16_t i = x; i < x + width; i++)
+    {
+        for (uint16_t j = y; j < y + height; j++)
+        {
+            display.clearPixel(i, j);
         }
     }
 }
- 
+
 int last_display_update = 0;
 int last_rx_indicator = 0;
 bool rx_pixel = false;
 bool show_debug = false;
 String content = "";
-void updateDisplay(String new_content) {
+void updateDisplay(String new_content)
+{
     content = new_content;
-    clearRect(0,0,128,64);
-    display.drawString(0,0,((String) heltec_battery_percent() + "%"));
-    if (BT_connected) {
-        display.drawString(50,0,"BT:O");
-    } else {
-        display.drawString(50,0,"BT:X");
+    clearRect(0, 0, 128, 64);
+    display.drawString(0, 0, ((String)heltec_battery_percent() + "%"));
+    if (BT_connected)
+    {
+        display.drawString(50, 0, "BT:O");
     }
-    if (gps.location.isValid()) {
-        display.drawString(96,0,"GPS:O");
-    } else {
-        display.drawString(96,0,"GPS:X");
+    else
+    {
+        display.drawString(50, 0, "BT:X");
     }
-    display.drawHorizontalLine(0,12,128);
-    display.drawStringMaxWidth(0,14,128,"Listening for signals...");
-    
-    if (show_debug) {
-        display.drawStringMaxWidth(0,26,128,"DEVICE ID: " + (String) USER_ID);    
-        display.drawStringMaxWidth(0,38,128,"DEVICE TYPE: Rescuer");    
-        display.drawStringMaxWidth(0,50,128,"BT: " + (String) ADVERT_NAME);    
-    } else {
-        display.drawStringMaxWidth(0,26,128,content);
+    if (gps.location.isValid())
+    {
+        display.drawString(96, 0, "GPS:O");
     }
-    if (rx_pixel) { display.fillRect(123,59,5,5); }
+    else
+    {
+        display.drawString(96, 0, "GPS:X");
+    }
+    display.drawHorizontalLine(0, 12, 128);
+    display.drawStringMaxWidth(0, 14, 128, "Listening for signals...");
+
+    if (show_debug)
+    {
+        display.drawStringMaxWidth(0, 26, 128, "DEVICE ID: " + (String)DEVICE_ADDR);
+        display.drawStringMaxWidth(0, 38, 128, "DEVICE TYPE: Rescuer");
+        display.drawStringMaxWidth(0, 50, 128, "BT: " + (String)ADVERT_NAME);
+    }
+    else
+    {
+        display.drawStringMaxWidth(0, 26, 128, content);
+    }
+    if (rx_pixel)
+    {
+        display.fillRect(123, 59, 5, 5);
+    }
     display.display();
 }
 
@@ -156,7 +172,7 @@ class ServerCallbacks : public NimBLEServerCallbacks
         pServer->getAdvertising()->stop();
         BT_connected = true;
         updateDisplay(content);
-        
+
         while (!BT_queue.empty())
         {
             pWriteCharacteristic->setValue(BT_queue.front());
@@ -350,7 +366,6 @@ void processPayload(char type, String data)
         BT_queue.push("-ENDP");
     }
 }
-
 
 void loop()
 {
