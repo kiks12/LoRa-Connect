@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MissionWithCost } from "@/types";
 import { useMapContext } from "@/contexts/MapContext";
 import { useUsers } from "./use-users";
@@ -114,37 +114,93 @@ export const useAdmin = () => {
 		return await Promise.all(tasks);
 	}
 
-	const sendTasksViaLoRa = useCallback(
-		(automatic: boolean = false) => {
-			if (timeIntervals.some((time) => time.title === "Send Tasks Via LoRa") && !automatic) {
-				toast({
-					variant: "destructive",
-					description: "Tasks Sender timer is currently working",
-				});
-			} else {
-				triggerFunctionWithTimerUsingTimeout2(
-					"Send Tasks Via LoRa",
-					() => {
-						let localPacketId = packetId;
-						const mapped = missions.map((mission) => {
-							const stringPacketId = formatTwoDigitNumber(localPacketId);
-							localPacketId = (localPacketId + 1) % 100;
-							return {
-								...mission,
-								packetId: stringPacketId,
-							};
-						});
-						setPacketId(localPacketId);
-						socket.emit(TASK_TO_RESCUER, mapped);
-					},
-					updateTime
-				);
-			}
-		},
-		[missions, packetId, setPacketId, timeIntervals, toast, updateTime]
-	);
+	function sendTasksViaLoRa(automatic: boolean = false) {
+		if (timeIntervals.some((time) => time.title === "Send Tasks Via LoRa") && !automatic) {
+			toast({
+				variant: "destructive",
+				description: "Tasks Sender timer is currently working",
+			});
+		} else {
+			triggerFunctionWithTimerUsingTimeout2(
+				"Send Tasks Via LoRa",
+				() => {
+					let localPacketId = packetId;
+					const mapped = missions.map((mission) => {
+						const stringPacketId = formatTwoDigitNumber(localPacketId);
+						localPacketId = (localPacketId + 1) % 100;
+						return {
+							...mission,
+							packetId: stringPacketId,
+						};
+					});
+					setPacketId(localPacketId);
+					socket.emit(TASK_TO_RESCUER, mapped);
+				},
+				updateTime
+			);
+		}
+	}
 
-	const runTaskAllocation = useCallback(async () => {
+	useEffect(() => {
+		if (automaticTaskAllocation) {
+			runTaskAllocation();
+			sendTasksViaLoRa(true);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [users, teams, automaticTaskAllocation, obstacles]);
+
+	useEffect(() => {
+		clearMarkers();
+		missions.forEach((mission, index) => {
+			showRoute(index, mission);
+		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [missions, showRoutes]);
+
+	function clearMarkers() {
+		markers.forEach((marker) => marker.remove());
+		setMarkers([]);
+	}
+
+	function clearRoutes() {
+		clearMarkers();
+		clearSourcesAndLayers(`TASK-ROUTE`);
+	}
+
+	function showRoute(index: number, mission: MissionWithCost) {
+		const rescuerBracelet = mission.Teams.rescuers.find((rescuer) => rescuer.bracelet)?.bracelet;
+		const userBracelet = mission.user.bracelet;
+		if (!rescuerBracelet || !userBracelet) return;
+		if (!mission.coordinates) return;
+		clearSourcesAndLayers(`TASK-ROUTE-${index}`);
+		addRoute(index, mission.coordinates);
+		addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
+	}
+
+	function addRoute(index: number, coordinates: number[][]) {
+		if (!mapRef.current) return;
+		const tag = `TASK-ROUTE-${index}`;
+		mapRef.current.addSource(tag, createRouteSource(coordinates));
+		mapRef.current.addLayer(createRouteLayerGeoJSON(tag, tag));
+	}
+
+	function addMarkers({ rescuer, user }: { rescuer: Bracelets; user: Bracelets }) {
+		if (!mapRef.current) return;
+		if (!rescuer.latitude || !rescuer.longitude || !user.latitude || !user.longitude) return;
+		const rescuerMarker = new maplibregl.Marker({
+			color: COLOR_MAP["RESCUERS"],
+		})
+			.setLngLat([rescuer.longitude, rescuer.latitude])
+			.addTo(mapRef.current);
+		const userMarker = new maplibregl.Marker({
+			color: COLOR_MAP["USERS"],
+		})
+			.setLngLat([user.longitude, user.latitude])
+			.addTo(mapRef.current);
+		setMarkers((prev) => [...prev, rescuerMarker, userMarker]);
+	}
+
+	async function runTaskAllocation() {
 		setMissions([]);
 		setTaskAllocationMessage("Running Task Allocation Algorithm...");
 
@@ -232,64 +288,6 @@ export const useAdmin = () => {
 		setTimeout(() => {
 			setTaskAllocationMessage("Run Task Allocation");
 		}, 3000);
-	}, [obstacles, setMissions, teams, toast, users]);
-
-	useEffect(() => {
-		if (automaticTaskAllocation) {
-			runTaskAllocation();
-			sendTasksViaLoRa(true);
-		}
-	}, [users, teams, automaticTaskAllocation, obstacles, runTaskAllocation, sendTasksViaLoRa]);
-
-	useEffect(() => {
-		clearMarkers();
-		missions.forEach((mission, index) => {
-			showRoute(index, mission);
-		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [missions, showRoutes]);
-
-	function clearMarkers() {
-		markers.forEach((marker) => marker.remove());
-		setMarkers([]);
-	}
-
-	function clearRoutes() {
-		clearMarkers();
-		clearSourcesAndLayers(`TASK-ROUTE`);
-	}
-
-	function showRoute(index: number, mission: MissionWithCost) {
-		const rescuerBracelet = mission.Teams.rescuers.find((rescuer) => rescuer.bracelet)?.bracelet;
-		const userBracelet = mission.user.bracelet;
-		if (!rescuerBracelet || !userBracelet) return;
-		if (!mission.coordinates) return;
-		clearSourcesAndLayers(`TASK-ROUTE-${index}`);
-		addRoute(index, mission.coordinates);
-		addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
-	}
-
-	function addRoute(index: number, coordinates: number[][]) {
-		if (!mapRef.current) return;
-		const tag = `TASK-ROUTE-${index}`;
-		mapRef.current.addSource(tag, createRouteSource(coordinates));
-		mapRef.current.addLayer(createRouteLayerGeoJSON(tag, tag));
-	}
-
-	function addMarkers({ rescuer, user }: { rescuer: Bracelets; user: Bracelets }) {
-		if (!mapRef.current) return;
-		if (!rescuer.latitude || !rescuer.longitude || !user.latitude || !user.longitude) return;
-		const rescuerMarker = new maplibregl.Marker({
-			color: COLOR_MAP["RESCUERS"],
-		})
-			.setLngLat([rescuer.longitude, rescuer.latitude])
-			.addTo(mapRef.current);
-		const userMarker = new maplibregl.Marker({
-			color: COLOR_MAP["USERS"],
-		})
-			.setLngLat([user.longitude, user.latitude])
-			.addTo(mapRef.current);
-		setMarkers((prev) => [...prev, rescuerMarker, userMarker]);
 	}
 
 	function updateRescuerLocations(assignments: MissionWithCost[]) {
