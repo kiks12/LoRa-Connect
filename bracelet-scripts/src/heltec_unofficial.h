@@ -289,16 +289,17 @@ int heltec_battery_percent(float vbat = -1) {
   //   }
   // }
   // return 0;
-  if (vbat >= 3.85) return 100;
-  else if (vbat >= 3.8) return 90;
-  else if (vbat >= 3.7) return 80;
-  else if (vbat >= 3.6) return 70;
-  else if (vbat >= 3.5) return 60;
-  else if (vbat >= 3.4) return 50;
-  else if (vbat >= 3.3) return 40;
-  else if (vbat >= 3.2) return 30;
-  else if (vbat >= 3.1) return 20;
-  else if (vbat >= 3.0) return 10;
+  if (vbat >= 3.90) return 100;
+  else if (vbat >= 3.80) return 90;
+  else if (vbat >= 3.76) return 80;
+  else if (vbat >= 3.72) return 70;
+  else if (vbat >= 3.68) return 60;
+  else if (vbat >= 3.65) return 50;
+  else if (vbat >= 3.61) return 40;
+  else if (vbat >= 3.57) return 30;
+  else if (vbat >= 3.50) return 20;
+  else if (vbat >= 3.30) return 10;
+  else if (vbat >= 2.80) return 5;
   else return 0;
 }
 
