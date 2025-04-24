@@ -54,7 +54,8 @@ export default function EvacuationInstructionButton({
 					});
 					socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions: mapped });
 				},
-				updateTime
+				updateTime,
+				() => {}
 			);
 		}
 	}
