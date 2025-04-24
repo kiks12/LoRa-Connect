@@ -214,6 +214,7 @@ class ReadCharacteristicCallbacks : public NimBLECharacteristicCallbacks
         buffer += chunk;
         if (buffer.endsWith("-ENDP"))
         {
+            buffer = buffer.substring(0, buffer.length() - 5);
             txPacket(buffer);
             buffer = "";
         }
