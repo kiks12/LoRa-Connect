@@ -50,6 +50,7 @@ volatile uint8_t urgency = 1;
 
 int last_tx_loc_time = 0;
 String urgency_strings[3] = {"Low", "Moderate", "Severe"};
+uint8_t urg_offsets[3] = {12,0,6};
 
 void urgencyChanged()
 {
@@ -81,18 +82,33 @@ void sosPressed()
 
 void rx() { rx_flag = true; }
 
+void clearRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+    for (uint16_t i = x; i < x+width; i++) {
+        for (uint16_t j = y; j < y+height; j++) {
+            display.clearPixel(i,j);
+        }
+    }
+}
+ 
+int last_display_update = 0;
+int last_rx_indicator = 0;
+bool rx_pixel = false;
 bool show_debug = false;
 String content = "";
-void updateDisplay(String newContent = "") {
-    display.cls();
-    if (show_debug) {
-        char debug_buffer[32];
-        snprintf(debug_buffer, 32, "ADDR: %s UID: %s", DEVICE_ADDR, USER_ID);
-        display.printf("%3d      %.2f      %s\n%s\n", heltec_battery_percent(), heltec_vbat(), urgency_strings[urgency-1], debug_buffer);    
+void updateDisplay(String new_content) {
+    content = new_content;
+    clearRect(0,0,128,64);
+    display.drawString(0,0,((String) heltec_battery_percent() + "%"));
+    display.drawString(38+urg_offsets[urgency-1],0,urgency_strings[urgency-1]);
+    if (gps.location.isValid()) {
+        display.drawString(96,0,"GPS:O");
     } else {
-        display.printf("%3d      %.2f      %s\n%s\n", heltec_battery_percent(), heltec_vbat(), urgency_strings[urgency-1], newContent == "" ? content.c_str() : newContent.c_str());    
+        display.drawString(96,0,"GPS:X");
     }
-    if (newContent != "") {content = newContent;}
+    display.drawHorizontalLine(0,12,128);
+    display.drawStringMaxWidth(0,14,128,"Listening for signals... \n" + content);
+    if (rx_pixel) { display.fillRect(123,59,5,5); }
+    display.display();
 }
 
 void setup()
@@ -121,7 +137,7 @@ void setup()
     preferences.begin("user");
     urgency = preferences.getUShort("urgency", 1);
 
-    updateDisplay("Waiting to start sending\nlocation...");
+    updateDisplay("Waiting to start sending location...");
 }
 
 void txPacket(String packet)
@@ -153,15 +169,12 @@ void txLocPacket(bool isSOS)
     if (isSOS)
     {
         snprintf(packet, sizeof(packet), "%s1004%s22%s-%s-%d", DEVICE_ADDR, id_buffer, lat_buffer, lng_buffer, urgency);
-        both.printf("Send SOS:%s\n", packet);
-        txPacket(packet);
     }
     else
     {
         snprintf(packet, sizeof(packet), "%s1001%s12%s-%s-%d", DEVICE_ADDR, id_buffer, lat_buffer, lng_buffer, urgency);
-        both.printf("Send LOC: %s\n", packet);
-        txPacket(packet);
     }
+    txPacket(packet);
 }
 
 bool isFamiliarBounce(String incoming)
@@ -209,7 +222,7 @@ void processPayload(char type, String payload)
 {
     if (type == '7')
     {
-        updateDisplay("Sending location to\nrescuers...");
+        updateDisplay("Sending location to rescuers...");
         tx_loc_flag = true;
         last_tx_loc_time = millis();
     }
@@ -221,14 +234,10 @@ void processPayload(char type, String payload)
     else if (type == 'A')
     {
         sos_flag = false;
-        updateDisplay("Rescue team on their way,\nDistance: " + payload);
+        updateDisplay("Rescue team on their way, Distance: " + payload);
     }
 }
 
-
-int last_display_update = 0;
-int last_rx_indicator = 0;
-bool rx_pixel = false;
 void loop()
 {
     heltec_loop();
@@ -250,16 +259,9 @@ void loop()
             else
             {
                 show_debug = !show_debug;
-                updateDisplay();
+                updateDisplay("dfdsf");
             }
         }
-    }
-
-    if (last_display_update + 5000 < millis())
-    {
-        show_debug = false;
-        updateDisplay();
-        last_display_update = millis();
     }
 
     while (gpsSerial.available())
@@ -271,13 +273,14 @@ void loop()
     {
         urg_update = false;
         preferences.putUShort("urgency", urgency);
-        updateDisplay();
+        updateDisplay(content);
     }
 
     if (sos_flag)
     {
         sos_flag = false;
         txLocPacket(true);
+        updateDisplay("Sending SOS to rescuers...");
     }
 
     if (gps.location.isUpdated())
@@ -289,9 +292,9 @@ void loop()
         }
     }
 
-    if (rx_pixel && last_rx_indicator + 500 < millis()) {
+    if (rx_pixel && last_rx_indicator + 1000 < millis()) {
         rx_pixel = false;
-        display.clearPixel(63,63);
+        clearRect(123,59,5,5);
         display.display();
     }
 
@@ -309,7 +312,7 @@ void loop()
             String src = rx_data_str.substring(0, 4); 
             if (src != DEVICE_ADDR) {
 
-                display.setPixel(127, 63);
+                display.fillRect(123,59,5,5);
                 display.display();
                 rx_pixel = true;
                 last_rx_indicator = millis();
@@ -336,9 +339,6 @@ void loop()
                         }
                     }
                 }
-
-                display.clearPixel(127, 63);
-
             }
         }
     }
