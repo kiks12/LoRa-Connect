@@ -9,13 +9,13 @@
 #include <queue>
 
 #define DEVICE_TYPE 1
-#define USER_ID "2"
-#define DEVICE_ADDR "1101"
+#define USER_ID "1"
+#define DEVICE_ADDR "1100"
 #define SERVICE_UUID "dc0d15eb-6298-44e3-9813-d9a5c58c43cc"
 #define WRITE_CHARACTERISTIC_UUID "d0d12d27-be27-4495-a236-9fa0860b4554"
 #define READ_CHARACTERISTIC_UUID "c31628d9-f40c-4e67-a03a-3a0445b44ce0"
 #define DESCRIPTOR_UUID "00002902-0000-1000-8000-00805f9b34fb"
-#define ADVERT_NAME "NimBLE Server 2"
+#define ADVERT_NAME "NimBLE Server 1"
 
 #define PAUSE 0
 #define FREQUENCY 433.0
@@ -97,18 +97,45 @@ BLEServer *pServer;
 std::queue<String> BT_queue;
 bool BT_flag = false;
 
-String content = "";
-bool show_debug = false;
-void updateDisplay(String newContent = "") {
-    display.cls();
-    if (show_debug) {
-        char debug_buffer[32];
-        snprintf(debug_buffer, 32, "ADDR: %s UID: %s \nBT: %s", DEVICE_ADDR, USER_ID, ADVERT_NAME);
-        display.printf("%d    BT %s\n%s", heltec_battery_percent(), (BT_connected ? "Connected" : "Not Connected"), debug_buffer);    
-    } else {
-        display.printf("%d    BT %s\n%s", heltec_battery_percent(), (BT_connected ? "Connected" : "Not Connected"), newContent == "" ? content.c_str() : newContent.c_str());    
+void clearRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height) {
+    for (uint16_t i = x; i < x+width; i++) {
+        for (uint16_t j = y; j < y+height; j++) {
+            display.clearPixel(i,j);
+        }
     }
-    if (newContent != "") {content = newContent;}
+}
+ 
+int last_display_update = 0;
+int last_rx_indicator = 0;
+bool rx_pixel = false;
+bool show_debug = false;
+String content = "";
+void updateDisplay(String new_content) {
+    content = new_content;
+    clearRect(0,0,128,64);
+    display.drawString(0,0,((String) heltec_battery_percent() + "%"));
+    if (BT_connected) {
+        display.drawString(50,0,"BT:O");
+    } else {
+        display.drawString(50,0,"BT:X");
+    }
+    if (gps.location.isValid()) {
+        display.drawString(96,0,"GPS:O");
+    } else {
+        display.drawString(96,0,"GPS:X");
+    }
+    display.drawHorizontalLine(0,12,128);
+    display.drawStringMaxWidth(0,14,128,"Listening for signals...");
+    
+    if (show_debug) {
+        display.drawStringMaxWidth(0,26,128,"DEVICE ID: " + (String) USER_ID);    
+        display.drawStringMaxWidth(0,38,128,"DEVICE TYPE: Rescuer");    
+        display.drawStringMaxWidth(0,50,128,"BT: " + (String) ADVERT_NAME);    
+    } else {
+        display.drawStringMaxWidth(0,26,128,content);
+    }
+    if (rx_pixel) { display.fillRect(123,59,5,5); }
+    display.display();
 }
 
 void txPacket(String packet)
@@ -128,12 +155,13 @@ class ServerCallbacks : public NimBLEServerCallbacks
         pServer->updateConnParams(connInfo.getConnHandle(), 24, 48, 0, 180);
         pServer->getAdvertising()->stop();
         BT_connected = true;
-        updateDisplay();
+        updateDisplay(content);
         
         while (!BT_queue.empty())
         {
             pWriteCharacteristic->setValue(BT_queue.front());
             pWriteCharacteristic->notify();
+            delay(10);
             BT_queue.pop();
         }
     }
@@ -141,7 +169,7 @@ class ServerCallbacks : public NimBLEServerCallbacks
     {
         NimBLEDevice::startAdvertising();
         BT_connected = false;
-        updateDisplay();
+        updateDisplay(content);
     }
 } serverCallbacks;
 
@@ -185,7 +213,7 @@ void setup()
     pinMode(SOS_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_1), urgencyChanged, CHANGE);
     attachInterrupt(digitalPinToInterrupt(URGENCY_PIN_2), urgencyChanged, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, RISING);
+    attachInterrupt(digitalPinToInterrupt(SOS_PIN), sosPressed, CHANGE);
 
     gpsSerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
     gpsSerial.println("$PMTK220,3000*1C");
@@ -211,12 +239,12 @@ void setup()
     pService->start();
 
     NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
-    pAdvertising->setName("NimBLE-Server-2");
+    pAdvertising->setName(ADVERT_NAME);
     pAdvertising->addServiceUUID(pService->getUUID());
     pAdvertising->enableScanResponse(true);
     pAdvertising->start();
 
-    updateDisplay("Waiting to start sending\nlocation");
+    updateDisplay("Waiting to start sending location");
 }
 
 void txLocPacket()
@@ -236,7 +264,6 @@ void txLocPacket()
     }
 
     snprintf(packet, sizeof(packet), "%s1004%s62%s-%s-%s", DEVICE_ADDR, id_buffer, lat_buffer, lng_buffer, "1");
-    both.printf("Location packet: %s\n", packet);
     txPacket(packet);
 }
 
@@ -245,7 +272,7 @@ bool isFamiliarBounce(String incoming)
     String *p = std::find(bounced_packet_history, bounced_packet_history + BOUNCED_PACKET_HISTORY_SIZE, incoming);
     if (p == bounced_packet_history + BOUNCED_PACKET_HISTORY_SIZE)
     {
-        both.printf("New, reTx\n");
+        // both.printf("New, reTx\n");
         bounced_packet_history[bounced_packet_history_index] = incoming;
         bounced_packet_history_index++;
         if (bounced_packet_history_index >= PACKET_HISTORY_SIZE)
@@ -256,7 +283,7 @@ bool isFamiliarBounce(String incoming)
     }
     else
     {
-        both.printf("Old, no reTx\n");
+        // both.printf("Old, no reTx\n");
         return true;
     }
 }
@@ -266,7 +293,7 @@ bool isFamiliarProcess(String incoming)
     String *p = std::find(packet_history, packet_history + PACKET_HISTORY_SIZE, incoming);
     if (p == packet_history + PACKET_HISTORY_SIZE)
     {
-        both.printf("New, process\n");
+        // both.printf("New, process\n");
         packet_history[packet_history_index] = incoming;
         packet_history_index++;
         if (packet_history_index >= PACKET_HISTORY_SIZE)
@@ -277,7 +304,7 @@ bool isFamiliarProcess(String incoming)
     }
     else
     {
-        both.printf("Old, ignore\n");
+        // both.printf("Old, ignore\n");
         return true;
     }
 }
@@ -300,7 +327,7 @@ void processPayload(char type, String data)
     for (size_t i = 0; i < payloadLen; i += maxChunkSize)
     {
         String chunk = data.substring(i, i + maxChunkSize);
-        if (BT_connected)
+        if (true)
         {
             pWriteCharacteristic->setValue((uint8_t *)chunk.c_str(), chunk.length());
             pWriteCharacteristic->notify();
@@ -313,18 +340,18 @@ void processPayload(char type, String data)
     }
 
     String endMarker = "-ENDP";
-    if (BT_connected)
+    if (true)
     {
         pWriteCharacteristic->setValue((uint8_t *)endMarker.c_str(), endMarker.length());
         pWriteCharacteristic->notify();
     }
     else
     {
-        BT_queue.push("-EMDP");
+        BT_queue.push("-ENDP");
     }
 }
 
-int last_display_update = 0;
+
 void loop()
 {
     heltec_loop();
@@ -346,20 +373,15 @@ void loop()
             else
             {
                 show_debug = !show_debug;
-                updateDisplay();
+                updateDisplay(content);
             }
         }
-    }
-
-    if (sos_flag) {
-        sos_flag = false;
-        txPacket("100410030072");//TODO REMOVE THIS 
     }
 
     if (last_display_update + 5000 < millis())
     {
         show_debug = false;
-        updateDisplay();
+        updateDisplay(content);
         last_display_update = millis();
     }
 

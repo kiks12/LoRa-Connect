@@ -106,7 +106,13 @@ void updateDisplay(String new_content) {
         display.drawString(96,0,"GPS:X");
     }
     display.drawHorizontalLine(0,12,128);
-    display.drawStringMaxWidth(0,14,128,"Listening for signals... \n" + content);
+    display.drawStringMaxWidth(0,14,128,"Listening for signals");
+    if (show_debug) {
+        display.drawStringMaxWidth(0,26,128,"DEVICE ID: " + (String) USER_ID);    
+        display.drawStringMaxWidth(0,38,128,"DEVICE TYPE: User");    
+    } else {
+        display.drawStringMaxWidth(0,26,128,content);
+    }
     if (rx_pixel) { display.fillRect(123,59,5,5); }
     display.display();
 }
@@ -259,7 +265,7 @@ void loop()
             else
             {
                 show_debug = !show_debug;
-                updateDisplay("dfdsf");
+                updateDisplay(content);
             }
         }
     }
