@@ -149,31 +149,208 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		setTeamsLoading(false);
 	}
 
+	const locationFromUser = useCallback(async ({ data }: { data: string }) => {
+		const source = data.substring(0, 4);
+		const payload = data.substring(12, data.length);
+		const splitPayload = payload.split("-");
+		const latitude = parseFloat(splitPayload[0]);
+		const longitude = parseFloat(splitPayload[1]);
+		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
+		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: false });
+		setUsers((prev) => {
+			if (prev.length < 0) return prev;
+			return prev.map((user) => {
+				if (user.bracelet && user.bracelet.braceletId === source) {
+					return {
+						...user,
+						bracelet: {
+							...user.bracelet,
+							latitude: latitude,
+							longitude: longitude,
+						},
+					};
+				}
+				return user;
+			});
+		});
+	}, []);
+
+	const sosFromUser = useCallback(async ({ data }: { data: string }) => {
+		const source = data.substring(0, 4);
+		const payload = data.substring(12, data.length);
+		const splitPayload = payload.split("-");
+		const latitude = parseFloat(splitPayload[0]);
+		const longitude = parseFloat(splitPayload[1]);
+		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
+		await saveSosToDatabase({ braceletId: source, latitude, longitude, urgency, sos: true, rescuer: false });
+		setUsers((prev) => {
+			return prev.map((user) => {
+				if (user.bracelet && user.bracelet.braceletId === source) {
+					return {
+						...user,
+						bracelet: {
+							...user.bracelet,
+							latitude: latitude,
+							longitude: longitude,
+							sos: true,
+							urgency: urgency,
+						},
+					};
+				}
+				return user;
+			});
+		});
+	}, []);
+
+	const locationFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		const source = data.substring(0, 4);
+		const payload = data.substring(12, data.length);
+		const splitPayload = payload.split("-");
+		const latitude = parseFloat(splitPayload[0]);
+		const longitude = parseFloat(splitPayload[1]);
+		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
+		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: true });
+		setTeams((prev) => {
+			return prev.map((team) => {
+				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
+				if (teamBracelet?.bracelet && teamBracelet.bracelet?.braceletId === source) {
+					return {
+						...team,
+						rescuers: team.rescuers.map((rescuer) => {
+							if (rescuer.bracelet && rescuer.bracelet.braceletId === source) {
+								return {
+									...rescuer,
+									bracelet: {
+										...rescuer.bracelet,
+										latitude: latitude,
+										longitude: longitude,
+									},
+								};
+							}
+							return rescuer;
+						}),
+					};
+				}
+				return team;
+			});
+		});
+	}, []);
+
+	const sosFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		const source = data.substring(0, 4);
+		const payload = data.substring(12, data.length);
+		const splitPayload = payload.split("-");
+		const latitude = parseFloat(splitPayload[0]);
+		const longitude = parseFloat(splitPayload[1]);
+		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
+		await saveSosToDatabase({ braceletId: source, latitude, longitude, urgency, sos: true, rescuer: true });
+		setTeams((prev) => {
+			return prev.map((team) => {
+				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
+				if (teamBracelet?.bracelet && teamBracelet.bracelet?.braceletId === source) {
+					return {
+						...team,
+						rescuers: team.rescuers.map((rescuer) => {
+							if (rescuer.bracelet && rescuer.bracelet.braceletId === source) {
+								return {
+									...rescuer,
+									bracelet: {
+										...rescuer.bracelet,
+										latitude: latitude,
+										longitude: longitude,
+										sos: true,
+										urgency: urgency,
+									},
+								};
+							}
+							return rescuer;
+						}),
+					};
+				}
+				return team;
+			});
+		});
+	}, []);
+
+	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
+		const source = data.substring(0, 4);
+		const payload = data.substring(12);
+	}
+
+	const taskStatusUpdateFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		const payload = data.substring(12);
+		const [missionId, status] = payload.split("-");
+		const mission = missionsLookupRef.current.find((mission) => mission.missionId === missionId);
+		if (status === "5" && mission) {
+			await saveSosToDatabase({
+				braceletId: mission.userBraceletId,
+				latitude: mission.userLat,
+				longitude: mission.userLong,
+				urgency: mission.urgency,
+				sos: false,
+				rescuer: false,
+			});
+			setUsers((prev) =>
+				prev.map((user) => {
+					if (user.bracelet.braceletId === mission.userBraceletId) {
+						return {
+							...user,
+							bracelet: {
+								...user.bracelet,
+								sos: false,
+							},
+						};
+					}
+					return user;
+				})
+			);
+		}
+		setMissions((prev) =>
+			prev.map((mission) => {
+				if (mission.missionId === missionId) {
+					return {
+						...mission,
+						status: MISSION_STATUS_MAP[payload] ?? OperationStatus.PENDING,
+					};
+				}
+				return mission;
+			})
+		);
+	}, []);
+
 	useEffect(() => {
 		if (usersLoading) return;
 
 		socket.on(LOCATION_FROM_USER, locationFromUser);
 		socket.on(SOS_FROM_USER, sosFromUser);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [usersLoading]);
+
+		return () => {
+			socket.off(LOCATION_FROM_USER, locationFromUser);
+			socket.off(SOS_FROM_USER, sosFromUser);
+		};
+	}, [locationFromUser, sosFromUser, usersLoading]);
 
 	useEffect(() => {
 		if (teamsLoading) return;
 
 		socket.on(LOCATION_FROM_RESCUER, locationFromRescuer);
 		socket.on(SOS_FROM_RESCUER, sosFromRescuer);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [teamsLoading]);
+
+		return () => {
+			socket.off(LOCATION_FROM_RESCUER, locationFromRescuer);
+			socket.off(SOS_FROM_RESCUER, sosFromRescuer);
+		};
+	}, [locationFromRescuer, sosFromRescuer, teamsLoading]);
 
 	useEffect(() => {
-		// socket.on(LOCATION_FROM_USER, locationFromUser);
-		// socket.on(SOS_FROM_USER, sosFromUser);
-		// socket.on(LOCATION_FROM_RESCUER, locationFromRescuer);
-		// socket.on(SOS_FROM_RESCUER, sosFromRescuer);
 		socket.on(TASK_ACKNOWLEDGEMENT_FROM_RESCUER, taskAcknowledgementFromRescuer);
 		socket.on(TASK_STATUS_UPDATE_FROM_RESCUER, taskStatusUpdateFromRescuer);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+
+		return () => {
+			socket.off(TASK_ACKNOWLEDGEMENT_FROM_RESCUER, taskAcknowledgementFromRescuer);
+			socket.off(TASK_STATUS_UPDATE_FROM_RESCUER, taskStatusUpdateFromRescuer);
+		};
+	}, [taskStatusUpdateFromRescuer]);
 
 	useEffect(() => {
 		if (styleLoaded) {
@@ -277,185 +454,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		[]
 	);
 
-	async function locationFromUser({ data }: { data: string }) {
-		const source = data.substring(0, 4);
-		const payload = data.substring(12, data.length);
-		const splitPayload = payload.split("-");
-		const latitude = parseFloat(splitPayload[0]);
-		const longitude = parseFloat(splitPayload[1]);
-		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: false });
-		if (users.length > 0) {
-			setUsers((prev) => {
-				return prev.map((user) => {
-					if (user.bracelet && user.bracelet.braceletId === source) {
-						return {
-							...user,
-							bracelet: {
-								...user.bracelet,
-								latitude: latitude,
-								longitude: longitude,
-								sos: user.bracelet.sos,
-								urgency: urgency,
-							},
-						};
-					}
-					return user;
-				});
-			});
-		}
-	}
-
-	async function sosFromUser({ data }: { data: string }) {
-		const source = data.substring(0, 4);
-		const payload = data.substring(12, data.length);
-		const splitPayload = payload.split("-");
-		const latitude = parseFloat(splitPayload[0]);
-		const longitude = parseFloat(splitPayload[1]);
-		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await saveSosToDatabase({ braceletId: source, latitude, longitude, urgency, sos: true, rescuer: false });
-		setUsers((prev) => {
-			return prev.map((user) => {
-				if (user.bracelet && user.bracelet.braceletId === source) {
-					return {
-						...user,
-						bracelet: {
-							...user.bracelet,
-							latitude: latitude,
-							longitude: longitude,
-							sos: true,
-							urgency: urgency,
-						},
-					};
-				}
-				return user;
-			});
-		});
-	}
-
-	async function locationFromRescuer({ data }: { data: string }) {
-		const source = data.substring(0, 4);
-		const payload = data.substring(12, data.length);
-		const splitPayload = payload.split("-");
-		const latitude = parseFloat(splitPayload[0]);
-		const longitude = parseFloat(splitPayload[1]);
-		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: true });
-		setTeams((prev) => {
-			return prev.map((team) => {
-				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
-				if (teamBracelet?.bracelet && teamBracelet.bracelet?.braceletId === source) {
-					return {
-						...team,
-						rescuers: team.rescuers.map((rescuer) => {
-							if (rescuer.bracelet && rescuer.bracelet.braceletId === source) {
-								return {
-									...rescuer,
-									bracelet: {
-										...rescuer.bracelet,
-										latitude: latitude,
-										longitude: longitude,
-										sos: true,
-										urgency: urgency,
-									},
-								};
-							}
-							return rescuer;
-						}),
-					};
-				}
-				return team;
-			});
-		});
-	}
-
-	async function sosFromRescuer({ data }: { data: string }) {
-		const source = data.substring(0, 4);
-		const payload = data.substring(12, data.length);
-		const splitPayload = payload.split("-");
-		const latitude = parseFloat(splitPayload[0]);
-		const longitude = parseFloat(splitPayload[1]);
-		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
-		await saveSosToDatabase({ braceletId: source, latitude, longitude, urgency, sos: true, rescuer: true });
-		setTeams((prev) => {
-			return prev.map((team) => {
-				const teamBracelet = team.rescuers.find((rescuer) => rescuer.bracelet);
-				if (teamBracelet?.bracelet && teamBracelet.bracelet?.braceletId === source) {
-					return {
-						...team,
-						rescuers: team.rescuers.map((rescuer) => {
-							if (rescuer.bracelet && rescuer.bracelet.braceletId === source) {
-								return {
-									...rescuer,
-									bracelet: {
-										...rescuer.bracelet,
-										latitude: latitude,
-										longitude: longitude,
-										sos: true,
-										urgency: urgency,
-									},
-								};
-							}
-							return rescuer;
-						}),
-					};
-				}
-				return team;
-			});
-		});
-	}
-
-	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
-		const source = data.substring(0, 4);
-		const payload = data.substring(12);
-	}
-
-	const taskStatusUpdateFromRescuer = useCallback(
-		async ({ data }: { data: string }) => {
-			const payload = data.substring(12);
-			const [missionId, status] = payload.split("-");
-			const mission = missionsLookupRef.current.find((mission) => mission.missionId === missionId);
-			if (status === "5" && mission) {
-				await saveSosToDatabase({
-					braceletId: mission.userBraceletId,
-					latitude: mission.userLat,
-					longitude: mission.userLong,
-					urgency: mission.urgency,
-					sos: false,
-					rescuer: false,
-				});
-				setUsers((prev) =>
-					prev.map((user) => {
-						if (user.bracelet.braceletId === mission.userBraceletId) {
-							return {
-								...user,
-								bracelet: {
-									...user.bracelet,
-									sos: false,
-								},
-							};
-						}
-						return user;
-					})
-				);
-			}
-
-			setMissions((prev) =>
-				prev.map((mission) => {
-					if (mission.missionId === missionId) {
-						return {
-							...mission,
-							status: MISSION_STATUS_MAP[payload] ?? OperationStatus.PENDING,
-						};
-					}
-					return mission;
-				})
-			);
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[missions, users, saveSosToDatabase]
-	);
-
 	async function saveNewLocationToDatabase({
 		braceletId,
 		latitude,
@@ -471,13 +469,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			method: "PATCH",
 			body: JSON.stringify({ braceletId, latitude, longitude, urgency: 1 }),
 		});
-		if (rescuer) {
-			setRescuers(
-				(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
-			);
-		} else {
-			setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
-		}
+		// if (rescuer) {
+		// 	setRescuers(
+		// 		(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
+		// 	);
+		// } else {
+		// 	setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
+		// }
 	}
 
 	async function saveSosToDatabase({
@@ -499,13 +497,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			method: "PATCH",
 			body: JSON.stringify({ braceletId, latitude, longitude, urgency: urgency, sos }),
 		});
-		if (rescuer) {
-			setRescuers(
-				(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
-			);
-		} else {
-			setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
-		}
+		// if (rescuer) {
+		// 	setRescuers(
+		// 		(prev) => (prev = rescuers.map((rescuer) => (rescuer.bracelet?.braceletId === braceletId ? { ...rescuer, latitude, longitude } : rescuer)))
+		// 	);
+		// } else {
+		// 	setUsers((prev) => (prev = users.map((user) => (user.bracelet?.braceletId === braceletId ? { ...user, latitude, longitude } : user))));
+		// }
 	}
 
 	const providerValue = useMemo(() => {
