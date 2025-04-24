@@ -41,6 +41,7 @@ export function triggerFunctionWithTimerUsingTimeout2(
   title: string,
   callback: () => void,
   updateTime: (title: string, remainingTime: number, maxTime: number) => void,
+  onFinish: () => void,
   // remainingTime = 5 * 60 * 1000, // Default: 5 minutes
   maxTime = 5 * 60 * 1000 // Keep track of the max time
 ) {
@@ -58,6 +59,7 @@ export function triggerFunctionWithTimerUsingTimeout2(
 
     if (remainingTime <= 0) {
       clearInterval(interval); // Stop countdown
+      onFinish();
       updateTime(title, 0, maxTime); // Remove from state
       return;
     }
