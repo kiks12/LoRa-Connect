@@ -38,7 +38,6 @@ export default function Home() {
 							<div className="flex justify-between items-center">
 								<div className="flex flex-col">
 									<Image src="/logos/single-line-transparent.png" height={10} width={300} alt="Logo" />
-									<h2 className="text-2xl font-medium">Control Center</h2>
 								</div>
 								<div className="flex flex-col justify-end items-end">
 									<Suspense>

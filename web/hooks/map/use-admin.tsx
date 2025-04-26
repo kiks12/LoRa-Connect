@@ -179,7 +179,7 @@ export const useAdmin = () => {
 		if (!mission.coordinates) return;
 		clearSourcesAndLayers(`TASK-ROUTE-${index}`);
 		addRoute(index, mission.coordinates);
-		addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
+		// addMarkers({ rescuer: rescuerBracelet!, user: userBracelet! });
 	}
 
 	function addRoute(index: number, coordinates: number[][]) {

@@ -21,16 +21,16 @@ export const useRouting = () => {
 		const minimumTime = data.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 		mapRef.current.addSource("ROUTE", createRouteSource(minimumTime.points.coordinates));
 		mapRef.current.addLayer(createRouteLayerGeoJSON("ROUTE", "ROUTE"));
-		fromMarker.current = new maplibregl.Marker({
-			color: COLOR_MAP[from.type],
-		})
-			.setLngLat([from.longitude!, from.latitude!])
-			.addTo(mapRef.current);
-		toMarker.current = new maplibregl.Marker({
-			color: COLOR_MAP[to.type],
-		})
-			.setLngLat([to.longitude!, to.latitude!])
-			.addTo(mapRef.current);
+		// fromMarker.current = new maplibregl.Marker({
+		// 	color: COLOR_MAP[from.type],
+		// })
+		// 	.setLngLat([from.longitude!, from.latitude!])
+		// 	.addTo(mapRef.current);
+		// toMarker.current = new maplibregl.Marker({
+		// 	color: COLOR_MAP[to.type],
+		// })
+		// 	.setLngLat([to.longitude!, to.latitude!])
+		// 	.addTo(mapRef.current);
 	}
 
 	function clearRoute() {

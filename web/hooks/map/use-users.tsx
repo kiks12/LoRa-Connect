@@ -1,83 +1,44 @@
 import { UserWithStatusIdentifier } from "@/types";
-import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON } from "@/utils/map";
-import { LayerSpecification, SourceSpecification } from "maplibre-gl";
-import { useCallback, useEffect, useState } from "react";
-import { USER_SOURCE_BASE } from "@/utils/tags";
+import { useState } from "react";
 import { useAppContext } from "@/contexts/AppContext";
-import { useMapContext } from "@/contexts/MapContext";
+import { createGeoJsonSourceId, USER_POINT_SOURCE } from "@/utils/tags";
 
 export const useUsers = () => {
-	const { mapRef, clearSourcesAndLayers, removeSourceAndLayer } = useMapContext();
-	const { users, setUsers, fetchUsersAPI } = useAppContext();
+	const { users, setUsers, fetchUsersAPI, startPulseAnimation } = useAppContext();
 	const [usersLoading, setUsersLoading] = useState(false);
 	const [showUserLocations, setShowUserLocations] = useState(false);
+	const pulseControllers: {
+		[layerId: string]: () => void;
+	} = {};
 
-	// API FETCHING OF OWNERS
-	useEffect(() => {
-		fetchUsers();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	async function fetchUsers() {
-		setUsersLoading(true);
-		fetchUsersAPI();
-		setUsersLoading(false);
-	}
-
-	const addUserPoint = useCallback(
-		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = false) => {
-			if (!bracelet) return;
-			if (bracelet && bracelet.latitude === null && bracelet.longitude === null) return;
-			if (!mapRef.current) return;
-			const { sourceId, data } = createOwnerPointGeoJSON({ userId, latitude: bracelet!.latitude!, longitude: bracelet!.longitude! });
-			const mapRefSource = mapRef.current.getSource(sourceId);
-
-			if (mapRefSource && showLocation) return;
-			if (mapRefSource && !showLocation && !monitorLocation) return removeUserPoint(sourceId, userId);
-			if (mapRefSource && monitorLocation) removeUserPoint(sourceId, userId);
-
-			mapRef.current.addSource(sourceId, data as SourceSpecification);
-			mapRef.current.addLayer(createOwnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
-			toggleUserShowStatus(userId);
-		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[]
-	);
-
-	function removeUserPoint(sourceId: string, userId: number) {
-		removeSourceAndLayer(sourceId);
-		toggleUserShowStatus(userId);
-	}
-
-	function toggleUserShowStatus(userId: number) {
-		setUsers((prev) => (prev = prev.map((user) => (user.userId === userId ? { ...user, showing: !user.showing } : user))));
-	}
-
-	function clearUserShowStatuses() {
-		setUsers((prev) => (prev = prev.map((user) => ({ ...user, showing: false }))));
+	function onShowLocation(user: UserWithStatusIdentifier) {
+		const sourceId = `${createGeoJsonSourceId([USER_POINT_SOURCE], user.userId)}-pulse`;
+		user.showing = !user.showing;
+		if (user.showing) {
+			if (!pulseControllers[sourceId]) {
+				const stopPulse = startPulseAnimation(sourceId);
+				pulseControllers[sourceId] = stopPulse;
+			}
+		} else {
+			if (pulseControllers[sourceId]) {
+				pulseControllers[sourceId](); // Call the stop function
+				delete pulseControllers[sourceId]; // Clean up
+			}
+		}
 	}
 
 	function refreshUsers() {
 		fetchUsersAPI();
 	}
 
-	useEffect(() => {
-		if (!showUserLocations) {
-			clearSourcesAndLayers(USER_SOURCE_BASE);
-			clearUserShowStatuses();
-			return;
-		}
-		users.forEach((user) => addUserPoint(user, true));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [addUserPoint, showUserLocations]);
-
 	return {
 		users,
-		addUserPoint,
+		// addUserPoint,
 		showUserLocations,
 		setShowUserLocations,
-		clearUserShowStatuses,
+		// clearUserShowStatuses,
 		refreshUsers,
 		usersLoading,
+		onShowLocation,
 	};
 };

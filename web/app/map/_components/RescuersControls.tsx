@@ -11,7 +11,7 @@ import { useMapContext } from "@/contexts/MapContext";
 
 export default function RescuersControls() {
 	const { clearSourcesAndLayers } = useMapContext();
-	const { teams, clearRescuerShowStatuses, clearTeamShowStatuses, refreshRescuers, rescuersLoading, addTeamPoint } = useRescuers();
+	const { teams, clearRescuerShowStatuses, clearTeamShowStatuses, refreshRescuers, rescuersLoading, onShowLocation } = useRescuers();
 	const [search, setSearch] = useState("");
 
 	function onClearClick() {
@@ -78,7 +78,7 @@ export default function RescuersControls() {
 										.map((team, index) => {
 											return (
 												<div className="mb-2" key={index}>
-													<TeamItem team={team} forMap={true} onShowLocationOnMap={() => addTeamPoint(team)} />
+													<TeamItem team={team} forMap={true} onShowLocationOnMap={() => onShowLocation(team)} />
 												</div>
 											);
 										})

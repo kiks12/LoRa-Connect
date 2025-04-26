@@ -22,12 +22,22 @@ import {
 import { NUMBER_TO_URGENCY, URGENCY_LORA_TO_DB, URGENCY_TO_NUMBER } from "@/utils/urgency";
 import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, useRef } from "react";
 import { useMapContext } from "./MapContext";
-import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
+import {
+	createOwnerPointGeoJSON,
+	createOwnerInnerPointLayerGeoJSON,
+	createRescuerPointGeoJSON,
+	createRescuerInnerPointLayerGeoJSON,
+	createOwnerOuterPointLayerGeoJSON,
+	createRescuerOuterPointLayerGeoJSON,
+	createOwnerLabelLayer,
+	createRescuerLabelLayer,
+} from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
-import { Obstacle, Operations, OperationStatus, RescueUrgency } from "@prisma/client";
+import { Obstacle, OperationStatus, RescueUrgency } from "@prisma/client";
 import { useToast } from "@/hooks/use-toast";
 import { fetchRoute } from "@/app/algorithm";
+import { formatName } from "@/lib/utils";
 
 const AppContext = createContext<{
 	users: UserWithStatusIdentifier[];
@@ -49,6 +59,9 @@ const AppContext = createContext<{
 	packetId: number;
 	setPacketId: Dispatch<SetStateAction<number>>;
 	incrementPacketId: () => void;
+	packetLogs: string[];
+	setPacketLogs: Dispatch<SetStateAction<string[]>>;
+	startPulseAnimation: (layerId: string) => () => void;
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
@@ -65,6 +78,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const missionsLookupRef = useRef<MissionWithCost[]>([]);
 	const [timeIntervals, setTimeIntervals] = useState<{ max: number; time: number; title: string }[]>([]);
 	const { mapRef, removeSourceAndLayer, styleLoaded } = useMapContext();
+	const [packetLogs, setPacketLogs] = useState<string[]>([]);
 
 	useEffect(() => {
 		fetchUsersAPI();
@@ -149,7 +163,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		setTeamsLoading(false);
 	}
 
+	function addPacketToLogs(packet: string) {
+		setPacketLogs((prev) => [...prev, packet]);
+	}
+
+	function createPacketLog(packet: string): string {
+		const source = packet.substring(0, 4);
+		const payload = packet.substring(12, packet.length);
+		return `SOURCE: ${source}, PAYLOAD: ${payload}`;
+	}
+
 	const locationFromUser = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -176,6 +201,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const sosFromUser = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -203,6 +229,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const locationFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -237,6 +264,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const sosFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -273,11 +301,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12);
 	}
 
 	const taskStatusUpdateFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const payload = data.substring(12);
 		const [missionId, status] = payload.split("-");
 		const mission = missionsLookupRef.current.find((mission) => mission.missionId === missionId);
@@ -350,6 +380,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			socket.off(TASK_ACKNOWLEDGEMENT_FROM_RESCUER, taskAcknowledgementFromRescuer);
 			socket.off(TASK_STATUS_UPDATE_FROM_RESCUER, taskStatusUpdateFromRescuer);
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [taskStatusUpdateFromRescuer]);
 
 	useEffect(() => {
@@ -413,11 +444,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, [missions, toast]);
 
 	const addUserPoint = useCallback(
-		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
+		(
+			{ bracelet, userId, givenName, middleName, lastName }: UserWithStatusIdentifier,
+			showLocation: boolean = false,
+			monitorLocation: boolean = true
+		) => {
 			if (!bracelet) return;
 			if (bracelet && bracelet.latitude === null && bracelet.longitude === null) return;
 			if (!mapRef.current) return;
-			const { sourceId, data } = createOwnerPointGeoJSON({ userId, latitude: bracelet!.latitude!, longitude: bracelet!.longitude! });
+			const { sourceId, data } = createOwnerPointGeoJSON({
+				userId,
+				name: formatName(givenName, middleName, lastName, ""),
+				latitude: bracelet!.latitude!,
+				longitude: bracelet!.longitude!,
+			});
 			const mapRefSource = mapRef.current.getSource(sourceId);
 
 			if (mapRefSource && showLocation) return;
@@ -425,30 +465,75 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			if (mapRefSource && monitorLocation) removePoint(sourceId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
-			mapRef.current.addLayer(createOwnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createOwnerInnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createOwnerLabelLayer({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createOwnerOuterPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+
+			// startPulseAnimation(`${sourceId}-pulse`);
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
+
+	function startPulseAnimation(layerId) {
+		let startTime = performance.now();
+		let isRunning = true;
+
+		function animatePulse(timestamp) {
+			if (!isRunning) return;
+			const elapsed = timestamp - startTime;
+			const t = (elapsed % 1000) / 1000; // Normalize time: 0 → 1 every second
+
+			const minRadius = 10;
+			const maxRadius = 40; // Bigger pulse
+			const radius = minRadius + (maxRadius - minRadius) * t; // Grow smoothly from 10 → 30
+
+			const opacity = Math.max(0, Math.min(1, 1 - t));
+
+			if (mapRef.current.getLayer(layerId)) {
+				mapRef.current.setPaintProperty(layerId, "circle-radius", radius);
+				mapRef.current.setPaintProperty(layerId, "circle-opacity", opacity);
+			}
+
+			requestAnimationFrame(animatePulse);
+		}
+
+		requestAnimationFrame(animatePulse);
+
+		return () => {
+			isRunning = false;
+			if (mapRef.current && mapRef.current.getLayer(layerId)) {
+				mapRef.current.setPaintProperty(layerId, "circle-opacity", 0);
+				mapRef.current.setPaintProperty(layerId, "circle-radius", 10); // reset to base radius
+			}
+		};
+	}
 
 	function removePoint(sourceId: string) {
 		removeSourceAndLayer(sourceId);
 	}
 
 	const addTeamPoint = useCallback(
-		({ rescuers, teamId }: TeamWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
+		({ rescuers, teamId, name }: TeamWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
 			const { bracelet } = rescuers.filter((rescuer) => rescuer.bracelet !== null)[0];
 			if (bracelet && bracelet.latitude === null && bracelet.longitude === null) return;
 			if (!bracelet) return;
 			if (!mapRef.current) return;
-			const { sourceId, data } = createRescuerPointGeoJSON({ rescuerId: teamId, latitude: bracelet!.latitude!, longitude: bracelet!.longitude! });
+			const { sourceId, data } = createRescuerPointGeoJSON({
+				rescuerId: teamId,
+				name: name,
+				latitude: bracelet!.latitude!,
+				longitude: bracelet!.longitude!,
+			});
 
 			if (mapRef.current.getSource(sourceId) && showLocation) return;
 			if (mapRef.current.getSource(sourceId) && !showLocation && !monitorLocation) return removePoint(sourceId);
 			if (mapRef.current.getSource(sourceId) && monitorLocation) removePoint(sourceId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
-			mapRef.current.addLayer(createRescuerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createRescuerInnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createRescuerLabelLayer({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createRescuerOuterPointLayerGeoJSON({ sourceId }) as LayerSpecification);
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
@@ -531,8 +616,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			packetId,
 			setPacketId,
 			incrementPacketId,
+
+			packetLogs,
+			setPacketLogs,
+
+			startPulseAnimation,
 		};
-	}, [users, rescuers, teams, obstacles, missions, monitorLocations, timeIntervals, packetId]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [users, rescuers, teams, obstacles, missions, monitorLocations, timeIntervals, packetId, packetLogs]);
 
 	return <AppContext.Provider value={providerValue}>{children}</AppContext.Provider>;
 };
