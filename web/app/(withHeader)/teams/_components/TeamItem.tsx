@@ -10,6 +10,8 @@ import Link from "next/link";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { URGENCY_MAP } from "@/app/map/_components/BraceletWithUserListItem";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function TeamItem({
 	team,
@@ -117,14 +119,14 @@ export default function TeamItem({
 						</Button>
 					</div>
 				</div>
-				{/* {isTeamWithStatusIndicator(team) && (
+				{isTeamWithStatusIndicator(team) && (
 					<div className="mt-4">
 						<div className="flex items-center">
 							<Switch onCheckedChange={onShowLocationOnMap} />
 							<Label className="ml-2">Show Location</Label>
 						</div>
 					</div>
-				)} */}
+				)}
 			</div>
 			{forMap && isTeamWithStatusIndicator(team) && rescuerWithBracelet?.bracelet?.sos && (
 				<div className="flex items-center mt-3">

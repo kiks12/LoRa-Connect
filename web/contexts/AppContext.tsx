@@ -26,8 +26,9 @@ import {
 	createOwnerPointGeoJSON,
 	createOwnerInnerPointLayerGeoJSON,
 	createRescuerPointGeoJSON,
-	createRescuerPointLayerGeoJSON,
+	createRescuerInnerPointLayerGeoJSON,
 	createOwnerOuterPointLayerGeoJSON,
+	createRescuerOuterPointLayerGeoJSON,
 } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
@@ -512,7 +513,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			if (mapRef.current.getSource(sourceId) && monitorLocation) removePoint(sourceId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
-			mapRef.current.addLayer(createRescuerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createRescuerInnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createRescuerOuterPointLayerGeoJSON({ sourceId }) as LayerSpecification);
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]

@@ -57,7 +57,7 @@ export function createRescuerPointGeoJSON({ rescuerId, latitude, longitude }: { 
   };
 }
 
-export function createRescuerPointLayerGeoJSON({ sourceId }: { sourceId: string }) {
+export function createRescuerInnerPointLayerGeoJSON({ sourceId }: { sourceId: string }) {
   return {
     id: sourceId,
     source: sourceId,
@@ -68,6 +68,19 @@ export function createRescuerPointLayerGeoJSON({ sourceId }: { sourceId: string 
       "circle-opacity": 0.5,
       "circle-stroke-width": 2,
       "circle-stroke-color": "#bf8900",
+    },
+  };
+}
+
+export function createRescuerOuterPointLayerGeoJSON({ sourceId }: { sourceId: string }) {
+  return {
+    id: `${sourceId}-pulse`,
+    source: sourceId,
+    type: "circle",
+    paint: {
+      "circle-radius": 10,
+      "circle-color": RESCUER_MARKER_COLOR,
+      "circle-opacity": 0,
     },
   };
 }
