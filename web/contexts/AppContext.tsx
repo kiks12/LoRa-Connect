@@ -49,6 +49,8 @@ const AppContext = createContext<{
 	packetId: number;
 	setPacketId: Dispatch<SetStateAction<number>>;
 	incrementPacketId: () => void;
+	packetLogs: string[];
+	setPacketLogs: Dispatch<SetStateAction<string[]>>;
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
@@ -65,6 +67,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const missionsLookupRef = useRef<MissionWithCost[]>([]);
 	const [timeIntervals, setTimeIntervals] = useState<{ max: number; time: number; title: string }[]>([]);
 	const { mapRef, removeSourceAndLayer, styleLoaded } = useMapContext();
+	const [packetLogs, setPacketLogs] = useState<string[]>([]);
 
 	useEffect(() => {
 		fetchUsersAPI();
@@ -149,7 +152,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		setTeamsLoading(false);
 	}
 
+	function addPacketToLogs(packet: string) {
+		setPacketLogs((prev) => [...prev, packet]);
+	}
+
+	function createPacketLog(packet: string): string {
+		const source = packet.substring(0, 4);
+		const payload = packet.substring(12, packet.length);
+		return `SOURCE: ${source}, PAYLOAD: ${payload}`;
+	}
+
 	const locationFromUser = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -176,6 +190,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const sosFromUser = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -203,6 +218,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const locationFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -237,6 +253,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	const sosFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12, data.length);
 		const splitPayload = payload.split("-");
@@ -273,11 +290,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	function taskAcknowledgementFromRescuer({ data }: { data: string }) {
+		addPacketToLogs(createPacketLog(data));
 		const source = data.substring(0, 4);
 		const payload = data.substring(12);
 	}
 
 	const taskStatusUpdateFromRescuer = useCallback(async ({ data }: { data: string }) => {
+		addPacketToLogs(createPacketLog(data));
 		const payload = data.substring(12);
 		const [missionId, status] = payload.split("-");
 		const mission = missionsLookupRef.current.find((mission) => mission.missionId === missionId);
@@ -350,6 +369,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			socket.off(TASK_ACKNOWLEDGEMENT_FROM_RESCUER, taskAcknowledgementFromRescuer);
 			socket.off(TASK_STATUS_UPDATE_FROM_RESCUER, taskStatusUpdateFromRescuer);
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [taskStatusUpdateFromRescuer]);
 
 	useEffect(() => {
@@ -531,8 +551,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			packetId,
 			setPacketId,
 			incrementPacketId,
+
+			packetLogs,
+			setPacketLogs,
 		};
-	}, [users, rescuers, teams, obstacles, missions, monitorLocations, timeIntervals, packetId]);
+	}, [users, rescuers, teams, obstacles, missions, monitorLocations, timeIntervals, packetId, packetLogs]);
 
 	return <AppContext.Provider value={providerValue}>{children}</AppContext.Provider>;
 };

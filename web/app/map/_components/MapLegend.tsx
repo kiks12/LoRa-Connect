@@ -8,7 +8,7 @@ import { useState } from "react";
 export default function MapLegend() {
 	const [show, setShow] = useState(true);
 	return (
-		<Card className="m-2">
+		<Card className="m-2 mb-12">
 			<CardHeader className="p-4">
 				<div className="flex justify-between items-center">
 					<CardDescription className="font-medium text-neutral-900 mr-10">Legend</CardDescription>
