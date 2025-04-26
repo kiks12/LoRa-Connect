@@ -36,7 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	return (
 		<>
 			{graphhopperLoading ? (
-				<Spinner />
+				<main className="h-screen w-screen flex items-center justify-center">
+					<Spinner />
+				</main>
 			) : (
 				<>
 					{graphhopperConnected ? (

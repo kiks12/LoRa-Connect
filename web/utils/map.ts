@@ -16,7 +16,7 @@ export function createOwnerPointGeoJSON({ userId, latitude, longitude }: { latit
   };
 }
 
-export function createOwnerPointLayerGeoJSON({ sourceId }: { sourceId: string }) {
+export function createOwnerInnerPointLayerGeoJSON({ sourceId }: { sourceId: string }) {
   return {
     id: sourceId,
     source: sourceId,
@@ -27,6 +27,19 @@ export function createOwnerPointLayerGeoJSON({ sourceId }: { sourceId: string })
       "circle-opacity": 0.5,
       "circle-stroke-width": 2,
       "circle-stroke-color": OWNER_MARKER_COLOR,
+    },
+  };
+}
+
+export function createOwnerOuterPointLayerGeoJSON({ sourceId }: { sourceId: string }) {
+  return {
+    id: `${sourceId}-pulse`,
+    source: sourceId,
+    type: "circle",
+    paint: {
+      "circle-radius": 10,
+      "circle-color": OWNER_MARKER_COLOR,
+      "circle-opacity": 0,
     },
   };
 }

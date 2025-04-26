@@ -107,6 +107,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 	function removeSourceAndLayer(sourceId: string) {
 		if (!mapRef.current) return;
 		mapRef.current.removeLayer(sourceId);
+		mapRef.current.removeLayer(`${sourceId}-pulse`);
 		mapRef.current.removeSource(sourceId);
 	}
 	/* --- UTILITY FUNCTIONS --- */

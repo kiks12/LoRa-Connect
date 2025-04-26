@@ -22,10 +22,16 @@ import {
 import { NUMBER_TO_URGENCY, URGENCY_LORA_TO_DB, URGENCY_TO_NUMBER } from "@/utils/urgency";
 import { createContext, Dispatch, ReactNode, SetStateAction, useCallback, useContext, useEffect, useState, useMemo, useRef } from "react";
 import { useMapContext } from "./MapContext";
-import { createOwnerPointGeoJSON, createOwnerPointLayerGeoJSON, createRescuerPointGeoJSON, createRescuerPointLayerGeoJSON } from "@/utils/map";
+import {
+	createOwnerPointGeoJSON,
+	createOwnerInnerPointLayerGeoJSON,
+	createRescuerPointGeoJSON,
+	createRescuerPointLayerGeoJSON,
+	createOwnerOuterPointLayerGeoJSON,
+} from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
-import { Obstacle, Operations, OperationStatus, RescueUrgency } from "@prisma/client";
+import { Obstacle, OperationStatus, RescueUrgency } from "@prisma/client";
 import { useToast } from "@/hooks/use-toast";
 import { fetchRoute } from "@/app/algorithm";
 
@@ -51,6 +57,7 @@ const AppContext = createContext<{
 	incrementPacketId: () => void;
 	packetLogs: string[];
 	setPacketLogs: Dispatch<SetStateAction<string[]>>;
+	startPulseAnimation: (layerId: string) => () => void;
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
@@ -445,11 +452,48 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			if (mapRefSource && monitorLocation) removePoint(sourceId);
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
-			mapRef.current.addLayer(createOwnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createOwnerInnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createOwnerOuterPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+
+			// startPulseAnimation(`${sourceId}-pulse`);
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
 	);
+
+	function startPulseAnimation(layerId) {
+		let startTime = performance.now();
+		let isRunning = true;
+
+		function animatePulse(timestamp) {
+			if (!isRunning) return;
+			const elapsed = timestamp - startTime;
+			const t = (elapsed % 1000) / 1000; // Normalize time: 0 → 1 every second
+
+			const minRadius = 10;
+			const maxRadius = 40; // Bigger pulse
+			const radius = minRadius + (maxRadius - minRadius) * t; // Grow smoothly from 10 → 30
+
+			const opacity = Math.max(0, Math.min(1, 1 - t));
+
+			if (mapRef.current.getLayer(layerId)) {
+				mapRef.current.setPaintProperty(layerId, "circle-radius", radius);
+				mapRef.current.setPaintProperty(layerId, "circle-opacity", opacity);
+			}
+
+			requestAnimationFrame(animatePulse);
+		}
+
+		requestAnimationFrame(animatePulse);
+
+		return () => {
+			isRunning = false;
+			if (mapRef.current && mapRef.current.getLayer(layerId)) {
+				mapRef.current.setPaintProperty(layerId, "circle-opacity", 0);
+				mapRef.current.setPaintProperty(layerId, "circle-radius", 10); // reset to base radius
+			}
+		};
+	}
 
 	function removePoint(sourceId: string) {
 		removeSourceAndLayer(sourceId);
@@ -554,7 +598,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 			packetLogs,
 			setPacketLogs,
+
+			startPulseAnimation,
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [users, rescuers, teams, obstacles, missions, monitorLocations, timeIntervals, packetId, packetLogs]);
 
 	return <AppContext.Provider value={providerValue}>{children}</AppContext.Provider>;

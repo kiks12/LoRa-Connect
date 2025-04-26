@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserWithStatusIdentifier } from "@/types";
-import { USER_SOURCE_BASE } from "@/utils/tags";
+import { createGeoJsonSourceId, USER_POINT_SOURCE, USER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { RefreshCcw } from "lucide-react";
@@ -15,24 +15,19 @@ import { useUsers } from "@/hooks/map/use-users";
 import { useMapContext } from "@/contexts/MapContext";
 import { useEvacuations } from "@/hooks/map/use-evacuations";
 import EvacuationInstructionButton from "./EvacuationInstructionButton";
+import { useAppContext } from "@/contexts/AppContext";
 
 export default function UsersControls() {
 	const { clearSourcesAndLayers } = useMapContext();
-	const { addUserPoint, users, showUserLocations, setShowUserLocations, clearUserShowStatuses, refreshUsers, usersLoading } = useUsers();
-	const {
-		createEvacuationInstructions,
-		evacuationCenters,
-		calculatingEvacuationInstructions,
-		evacuationInstructions,
-		setEvacuationInstructionMessage,
-	} = useEvacuations();
+	const { startPulseAnimation } = useAppContext();
+	const { users, onShowLocation, showUserLocations, setShowUserLocations, refreshUsers, usersLoading } = useUsers();
+	const { createEvacuationInstructions, evacuationCenters, evacuationInstructions } = useEvacuations();
 	const [search, setSearch] = useState("");
 	const [runEvacuationInstructionAlgorithm, setRunEvacuationInstructionAlgorithm] = useState(false);
 	const [rerunEvacuationInstructionAlgorithm, setRerunEvacuationInstructionAlgorithm] = useState(false);
 
 	function onClearClick() {
 		clearSourcesAndLayers(USER_SOURCE_BASE);
-		clearUserShowStatuses();
 	}
 
 	function onChange(e: React.FormEvent<HTMLInputElement>) {
@@ -95,7 +90,7 @@ export default function UsersControls() {
 													user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 													user.middleName.toLowerCase().includes(search.toLowerCase())
 												)
-													return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} withUrgency={false} />;
+													return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => onShowLocation(user)} withUrgency={false} />;
 											})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -113,7 +108,7 @@ export default function UsersControls() {
 														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 														user.middleName.toLowerCase().includes(search.toLowerCase())
 													)
-														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} withUrgency={false} />;
+														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => {}} withUrgency={false} />;
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -131,7 +126,7 @@ export default function UsersControls() {
 														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 														user.middleName.toLowerCase().includes(search.toLowerCase())
 													)
-														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => addUserPoint(user)} withUrgency={false} />;
+														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => {}} withUrgency={false} />;
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
