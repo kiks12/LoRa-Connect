@@ -29,12 +29,15 @@ import {
 	createRescuerInnerPointLayerGeoJSON,
 	createOwnerOuterPointLayerGeoJSON,
 	createRescuerOuterPointLayerGeoJSON,
+	createOwnerLabelLayer,
+	createRescuerLabelLayer,
 } from "@/utils/map";
 import { LayerSpecification, SourceSpecification } from "maplibre-gl";
 import { MISSION_STATUS_MAP } from "@/utils/taskStatus";
 import { Obstacle, OperationStatus, RescueUrgency } from "@prisma/client";
 import { useToast } from "@/hooks/use-toast";
 import { fetchRoute } from "@/app/algorithm";
+import { formatName } from "@/lib/utils";
 
 const AppContext = createContext<{
 	users: UserWithStatusIdentifier[];
@@ -441,11 +444,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}, [missions, toast]);
 
 	const addUserPoint = useCallback(
-		({ bracelet, userId }: UserWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
+		(
+			{ bracelet, userId, givenName, middleName, lastName }: UserWithStatusIdentifier,
+			showLocation: boolean = false,
+			monitorLocation: boolean = true
+		) => {
 			if (!bracelet) return;
 			if (bracelet && bracelet.latitude === null && bracelet.longitude === null) return;
 			if (!mapRef.current) return;
-			const { sourceId, data } = createOwnerPointGeoJSON({ userId, latitude: bracelet!.latitude!, longitude: bracelet!.longitude! });
+			const { sourceId, data } = createOwnerPointGeoJSON({
+				userId,
+				name: formatName(givenName, middleName, lastName, ""),
+				latitude: bracelet!.latitude!,
+				longitude: bracelet!.longitude!,
+			});
 			const mapRefSource = mapRef.current.getSource(sourceId);
 
 			if (mapRefSource && showLocation) return;
@@ -454,6 +466,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
 			mapRef.current.addLayer(createOwnerInnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createOwnerLabelLayer({ sourceId }) as LayerSpecification);
 			mapRef.current.addLayer(createOwnerOuterPointLayerGeoJSON({ sourceId }) as LayerSpecification);
 
 			// startPulseAnimation(`${sourceId}-pulse`);
@@ -501,12 +514,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}
 
 	const addTeamPoint = useCallback(
-		({ rescuers, teamId }: TeamWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
+		({ rescuers, teamId, name }: TeamWithStatusIdentifier, showLocation: boolean = false, monitorLocation: boolean = true) => {
 			const { bracelet } = rescuers.filter((rescuer) => rescuer.bracelet !== null)[0];
 			if (bracelet && bracelet.latitude === null && bracelet.longitude === null) return;
 			if (!bracelet) return;
 			if (!mapRef.current) return;
-			const { sourceId, data } = createRescuerPointGeoJSON({ rescuerId: teamId, latitude: bracelet!.latitude!, longitude: bracelet!.longitude! });
+			const { sourceId, data } = createRescuerPointGeoJSON({
+				rescuerId: teamId,
+				name: name,
+				latitude: bracelet!.latitude!,
+				longitude: bracelet!.longitude!,
+			});
 
 			if (mapRef.current.getSource(sourceId) && showLocation) return;
 			if (mapRef.current.getSource(sourceId) && !showLocation && !monitorLocation) return removePoint(sourceId);
@@ -514,6 +532,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
 			mapRef.current.addSource(sourceId, data as SourceSpecification);
 			mapRef.current.addLayer(createRescuerInnerPointLayerGeoJSON({ sourceId }) as LayerSpecification);
+			mapRef.current.addLayer(createRescuerLabelLayer({ sourceId }) as LayerSpecification);
 			mapRef.current.addLayer(createRescuerOuterPointLayerGeoJSON({ sourceId }) as LayerSpecification);
 		},
 		// eslint-disable-next-line react-hooks/exhaustive-deps

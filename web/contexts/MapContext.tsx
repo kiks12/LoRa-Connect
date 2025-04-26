@@ -55,7 +55,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 			container: mapContainerRef.current,
 			style: "http://localhost:3000/map/style-raw-open.json",
 			center: [location.longitude, location.latitude],
-			zoom: 13,
+			zoom: 14,
 			attributionControl: false,
 		});
 		mapRef.current = newMap;
@@ -108,6 +108,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 		if (!mapRef.current) return;
 		mapRef.current.removeLayer(sourceId);
 		mapRef.current.removeLayer(`${sourceId}-pulse`);
+		mapRef.current.removeLayer(`${sourceId}-label`);
 		mapRef.current.removeSource(sourceId);
 	}
 	/* --- UTILITY FUNCTIONS --- */
