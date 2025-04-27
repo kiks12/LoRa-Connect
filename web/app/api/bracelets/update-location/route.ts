@@ -16,17 +16,15 @@ SAMPLE BODY
 */
 export async function PATCH(req: Request) {
   try {
-    const {braceletId, latitude, longitude, urgency}: {
+    const {braceletId, latitude, longitude}: {
       braceletId: string, 
       latitude: number, 
       longitude: number
-      urgency: number
     }= await req.json()
     await updateBraceletLocation({
       braceletId, 
       latitude: parseFloat(latitude.toFixed(6)),
       longitude: parseFloat(longitude.toFixed(6)),
-      urgency: urgency
     })
 
     return NextResponse.json({

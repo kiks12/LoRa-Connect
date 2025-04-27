@@ -182,7 +182,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const longitude = parseFloat(splitPayload[1]);
 		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: false });
 		setUsers((prev) => {
-			if (prev.length < 0) return prev;
 			return prev.map((user) => {
 				if (user.bracelet && user.bracelet.braceletId === source) {
 					return {
@@ -551,7 +550,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	}) {
 		await fetch("/api/bracelets/update-location", {
 			method: "PATCH",
-			body: JSON.stringify({ braceletId, latitude, longitude, urgency: 1 }),
+			body: JSON.stringify({ braceletId, latitude, longitude }),
 		});
 		// if (rescuer) {
 		// 	setRescuers(
