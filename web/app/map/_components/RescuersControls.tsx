@@ -27,7 +27,7 @@ export default function RescuersControls() {
 	return (
 		<div className="py-6 h-full flex flex-col justify-content">
 			<div className="flex items-center justify-between">
-				<h2 className="text-lg font-medium">Rescuers List</h2>
+				<h2 className="text-lg font-medium">Team List</h2>
 				<Button size="icon" variant="secondary" onClick={refreshRescuers}>
 					<RefreshCcw />
 				</Button>
@@ -41,7 +41,7 @@ export default function RescuersControls() {
 						<Switch id="showLocations" checked={showRescuersLocations} onCheckedChange={() => setShowRescuersLocations(!showRescuersLocations)} />
 					</div> */}
 					<div className="my-2">
-						<Label>Search Rescuer</Label>
+						<Label>Search Team</Label>
 						<div className="flex">
 							<Input className="flex-1" placeholder="Rescuer Name..." onChange={onChange} value={search} />
 							<Button className="ml-2" variant="outline" onClick={onClearClick}>
@@ -74,7 +74,7 @@ export default function RescuersControls() {
 										)} */}
 								{teams.length > 0 ? (
 									teams
-										.filter((team) => team.name?.includes(search.toLowerCase()))
+										.filter((team) => team.name?.toLowerCase().includes(search.toLowerCase()))
 										.map((team, index) => {
 											return (
 												<div className="mb-2" key={index}>
