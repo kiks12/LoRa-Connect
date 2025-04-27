@@ -37,7 +37,6 @@ export async function calculateTeamAssignmentCosts(
 		if (unassignedUsers.length === 0 || teams.length === 0) return [];
 
 		const obstaclesCoordinates = obstacles.map((d: ObstacleWithStatusIdentifier) => [d.latitude, d.longitude] as LatLng);
-		const customModelObject = createCustomModelObject(obstaclesCoordinates);
 
 		const teamsCostsPromises = teams.flatMap((team) => {
 			const rescuer = team.rescuers.find((rescuer) => rescuer.bracelet);
@@ -51,24 +50,6 @@ export async function calculateTeamAssignmentCosts(
 
 			return unassignedUsers.map(async (user) => {
 				if (!user.bracelet || !user.bracelet.latitude || !user.bracelet.longitude) return null;
-
-				// const points = [
-				// 	[rescuerStartLocation.lon, rescuerStartLocation.lat], // Updated rescuer location
-				// 	[user.bracelet.longitude, user.bracelet.latitude], // User location
-				// ];
-
-				// const res = await fetch(`http://localhost:8989/route`, {
-				// 	method: "POST",
-				// 	headers: { "Content-Type": "application/json" },
-				// 	body: JSON.stringify(
-				// 		obstaclesCoordinates.length === 0
-				// 			? { points, points_encoded: false, profile: "car" }
-				// 			: { points, points_encoded: false, profile: "car", "ch.disable": true, custom_model: customModelObject }
-				// 	),
-				// });
-
-				// const json: GraphHopperAPIResult = await res.json();
-				// const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 
 				const minimumTime = await fetchRoute({userLat: user.bracelet.latitude, userLong: user.bracelet.longitude, rescuerLat: rescuerStartLocation.lat, rescuerLong: rescuerStartLocation.lon, obstacles })
 
@@ -134,7 +115,7 @@ export function runHungarianAlgorithm(
 			const costEntry = costs.find((c) => c.userId === user.userId && c.teamId === team.teamId);
 
 			return {
-				missionId: `${user.userId}${team.teamId}${date.getMonth()}${date.getDate()}${date.getFullYear()}`,
+				missionId: `${user.userId}${team.teamId}${Math.abs(date.getTime())}`,
 
 				userLat: user.bracelet?.latitude,
 				userLong: user.bracelet?.longitude,

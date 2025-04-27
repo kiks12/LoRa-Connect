@@ -107,7 +107,7 @@ export const useAdmin = () => {
 			} else {
 				toast({
 					variant: "destructive",
-					description: `There is an error saving mission ${mission.missionId}. It is possible the mission is already saved`,
+					description: `There is an error saving mission ${mission.missionId}. `,
 				});
 			}
 

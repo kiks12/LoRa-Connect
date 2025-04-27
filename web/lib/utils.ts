@@ -21,7 +21,7 @@ export function triggerFunctionWithTimerUsingTimeout(
   callback: () => void,
   updateTime: (title: string, remainingTime: number, maxTime: number) => void,
   remainingTime = 5 * 60 * 1000, // Default: 5 minutes
-  maxTime = 5 * 60 * 1000 // Keep track of the max time
+  maxTime = 10 * 1000 // Keep track of the max time
 ) {
   if (remainingTime <= 0) {
     updateTime(title, 0, maxTime); // Ensure it updates to 0
@@ -32,8 +32,8 @@ export function triggerFunctionWithTimerUsingTimeout(
   updateTime(title, remainingTime, maxTime); // Update countdown
 
   setTimeout(() => {
-    triggerFunctionWithTimerUsingTimeout(title, callback, updateTime, remainingTime - 30 * 1000, maxTime);
-  }, 30 * 1000);
+    triggerFunctionWithTimerUsingTimeout(title, callback, updateTime, remainingTime - 3 * 1000, maxTime);
+  }, 3 * 1000);
 }
 
 

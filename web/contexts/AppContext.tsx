@@ -180,7 +180,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		const splitPayload = payload.split("-");
 		const latitude = parseFloat(splitPayload[0]);
 		const longitude = parseFloat(splitPayload[1]);
-		const urgency = URGENCY_LORA_TO_DB[splitPayload[2]];
 		await saveNewLocationToDatabase({ braceletId: source, latitude, longitude, rescuer: false });
 		setUsers((prev) => {
 			if (prev.length < 0) return prev;
