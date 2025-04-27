@@ -130,6 +130,8 @@ export type TeamWithRescuer = Prisma.TeamsGetPayload<{
   }
 }>
 
+
+
 export type TeamWithStatusIdentifier = TeamWithRescuer & StatusIdentifier
 
 export type TeamAssignmentCost = {

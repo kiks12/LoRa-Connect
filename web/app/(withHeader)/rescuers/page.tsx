@@ -1,12 +1,22 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { DataTable } from "../../components/DataTable";
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
 import { columns } from "./columns";
-import { getRescuersLatest } from "@/server/db/rescuers";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { RescuerWithBracelet } from "@/types";
 
-export default async function RescuersPage() {
-	const rescuers = await getRescuersLatest();
+export default function RescuersPage() {
+	const [rescuers, setRescuers] = useState<RescuerWithBracelet[]>([]);
+
+	useEffect(() => {
+		fetch("/api/rescuers")
+			.then((res) => res.json())
+			.then(({ rescuers }) => setRescuers(rescuers))
+			.catch((e) => alert(e));
+	}, []);
 
 	return (
 		<main>

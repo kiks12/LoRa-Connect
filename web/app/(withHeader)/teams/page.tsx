@@ -1,13 +1,22 @@
-import { getTeams } from "@/server/db/teams";
+"use client";
+
 import { ContainerWithTitle } from "../_components/ContainerWithTitle";
 import { TeamWithRescuer } from "@/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import TeamItem from "./_components/TeamItem";
 import { Toaster } from "@/components/ui/toaster";
+import { useEffect, useState } from "react";
 
-export default async function TeamsPage() {
-	const teams: TeamWithRescuer[] = await getTeams();
+export default function TeamsPage() {
+	const [teams, setTeams] = useState<TeamWithRescuer[]>([]);
+
+	useEffect(() => {
+		fetch("/api/teams")
+			.then((res) => res.json())
+			.then(({ teams }) => setTeams(teams))
+			.catch((e) => alert(e));
+	}, []);
 
 	return (
 		<>
