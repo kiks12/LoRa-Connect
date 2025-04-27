@@ -50,8 +50,8 @@ export default function UsersControls() {
 						<div className="flex justify-between">
 							<TabsList>
 								<TabsTrigger value="ALL">All</TabsTrigger>
-								<TabsTrigger value="WITH-BRACELET">W/ Bracelet</TabsTrigger>
-								<TabsTrigger value="WITHOUT-BRACELET">W/O Bracelet</TabsTrigger>
+								<TabsTrigger value="WITH-BRACELET">W/ Device</TabsTrigger>
+								<TabsTrigger value="WITHOUT-BRACELET">W/O Device</TabsTrigger>
 							</TabsList>
 							<Button variant="outline" onClick={onClearClick}>
 								Clear

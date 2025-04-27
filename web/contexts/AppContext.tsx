@@ -170,7 +170,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 	function createPacketLog(packet: string): string {
 		const source = packet.substring(0, 4);
 		const payload = packet.substring(12, packet.length);
-		return `SOURCE: ${source}, PAYLOAD: ${payload}`;
+		return `DATE: ${new Date().toLocaleString()} SOURCE: ${source}, PAYLOAD: ${payload}`;
 	}
 
 	const locationFromUser = useCallback(async ({ data }: { data: string }) => {
