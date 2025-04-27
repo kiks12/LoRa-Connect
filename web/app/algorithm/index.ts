@@ -115,7 +115,7 @@ export function runHungarianAlgorithm(
 			const costEntry = costs.find((c) => c.userId === user.userId && c.teamId === team.teamId);
 
 			return {
-				missionId: `${user.userId}${team.teamId}${Math.abs(date.getTime())}`,
+				missionId: `${user.userId}${team.teamId}${date.getMonth()}${date.getDate()}${date.getFullYear()}`,
 
 				userLat: user.bracelet?.latitude,
 				userLong: user.bracelet?.longitude,
