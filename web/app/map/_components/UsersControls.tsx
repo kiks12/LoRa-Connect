@@ -2,29 +2,21 @@
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserWithStatusIdentifier } from "@/types";
-import { createGeoJsonSourceId, USER_POINT_SOURCE, USER_SOURCE_BASE } from "@/utils/tags";
+import { USER_SOURCE_BASE } from "@/utils/tags";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RefreshCcw } from "lucide-react";
 import Spinner from "@/app/components/Spinner";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
 import { useUsers } from "@/hooks/map/use-users";
 import { useMapContext } from "@/contexts/MapContext";
-import { useEvacuations } from "@/hooks/map/use-evacuations";
-import EvacuationInstructionButton from "./EvacuationInstructionButton";
-import { useAppContext } from "@/contexts/AppContext";
 
 export default function UsersControls() {
 	const { clearSourcesAndLayers } = useMapContext();
-	const { startPulseAnimation } = useAppContext();
-	const { users, onShowLocation, showUserLocations, setShowUserLocations, refreshUsers, usersLoading } = useUsers();
-	const { createEvacuationInstructions, evacuationCenters, evacuationInstructions } = useEvacuations();
+	const { users, onShowLocation, refreshUsers, usersLoading } = useUsers();
 	const [search, setSearch] = useState("");
-	const [runEvacuationInstructionAlgorithm, setRunEvacuationInstructionAlgorithm] = useState(false);
-	const [rerunEvacuationInstructionAlgorithm, setRerunEvacuationInstructionAlgorithm] = useState(false);
 
 	function onClearClick() {
 		clearSourcesAndLayers(USER_SOURCE_BASE);
@@ -33,16 +25,6 @@ export default function UsersControls() {
 	function onChange(e: React.FormEvent<HTMLInputElement>) {
 		setSearch(e.currentTarget.value);
 	}
-
-	useEffect(() => {
-		if (rerunEvacuationInstructionAlgorithm) createEvacuationInstructions();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [rerunEvacuationInstructionAlgorithm]);
-
-	useEffect(() => {
-		if (runEvacuationInstructionAlgorithm && evacuationInstructions.length === 0) createEvacuationInstructions();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [users, evacuationCenters, runEvacuationInstructionAlgorithm]);
 
 	return (
 		<div className="pt-6 pb-2 h-full flex flex-col justify-content">
@@ -108,7 +90,9 @@ export default function UsersControls() {
 														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 														user.middleName.toLowerCase().includes(search.toLowerCase())
 													)
-														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => {}} withUrgency={false} />;
+														return (
+															<BraceletWithUserListItem key={index} user={user} onShowLocation={() => onShowLocation(user)} withUrgency={false} />
+														);
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -126,7 +110,16 @@ export default function UsersControls() {
 														user.lastName.toLowerCase().includes(search.toLowerCase()) ||
 														user.middleName.toLowerCase().includes(search.toLowerCase())
 													)
-														return <BraceletWithUserListItem key={index} user={user} onShowLocation={() => {}} withUrgency={false} />;
+														return (
+															<BraceletWithUserListItem
+																key={index}
+																user={user}
+																onShowLocation={() => {
+																	alert("User do not have a bracelet");
+																}}
+																withUrgency={false}
+															/>
+														);
 												})
 										) : (
 											<p className="mt-20 text-center">No Users to show</p>
@@ -138,16 +131,6 @@ export default function UsersControls() {
 					</Tabs>
 				</div>
 			</div>
-			{/* <div>
-				<EvacuationInstructionButton
-					onRerunClick={() => setRerunEvacuationInstructionAlgorithm(!rerunEvacuationInstructionAlgorithm)}
-					onOpenChange={() => setRunEvacuationInstructionAlgorithm(!runEvacuationInstructionAlgorithm)}
-					setMessage={setEvacuationInstructionMessage}
-					calculatingEvacuationInstructions={calculatingEvacuationInstructions}
-					evacuationCenterInstructions={evacuationInstructions}
-					createEvacuationInstructions={createEvacuationInstructions}
-				/>
-			</div> */}
 		</div>
 	);
 }
