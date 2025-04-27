@@ -90,7 +90,7 @@ export const columns: ColumnDef<UserWithBracelet>[] = [
 			const { bracelet } = row.original;
 			return (
 				<div>
-					<p>{bracelet ? bracelet.braceletId : "No Bracelet"}</p>
+					<p>{bracelet ? bracelet.braceletId : "No Device"}</p>
 				</div>
 			);
 		},
