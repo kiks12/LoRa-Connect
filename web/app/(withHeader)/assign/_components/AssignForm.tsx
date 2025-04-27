@@ -264,9 +264,9 @@ export function AssignForm({
 								name="braceletId"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Bracelet ID</FormLabel>
+										<FormLabel>Device ID</FormLabel>
 										<FormControl>
-											<Input placeholder="Enter bracelet ID..." {...field} readOnly />
+											<Input placeholder="Enter Device ID..." {...field} readOnly />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -279,9 +279,9 @@ export function AssignForm({
 								name="braceletName"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Bracelet Name</FormLabel>
+										<FormLabel>Device Name</FormLabel>
 										<FormControl>
-											<Input placeholder="Enter bracelet name..." {...field} readOnly />
+											<Input placeholder="Enter device name..." {...field} readOnly />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

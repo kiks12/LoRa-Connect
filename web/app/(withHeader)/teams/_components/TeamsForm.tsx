@@ -49,7 +49,7 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 	function addRescuerToTeam(rescuer: RescuerWithBracelet) {
 		const memberWithBracelet = team.rescuers.filter((d) => d.bracelet);
 		if (memberWithBracelet.length > 0 && rescuer.bracelet) {
-			const confirmResult = confirm("You already have a member with bracelet, do you wish to replace?");
+			const confirmResult = confirm("You already have a member with a device, do you wish to replace?");
 			if (confirmResult) {
 				setTeams((prev) => {
 					return {
@@ -111,8 +111,8 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 		if (team.rescuers.filter((rescuer) => rescuer.bracelet).length === 0) {
 			toast({
 				variant: "destructive",
-				title: "Team without bracelet",
-				description: "Please select a rescuer with equipped with bracelet",
+				title: "Team without device",
+				description: "Please select a rescuer with equipped with device",
 			});
 			setSubmitLoading(false);
 			return;
@@ -237,13 +237,13 @@ export default function TeamsForm({ existingTeam, type = "CREATE" }: { existingT
 						</div>
 						<div className="h-[500px] overflow-auto">
 							<div className="mt-4">
-								<p>LoRa Bracelet Equipped</p>
+								<p>LoRa Device Equipped</p>
 								{loraBraceletEquipped ? (
 									<RescuerItem rescuer={loraBraceletEquipped as RescuerWithBracelet} />
 								) : (
 									<Card className="shadow-sm mt-2">
 										<CardHeader>
-											<CardDescription>No member equipped with LoRa Bracelet</CardDescription>
+											<CardDescription>No member equipped with LoRa Device</CardDescription>
 										</CardHeader>
 									</Card>
 								)}
