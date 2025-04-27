@@ -3,24 +3,20 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppContext } from "@/contexts/AppContext";
-import { AlertCircle, Menu, X } from "lucide-react";
+import { AlertCircle, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import BraceletWithUserListItem from "./BraceletWithUserListItem";
+import { useUsers } from "@/hooks/map/use-users";
 
 export default function SosModals() {
 	const { users } = useAppContext();
+	const { onShowLocation } = useUsers();
 	const [userSos, setUserSos] = useState(false);
 	const [showUsers, setShowUsers] = useState(false);
-	// const [rescuerSos, setRescuerSos] = useState(false);
 
 	useEffect(() => {
 		setUserSos(users.some((user) => user.bracelet && user.bracelet.sos));
 	}, [users]);
-
-	// useEffect(() => {
-	// 	const mapped = teams.map((team) => team.rescuers.find((rescuer) => rescuer.bracelet));
-	// 	setRescuerSos(mapped.some((rescuer) => rescuer?.bracelet && rescuer.bracelet.sos));
-	// }, [teams]);
 
 	return (
 		<>
@@ -37,9 +33,6 @@ export default function SosModals() {
 									<Button size="icon" variant="ghost" onClick={() => setShowUsers(!showUsers)}>
 										<Menu />
 									</Button>
-									{/* <Button size="icon" variant="ghost" onClick={() => setUserSos(false)}>
-										<X />
-									</Button> */}
 								</div>
 							</CardTitle>
 						</CardHeader>
@@ -53,7 +46,7 @@ export default function SosModals() {
 											.filter((user) => user.bracelet && user.bracelet.sos)
 											.sort((a, b) => b.bracelet!.urgency! - a.bracelet!.urgency!)
 											.map((user, index) => {
-												return <BraceletWithUserListItem user={user} onShowLocation={() => {}} withUrgency={true} key={index} />;
+												return <BraceletWithUserListItem user={user} onShowLocation={() => onShowLocation(user)} withUrgency={true} key={index} />;
 											})}
 								</CardTitle>
 							</CardHeader>
@@ -61,23 +54,6 @@ export default function SosModals() {
 					)}
 				</>
 			)}
-			{/* {rescuerSos && (
-				<Card className="w-full border border-red-500 sos-card mt-2">
-					<CardHeader className="p-2">
-						<CardTitle className="flex justify-between items-center">
-							<div className="flex items-center text-red-500">
-								<AlertCircle className="mr-2" />
-								SOS from Rescuer
-							</div>
-							<div>
-								<Button size="icon" variant="ghost" onClick={() => setRescuerSos(false)}>
-									<X />
-								</Button>
-							</div>
-						</CardTitle>
-					</CardHeader>
-				</Card>
-			)} */}
 		</>
 	);
 }
