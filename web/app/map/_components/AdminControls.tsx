@@ -75,7 +75,7 @@ export default function AdminControls() {
 				) : (
 					<>
 						{missions
-							.filter((mission) => mission.urgency === 1)
+							// .filter((mission) => mission.urgency === 1)
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
@@ -83,7 +83,7 @@ export default function AdminControls() {
 									</div>
 								);
 							})}
-						{missions
+						{/* {missions
 							.filter((mission) => mission.urgency === 0.5)
 							.map((mission, index) => {
 								return (
@@ -100,7 +100,7 @@ export default function AdminControls() {
 										<MissionItem mission={mission} completeMission={completeMission} />
 									</div>
 								);
-							})}
+							})} */}
 					</>
 				)}
 			</div>
