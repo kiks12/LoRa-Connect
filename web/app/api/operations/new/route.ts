@@ -54,16 +54,35 @@ export async function POST(req: Request) {
       evacuationCenter,
 
       usersUserId, 
+      userId,
       userBraceletId,  
       status, 
       urgency, 
       numberOfRescuee, 
 
       teamsTeamId, 
+      teamId,
       teamBraceletId, 
 
       victimStatusReport
     } = await req.json()
+
+    console.log({
+      missionId,
+      distance,
+      eta,
+      timeOfArrival,
+      timeOfCompletion,
+      evacuationCenter,
+      usersUserId,
+      userBraceletId,
+      status,
+      urgency,
+      numberOfRescuee,
+      teamsTeamId,
+      teamBraceletId,
+      victimStatusReport
+    })
 
     const createdOperation = await createOperation({
       operation: {
@@ -74,9 +93,9 @@ export async function POST(req: Request) {
         eta: eta ?? null,
         timeOfArrival: timeOfArrival ?? null,
         timeOfCompletion: timeOfCompletion ?? null,
-        teamsTeamId: teamsTeamId,
+        teamsTeamId: teamsTeamId ?? teamId,
         teamBraceletId: teamBraceletId,
-        usersUserId: usersUserId,
+        usersUserId: usersUserId ?? userId,
         userBraceletId: userBraceletId,
         numberOfRescuee: numberOfRescuee,
         evacuationCenter: evacuationCenter,

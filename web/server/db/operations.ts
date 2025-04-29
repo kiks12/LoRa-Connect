@@ -227,7 +227,7 @@ export async function createOperation({operation}: {operation: Operations}) {
       timeOfArrival: operation.timeOfArrival,
       timeOfCompletion: operation.timeOfCompletion,
       numberOfRescuee: operation.numberOfRescuee,
-      // status: operation.status,
+      status: operation.status,
       urgency: operation.urgency,
       evacuationCenter: operation.evacuationCenter,
     } 

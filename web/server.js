@@ -61,22 +61,19 @@ app.prepare().then(function () { return __awaiter(void 0, void 0, void 0, functi
             console.log("Client Connected");
             // FROM FRONTEND TO PY
             socket.on(lora_tags_1.START_LOCATION_TRANSMISSION_TO_TRU, function (data) {
-                // console.log(START_LOCATION_TRANSMISSION_TO_TRU, data)
+                console.log(lora_tags_1.START_LOCATION_TRANSMISSION_TO_TRU, data);
                 io.emit(lora_tags_1.START_LOCATION_TRANSMISSION_TO_TRU_PY, data);
             });
             socket.on(lora_tags_1.INSTRUCTION_TO_USER, function (data) {
-                // console.log(INSTRUCTION_TO_USER)
-                // console.log(data)
+                console.log(lora_tags_1.INSTRUCTION_TO_USER, data);
                 io.emit(lora_tags_1.INSTRUCTION_TO_USER_PY, data);
             });
             socket.on(lora_tags_1.TASK_TO_RESCUER, function (data) {
-                // console.log(TASK_TO_RESCUER)
-                // console.log(data)
+                console.log(lora_tags_1.TASK_TO_RESCUER, data);
                 io.emit(lora_tags_1.TASK_TO_RESCUER_PY, data);
             });
             socket.on(lora_tags_1.OBSTACLE_TO_RESCUER, function (data) {
-                // console.log(OBSTACLE_TO_RESCUER)
-                // console.log(data)
+                console.log(lora_tags_1.OBSTACLE_TO_RESCUER, data);
                 io.emit(lora_tags_1.OBSTACLE_TO_RESCUER_PY, data);
             });
             // FROM PY TO FRONTEND 

@@ -18,6 +18,7 @@ export default function AdminControls() {
 		sendTasksViaLoRa,
 		saveTasksAsMissionsToDatabase,
 		setShowRoutes,
+		completeMission,
 	} = useAdmin();
 
 	return (
@@ -77,7 +78,7 @@ export default function AdminControls() {
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
-										<MissionItem mission={mission} />
+										<MissionItem mission={mission} completeMission={completeMission} />
 									</div>
 								);
 							})}
@@ -86,7 +87,7 @@ export default function AdminControls() {
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
-										<MissionItem mission={mission} />
+										<MissionItem mission={mission} completeMission={completeMission} />
 									</div>
 								);
 							})}
@@ -95,7 +96,7 @@ export default function AdminControls() {
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
-										<MissionItem mission={mission} />
+										<MissionItem mission={mission} completeMission={completeMission} />
 									</div>
 								);
 							})}

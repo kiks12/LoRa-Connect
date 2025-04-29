@@ -9,7 +9,7 @@ import BraceletWithUserListItem from "./BraceletWithUserListItem";
 import { useUsers } from "@/hooks/map/use-users";
 
 export default function SosModals() {
-	const { users } = useAppContext();
+	const { users, saveSosToDatabase, setUsers } = useAppContext();
 	const { onShowLocation } = useUsers();
 	const [userSos, setUserSos] = useState(false);
 	const [showUsers, setShowUsers] = useState(false);
@@ -46,7 +46,32 @@ export default function SosModals() {
 											.filter((user) => user.bracelet && user.bracelet.sos)
 											.sort((a, b) => b.bracelet!.urgency! - a.bracelet!.urgency!)
 											.map((user, index) => {
-												return <BraceletWithUserListItem user={user} onShowLocation={() => onShowLocation(user)} withUrgency={true} key={index} />;
+												return (
+													<BraceletWithUserListItem
+														user={user}
+														onShowLocation={() => onShowLocation(user)}
+														withUrgency={true}
+														key={index}
+														forSos={true}
+														clear={async () => {
+															try {
+																setUsers((prev) => {
+																	return prev.map((u) => (u.userId === user.userId ? { ...u, bracelet: { ...u.bracelet, sos: false } } : u));
+																});
+																await saveSosToDatabase({
+																	braceletId: user.bracelet.braceletId,
+																	latitude: user.bracelet.latitude,
+																	longitude: user.bracelet.longitude,
+																	urgency: user.bracelet.urgency,
+																	sos: false,
+																	rescuer: false,
+																});
+															} catch (error) {
+																alert(error);
+															}
+														}}
+													/>
+												);
 											})}
 								</CardTitle>
 							</CardHeader>

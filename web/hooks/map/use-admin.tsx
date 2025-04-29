@@ -58,7 +58,7 @@ export const useAdmin = () => {
 		if (monitorLocations) {
 			monitorLocationFun = setInterval(() => {
 				sendTransmitLocationSignalToBracelets();
-			}, 3000);
+			}, 10000);
 			// if (timeIntervals.some((time) => time.title === "Monitor Locations")) {
 			// 	toast({
 			// 		variant: "destructive",
@@ -87,6 +87,7 @@ export const useAdmin = () => {
 
 	async function saveTasksAsMissionsToDatabase() {
 		const tasks = missions.map(async (mission) => {
+			console.log(mission);
 			const res = await fetch("/api/operations/new", {
 				method: "POST",
 				headers: {
@@ -99,7 +100,7 @@ export const useAdmin = () => {
 
 					userId: mission.user.userId,
 					userBraceletId: mission.userBraceletId,
-					status: OperationStatus.ASSIGNED,
+					status: mission.status ?? OperationStatus.ASSIGNED,
 					urgency: NUMBER_TO_URGENCY[mission.urgency],
 					numberOfRescuee: mission.user.numberOfMembersInFamily,
 
@@ -319,6 +320,37 @@ export const useAdmin = () => {
 		return rescuerLocations;
 	}
 
+	async function completeMission(mission: MissionWithCost) {
+		try {
+			// const missionCopy = {
+			// 	...mission,
+			// 	eta: mission.time,
+			// 	urgency: NUMBER_TO_URGENCY[mission.urgency],
+			// 	status: OperationStatus.COMPLETE,
+			// };
+			// const res = await fetch("/api/operations/new", {
+			// 	method: "POST",
+			// 	headers: {
+			// 		"Content-Type": "application/json",
+			// 	},
+			// 	body: JSON.stringify(missionCopy),
+			// });
+			setMissions((prev) => {
+				return prev.map((m) => {
+					if (m.missionId === mission.missionId) {
+						return {
+							...m,
+							status: OperationStatus.COMPLETE,
+						};
+					}
+					return m;
+				});
+			});
+		} catch (error) {
+			alert(error);
+		}
+	}
+
 	return {
 		automaticTaskAllocation,
 		toggleAutomaticTaskAllocation,
@@ -330,5 +362,6 @@ export const useAdmin = () => {
 		toggleMonitorLocations,
 		clearRoutes,
 		setShowRoutes,
+		completeMission,
 	};
 };

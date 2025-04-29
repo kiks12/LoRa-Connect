@@ -62,6 +62,8 @@ const AppContext = createContext<{
 	packetLogs: string[];
 	setPacketLogs: Dispatch<SetStateAction<string[]>>;
 	startPulseAnimation: (layerId: string) => () => void;
+
+	saveSosToDatabase: ({}: { braceletId: string; latitude: number; longitude: number; urgency: number; sos: boolean; rescuer: boolean }) => void;
 } | null>(null);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
@@ -118,7 +120,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 						userLat: operation.user.bracelet.latitude,
 						userLong: operation.user.bracelet.longitude,
 						userId: operation.usersUserId,
+						usersUsersId: operation.usersUserId,
 						teamId: operation.teamsTeamId,
+						teamsTeamId: operation.teamsTeamId,
+						status: operation.status.toString(),
 						urgency: URGENCY_TO_NUMBER[operation.urgency],
 						coordinates: minimumTime.points.coordinates,
 						distance: minimumTime.distance,
@@ -405,19 +410,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 		if (missions.length > 0) {
 			async function saveTasksAsMissionsToDatabase() {
 				const tasks = missions.map(async (mission) => {
+					const missionSample = {
+						...mission,
+						status: mission.status ?? OperationStatus.ASSIGNED,
+						urgency: NUMBER_TO_URGENCY[mission.urgency] ?? RescueUrgency.MODERATE,
+						numberOfRescuee: mission.user.numberOfMembersInFamily,
+						usersUserId: mission.userId,
+						userId: mission.userId,
+						teamsTeamId: mission.teamId,
+						teamId: mission.teamId,
+					};
 					const res = await fetch("/api/operations/new", {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
 						},
-						body: JSON.stringify({
-							...mission,
-							status: OperationStatus.ASSIGNED,
-							urgency: NUMBER_TO_URGENCY[mission.urgency] ?? RescueUrgency.MODERATE,
-							numberOfRescuee: mission.user.numberOfMembersInFamily,
-							usersUserId: mission.userId,
-							teamsTeamId: mission.teamId,
-						}),
+						body: JSON.stringify(missionSample),
 					});
 
 					if (res.status === 200) {
@@ -619,6 +627,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 			setPacketLogs,
 
 			startPulseAnimation,
+
+			saveSosToDatabase,
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [users, rescuers, teams, obstacles, missions, monitorLocations, timeIntervals, packetId, packetLogs]);

@@ -4,8 +4,15 @@ import { AlertCircle } from "lucide-react";
 import { useMemo } from "react";
 import { URGENCY_MAP } from "./BraceletWithUserListItem";
 import { formatName } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-export default function MissionItem({ mission }: { mission: MissionWithCost }) {
+export default function MissionItem({
+	mission,
+	completeMission,
+}: {
+	mission: MissionWithCost;
+	completeMission: (mission: MissionWithCost) => Promise<void>;
+}) {
 	const distance: null | number = useMemo(() => {
 		if (!mission) return null;
 		if (typeof mission.distance === "undefined") return null;
@@ -50,6 +57,11 @@ export default function MissionItem({ mission }: { mission: MissionWithCost }) {
 						<CardDescription>Time</CardDescription>
 						<CardTitle>{time?.toPrecision(2)} mins.</CardTitle>
 					</div>
+				</div>
+				<div>
+					<Button className="w-full mt-2" onClick={() => completeMission(mission)}>
+						Complete
+					</Button>
 				</div>
 			</CardHeader>
 		</Card>

@@ -1,10 +1,9 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppContext } from "@/contexts/AppContext";
 import { UserWithStatusIdentifier } from "@/types";
-import { AlertCircle } from "lucide-react";
-import ShowStatusIndicator from "./ShowStatusIndicator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export const URGENCY_MAP: {
 	[key: number]: {
@@ -33,33 +32,44 @@ export const URGENCY_MAP: {
 export default function BraceletWithUserListItem({
 	user,
 	onShowLocation,
+	clear,
+	forSos = false,
 	withUrgency = false,
 }: {
 	user: UserWithStatusIdentifier;
 	onShowLocation: () => void;
+	clear?: () => void;
+	forSos?: boolean;
 	withUrgency?: boolean;
 }) {
 	const { startPulseAnimation } = useAppContext();
 
 	return (
 		<Card className={`my-1 shadow-none cursor-pointer border-0 rounded-none border-b ${user.bracelet && user.bracelet.sos ? `` : ""}`}>
-			<CardHeader className="flex justify-between items-start">
+			<CardHeader className="flex flex-row justify-between items-start">
 				<div>
-					<div className="flex items-center">
-						<CardTitle className="font-normal">
-							{user.givenName} {user.lastName}
-						</CardTitle>
-						{/* <div className="mx-2">
+					<div>
+						<div className="flex items-center">
+							<CardTitle className="font-normal">
+								{user.givenName} {user.lastName}
+							</CardTitle>
+							{/* <div className="mx-2">
 							<ShowStatusIndicator show={user.showing} />
 						</div> */}
+						</div>
+					</div>
+					<div className="w-full flex mt-4">
+						<div className="flex items-center">
+							<Switch onCheckedChange={onShowLocation} />
+							<Label className="ml-2">Highlight Location</Label>
+						</div>
 					</div>
 				</div>
-				<div className="w-full flex mt-4">
-					<div className="flex items-center">
-						<Switch onCheckedChange={onShowLocation} />
-						<Label className="ml-2">Highlight Location</Label>
+				{forSos && (
+					<div>
+						<Button onClick={() => clear()}>Clear</Button>
 					</div>
-				</div>
+				)}
 				{/* {withUrgency && user.bracelet?.sos && user.bracelet.urgency && (
 					<div className="flex items-center mt-3">
 						<AlertCircle className={`text`} />
