@@ -75,9 +75,7 @@ export default function AdminControls() {
 				) : (
 					<>
 						{missions
-							.filter(
-								(mission) => mission.urgency === 1 && (mission.status === OperationStatus.ASSIGNED || mission.status === OperationStatus.PENDING)
-							)
+							.filter((mission) => mission.urgency === 1)
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
@@ -86,9 +84,7 @@ export default function AdminControls() {
 								);
 							})}
 						{missions
-							.filter(
-								(mission) => mission.urgency === 0.5 && (mission.status === OperationStatus.ASSIGNED || mission.status === OperationStatus.PENDING)
-							)
+							.filter((mission) => mission.urgency === 0.5)
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
@@ -97,9 +93,7 @@ export default function AdminControls() {
 								);
 							})}
 						{missions
-							.filter(
-								(mission) => mission.urgency === 0.2 && (mission.status === OperationStatus.ASSIGNED || mission.status === OperationStatus.PENDING)
-							)
+							.filter((mission) => mission.urgency === 0.2)
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">

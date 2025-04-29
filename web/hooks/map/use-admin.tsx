@@ -159,7 +159,7 @@ export const useAdmin = () => {
 	}
 
 	useEffect(() => {
-		if (automaticTaskAllocation && users.some((user) => user.bracelet.sos)) {
+		if (automaticTaskAllocation) {
 			runTaskAllocation();
 			sendTasksViaLoRa(true);
 		}
