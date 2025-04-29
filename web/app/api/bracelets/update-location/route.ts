@@ -23,8 +23,8 @@ export async function PATCH(req: Request) {
     }= await req.json()
     await updateBraceletLocation({
       braceletId, 
-      latitude: parseFloat(latitude.toFixed(6)),
-      longitude: parseFloat(longitude.toFixed(6)),
+      latitude: parseFloat((latitude ?? 0.0).toFixed(6)),
+      longitude: parseFloat((longitude ?? 0.0).toFixed(6)),
     })
 
     return NextResponse.json({

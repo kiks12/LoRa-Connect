@@ -160,6 +160,7 @@ export const useAdmin = () => {
 
 	useEffect(() => {
 		if (automaticTaskAllocation) {
+			setMissions([]);
 			runTaskAllocation();
 			sendTasksViaLoRa(true);
 		}
@@ -218,7 +219,6 @@ export const useAdmin = () => {
 	}
 
 	async function runTaskAllocation() {
-		setMissions([]);
 		setTaskAllocationMessage("Running Task Allocation Algorithm...");
 
 		if (users.length === 0) {
