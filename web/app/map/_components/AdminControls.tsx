@@ -6,7 +6,7 @@ import MissionItem from "./MissionItem";
 import { useAppContext } from "@/contexts/AppContext";
 
 export default function AdminControls() {
-	const { monitorLocations, users } = useAppContext();
+	const { monitorLocations } = useAppContext();
 	const {
 		toggleMonitorLocations,
 		automaticTaskAllocation,
@@ -41,23 +41,13 @@ export default function AdminControls() {
 					</div>
 				</div>
 				<div>
-					<Button className="w-full" onClick={runTaskAllocation} disabled={users.filter((user) => user.bracelet && user.bracelet.sos).length === 0}>
+					<Button className="w-full" onClick={runTaskAllocation}>
 						{taskAllocationMessage}
 					</Button>
-					<Button
-						className="w-full mt-2"
-						variant="secondary"
-						onClick={() => sendTasksViaLoRa(false)}
-						disabled={users.filter((user) => user.bracelet && user.bracelet.sos).length === 0}
-					>
+					<Button className="w-full mt-2" variant="secondary" onClick={() => sendTasksViaLoRa(false)} disabled={missions.length === 0}>
 						Send Task via LoRa
 					</Button>
-					<Button
-						className="w-full mt-2"
-						variant="secondary"
-						disabled={users.filter((user) => user.bracelet && user.bracelet.sos).length === 0}
-						onClick={saveTasksAsMissionsToDatabase}
-					>
+					<Button className="w-full mt-2" variant="secondary" disabled={missions.length === 0} onClick={saveTasksAsMissionsToDatabase}>
 						Save to Database
 					</Button>
 				</div>

@@ -37,14 +37,14 @@ export const useAdmin = () => {
 	}
 
 	function toggleMonitorLocations() {
-		if (timeIntervals.some((time) => time.title === "Monitor Locations")) {
-			toast({
-				variant: "destructive",
-				description: "Monitor Locations timer currently running",
-			});
-		} else {
-			setMonitorLocations(!monitorLocations);
-		}
+		// if (timeIntervals.some((time) => time.title === "Monitor Locations")) {
+		// 	toast({
+		// 		variant: "destructive",
+		// 		description: "Monitor Locations timer currently running",
+		// 	});
+		// } else {
+		setMonitorLocations(!monitorLocations);
+		// }
 	}
 
 	function sendTransmitLocationSignalToBracelets() {
@@ -54,28 +54,36 @@ export const useAdmin = () => {
 
 	// Location Monitoring Code block - as long as monitorLocation is true this triggers
 	useEffect(() => {
+		let monitorLocationFun = null;
 		if (monitorLocations) {
-			if (timeIntervals.some((time) => time.title === "Monitor Locations")) {
-				toast({
-					variant: "destructive",
-					description: "Monitor Locations timer currently running",
-				});
-			} else {
-				triggerFunctionWithTimerUsingTimeout2(
-					"Monitor Locations",
-					() => {
-						sendTransmitLocationSignalToBracelets();
-					},
-					updateTime,
-					() => {
-						setMonitorLocations(false);
-					}
-				);
-			}
+			monitorLocationFun = setInterval(() => {
+				sendTransmitLocationSignalToBracelets();
+			}, 3000);
+			// if (timeIntervals.some((time) => time.title === "Monitor Locations")) {
+			// 	toast({
+			// 		variant: "destructive",
+			// 		description: "Monitor Locations timer currently running",
+			// 	});
+			// } else {
+			// 	triggerFunctionWithTimerUsingTimeout2(
+			// 		"Monitor Locations",
+			// 		() => {
+			// 			sendTransmitLocationSignalToBracelets();
+			// 		},
+			// 		updateTime,
+			// 		() => {
+			// 			setMonitorLocations(false);
+			// 		}
+			// 	);
+			// }
 		}
 
+		return () => {
+			clearInterval(monitorLocationFun);
+		};
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [monitorLocations]);
+	}, [monitorLocations, packetId]);
 
 	async function saveTasksAsMissionsToDatabase() {
 		const tasks = missions.map(async (mission) => {
@@ -118,32 +126,35 @@ export const useAdmin = () => {
 	}
 
 	function sendTasksViaLoRa(automatic: boolean = false) {
-		if (timeIntervals.some((time) => time.title === "Send Tasks Via LoRa")) {
-			if (automatic) return;
-			toast({
-				variant: "destructive",
-				description: "Tasks Sender timer is currently working",
-			});
-		} else {
-			triggerFunctionWithTimerUsingTimeout2(
-				"Send Tasks Via LoRa",
-				() => {
-					let localPacketId = packetId;
-					const mapped = missions.map((mission) => {
-						const stringPacketId = formatTwoDigitNumber(localPacketId);
-						localPacketId = (localPacketId + 1) % 100;
-						return {
-							...mission,
-							packetId: stringPacketId,
-						};
-					});
-					setPacketId(localPacketId);
-					socket.emit(TASK_TO_RESCUER, mapped);
-				},
-				updateTime,
-				() => {}
-			);
-		}
+		// if (timeIntervals.some((time) => time.title === "Send Tasks Via LoRa")) {
+		// 	if (automatic) return;
+		// 	toast({
+		// 		variant: "destructive",
+		// 		description: "Tasks Sender timer is currently working",
+		// 	});
+		// } else {
+		// triggerFunctionWithTimerUsingTimeout2(
+		// "Send Tasks Via LoRa",
+		// () => {
+		let localPacketId = packetId;
+		const mapped = missions.map((mission) => {
+			const stringPacketId = formatTwoDigitNumber(localPacketId);
+			localPacketId = (localPacketId + 1) % 100;
+			return {
+				...mission,
+				packetId: stringPacketId,
+			};
+		});
+		setPacketId(localPacketId);
+		socket.emit(TASK_TO_RESCUER, mapped);
+		toast({
+			description: "Tasks sent via LoRa",
+		});
+		// },
+		// 		updateTime,
+		// 		() => {}
+		// 	);
+		// }
 	}
 
 	useEffect(() => {
@@ -245,7 +256,7 @@ export const useAdmin = () => {
 		}
 
 		let rescuerLocations = new Map<number, { lat: number; lon: number }>();
-		let unassignedUsers = [...users.filter((user) => user.bracelet?.sos && user.bracelet.latitude && user.bracelet.longitude)]; // Copy users list to track unassigned ones
+		let unassignedUsers = [...users.filter((user) => user.bracelet.latitude && user.bracelet.longitude)]; // Copy users list to track unassigned ones
 		if (unassignedUsers.length === 0) {
 			toast({
 				title: "Task Allocation Algorithm Failed",

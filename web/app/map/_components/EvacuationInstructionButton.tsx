@@ -32,32 +32,35 @@ export default function EvacuationInstructionButton({
 	const { toast } = useToast();
 
 	function sendViaLoRa() {
-		if (timeIntervals.some((time) => time.title === "Evacuation Instructions")) {
-			toast({
-				variant: "destructive",
-				description: "Evacuation Instruction timer is currently working",
-			});
-		} else {
-			triggerFunctionWithTimerUsingTimeout2(
-				"Evacuation Instructions",
-				() => {
-					let localPacketId = packetId;
-					const mapped = evacuationCenterInstructions.map((evacuation) => {
-						const stringPacketId = formatTwoDigitNumber(localPacketId);
-						localPacketId = (localPacketId + 1) % 100;
-						incrementPacketId();
-						return {
-							...evacuation,
-							message: formatMessage(evacuation.evacuationCenterName, evacuation.distance, evacuation.message),
-							packetId: stringPacketId,
-						};
-					});
-					socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions: mapped });
-				},
-				updateTime,
-				() => {}
-			);
-		}
+		// if (timeIntervals.some((time) => time.title === "Evacuation Instructions")) {
+		// 	toast({
+		// 		variant: "destructive",
+		// 		description: "Evacuation Instruction timer is currently working",
+		// 	});
+		// } else {
+		// 	triggerFunctionWithTimerUsingTimeout2(
+		// 		"Evacuation Instructions",
+		// 		() => {
+		let localPacketId = packetId;
+		const mapped = evacuationCenterInstructions.map((evacuation) => {
+			const stringPacketId = formatTwoDigitNumber(localPacketId);
+			localPacketId = (localPacketId + 1) % 100;
+			incrementPacketId();
+			return {
+				...evacuation,
+				message: formatMessage(evacuation.evacuationCenterName, evacuation.distance, evacuation.message),
+				packetId: stringPacketId,
+			};
+		});
+		socket.emit(INSTRUCTION_TO_USER, { evacuationCenterInstructions: mapped });
+		toast({
+			description: "Sent Instructions via LoRa",
+		});
+		// 		},
+		// 		updateTime,
+		// 		() => {}
+		// 	);
+		// }
 	}
 
 	return (

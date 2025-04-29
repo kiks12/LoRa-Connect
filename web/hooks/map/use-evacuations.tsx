@@ -5,8 +5,10 @@ import maplibregl from "maplibre-gl";
 import { useAppContext } from "@/contexts/AppContext";
 import { useMapContext } from "@/contexts/MapContext";
 import { formatName } from "@/lib/utils";
+import { useToast } from "../use-toast";
 
 export const useEvacuations = () => {
+	const { toast } = useToast();
 	const { mapRef } = useMapContext();
 	const { users } = useAppContext();
 	const [evacuationCenters, setEvacuationCenters] = useState<EvacuationCenterWithStatusIdentifier[]>([]);
@@ -106,13 +108,20 @@ export const useEvacuations = () => {
 		for (const user of users) {
 			if (user.bracelet === null) continue;
 			for (const evacuationCenter of evacuationCenters) {
-				const request: Promise<EvacuationInstruction> = (async () => {
+				const request: Promise<EvacuationInstruction | null> = (async () => {
 					const result = await fetch(
 						`http://localhost:8989/route?point=${user.bracelet!.latitude},${user.bracelet!.longitude}&point=${evacuationCenter.latitude},${
 							evacuationCenter.longitude
 						}&profile=car&points_encoded=false`
 					);
 					const json: GraphHopperAPIResult = await result.json();
+					if (!json.paths) {
+						toast({
+							variant: "destructive",
+							description: "Cannot determine evacuation centers",
+						});
+						return null;
+					}
 					const minimumTime = json.paths.reduce((acc, curr) => (acc.time < curr.time ? acc : curr));
 					return {
 						ownerId: user.userId,

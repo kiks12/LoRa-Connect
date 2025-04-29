@@ -66,7 +66,7 @@ const AppContext = createContext<{
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
 	const { toast } = useToast();
-	const [packetId, setPacketId] = useState(98);
+	const [packetId, setPacketId] = useState(0);
 	const [monitorLocations, setMonitorLocations] = useState(false);
 	const [users, setUsers] = useState<UserWithStatusIdentifier[]>([]);
 	const [usersLoading, setUsersLoading] = useState(true);

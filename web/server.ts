@@ -26,22 +26,19 @@ app.prepare().then(async () => {
 
     // FROM FRONTEND TO PY
     socket.on(START_LOCATION_TRANSMISSION_TO_TRU, (data) => {
-      // console.log(START_LOCATION_TRANSMISSION_TO_TRU, data)
+      console.log(START_LOCATION_TRANSMISSION_TO_TRU, data)
       io.emit(START_LOCATION_TRANSMISSION_TO_TRU_PY, data)
     })
     socket.on(INSTRUCTION_TO_USER, (data) => {
-      // console.log(INSTRUCTION_TO_USER)
-      // console.log(data)
+      console.log(INSTRUCTION_TO_USER, data);
       io.emit(INSTRUCTION_TO_USER_PY, data)
     })
     socket.on(TASK_TO_RESCUER, (data) => {
-      // console.log(TASK_TO_RESCUER)
-      // console.log(data)
+      console.log(TASK_TO_RESCUER, data)
       io.emit(TASK_TO_RESCUER_PY, data)
     })
     socket.on(OBSTACLE_TO_RESCUER, (data) => {
-      // console.log(OBSTACLE_TO_RESCUER)
-      // console.log(data)
+      console.log(OBSTACLE_TO_RESCUER, data)
       io.emit(OBSTACLE_TO_RESCUER_PY, data)
     })
 

@@ -48,31 +48,34 @@ export const useObstacles = () => {
 	}
 
 	function sendObstaclesToRescuers() {
-		if (timeIntervals.some((time) => time.title === "Obstacles to Rescuers")) {
-			toast({
-				variant: "destructive",
-				description: "Obstacles to Rescuers timer currently running",
-			});
-		} else {
-			triggerFunctionWithTimerUsingTimeout2(
-				"Obstacles to Rescuers",
-				() => {
-					let localPacketId = packetId;
-					const mapped = obstacles.map((obstacle) => {
-						const stringPacketId = formatTwoDigitNumber(localPacketId);
-						localPacketId = (localPacketId + 1) % 100;
-						return {
-							...obstacle,
-							packetId: stringPacketId,
-						};
-					});
-					setPacketId(localPacketId);
-					socket.emit(OBSTACLE_TO_RESCUER, mapped);
-				},
-				updateTime,
-				() => {}
-			);
-		}
+		// if (timeIntervals.some((time) => time.title === "Obstacles to Rescuers")) {
+		// 	toast({
+		// 		variant: "destructive",
+		// 		description: "Obstacles to Rescuers timer currently running",
+		// 	});
+		// } else {
+		// 	triggerFunctionWithTimerUsingTimeout2(
+		// 		"Obstacles to Rescuers",
+		// 		() => {
+		let localPacketId = packetId;
+		const mapped = obstacles.map((obstacle) => {
+			const stringPacketId = formatTwoDigitNumber(localPacketId);
+			localPacketId = (localPacketId + 1) % 100;
+			return {
+				...obstacle,
+				packetId: stringPacketId,
+			};
+		});
+		setPacketId(localPacketId);
+		socket.emit(OBSTACLE_TO_RESCUER, mapped);
+		toast({
+			description: "Obstacles sent via LoRa",
+		});
+		// 		},
+		// 		updateTime,
+		// 		() => {}
+		// 	);
+		// }
 	}
 
 	const onAddObtacleMapClick = useCallback(
