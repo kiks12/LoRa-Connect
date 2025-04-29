@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { useAdmin } from "@/hooks/map/use-admin";
 import MissionItem from "./MissionItem";
 import { useAppContext } from "@/contexts/AppContext";
+import { OperationStatus } from "@prisma/client";
 
 export default function AdminControls() {
 	const { monitorLocations } = useAppContext();
@@ -74,7 +75,9 @@ export default function AdminControls() {
 				) : (
 					<>
 						{missions
-							.filter((mission) => mission.urgency === 1)
+							.filter(
+								(mission) => mission.urgency === 1 && (mission.status === OperationStatus.ASSIGNED || mission.status === OperationStatus.PENDING)
+							)
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
@@ -83,7 +86,9 @@ export default function AdminControls() {
 								);
 							})}
 						{missions
-							.filter((mission) => mission.urgency === 0.5)
+							.filter(
+								(mission) => mission.urgency === 0.5 && (mission.status === OperationStatus.ASSIGNED || mission.status === OperationStatus.PENDING)
+							)
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
@@ -92,7 +97,9 @@ export default function AdminControls() {
 								);
 							})}
 						{missions
-							.filter((mission) => mission.urgency === 0.2)
+							.filter(
+								(mission) => mission.urgency === 0.2 && (mission.status === OperationStatus.ASSIGNED || mission.status === OperationStatus.PENDING)
+							)
 							.map((mission, index) => {
 								return (
 									<div key={index} className="mt-2">
