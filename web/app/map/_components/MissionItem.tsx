@@ -29,7 +29,7 @@ export default function MissionItem({
 			<CardHeader>
 				<div className="flex items-center">
 					<AlertCircle />
-					<p className={`ml-3`}>Urgency: {URGENCY_MAP[mission.urgency!].text}</p>
+					<p className={`ml-3`}>Urgency: {mission.urgency ? URGENCY_MAP[mission.urgency].text : "No urgency"}</p>
 				</div>
 				<div className="flex justify-between items-start mt-10">
 					<div>
