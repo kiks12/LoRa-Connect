@@ -28,8 +28,8 @@ export default function MissionItem({
 		<Card className="shadow-none hover:shadow-sm ">
 			<CardHeader>
 				<div className="flex items-center">
-					<AlertCircle className={`text-${URGENCY_MAP[mission.urgency!].color}-500`} />
-					<p className={`text-${URGENCY_MAP[mission.urgency!].color}-500 ml-3`}>Urgency: {URGENCY_MAP[mission.urgency!].text}</p>
+					<AlertCircle />
+					<p className={`ml-3`}>Urgency: {URGENCY_MAP[mission.urgency!].text}</p>
 				</div>
 				<div className="flex justify-between items-start mt-10">
 					<div>
